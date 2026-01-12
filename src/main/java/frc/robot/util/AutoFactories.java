@@ -13,10 +13,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.CoralRoller;
 
 public class AutoFactories 
 {
@@ -25,7 +23,7 @@ public class AutoFactories
    * @param commandInput The string of commands to split, seperated by commas with no spaces (e.g. "a1,rA1,p,cR3")
    * @return An array of commands, from the input command phrase string, in the same order
    */
-  public static Command getCommandList(String commandInput, CoralRoller s_Coral, CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup)
+  public static Command getCommandList(String commandInput, CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup)
   {
     // Removes all whitespace characters from the single-String command phrases, ensures it's all lowercase, and then splits it into individual strings, which are stored in an array
     String[] splitCommands = commandInput.replaceAll("//s", "").toLowerCase().split(",");
@@ -63,19 +61,6 @@ public class AutoFactories
           double targetMatchTimeElapsed = Double.parseDouble(splitCommand.substring(1));
           commandList.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - targetMatchTimeElapsed)));
         }
-
-        case 'r' ->
-          commandList.addCommands(
-            s_Swerve.poseDriveCommand(new AlliancePose2dSup(FieldConstants.getLineup(splitCommand)), swerveStateSup),
-            Commands.waitSeconds(0.1),
-            s_Coral.setSpeedCommand(Constants.Coral.forwardSpeed).until(s_Coral::getSensor)
-          );
-
-        case 'c' ->
-          commandList.addCommands(
-            s_Swerve.poseDriveCommand(new AlliancePose2dSup(FieldConstants.getLineup(splitCommand)), swerveStateSup),
-            Commands.waitUntil(s_Coral::getSensor)
-          );
       }
     }
 

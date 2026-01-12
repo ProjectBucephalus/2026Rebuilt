@@ -60,7 +60,6 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
-  private final CoralRoller s_Coral = new CoralRoller();
   private final Vision s_Vision = new Vision
     (
       (poseEst, timestmp, stdDevs) -> 
@@ -153,7 +152,6 @@ public class Robot extends TimedRobot
         driver::getRightTriggerAxis
       )
     );
-    s_Coral.setDefaultCommand(s_Coral.setSpeedCommand(0));
 
     /* Setting Drive States */
     driver.povLeft().onTrue(runOnce(() -> currentTarget = TargetPosition.Left));
@@ -170,11 +168,6 @@ public class Robot extends TimedRobot
     driver.y().whileTrue(s_Swerve.poseDriveCommand(() -> new Pose2d(5.5, 2.5, Rotation2d.kZero), () -> swerveState).andThen(() -> System.out.println("Finished")));
     driver.b().whileTrue(s_Swerve.poseDriveCommand(() -> new Pose2d(5.5, 6, Rotation2d.kZero), () -> swerveState).andThen(() -> System.out.println("Finished")));
     driver.axisMagnitudeGreaterThan(Axis.kRightX.value, 0.2).onTrue(runOnce(() -> currentDriveState = DriveState.None));
-    
-    /* Coral Roller */
-    driver.leftTrigger().whileTrue(s_Coral.setSpeedCommand(Constants.Coral.forwardSpeed));
-    driver.leftBumper().whileTrue(s_Coral.setSpeedCommand(Constants.Coral.reverseSpeed));
-    new Trigger(() -> FieldUtils.atReefLineUp(swerveState.Pose)).whileTrue(s_Coral.setSpeedCommand(Constants.Coral.forwardSpeed));
 
     /* Heading Locking */
     new Trigger(() -> currentDriveState == DriveState.None)
@@ -235,7 +228,6 @@ public class Robot extends TimedRobot
 
   private void bindRumbles()
   {
-    io_operatorLeft.addRumbleTrigger("CoralHeld", new Trigger(s_Coral::getSensor));
     io_operatorRight.addRumbleTrigger("ScoreReady" , new Trigger(() -> FieldUtils.atReefLineUp(swerveState.Pose)));
   }
 
@@ -273,7 +265,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
-    autoCommand = AutoFactories.getCommandList(SD.AUTO_STRING.get(), s_Coral, s_Swerve, () -> swerveState);
+    autoCommand = AutoFactories.getCommandList(SD.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
     if (autoCommand != null) autoCommand.schedule();
   }
