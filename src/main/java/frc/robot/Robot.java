@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -182,18 +181,6 @@ public class Robot extends TimedRobot
           driver::getRightTriggerAxis
         )
       );
-    new Trigger(() -> currentDriveState == DriveState.Reef)
-      .onTrue(runOnce(() -> s_Vision.setActivePOI(TagPOI.REEF)))
-      .whileTrue
-      (
-        new TargetScoreDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          Rotation2d.kZero,
-          swerveState.Pose::getTranslation
-        )
-      );
     new Trigger(() -> currentDriveState == DriveState.Station)
     .onTrue(runOnce(() -> s_Vision.setActivePOI(TagPOI.CORALSTATION)))
       .whileTrue
@@ -228,7 +215,7 @@ public class Robot extends TimedRobot
 
   private void bindRumbles()
   {
-    io_operatorRight.addRumbleTrigger("ScoreReady" , new Trigger(() -> FieldUtils.atReefLineUp(swerveState.Pose)));
+    io_operatorRight.addRumbleTrigger("ScoreReady", new Trigger(() -> false)); // EXAMPLE
   }
 
   /* UTIL METHODS */

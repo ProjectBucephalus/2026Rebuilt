@@ -1,16 +1,12 @@
 package frc.robot.util;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
-import frc.robot.util.controlTransmutation.geoFence.Line;
 
 public class FieldUtils 
 {
@@ -64,47 +60,6 @@ public class FieldUtils
     GeoFencing.fieldRedGeoFence.setActiveCondition(() -> redAlliance);
     GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> !redAlliance);
   }
-
-  public static int getNearestReefFaceAllianceLocked(Translation2d robotPos)
-  {
-    int nearestReefFace;
-    ArrayList<Translation2d> localList = FieldConstants.blueReefMidpoints;
-
-    nearestReefFace = localList.indexOf(robotPos.nearest(localList)); 
-
-    nearestReefFace = (int)Conversions.wrap(nearestReefFace, 1, 6);
-    
-    return nearestReefFace;
-  }
-
-  public static int getNearestReefFace(Translation2d robotPos)
-  {
-    int nearestReefFace;
-    ArrayList<Translation2d> localList =
-      isRedAlliance() ? 
-      FieldConstants.redReefMidpoints :
-      FieldConstants.blueReefMidpoints;
-
-    nearestReefFace = localList.indexOf(robotPos.nearest(localList)); 
-
-    nearestReefFace = (int)Conversions.wrap(nearestReefFace, 1, 6);
-    
-    return nearestReefFace;
-  }
-
-  public static Line getNearestCoralStation(Translation2d robotPos)
-  {
-    boolean northHalf = robotPos.getY() >= FieldConstants.fieldCentre.getY();
-
-    return
-    robotPos.getX() >= FieldConstants.fieldCentre.getX() ?
-    northHalf ? GeoFencing.cornerNRed : GeoFencing.cornerSRed
-    :
-    northHalf ? GeoFencing.cornerNBlue : GeoFencing.cornerSBlue;
-  }
-
-  public static boolean atReefLineUp(Pose2d robotPose)
-    {return Arrays.stream(FieldConstants.reefLineups).anyMatch(lineup -> atPose(robotPose, lineup));}
 
   public static boolean atPose(Pose2d robotPose, Pose2d targetPose)
   {
