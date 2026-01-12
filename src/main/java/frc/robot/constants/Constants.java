@@ -24,15 +24,6 @@ public final class Constants
     public static final double minRotThrottle = 0.5;
     /** Angle tolerance to consider something as "facing" the drivers, degrees */
     public static final double driverVisionTolerance = 5;
-    /** Scalar for manual diffector elevation control */
-    public static final double manualDiffectorElevationScalar = 2;
-    /** Scalar for manual diffector rotation control */
-    public static final double manualDiffectorRotationScalar = 2;
-    /** Scalar for braking effect of diffector arm being higher than 1m */
-    public static final double armBrakeRate = 1.5;
-    public static final double manualClimberScale = 1;
-    public static final double driveSnappingRange = 1.5;
-    public static final double cageFaceDistance = 1.5;
     /** Translation lineup tolerance, in meters */
     public static final double lineupTolerance = 0.05;
     /** Rotation lineup tolerance, in degrees */
@@ -102,25 +93,61 @@ public final class Constants
       17, 18, 19, 20, 21, 22   // Blue Reef
     };*/
 
-    public static final int[] reefIDs = 
+    public static final int[] hubIDs = 
     {
-      6, 7, 8, 9, 10, 11,    // Red Reef
-      17, 18, 19, 20, 21, 22, // Blue Reef
-      1, 2, 3,   // Red Human Player Stations
-      12, 13, 16 // Blue Human Player Stations
+      /* RED */ 
+      3, 4, // Inner
+      9, 10, // Outer
+      5, 8, // Scoring Side
+      11, 2, // Non-Scoring Side
+
+      /* BLUE */ 
+      19, 20, // Inner
+      25, 26, // Outer
+      18, 27, // Scoring Side
+      21, 24 // Non-Scoring Side
     };
 
-    public static final int[] bargeIDs = 
+    public static final int[] towerIDs = 
     {
-      4, 5,  // Red Barge
-      14, 15 // Blue Barge
+      /* RED */
+      15, 16,
+
+      /* BLUE */
+      31, 32
     };
 
-    public static final int[] humanPlayerStationIDs = 
+    public static final int[] outpostIDs = 
     {
-      1, 2, 3,   // Red Human Player Stations
-      12, 13, 16 // Blue Human Player Stations
+      /* RED */
+      13, 14,
+
+      /* BLUE */
+      29, 30
     };
+
+    public static final int[] trenchIDs = 
+    {
+      /* RED */
+      6, 7, // Scoring Side
+      1, 12, // Non-Scoring Side
+
+      /* BLUE */
+      17, 28, // Scoring Side
+      22, 23 // Non-Scoring Side
+    };
+
+    public static final int[] allIDs;
+    static 
+    {
+      allIDs = new int[hubIDs.length + towerIDs.length + outpostIDs.length + trenchIDs.length];
+
+      // Combine all of the ID arrays efficiently with checked memcpys
+      System.arraycopy(hubIDs, 0, allIDs, 0, hubIDs.length);
+      System.arraycopy(towerIDs, 0, allIDs, hubIDs.length, towerIDs.length);
+      System.arraycopy(outpostIDs, 0, allIDs, hubIDs.length + towerIDs.length, outpostIDs.length);
+      System.arraycopy(trenchIDs, 0, allIDs, hubIDs.length + towerIDs.length + outpostIDs.length, trenchIDs.length);
+    }
 
     /** Baseline 1 meter, 1 tag stddev for x and y, in meters */
     public static final double linearStdDevBaseline = 0.08;

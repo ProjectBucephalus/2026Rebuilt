@@ -25,7 +25,7 @@ import static frc.robot.constants.Constants.Vision.*;
 
 public class Vision extends SubsystemBase 
 {
-  public enum TagPOI {REEF, BARGE, PROCESSOR, CORALSTATION}
+  public enum TagPOI {ALL, HUB, TOWER, OUTPOST, TRENCH}
   
   private final PoseEstimateConsumer estimateConsumer;
   private final Supplier<Pair<Double, Double>> rotationDataSup;
@@ -43,17 +43,18 @@ public class Vision extends SubsystemBase
     this.estimateConsumer = estimateConsumer;
     this.rotationDataSup = rotationDataSup;
     this.lls = lls;
-    setActivePOI(TagPOI.REEF);
+    setActivePOI(TagPOI.ALL);
   }
 
   public void setActivePOI(TagPOI activePOI) 
   {
     var validIDs = switch (activePOI) 
     {
-      case REEF -> reefIDs;
-      case BARGE -> bargeIDs;
-      case CORALSTATION, PROCESSOR -> humanPlayerStationIDs;
-      default -> reefIDs;
+      case ALL -> allIDs;
+      case HUB -> hubIDs;
+      case TOWER -> towerIDs;
+      case OUTPOST -> outpostIDs;
+      case TRENCH -> trenchIDs;
     };
 
     for (var ll : lls) ll.updateValidIDs(validIDs);

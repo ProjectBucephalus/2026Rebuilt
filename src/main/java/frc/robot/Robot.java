@@ -45,7 +45,7 @@ public class Robot extends TimedRobot
 {
   /* Enums */
   public enum TargetPosition {Left, Right, Centre, None}
-  public enum DriveState {Reef, Station, Barge, None}
+  public enum DriveState {None, Hub, Tower}
   
   /* State */
   private SwerveDriveState swerveState;
@@ -170,7 +170,7 @@ public class Robot extends TimedRobot
 
     /* Heading Locking */
     new Trigger(() -> currentDriveState == DriveState.None)
-      .onTrue(runOnce(() -> s_Vision.setActivePOI(TagPOI.REEF)))
+      .onTrue(runOnce(() -> s_Vision.setActivePOI(TagPOI.ALL)))
       .whileTrue
       (
         new ManualDrive
@@ -179,31 +179,6 @@ public class Robot extends TimedRobot
           driverStick::stickOutput,
           () -> -driver.getRightX(),
           driver::getRightTriggerAxis
-        )
-      );
-    new Trigger(() -> currentDriveState == DriveState.Station)
-    .onTrue(runOnce(() -> s_Vision.setActivePOI(TagPOI.CORALSTATION)))
-      .whileTrue
-      (
-        new TargetStationDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          Rotation2d.kZero,
-          swerveState.Pose::getTranslation
-        )
-      );
-    new Trigger(() -> currentDriveState == DriveState.Barge)
-      .onTrue(runOnce(() -> s_Vision.setActivePOI(TagPOI.BARGE)))
-      .whileTrue
-      (
-        new HeadingLockedDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          Rotation2d.kZero,
-          Rotation2d.kZero,
-          swerveState.Pose::getTranslation
         )
       );
     
