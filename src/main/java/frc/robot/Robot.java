@@ -165,11 +165,12 @@ public class Robot extends TimedRobot
         s_Swerve, 
         () -> this.swerveState, 
         1, 
-        new Pose2d[] 
+        Rotation2d.k180deg,
+        new Translation2d[] 
         {
-          new Pose2d(15, 2, Rotation2d.kZero),
-          new Pose2d(11, 2, Rotation2d.kZero),
-          new Pose2d(11, 6, Rotation2d.kZero)
+          new Translation2d(15, 2),
+          new Translation2d(11, 2),
+          new Translation2d(11, 6)
         }
       )
     );

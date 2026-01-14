@@ -27,7 +27,7 @@ public final class Constants
     /** Translation lineup tolerance, in meters */
     public static final double lineupTolerance = 0.05;
     /** Rotation lineup tolerance, in degrees */
-    public static final double angleLineupTolerance = 1.5;
+    public static final double angleLineupTolerance = 3;
   }
 
   public static final class Swerve

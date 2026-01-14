@@ -12,7 +12,8 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
@@ -25,17 +26,22 @@ public class PathFollowDrive extends Command
   private final CommandSwerveDrivetrain s_Swerve;
   private final SwerveRequest.ApplyRobotSpeeds driveRequest = new SwerveRequest.ApplyRobotSpeeds();    
 
-  private final ArrayList<Pose2d> waypoints;
+  private final Rotation2d targetRotation;
+
+  private final ArrayList<Translation2d> waypoints;
   private final ArrayList<Double> radiusPerSegment;
 
   private boolean onPath = false;
   private int currentWaypoint = 0;
 
+  private Pose2d robotPose;
+
   /** Creates a new PathFollowDrive. */
-  public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, double pointRadius, Pose2d[] targetSequence)
+  public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, double pointRadius, Rotation2d targetRotation, Translation2d... targetSequence)
   {
     this.swerveStateSup = swerveStateSup;
     this.s_Swerve = s_Swerve;
+
     this.waypoints = new ArrayList<>(targetSequence.length * 3 - 2);
     this.radiusPerSegment = new ArrayList<>(targetSequence.length - 1);
 
@@ -44,23 +50,20 @@ public class PathFollowDrive extends Command
       final var current = targetSequence[i];
       final var next = targetSequence[i + 1];
 
-      final var pathSegment = new Transform2d(current, next);
-
-      final double segmentLength = pathSegment.getTranslation().getNorm();
+      final double segmentLength = current.getDistance(next);
       final double waypointDist = Conversions.clamp(pointRadius, 0, segmentLength / 3);
       final double lengthRatio = waypointDist / segmentLength;
 
-      final var waypointTransform = pathSegment.times(lengthRatio);
-
-      final var waypoint1 = current.plus(waypointTransform);
-      final var waypoint2 = next.plus(waypointTransform.inverse());
+      final var waypoint1 = current.interpolate(next, lengthRatio);
+      final var waypoint2 = next.interpolate(current, lengthRatio);
 
       radiusPerSegment.add(waypointDist);
-      waypoints.addAll(Arrays.asList(new Pose2d[] {current, waypoint1, waypoint2}));
+      waypoints.addAll(Arrays.asList(current, waypoint1, waypoint2));
     }
 
     radiusPerSegment.add(0.0);
     waypoints.add(targetSequence[targetSequence.length - 1]);
+    this.targetRotation = targetRotation;
   }
 
   // Called when the command is initially scheduled.
@@ -72,25 +75,26 @@ public class PathFollowDrive extends Command
   @Override
   public void execute() 
   {
-    final var pose = swerveStateSup.get().Pose;
+    robotPose = swerveStateSup.get().Pose;
 
     final var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
     
-    final var target = waypoints.get(targetIndex);
+    final var targetTranslation = waypoints.get(targetIndex);
     
     s_Swerve.setControl
     (
       driveRequest.withSpeeds
       (
-        s_Swerve.calculateDrivePID(target, pose)
+        s_Swerve.calculateDrivePID(new Pose2d(targetTranslation, targetRotation), robotPose)
       )
     );
         
     final var currentSegment = Math.floorDiv(currentWaypoint, 3);
     final double targetDist = radiusPerSegment.get(currentSegment);
 
-    if (FieldUtils.nearPose(pose, target, targetDist)) {
-      currentWaypoint++;
+    if (FieldUtils.nearTranslation(robotPose.getTranslation(), targetTranslation, targetDist)) 
+    {
+      currentWaypoint = Math.min(++currentWaypoint, waypoints.size());
       onPath = true;
     }
   }
@@ -102,6 +106,6 @@ public class PathFollowDrive extends Command
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return currentWaypoint == waypoints.size();
+    return currentWaypoint == waypoints.size() && FieldUtils.atRotation(robotPose.getRotation(), targetRotation);
   }
 }
