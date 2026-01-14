@@ -39,6 +39,8 @@ import frc.robot.util.FieldUtils;
 import frc.robot.util.SD;
 import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 @Logged
 public class Robot extends TimedRobot 
@@ -67,8 +69,8 @@ public class Robot extends TimedRobot
         s_Swerve.addVisionMeasurement(poseEst, timestmp);
       },
       () -> Pair.of(s_Swerve.getPigeon2().getYaw().getValueAsDouble(), swerveState.Speeds.omegaRadiansPerSecond), 
-      new Limelight(foreLimelightName), 
-      new Limelight(aftLimelightName)
+      new PhotonCamera(foreLimelightName), 
+      new PhotonCamera(aftLimelightName)
     );
 
   /* Controllers */

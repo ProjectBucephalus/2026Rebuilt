@@ -4,43 +4,60 @@
 
 package frc.robot.subsystems.vision;
 
+import java.util.List;
 import java.util.Optional;
 
-import edu.wpi.first.math.geometry.Rotation2d;
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
-import frc.robot.util.libs.LimelightHelpers;
-import frc.robot.util.libs.LimelightHelpers.PoseEstimate;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 
 public class Limelight  
 {    
-  private final String name;
+  private final PhotonCamera camera;
+  private static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+  private static final Transform3d kRobotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+  private final PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
+  private PhotonPipelineResult result;
   
   /** Creates a new Limelight. */
   public Limelight(String name) 
-    {this.name = name;}
+    {this.camera = new PhotonCamera(name);}
 
-  public void setIMUMode(int mode)
-    {LimelightHelpers.SetIMUMode(name, mode);}
-
-  public Optional<Rotation2d> getLimelightRotation()
+  public void getLatestResult() 
   {
-    var mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
-
-    return (mt1 != null && mt1.avgTagDist < 4) ? 
-      Optional.of(mt1.pose.getRotation()) : 
-      Optional.empty();
+    var results = camera.getAllUnreadResults();
+     if (!results.isEmpty()) 
+    {
+      result = results.get(results.size()-1);
+    }
   }
 
   protected void updateValidIDs(int[] validIDs)
-    {LimelightHelpers.SetFiducialIDFiltersOverride(name, validIDs);}
+    {
+      List<PhotonTrackedTarget> target = result.getTargets();
+    }
 
   protected void updatePipeline(int pipelineIndex)
-    {LimelightHelpers.setPipelineIndex(name, pipelineIndex);}
+    {camera.setPipelineIndex(pipelineIndex);}
 
-  public PoseEstimate getMT2(double headingDeg)
-  {
-    LimelightHelpers.SetRobotOrientation(name, headingDeg, 0, 0, 0, 0, 0);
-    return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
+  public Optional<EstimatedRobotPose> getPhotonEst()
+  { 
+    var visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
+    if (visionEst.isEmpty()) 
+    {
+      visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
+    }
+
+    return visionEst;
   }
 
   public void periodic() {}
