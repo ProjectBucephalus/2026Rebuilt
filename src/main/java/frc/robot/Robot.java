@@ -69,8 +69,8 @@ public class Robot extends TimedRobot
         s_Swerve.addVisionMeasurement(poseEst, timestmp);
       },
       () -> Pair.of(s_Swerve.getPigeon2().getYaw().getValueAsDouble(), swerveState.Speeds.omegaRadiansPerSecond), 
-      new PhotonCamera(foreLimelightName), 
-      new PhotonCamera(aftLimelightName)
+      new Limelight(foreLimelightName), 
+      new Limelight(aftLimelightName)
     );
 
   /* Controllers */

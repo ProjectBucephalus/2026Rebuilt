@@ -7,6 +7,9 @@ package frc.robot.subsystems.vision;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonCamera;
+
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.MathUtil;
@@ -30,6 +33,8 @@ public class Vision extends SubsystemBase
   private final PoseEstimateConsumer estimateConsumer;
   private final Supplier<Pair<Double, Double>> rotationDataSup;
   private final Limelight[] lls;
+
+  private EstimatedRobotPose mt2;
 
   private int pipelineIndex = (int)SD.LL_EXPOSURE.defaultValue();
 
@@ -87,18 +92,24 @@ public class Vision extends SubsystemBase
         double heading = rotationData.getFirst();
         double omegaRps = rotationData.getSecond();
 
-        var mt2 = ll.getMT2(heading);
-        
-        boolean useUpdate = !(mt2 == null || mt2.tagCount == 0 || omegaRps > 2.0);
-        
-        if (useUpdate) 
+        if (ll.getPhotonEst().isPresent()) 
         {
-          double stdDevFactor = Math.pow(mt2.avgTagDist, 2.0) / mt2.tagCount;
+          mt2 = ll.getPhotonEst().get();
+          boolean useUpdate = !(mt2 == null || mt2.targetsUsed.size() == 0 || omegaRps > 2.0); 
+          
+          if (useUpdate) 
+          {
+            double avgTagDist = 0;
+            for (var target : mt2.targetsUsed)
+            {avgTagDist += target.getBestCameraToTarget().getTranslation().getNorm();}
 
-          double linearStdDev = linearStdDevBaseline * stdDevFactor;
-          double rotStdDev = rotStdDevBaseline * stdDevFactor;
+            double stdDevFactor = Math.pow((avgTagDist/mt2.targetsUsed.size()), 2.0) / mt2.targetsUsed.size();
 
-          estimateConsumer.accept(mt2.pose, Utils.fpgaToCurrentTime(mt2.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+            double linearStdDev = linearStdDevBaseline * stdDevFactor;
+            double rotStdDev = rotStdDevBaseline * stdDevFactor;
+
+            estimateConsumer.accept(mt2.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(mt2.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+          }
         }
       }
     }
@@ -113,7 +124,7 @@ public class Vision extends SubsystemBase
         (
           rotationReading ->
           {
-            rotationBuf.add(0, rotationReading.getDegrees());
+            rotationBuf.add(0, Math.toDegrees(mt2.estimatedPose.getRotation().getZ()));
     
             if (rotationBuf.size() > mt1CyclesNeeded)
               {rotationBuf.remove(mt1CyclesNeeded);}
