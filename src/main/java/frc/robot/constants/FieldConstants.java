@@ -122,7 +122,7 @@ public class FieldConstants
       hubRed
     );
 
-    public static final ObjectList fieldGeoFence = new ObjectList(field);//, fieldBlueGeoFence, fieldRedGeoFence);
+    public static final ObjectList fieldGeoFence = new ObjectList(field, fieldBlueGeoFence, fieldRedGeoFence);
 
     /** Minimum speed limit within a restrictor */
     public static final double minLocalSpeedLimit = 0.05;
