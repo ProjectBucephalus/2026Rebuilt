@@ -26,8 +26,10 @@ public class PathFollowDrive extends Command
   private final SwerveRequest.ApplyRobotSpeeds driveRequest = new SwerveRequest.ApplyRobotSpeeds();    
 
   private final ArrayList<Pose2d> waypoints;
+  private final ArrayList<Double> radiusPerSegment;
 
   private boolean onPath = false;
+  private int currentWaypoint = 0;
 
   /** Creates a new PathFollowDrive. */
   public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, double pointRadius, Pose2d[] targetSequence)
@@ -35,12 +37,12 @@ public class PathFollowDrive extends Command
     this.swerveStateSup = swerveStateSup;
     this.s_Swerve = s_Swerve;
     this.waypoints = new ArrayList<>(targetSequence.length * 3 - 2);
+    this.radiusPerSegment = new ArrayList<>(targetSequence.length - 1);
 
-    waypoints.add(targetSequence[targetSequence.length - 1]);
-
-    for (int i = targetSequence.length - 1; i > 0 ; i--) {
-      final var current = targetSequence[i - 1];
-      final var next = targetSequence[i];
+    for (int i = 0; i < targetSequence.length - 1; i++) 
+    {
+      final var current = targetSequence[i];
+      final var next = targetSequence[i + 1];
 
       final var pathSegment = new Transform2d(current, next);
 
@@ -53,24 +55,29 @@ public class PathFollowDrive extends Command
       final var waypoint1 = current.plus(waypointTransform);
       final var waypoint2 = next.plus(waypointTransform.inverse());
 
-      waypoints.addAll(Arrays.asList(new Pose2d[] {waypoint2, waypoint1, current}));
+      radiusPerSegment.add(waypointDist);
+      waypoints.addAll(Arrays.asList(new Pose2d[] {current, waypoint1, waypoint2}));
     }
+
+    radiusPerSegment.add(0.0);
+    waypoints.add(targetSequence[targetSequence.length - 1]);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() 
+    {currentWaypoint = 0;}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
+  public void execute() 
+  {
     final var pose = swerveStateSup.get().Pose;
-    final int lastIndex = waypoints.size() - 1;
 
-    var targetIndex = onPath && waypoints.size() > 1 ? lastIndex - 1 : lastIndex;
-
+    final var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
+    
     final var target = waypoints.get(targetIndex);
-
+    
     s_Swerve.setControl
     (
       driveRequest.withSpeeds
@@ -78,11 +85,12 @@ public class PathFollowDrive extends Command
         s_Swerve.calculateDrivePID(target, pose)
       )
     );
-
-    final double targetDist = target.getTranslation().minus(waypoints.get(lastIndex).getTranslation()).getNorm();
+        
+    final var currentSegment = Math.floorDiv(currentWaypoint, 3);
+    final double targetDist = radiusPerSegment.get(currentSegment);
 
     if (FieldUtils.nearPose(pose, target, targetDist)) {
-      waypoints.remove(lastIndex);
+      currentWaypoint++;
       onPath = true;
     }
   }
@@ -94,6 +102,6 @@ public class PathFollowDrive extends Command
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return waypoints.isEmpty();
+    return currentWaypoint == waypoints.size();
   }
 }
