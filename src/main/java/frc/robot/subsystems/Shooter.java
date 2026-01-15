@@ -133,8 +133,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
           }
           break;
         case TESTING:
-          testMotor1(SmartDashboard.getNumber("topSpeed", 0.0));
-          testMotor2(SmartDashboard.getNumber("bottomSpeed", 0.0));
+          m_Shooter1.set(SmartDashboard.getNumber("topSpeed", 0.0));
+          m_Shooter2.set(SmartDashboard.getNumber("bottomSpeed", 0.0));
           break;
       }
     }
