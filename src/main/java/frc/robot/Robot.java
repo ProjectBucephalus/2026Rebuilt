@@ -59,6 +59,7 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
+  private final Shooter s_TestShooter = new Shooter();
   private final Vision s_Vision = new Vision
     (
       (poseEst, timestmp, stdDevs) -> 

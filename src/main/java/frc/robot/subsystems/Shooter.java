@@ -14,7 +14,8 @@
   import edu.wpi.first.math.system.plant.DCMotor;
   import edu.wpi.first.math.system.plant.LinearSystemId;
   import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-  import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTableEntry;
   import edu.wpi.first.networktables.NetworkTableInstance;
   import edu.wpi.first.wpilibj2.command.Command;
   import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -40,13 +41,17 @@
         IDLE,
         REV,
         SHOOT_SING,
-        SHOOT_MULT
+        SHOOT_MULT,
+        TESTING
       };
     private int shotsQueued;
     private boolean indexing;
     /** Creates a new shooter. */
     public Shooter() 
     {
+      state = State.TESTING;
+      SmartDashboard.putNumber("topSpeed", 0.0);
+      SmartDashboard.putNumber("bottomSpeed", 0.0);
       m_Shooter1 = new TalonFX(IDConstants.shooter1ID);
       m_Shooter2 = new TalonFX(IDConstants.shooter2ID);
 
@@ -79,6 +84,16 @@
     public Command shoot(double targetSpeed)
     {
       return this.run(() -> m_Shooter1.setControl(m_Request.withVelocity(targetSpeed)));
+    }
+
+    public Command testMotor1(double speed)
+    {
+      return this.run(() -> m_Shooter1.setControl(m_Request.withVelocity(speed)));
+    }
+
+    public Command testMotor2(double speed)
+    {
+      return this.run(() -> m_Shooter2.setControl(m_Request.withVelocity(speed)));
     }
 
     @Override
@@ -116,6 +131,10 @@
             shotsQueued -= 1;
             state = State.REV;
           }
+          break;
+        case TESTING:
+          testMotor1(SmartDashboard.getNumber("topSpeed", 0.0));
+          testMotor2(SmartDashboard.getNumber("bottomSpeed", 0.0));
           break;
       }
     }
