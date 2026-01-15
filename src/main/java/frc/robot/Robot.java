@@ -39,6 +39,8 @@ import frc.robot.util.FieldUtils;
 import frc.robot.util.SD;
 import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 @Logged
 public class Robot extends TimedRobot 
@@ -59,7 +61,7 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
-  private final Shooter s_TestShooter = new Shooter();
+  private Shooter s_TestShooter = new Shooter();
   private final Vision s_Vision = new Vision
     (
       (poseEst, timestmp, stdDevs) -> 
