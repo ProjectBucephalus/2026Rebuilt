@@ -133,8 +133,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
           }
           break;
         case TESTING:
-          m_Shooter1.set(SmartDashboard.getNumber("topSpeed", 0.0));
-          m_Shooter2.set(SmartDashboard.getNumber("bottomSpeed", 0.0));
+          m_Shooter1.set(SmartDashboard.getNumber("topSpeed", 0.0)); // Full speed is safe
+          m_Shooter2.set(SmartDashboard.getNumber("bottomSpeed", 0.0)); // Bottom roller runs backwards, full speed is safe
           break;
       }
     }
