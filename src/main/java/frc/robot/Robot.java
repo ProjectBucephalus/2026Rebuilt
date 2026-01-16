@@ -59,7 +59,7 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
-  private final Turret s_TestTurret = new Turret(this::getRotation);
+  private final Turret s_TestTurret = new Turret(this::getTranslation, this::getRotation);
   private final Vision s_Vision = new Vision
     (
       (poseEst, timestmp, stdDevs) -> 

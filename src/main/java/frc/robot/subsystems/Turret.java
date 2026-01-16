@@ -31,11 +31,13 @@ public class Turret extends SubsystemBase
   private TalonFX m_TurretMotor; 
   private double targetAngle = 0;
   private Supplier<Rotation2d> robotRotationSup;
+  private Supplier<Translation2d> robotPositionSup;
+  private Translation2d targetPoint;
   private final Joystick driverController = new Joystick(0);
 
   final MotionMagicVoltage m_Requests = new MotionMagicVoltage(0);
 
-  public Turret(Supplier<Rotation2d> rotationSup)
+  public Turret(Supplier<Translation2d> translationSup, Supplier<Rotation2d> rotationSup)
   {
       m_TurretMotor = new TalonFX(IDConstants.turretID);
 
@@ -59,7 +61,7 @@ public class Turret extends SubsystemBase
 
     m_TurretMotor.getConfigurator().apply(TurretConfigs);
   }
-
+ 
   public void setTargetAngle(double newTargetAngle)
   {
      targetAngle = newTargetAngle; 
@@ -70,8 +72,10 @@ public class Turret extends SubsystemBase
   {
     SmartDashboard.putNumber("Turret Pos", m_TurretMotor.getPosition().getValueAsDouble());
     // Calculate target angle based on field positions
-    T
+    targetAngle = targetPoint.minus(robotPositionSup.get()).getAngle().getDegrees();
+    targetAngle -= robotRotationSup.get().getDegrees();
+    targetAngle = TurretCalculator.goToAngle(targetAngle,  m_TurretMotor.getPosition().getValueAsDouble()*360);
     // Set motor to go to target
-    m_TurretMotor.setControl(m_Requests.withPosition((targetAngle - robotRotationSup.get().getDegrees())/360));
+    m_TurretMotor.setControl(m_Requests.withPosition(targetAngle/360));
   }   
 }

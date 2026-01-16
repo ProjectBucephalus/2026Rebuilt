@@ -164,6 +164,7 @@ public static final class Turret
     public static final double turretVelocity = 1;  
     public static final double turretIdlePosition = 0;
     public static final double turretTurnSpeed = 0.25;
+    public static final double turnBackThreshold = 180;
   }
 
 
