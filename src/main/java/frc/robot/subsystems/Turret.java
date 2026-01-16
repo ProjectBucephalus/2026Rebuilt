@@ -42,6 +42,8 @@ public class Turret extends SubsystemBase
       m_TurretMotor = new TalonFX(IDConstants.turretID);
 
     robotRotationSup = rotationSup;
+    robotPositionSup = translationSup;
+    targetPoint = Translation2d.kZero;
 
       // in init function
     var TurretConfigs = new TalonFXConfiguration();
@@ -70,11 +72,15 @@ public class Turret extends SubsystemBase
   @Override
   public void periodic()
   {
-    SmartDashboard.putNumber("Turret Pos", m_TurretMotor.getPosition().getValueAsDouble());
     // Calculate target angle based on field positions
+    //
+    //SmartDashboard.putData("Target", targetPoint);
     targetAngle = targetPoint.minus(robotPositionSup.get()).getAngle().getDegrees();
+    SmartDashboard.putNumber("Target-Robot", targetAngle);
     targetAngle -= robotRotationSup.get().getDegrees();
+    SmartDashboard.putNumber("Target-Turret", targetAngle);
     targetAngle = TurretCalculator.goToAngle(targetAngle,  m_TurretMotor.getPosition().getValueAsDouble()*360);
+    SmartDashboard.putNumber("Angle Wrapped", targetAngle);
     // Set motor to go to target
     m_TurretMotor.setControl(m_Requests.withPosition(targetAngle/360));
   }   

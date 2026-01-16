@@ -15,7 +15,7 @@ public class TurretCalculator
     newAngle = Conversions.mod(newAngle, 360);
     double offset = MathUtil.inputModulus(newAngle -Conversions.mod(currentAngle, 360), -180, 180);
 
-    if (Math.abs(offset) >= turnBackThreshold)
+    /*if (Math.abs(offset) >= turnBackThreshold)
     {
     double reverseOffset = offset - Math.copySign(360, offset);
 
@@ -24,10 +24,10 @@ public class TurretCalculator
     else
     {return (currentAngle + offset);}
     }
-    else if (currentAngle + offset > maxAbsPos)
+    else*/ if (currentAngle + offset > maxAbsPos)
         {return (currentAngle + offset - 360);}
 
-    else if (currentAngle + offset > -maxAbsPos)
+    else if (currentAngle + offset < -maxAbsPos)
         {return (currentAngle + offset + 360);}
 
     else 
