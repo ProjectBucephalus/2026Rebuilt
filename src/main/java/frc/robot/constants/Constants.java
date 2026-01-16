@@ -65,7 +65,7 @@ public final class Constants
     public static final double slot0S = 0.0;
     public static final double slot0V = 0.0;
     public static final double slot0A = 0.0;
-    public static final double slot0P = 0.0;
+    public static final double slot0P = 5.0;
     public static final double slot0I = 0.0;
     public static final double slot0D = 0.0;
 

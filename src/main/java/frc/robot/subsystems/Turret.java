@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 import frc.robot.util.TurretCalculator;
+import frc.robot.util.controlTransmutation.JoystickTransmuter;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
 
@@ -11,25 +12,34 @@ import static frc.robot.constants.Constants.Shooter.slot0P;
 import static frc.robot.constants.Constants.Shooter.slot0S;
 import static frc.robot.constants.Constants.Shooter.slot0V;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Acceleration;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Turret extends SubsystemBase
 {
   private TalonFX m_TurretMotor; 
   private double targetAngle = 0;
+  private Supplier<Rotation2d> robotRotationSup;
+  private final Joystick driverController = new Joystick(0);
 
-  final MotionMagicVoltage m_Requests = new MotionMagicVoltage(null);
+  final MotionMagicVoltage m_Requests = new MotionMagicVoltage(0);
 
-  public Turret()
+  public Turret(Supplier<Rotation2d> rotationSup)
   {
       m_TurretMotor = new TalonFX(IDConstants.turretID);
+
+    robotRotationSup = rotationSup;
 
       // in init function
     var TurretConfigs = new TalonFXConfiguration();
@@ -58,10 +68,10 @@ public class Turret extends SubsystemBase
   @Override
   public void periodic()
   {
+    SmartDashboard.putNumber("Turret Pos", m_TurretMotor.getPosition().getValueAsDouble());
     // Calculate target angle based on field positions
-
+    T
     // Set motor to go to target
-    m_TurretMotor.setControl(m_Requests.withPosition(targetAngle));
-  }
-    
+    m_TurretMotor.setControl(m_Requests.withPosition((targetAngle - robotRotationSup.get().getDegrees())/360));
+  }   
 }

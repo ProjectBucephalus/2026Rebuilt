@@ -59,6 +59,7 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
+  private final Turret s_TestTurret = new Turret(this::getRotation);
   private final Vision s_Vision = new Vision
     (
       (poseEst, timestmp, stdDevs) -> 
@@ -205,6 +206,9 @@ public class Robot extends TimedRobot
 
   /** Returns the t2d of the robot centre in field coordinates */
   public Translation2d getTranslation() {return swerveState.Pose.getTranslation();}
+
+  /** Returns the r2d of the robot in field coordinates */
+  public Rotation2d getRotation() {return swerveState.Pose.getRotation();}
   
   /* OPMODE METHODS */
   /* ============ */
