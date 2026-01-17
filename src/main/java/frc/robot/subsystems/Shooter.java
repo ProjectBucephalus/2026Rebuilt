@@ -5,57 +5,37 @@
   package frc.robot.subsystems;
 
   import com.ctre.phoenix6.configs.TalonFXConfiguration;
-  import com.ctre.phoenix6.controls.Follower;
   import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
   import com.ctre.phoenix6.hardware.TalonFX;
-  import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
-  import edu.wpi.first.math.MathUtil;
-  import edu.wpi.first.math.system.plant.DCMotor;
-  import edu.wpi.first.math.system.plant.LinearSystemId;
-  import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTableEntry;
-  import edu.wpi.first.networktables.NetworkTableInstance;
-  import edu.wpi.first.wpilibj2.command.Command;
+  import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
   import edu.wpi.first.wpilibj2.command.SubsystemBase;
   import frc.robot.constants.IDConstants;
+  import frc.robot.util.SD;
 
   import static frc.robot.constants.Constants.Shooter.*;
 
   public class Shooter extends SubsystemBase {
-    private TalonFX m_Shooter1;
-    private TalonFX m_Shooter2;
-    private final Follower m_Follower = new Follower(IDConstants.shooter1ID, MotorAlignmentValue.Opposed);
-    
-    final MotionMagicVelocityDutyCycle m_Request = new MotionMagicVelocityDutyCycle(0);
-    private final NetworkTableEntry simRpsEntry =
-      NetworkTableInstance.getDefault()
-          .getTable("Telemetry")
-          .getEntry("SimMotorRPS");
-
-    private State state;
-    
     public enum State
-      {
-        IDLE,
-        REV,
-        SHOOT_SING,
-        SHOOT_MULT,
-        TESTING
-      };
-    private int shotsQueued;
-    private boolean indexing;
+    {
+      IDLE,
+      REV,
+    };
+
+    private final TalonFX m_Main = new TalonFX(IDConstants.shooterMainID);
+    private final TalonFX m_Aux = new TalonFX(IDConstants.shooterAuxID);
+    
+    private final MotionMagicVelocityDutyCycle m_Request = new MotionMagicVelocityDutyCycle(0);
+
+    private State state = State.IDLE;
+
     /** Creates a new shooter. */
     public Shooter() 
     {
-      state = State.TESTING;
       SmartDashboard.putNumber("topSpeed", 0.0);
       SmartDashboard.putNumber("bottomSpeed", 0.0);
-      m_Shooter1 = new TalonFX(IDConstants.shooter1ID);
-      m_Shooter2 = new TalonFX(IDConstants.shooter2ID);
 
-      m_Shooter2.setControl(m_Follower);
       // in init function
       var shooterConfigs = new TalonFXConfiguration();
 
@@ -71,101 +51,28 @@ import edu.wpi.first.networktables.NetworkTableEntry;
       shooterConfigs.MotionMagic.MotionMagicCruiseVelocity = velocity; 
       shooterConfigs.MotionMagic.MotionMagicAcceleration = acceleration;
 
-
-      m_Shooter1.getConfigurator().apply(shooterConfigs);
-      m_Shooter2.getConfigurator().apply(shooterConfigs);
+      m_Main.getConfigurator().apply(shooterConfigs);
+      m_Aux.getConfigurator().apply(shooterConfigs);
     }
 
-    public Command idle(double speed)
+    public void setState(State newState)
     {
-      return this.run(() -> m_Shooter1.setControl(m_Request.withVelocity(speed)));
-    }
-
-    public Command shoot(double targetSpeed)
-    {
-      return this.run(() -> m_Shooter1.setControl(m_Request.withVelocity(targetSpeed)));
-    }
-
-    public Command testMotor1(double speed)
-    {
-      return this.run(() -> m_Shooter1.setControl(m_Request.withVelocity(speed)));
-    }
-
-    public Command testMotor2(double speed)
-    {
-      return this.run(() -> m_Shooter2.setControl(m_Request.withVelocity(speed)));
+      state = newState;
     }
 
     @Override
-    public void periodic() {
+    public void periodic() 
+    {
       switch(state)
       {
         case IDLE:
-          m_Shooter1.setControl(m_Request.withVelocity(idleSpeed));
+          m_Main.setControl(m_Request.withVelocity(idleSpeed));
+          m_Aux.setControl(m_Request.withVelocity(idleSpeed));
           break;
         case REV:
-          m_Shooter1.setControl(m_Request.withVelocity(revSpeed));
-          if (shotsQueued >= 1 && MathUtil.isNear(revSpeed, m_Shooter1.getVelocity().getValueAsDouble(), leliency))
-          {
-            //start indexing
-            indexing = true;
-            if (shotsQueued == 1)
-            {
-              state = State.SHOOT_SING;
-            } else
-            {
-              state = State.SHOOT_MULT;
-            }
-          }
-          break;
-        case SHOOT_SING:
-          if (!indexing)
-          {
-            shotsQueued = 0;
-            state = State.IDLE;
-          }
-          break;
-        case SHOOT_MULT:
-          if (!indexing)
-          {
-            shotsQueued -= 1;
-            state = State.REV;
-          }
-          break;
-        case TESTING:
-          m_Shooter1.set(SmartDashboard.getNumber("topSpeed", 0.0)); // Full speed is safe
-          m_Shooter2.set(SmartDashboard.getNumber("bottomSpeed", 0.0)); // Bottom roller runs backwards, full speed is safe
+          m_Main.setControl(m_Request.withVelocity(SD.BOTTOM_SHOOTER_SPEED.get()));
+          m_Aux.setControl(m_Request.withVelocity(SD.TOP_SHOOTER_SPEED.get()));
           break;
       }
-    }
-
-
-    private final FlywheelSim m_flywheelSim =
-      new FlywheelSim(
-          LinearSystemId.createFlywheelSystem(
-              DCMotor.getKrakenX60Foc(2),
-              kMOI,
-              kGearRatio
-          ),
-          DCMotor.getKrakenX60Foc(2)
-      );
-
-    
-    @Override
-    public void simulationPeriodic() {
-      var m_shooter1SimState = m_Shooter1.getSimState();
-      var m_shooter2SimState = m_Shooter2.getSimState();
-
-      double appliedVolts = m_shooter1SimState.getMotorVoltage();
-
-      m_flywheelSim.setInputVoltage(appliedVolts);
-      m_flywheelSim.update(0.02);
-
-      double wheelRadPerSec = m_flywheelSim.getAngularVelocityRadPerSec();
-      double rotorRps = (wheelRadPerSec / (2 * Math.PI)) * kGearRatio;
-
-      m_shooter1SimState.setRotorVelocity(rotorRps);
-      m_shooter2SimState.setRotorVelocity(rotorRps);
-      simRpsEntry.setDouble(rotorRps);
     }
   }
