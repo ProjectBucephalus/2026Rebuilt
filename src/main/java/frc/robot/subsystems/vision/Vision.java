@@ -6,8 +6,6 @@ package frc.robot.subsystems.vision;
 
 import java.util.function.Supplier;
 
-import org.photonvision.EstimatedRobotPose;
-
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.MathUtil;
@@ -28,8 +26,6 @@ public class Vision extends SubsystemBase
   private final PoseEstimateConsumer estimateConsumer;
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
-
-  private EstimatedRobotPose mt2; // TODO rename to something more generic (same with anywhere else we talk about mt1/mt2)
 
   private int pipelineIndex = (int)SD.LL_EXPOSURE.defaultValue();
 
@@ -79,28 +75,26 @@ public class Vision extends SubsystemBase
       {
         ll.periodic();
 
-        double omegaRps = rpsSup.get();
+        var maybeEst = ll.getPhotonEst();
 
-        var est = ll.getPhotonEst();
-
-        if (est.isPresent()) 
+        if (maybeEst.isPresent()) 
         {
-          mt2 = est.get(); 
-          boolean useUpdate = !(mt2.targetsUsed.size() != 0 && omegaRps > 2.0);
+          var est = maybeEst.get(); 
+          boolean useUpdate = !(est.targetsUsed.size() != 0 && rpsSup.get() > 2.0);
           
           if (useUpdate) 
           {
             double avgTagDist = 0;
-            for (var target : mt2.targetsUsed)
+            for (var target : est.targetsUsed)
               {avgTagDist += target.getBestCameraToTarget().getTranslation().getNorm();}
             // TODO Should divide avgTagDist by target count here so it is actually the avg and not the total
 
-            double stdDevFactor = Math.pow((avgTagDist/mt2.targetsUsed.size()), 2.0) / mt2.targetsUsed.size();
+            double stdDevFactor = Math.pow((avgTagDist/est.targetsUsed.size()), 2.0) / est.targetsUsed.size();
 
             double linearStdDev = linearStdDevBaseline * stdDevFactor;
             double rotStdDev = rotStdDevBaseline * stdDevFactor;
 
-            estimateConsumer.accept(mt2.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(mt2.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+            estimateConsumer.accept(est.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
           }
         }
       }
