@@ -35,16 +35,15 @@ public class Limelight
   public void getLatestResult() 
   {
     var results = camera.getAllUnreadResults();
-     if (!results.isEmpty()) 
-    {
-      result = results.get(results.size()-1);
-    }
+
+    if (!results.isEmpty()) 
+      {result = results.get(results.size()-1);}
   }
 
   protected void updateValidIDs(int[] validIDs)
-    {
-      List<PhotonTrackedTarget> target = result.getTargets();
-    }
+  {
+    // TODO
+  }
 
   protected void updatePipeline(int pipelineIndex)
     {camera.setPipelineIndex(pipelineIndex);}
@@ -60,5 +59,6 @@ public class Limelight
     return visionEst;
   }
 
-  public void periodic() {}
+  public void periodic() 
+    {getLatestResult();}
 }
