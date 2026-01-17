@@ -6,14 +6,11 @@ package frc.robot;
 
 //import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,8 +36,6 @@ import frc.robot.util.FieldUtils;
 import frc.robot.util.SD;
 import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
-import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 @Logged
 public class Robot extends TimedRobot 
@@ -68,7 +63,7 @@ public class Robot extends TimedRobot
         s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
         s_Swerve.addVisionMeasurement(poseEst, timestmp);
       },
-      () -> Pair.of(s_Swerve.getPigeon2().getYaw().getValueAsDouble(), swerveState.Speeds.omegaRadiansPerSecond), 
+      () -> swerveState.Speeds.omegaRadiansPerSecond, 
       //new Limelight(foreLimelightName), 
       new Limelight(aftLimelightName)
     );
