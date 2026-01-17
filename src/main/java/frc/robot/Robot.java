@@ -161,15 +161,22 @@ public class Robot extends TimedRobot
     driver.povUp().onTrue(runOnce(() -> currentTarget = TargetPosition.Centre));
     driver.povDown().onTrue(runOnce(() -> currentTarget = TargetPosition.None));
     
-    //driver.x().onTrue(runOnce(() -> currentDriveState = DriveState.Reef));
-    //driver.a().onTrue(runOnce(() -> currentDriveState = DriveState.Station));
-    //driver.y().onTrue(runOnce(() -> currentDriveState = DriveState.Barge));
-    //driver.b().onTrue(runOnce(() -> currentDriveState = DriveState.None));
-    driver.x().whileTrue(s_Swerve.poseDriveCommand(() -> new Pose2d(10, 2.5, Rotation2d.kZero), () -> swerveState).andThen(() -> System.out.println("Finished")));
-    driver.a().whileTrue(s_Swerve.poseDriveCommand(() -> new Pose2d(10, 6, Rotation2d.kZero), () -> swerveState).andThen(() -> System.out.println("Finished")));
-    driver.y().whileTrue(s_Swerve.poseDriveCommand(() -> new Pose2d(5.5, 2.5, Rotation2d.kZero), () -> swerveState).andThen(() -> System.out.println("Finished")));
-    driver.b().whileTrue(s_Swerve.poseDriveCommand(() -> new Pose2d(5.5, 6, Rotation2d.kZero), () -> swerveState).andThen(() -> System.out.println("Finished")));
-    driver.axisMagnitudeGreaterThan(Axis.kRightX.value, 0.2).onTrue(runOnce(() -> currentDriveState = DriveState.None));
+    driver.x().onTrue
+    (
+      new PathFollowDrive
+      (
+        s_Swerve, 
+        () -> this.swerveState, 
+        1, 
+        Rotation2d.k180deg,
+        new Translation2d[] 
+        {
+          new Translation2d(15, 2),
+          new Translation2d(11, 2),
+          new Translation2d(11, 6)
+        }
+      )
+    );
 
     /* Heading Locking */
     new Trigger(() -> currentDriveState == DriveState.None)

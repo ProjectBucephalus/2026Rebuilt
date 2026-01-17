@@ -29,7 +29,7 @@ public final class Constants
     /** Translation lineup tolerance, in meters */
     public static final double lineupTolerance = 0.05;
     /** Rotation lineup tolerance, in degrees */
-    public static final double angleLineupTolerance = 1.5;
+    public static final double angleLineupTolerance = 3;
   }
 
   public static final class Swerve
@@ -158,4 +158,15 @@ public final class Constants
     /** How many good MT1 readings to get before setting rotation and moving to MT2 */
     public static final int mt1CyclesNeeded = 10;
   }
+public static final class Turret
+  {
+    public static final double maxTurretAzimuth = 270;
+    public static final double gearRatio = 7;
+    public static final double turretAcceleration = 1;
+    public static final double turretVelocity = 1;  
+    public static final double turretIdlePosition = 0;
+    public static final double turretTurnSpeed = 0.25;
+  }
+
+
 }
