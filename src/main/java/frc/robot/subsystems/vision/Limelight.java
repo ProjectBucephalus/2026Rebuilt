@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Limelight  
 {    
@@ -60,5 +61,9 @@ public class Limelight
     return visionEst;
   }
 
-  public void periodic() {}
+  public void periodic() 
+  {
+    getLatestResult();
+    SmartDashboard.putString(camera + "result", (result.toString()));
+  }
 }
