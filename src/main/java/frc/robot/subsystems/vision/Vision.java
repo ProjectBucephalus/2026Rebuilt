@@ -34,7 +34,7 @@ public class Vision extends SubsystemBase
   private final Supplier<Pair<Double, Double>> rotationDataSup;
   private final Limelight[] lls;
 
-  private EstimatedRobotPose mt2;
+  private EstimatedRobotPose mt2; // TODO rename to something more generic (same with anywhere else we talk about mt1/mt2)
 
   private int pipelineIndex = (int)SD.LL_EXPOSURE.defaultValue();
 
@@ -88,20 +88,23 @@ public class Vision extends SubsystemBase
     {
       for (var ll : lls)
       {
+        // TODO bc we don't need heading, can rework this whole thing to just have the supplier directly give omegaRPS (if we even need that check?)
         var rotationData = rotationDataSup.get();
         double heading = rotationData.getFirst();
         double omegaRps = rotationData.getSecond();
 
         if (ll.getPhotonEst().isPresent()) 
         {
-          mt2 = ll.getPhotonEst().get();
-          boolean useUpdate = !(mt2 == null || mt2.targetsUsed.size() == 0 || omegaRps > 2.0); 
+          mt2 = ll.getPhotonEst().get(); 
+          boolean useUpdate = !(mt2 == null || mt2.targetsUsed.size() == 0 || omegaRps > 2.0); // TODO don't need to check for null here, .isPresent() check ensures it won't be
+            // TODO also maybe restructure to mt2.targetsUsed.size() != 0 && omegaRps < 2.0? easier to reason about at least for me
           
           if (useUpdate) 
           {
             double avgTagDist = 0;
             for (var target : mt2.targetsUsed)
-            {avgTagDist += target.getBestCameraToTarget().getTranslation().getNorm();}
+            {avgTagDist += target.getBestCameraToTarget().getTranslation().getNorm();} // TODO brackets not needed (up to you on style though), also should be indented
+            // TODO Should divide avgTagDist by target count here so it is actually the avg and not the total
 
             double stdDevFactor = Math.pow((avgTagDist/mt2.targetsUsed.size()), 2.0) / mt2.targetsUsed.size();
 
@@ -113,6 +116,8 @@ public class Vision extends SubsystemBase
         }
       }
     }
+
+    // TODO theoretically should be able to just delete the rest of the method from here down? it's all regarding the rotationKnown stuff
 
     if (!rotationKnown) 
     {
