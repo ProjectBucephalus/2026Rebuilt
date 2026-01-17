@@ -113,8 +113,6 @@ public class Vision extends SubsystemBase
         }
       }
     }
-
-    // TODO theoretically should be able to just delete the rest of the method from here down? it's all regarding the rotationKnown stuff
   }
 
   @FunctionalInterface
