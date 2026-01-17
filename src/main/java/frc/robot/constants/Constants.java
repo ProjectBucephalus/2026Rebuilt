@@ -143,7 +143,7 @@ public final class Constants
     /** Baseline 1 meter, 1 tag stddev for x and y, in meters */
     public static final double linearStdDevBaseline = 0.08;
     /** Baseline 1 meter, 1 tag stddev rotation, in radians */
-    public static final double rotStdDevBaseline = 999;
+    public static final double rotStdDevBaseline = 0.5;
     /** How many good MT1 readings to get before setting rotation and moving to MT2 */
     public static final int mt1CyclesNeeded = 10;
   }
