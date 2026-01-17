@@ -42,7 +42,7 @@ public class Limelight
 
   protected void updateValidIDs(int[] validIDs)
   {
-    // TODO
+    // TODO re-implement
   }
 
   protected void updatePipeline(int pipelineIndex)
