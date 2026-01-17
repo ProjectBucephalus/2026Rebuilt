@@ -38,10 +38,6 @@ public class Vision extends SubsystemBase
 
   private int pipelineIndex = (int)SD.LL_EXPOSURE.defaultValue();
 
-  private ArrayList<Double> rotationBuf = new ArrayList<Double>();
-  private boolean rotationKnown = false;
-  private boolean lastCycleRotationKnown = false;
-
   /** Creates a new Vision. */
   public Vision(PoseEstimateConsumer estimateConsumer, Supplier<Pair<Double, Double>> rotationDataSup, Limelight... lls) 
   {
@@ -79,8 +75,6 @@ public class Vision extends SubsystemBase
     SD.LL_EXPOSURE.put((double)pipelineIndex);
   }
 
-  public void resetRotation() {rotationKnown = false;}
-
   @Override
   public void periodic() 
   {
@@ -88,22 +82,25 @@ public class Vision extends SubsystemBase
     {
       for (var ll : lls)
       {
+        ll.periodic();
+
         // TODO bc we don't need heading, can rework this whole thing to just have the supplier directly give omegaRPS (if we even need that check?)
         var rotationData = rotationDataSup.get();
         double heading = rotationData.getFirst();
         double omegaRps = rotationData.getSecond();
 
-        if (ll.getPhotonEst().isPresent()) 
+        var est = ll.getPhotonEst();
+
+        if (est.isPresent()) 
         {
-          mt2 = ll.getPhotonEst().get(); 
-          boolean useUpdate = !(mt2 == null || mt2.targetsUsed.size() == 0 || omegaRps > 2.0); // TODO don't need to check for null here, .isPresent() check ensures it won't be
-            // TODO also maybe restructure to mt2.targetsUsed.size() != 0 && omegaRps < 2.0? easier to reason about at least for me
+          mt2 = est.get(); 
+          boolean useUpdate = !(mt2.targetsUsed.size() != 0 && omegaRps > 2.0);
           
           if (useUpdate) 
           {
             double avgTagDist = 0;
             for (var target : mt2.targetsUsed)
-            {avgTagDist += target.getBestCameraToTarget().getTranslation().getNorm();} // TODO brackets not needed (up to you on style though), also should be indented
+              {avgTagDist += target.getBestCameraToTarget().getTranslation().getNorm();}
             // TODO Should divide avgTagDist by target count here so it is actually the avg and not the total
 
             double stdDevFactor = Math.pow((avgTagDist/mt2.targetsUsed.size()), 2.0) / mt2.targetsUsed.size();
@@ -118,55 +115,6 @@ public class Vision extends SubsystemBase
     }
 
     // TODO theoretically should be able to just delete the rest of the method from here down? it's all regarding the rotationKnown stuff
-
-    if (!rotationKnown) 
-    {
-      lastCycleRotationKnown = false;
-
-      for (var ll : lls) 
-      {
-        ll.getPhotonEst().ifPresent
-        (
-          rotationReading ->
-          {
-            rotationBuf.add(0, Math.toDegrees(mt2.estimatedPose.getRotation().getZ()));
-    
-            if (rotationBuf.size() > mt1CyclesNeeded)
-              {rotationBuf.remove(mt1CyclesNeeded);}
-      
-            if (rotationBuf.size() == mt1CyclesNeeded)
-            {
-              double lowest = rotationBuf.get(0).doubleValue();
-              double highest = rotationBuf.get(0).doubleValue();
-              
-              for(var reading : rotationBuf)
-              {
-                lowest = Math.min(lowest, reading.doubleValue());
-                highest = Math.max(highest, reading.doubleValue());
-              }
-              
-              if (highest - lowest < 1)
-              {
-                rotationKnown = true;
-                Robot.setYaw((highest + lowest) / 2);
-              }
-            }
-          }
-        );
-      }
-
-      if (!lastCycleRotationKnown) 
-      {
-        if (rotationKnown) 
-        {
-          rotationBuf.clear();
-          lastCycleRotationKnown = true;
-          //RobotContainer.s_Swerve.resetPose(new Pose2d(RobotContainer.swerveState.Pose.getTranslation(), new Rotation2d(Math.toRadians(RobotContainer.s_Swerve.getPigeon2().getYaw().getValueAsDouble()))));
-        }
-      }
-    }
-
-    SmartDashboard.putBoolean("Rot Known", rotationKnown);
   }
 
   @FunctionalInterface

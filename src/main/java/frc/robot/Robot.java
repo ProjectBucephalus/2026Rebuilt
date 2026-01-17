@@ -69,7 +69,7 @@ public class Robot extends TimedRobot
         s_Swerve.addVisionMeasurement(poseEst, timestmp);
       },
       () -> Pair.of(s_Swerve.getPigeon2().getYaw().getValueAsDouble(), swerveState.Speeds.omegaRadiansPerSecond), 
-      new Limelight(foreLimelightName), 
+      //new Limelight(foreLimelightName), 
       new Limelight(aftLimelightName)
     );
 
@@ -192,7 +192,6 @@ public class Robot extends TimedRobot
       );
     
     /* Other */
-    driver.start().onTrue(runOnce(s_Vision::resetRotation).ignoringDisable(true));
     new Trigger(SD.LL_EXPOSURE_UP::button).onTrue(runOnce(s_Vision::incrementPipeline));
     new Trigger(SD.LL_EXPOSURE_DOWN::button).onTrue(runOnce(s_Vision::decrementPipeline));
   }

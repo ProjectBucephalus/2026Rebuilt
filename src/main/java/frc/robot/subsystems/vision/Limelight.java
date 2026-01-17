@@ -53,6 +53,8 @@ public class Limelight
 
   public Optional<EstimatedRobotPose> getPhotonEst()
   { 
+    if (result == null) return Optional.empty();
+
     var visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
     if (visionEst.isEmpty()) 
     {
@@ -65,6 +67,6 @@ public class Limelight
   public void periodic() 
   {
     getLatestResult();
-    SmartDashboard.putString(camera + "result", (result.toString()));
+    SmartDashboard.putString(camera.getName() + "result", (result.toString()));
   }
 }
