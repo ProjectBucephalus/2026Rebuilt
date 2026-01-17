@@ -277,44 +277,44 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
    */
   public ChassisSpeeds calculateDrivePID(Pose2d target, Pose2d pose)
   {
-      final var robotPos = pose.getTranslation();
-      final var targetPos = target.getTranslation();
+    final var robotPos = pose.getTranslation();
+    final var targetPos = target.getTranslation();
 
-      double speedX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
-      double speedY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
-      double throttleX;
-      double throttleY;
-      
-      if(Math.abs(speedX) > Math.abs(speedY))
-      {
-        double ratio = (speedX==0 || speedY==0) ? 0 : speedY/speedX;
-        throttleX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
-        throttleY = throttleX*ratio;
-      }
-      else
-      {
-        double ratio = (speedX==0 || speedY==0) ? 0 : speedX/speedY;
-        throttleY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
-        throttleX = throttleY*ratio;
-      }
-      //final double throttleX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
-      //final double throttleY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
-      final double speedTheta = 
-        Math.min(thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), maxAngularVelocity);
-      final var throttleXY = new Translation2d(throttleX, throttleY);
+    double speedX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
+    double speedY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
+    double throttleX;
+    double throttleY;
+    
+    if(Math.abs(speedX) > Math.abs(speedY))
+    {
+      double ratio = (speedX==0 || speedY==0) ? 0 : speedY/speedX;
+      throttleX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
+      throttleY = throttleX*ratio;
+    }
+    else
+    {
+      double ratio = (speedX==0 || speedY==0) ? 0 : speedX/speedY;
+      throttleY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
+      throttleX = throttleY*ratio;
+    }
+    //final double throttleX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
+    //final double throttleY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
+    final double speedTheta = 
+      Math.min(thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), maxAngularVelocity);
+    final var throttleXY = new Translation2d(throttleX, throttleY);
 
-      FieldConstants.GeoFencing.fieldGeoFence.process(throttleXY);
+    FieldConstants.GeoFencing.fieldGeoFence.process(throttleXY);
 
-      return ChassisSpeeds.fromFieldRelativeSpeeds
+    return ChassisSpeeds.fromFieldRelativeSpeeds
+    (
+      new ChassisSpeeds
       (
-        new ChassisSpeeds
-        (
-          throttleXY.getX() * maxSpeed,
-          throttleXY.getY() * maxSpeed,
-          speedTheta
-        ),
-        pose.getRotation()
-      );
+        throttleXY.getX() * maxSpeed,
+        throttleXY.getY() * maxSpeed,
+        speedTheta
+      ),
+      pose.getRotation()
+    );
   }
 
   public Command poseDriveCommand(Supplier<Pose2d> targetSupplier, Supplier<SwerveDriveState> swerveStateSup) 
