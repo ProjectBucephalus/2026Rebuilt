@@ -6,14 +6,11 @@ package frc.robot;
 
 //import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -71,8 +68,8 @@ public class Robot extends TimedRobot
         s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
         s_Swerve.addVisionMeasurement(poseEst, timestmp);
       },
-      () -> Pair.of(s_Swerve.getPigeon2().getYaw().getValueAsDouble(), swerveState.Speeds.omegaRadiansPerSecond), 
-      new Limelight(foreLimelightName), 
+      () -> swerveState.Speeds.omegaRadiansPerSecond, 
+      //new Limelight(foreLimelightName), 
       new Limelight(aftLimelightName)
     );
 
@@ -196,7 +193,6 @@ public class Robot extends TimedRobot
       );
     
     /* Other */
-    driver.start().onTrue(runOnce(s_Vision::resetRotation).ignoringDisable(true));
     new Trigger(SD.LL_EXPOSURE_UP::button).onTrue(runOnce(s_Vision::incrementPipeline));
     new Trigger(SD.LL_EXPOSURE_DOWN::button).onTrue(runOnce(s_Vision::decrementPipeline));
   }

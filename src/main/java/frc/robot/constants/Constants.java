@@ -87,15 +87,6 @@ public final class Constants
 
   public static final class Vision
   {
-    /* public static final int[] validIDs = 
-    {
-      //1, 2, 3,               // Red Human Player Stations
-      //4, 5,                  // Red Barge
-      //6, 7, 8, 9, 10, 11,      // Red Reef
-      //12, 13, 16,            // Blue Human Player Stations
-      //14, 15,                // Blue Barge
-      17, 18, 19, 20, 21, 22   // Blue Reef
-    };*/
 
     public static final int[] hubIDs = 
     {
@@ -156,7 +147,7 @@ public final class Constants
     /** Baseline 1 meter, 1 tag stddev for x and y, in meters */
     public static final double linearStdDevBaseline = 0.08;
     /** Baseline 1 meter, 1 tag stddev rotation, in radians */
-    public static final double rotStdDevBaseline = 999;
+    public static final double rotStdDevBaseline = 0.5;
     /** How many good MT1 readings to get before setting rotation and moving to MT2 */
     public static final int mt1CyclesNeeded = 10;
   }
