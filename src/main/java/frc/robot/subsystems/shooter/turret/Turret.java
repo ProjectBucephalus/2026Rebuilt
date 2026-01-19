@@ -1,8 +1,7 @@
-package frc.robot.subsystems.turret;
+package frc.robot.subsystems.shooter.turret;
 import frc.robot.constants.IDConstants;
 
-import static frc.robot.constants.Constants.Shooter.*;
-import static frc.robot.constants.Constants.Turret.*;
+import static frc.robot.constants.Constants.TurretConstants.*;
 
 import java.util.function.Supplier;
 
@@ -15,23 +14,20 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Turret extends SubsystemBase
+public class Turret
 {
-  private final TalonFX m_TurretMotor = new TalonFX(IDConstants.turretID);
+  private final TalonFX m_Turret;
 
-  private final Supplier<Rotation2d> robotRotationSup;
-  private final Supplier<Translation2d> robotPositionSup;
-
+  
   private final MotionMagicVoltage m_Request = new MotionMagicVoltage(0);
 
   private double targetAngle = 0;
   private Translation2d targetPoint = Translation2d.kZero;
   private boolean trackingPoint = true;
 
-  public Turret(Supplier<Translation2d> translationSup, Supplier<Rotation2d> rotationSup)
+  public Turret(int id) 
   {
-    robotRotationSup = rotationSup;
-    robotPositionSup = translationSup;
+    m_Turret = new TalonFX(id);
 
     // in init function
     var turretConfigs = new TalonFXConfiguration();
@@ -47,7 +43,7 @@ public class Turret extends SubsystemBase
     turretConfigs.MotionMagic.MotionMagicAcceleration = turretAcceleration;
     turretConfigs.MotionMagic.MotionMagicCruiseVelocity = turretVelocity;
 
-    m_TurretMotor.getConfigurator().apply(turretConfigs);
+    m_Turret.getConfigurator().apply(turretConfigs);
   }
  
   public void setTargetAngle(double newTargetAngle)
@@ -62,24 +58,24 @@ public class Turret extends SubsystemBase
     trackingPoint = true;
   }
 
-  @Override
-  public void periodic()
+  
+  public void update(Translation2d robotPosition, Rotation2d robotRotation)
   {
     if (trackingPoint) {
       // Calculate target angle based on field positions
-      double robotTarget = targetPoint.minus(robotPositionSup.get()).getAngle().getDegrees();
+      double robotTarget = targetPoint.minus(robotPosition).getAngle().getDegrees();
       SmartDashboard.putNumber("Target-Robot", robotTarget);
 
-      double fieldTarget = robotTarget - robotRotationSup.get().getDegrees();
+      double fieldTarget = robotTarget - robotRotation.getDegrees();
       SmartDashboard.putNumber("Target-Turret", fieldTarget);
 
-      double wrappedTarget = TurretCalculator.normaliseAngle(fieldTarget, m_TurretMotor.getPosition().getValueAsDouble() * 360);
+      double wrappedTarget = TurretCalculator.normaliseAngle(fieldTarget, m_Turret.getPosition().getValueAsDouble() * 360);
       SmartDashboard.putNumber("Angle Wrapped", wrappedTarget);
 
       targetAngle = wrappedTarget;
     }
 
     // Set motor to go to target
-    m_TurretMotor.setControl(m_Request.withPosition(targetAngle / 360));
+    m_Turret.setControl(m_Request.withPosition(targetAngle / 360));
   }   
 }

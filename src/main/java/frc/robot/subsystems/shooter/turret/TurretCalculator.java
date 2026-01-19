@@ -1,9 +1,9 @@
-package frc.robot.subsystems.turret;
+package frc.robot.subsystems.shooter.turret;
 
 import edu.wpi.first.math.MathUtil;
 import frc.robot.util.Conversions;
 
-import static frc.robot.constants.Constants.Turret.maxTurretAzimuth;
+import static frc.robot.constants.Constants.TurretConstants.maxTurretAzimuth;
 
 public class TurretCalculator 
 {

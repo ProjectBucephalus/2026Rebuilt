@@ -156,7 +156,7 @@ public final class Constants
     /** How many good MT1 readings to get before setting rotation and moving to MT2 */
     public static final int mt1CyclesNeeded = 10;
   }
-public static final class Turret
+public static final class TurretConstants
   {
     public static final double maxTurretAzimuth = 270;
     public static final double gearRatio = 7;
@@ -165,6 +165,13 @@ public static final class Turret
     public static final double turretIdlePosition = 0;
     public static final double turretTurnSpeed = 0.25;
     public static final double turnBackThreshold = 135;
+
+    public static final double slot0S = 0.0;
+    public static final double slot0V = 0.0;
+    public static final double slot0A = 0.0;
+    public static final double slot0P = 10.0;
+    public static final double slot0I = 0.0;
+    public static final double slot0D = 0.0;
   }
 
 

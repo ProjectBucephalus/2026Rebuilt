@@ -32,7 +32,8 @@ import static frc.robot.constants.IDConstants.*;
 import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.turret.Turret;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.turret.Turret;
 import frc.robot.subsystems.vision.*;
 import frc.robot.subsystems.vision.Vision.TagPOI;
 import frc.robot.util.AutoFactories;
@@ -60,7 +61,7 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
-  private Shooter s_Shooter = new Shooter();
+  private Shooter s_Shooter = new Shooter(this::getTranslation, this::getRotation);
   private final Vision s_Vision = new Vision
     (
       (poseEst, timestmp, stdDevs) -> 
