@@ -156,7 +156,7 @@ public final class Constants
     /** How many good MT1 readings to get before setting rotation and moving to MT2 */
     public static final int mt1CyclesNeeded = 10;
   }
-public static final class TurretConstants
+  public static final class TurretConstants
   {
     public static final double maxTurretAzimuth = 270;
     public static final double gearRatio = 7;
@@ -174,5 +174,9 @@ public static final class TurretConstants
     public static final double slot0D = 0.0;
   }
 
-
+  public static final class HoodConstants 
+  {
+    public static final double minAngle = 0;
+    public static final double maxAngle = 180;
+  }
 }

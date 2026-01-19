@@ -19,20 +19,28 @@ import java.util.function.Supplier;
 public class Shooter extends SubsystemBase {
   private final Flywheels flywheels; 
   private final Turret turret;
+  private final Hood hood;
 
   private final Supplier<Rotation2d> robotRotationSup;
   private final Supplier<Translation2d> robotPositionSup;
 
   /** Creates a new shooter. */
-  public Shooter(Supplier<Translation2d> translationSup, Supplier<Rotation2d> rotationSup, int shooterMainID, int shooterAuxID, int turretID) 
+  public Shooter
+  (
+    Supplier<Translation2d> translationSup, 
+    Supplier<Rotation2d> rotationSup, 
+    int shooterMainID, 
+    int shooterAuxID, 
+    int turretID, 
+    int hoodID
+  ) 
   {
     robotRotationSup = rotationSup;
     robotPositionSup = translationSup;
 
     flywheels = new Flywheels(shooterMainID, shooterAuxID);
     turret = new Turret(turretID);
-
-
+    hood = new Hood(hoodID);
   }
 
   @Override
