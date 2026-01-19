@@ -237,7 +237,7 @@ public class Robot extends TimedRobot
   {
     autoCommand = AutoFactories.getCommandList(SD.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
-    if (autoCommand != null) autoCommand.schedule();
+    if (autoCommand != null) CommandScheduler.getInstance().schedule(autoCommand);
   }
 
   @Override
