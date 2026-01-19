@@ -60,7 +60,7 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
-  private final Turret s_TestTurret = new Turret(this::getTranslation, this::getRotation);
+  private Shooter s_Shooter = new Shooter();
   private final Vision s_Vision = new Vision
     (
       (poseEst, timestmp, stdDevs) -> 
@@ -241,7 +241,7 @@ public class Robot extends TimedRobot
   {
     autoCommand = AutoFactories.getCommandList(SD.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
-    if (autoCommand != null) autoCommand.schedule();
+    if (autoCommand != null) CommandScheduler.getInstance().schedule(autoCommand);
   }
 
   @Override
