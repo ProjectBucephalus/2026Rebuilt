@@ -63,8 +63,7 @@ public class Robot extends TimedRobot
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
   private Shooter s_Shooter = new Shooter
     (
-      this::getTranslation, 
-      this::getRotation, 
+      () -> swerveState.Pose,
       IDConstants.shooterMainID, 
       IDConstants.shooterAuxID, 
       IDConstants.turretID, 

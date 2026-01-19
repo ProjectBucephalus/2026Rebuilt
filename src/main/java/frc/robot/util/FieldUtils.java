@@ -17,6 +17,11 @@ public class FieldUtils
     return alliance.isPresent() && alliance.get() == Alliance.Red;
   }
 
+  public static Translation2d getAllianceHubCentre() 
+  {
+    return isRedAlliance() ? FieldConstants.redHubCentre : FieldConstants.blueHubCentre;
+  }
+
   public static final int getDriverLocation()
   {
     if (DriverStation.getLocation().isPresent())

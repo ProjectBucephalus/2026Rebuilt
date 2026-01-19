@@ -1,17 +1,42 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Servo;
+import frc.robot.subsystems.shooter.Shooter.Target;
 import frc.robot.util.Conversions;
+import frc.robot.util.FieldUtils;
+
 import static frc.robot.constants.Constants.HoodConstants.*;
 
 public class Hood {
   private final Servo m_Servo;
+  private final Transform2d shooterOffset;
 
-  public Hood(int id)
+  public Hood(int id, Transform2d shooterOffset)
   {
     m_Servo = new Servo(id);
+    this.shooterOffset = shooterOffset;
   }
 
-  public void setAngle(int angle)
-   {m_Servo.setAngle(Conversions.clamp(angle, minAngle, maxAngle));}
+  private double calculateTargetDist(Pose2d robotPose, Translation2d targetPoint)
+  {
+    var shooterPose = robotPose.plus(shooterOffset);
+    double targetDist = targetPoint.minus(shooterPose.getTranslation()).getNorm();
+   
+    return targetDist;
+  }
+
+  public void update(Pose2d robotPose, Target target)
+  {
+    double targetAngle = switch (target) {
+      case Manual -> target.hoodAngle;
+      case Point -> interpTableLow.get(calculateTargetDist(robotPose, target.point));
+      case Hub -> interpTableHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre()));
+    };
+
+    m_Servo.setAngle(Conversions.clamp(targetAngle, minAngle, maxAngle));
+  }
 }

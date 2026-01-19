@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter.turret;
 import frc.robot.constants.IDConstants;
+import frc.robot.subsystems.shooter.Shooter.Target;
+import frc.robot.util.FieldUtils;
 
 import static frc.robot.constants.Constants.TurretConstants.*;
 
@@ -9,6 +11,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,12 +21,7 @@ public class Turret
 {
   private final TalonFX m_Turret;
 
-  
   private final MotionMagicVoltage m_Request = new MotionMagicVoltage(0);
-
-  private double targetAngle = 0;
-  private Translation2d targetPoint = Translation2d.kZero;
-  private boolean trackingPoint = true;
 
   public Turret(int id) 
   {
@@ -45,37 +43,23 @@ public class Turret
 
     m_Turret.getConfigurator().apply(turretConfigs);
   }
- 
-  public void setTargetAngle(double newTargetAngle)
+
+  private double calculateTargetAngle(Pose2d robotPose, Translation2d targetPoint)
   {
-    targetAngle = newTargetAngle; 
-    trackingPoint = false;
-  }
-  
-  public void setTargetPoint(Translation2d newTargetPoint)
-  {
-    targetPoint = newTargetPoint;
-    trackingPoint = true;
+    double robotTarget = targetPoint.minus(robotPose.getTranslation()).getAngle().getDegrees();
+    double fieldTarget = robotTarget - robotPose.getRotation().getDegrees();
+    double wrappedTarget = TurretCalculator.normaliseAngle(fieldTarget, m_Turret.getPosition().getValueAsDouble() * 360);
+    return wrappedTarget;
   }
 
-  
-  public void update(Translation2d robotPosition, Rotation2d robotRotation)
+  public void update(Pose2d robotPose, Target target)
   {
-    if (trackingPoint) {
-      // Calculate target angle based on field positions
-      double robotTarget = targetPoint.minus(robotPosition).getAngle().getDegrees();
-      SmartDashboard.putNumber("Target-Robot", robotTarget);
+    double targetAngle = switch (target) {
+      case Manual -> target.heading;
+      case Point -> calculateTargetAngle(robotPose, target.point);
+      case Hub -> calculateTargetAngle(robotPose, FieldUtils.getAllianceHubCentre());
+    };
 
-      double fieldTarget = robotTarget - robotRotation.getDegrees();
-      SmartDashboard.putNumber("Target-Turret", fieldTarget);
-
-      double wrappedTarget = TurretCalculator.normaliseAngle(fieldTarget, m_Turret.getPosition().getValueAsDouble() * 360);
-      SmartDashboard.putNumber("Angle Wrapped", wrappedTarget);
-
-      targetAngle = wrappedTarget;
-    }
-
-    // Set motor to go to target
-    m_Turret.setControl(m_Request.withPosition(targetAngle / 360));
+    m_Turret.setControl(m_Request.withPosition(targetAngle / 360));     
   }   
 }

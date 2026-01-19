@@ -26,6 +26,11 @@ public class FieldConstants
   public static final Pose2d redStartLine  = new Pose2d(fieldCentre.plus(new Translation2d(startLineOffset, 0)), Rotation2d.kZero);
   public static final Pose2d blueStartLine = new Pose2d(fieldCentre.plus(new Translation2d(-startLineOffset, 0)), Rotation2d.k180deg);
 
+  public static final double hubCentreOffset = 3.645;
+
+  public static final Translation2d redHubCentre = new Translation2d(fieldCentre.getX() + hubCentreOffset, fieldCentre.getY());
+  public static final Translation2d blueHubCentre = new Translation2d(fieldCentre.getX() - hubCentreOffset, fieldCentre.getY());
+
   public static final class GeoFencing
   {   
     /**
@@ -77,8 +82,7 @@ public class FieldConstants
     public static final double hubYa = fieldCentre.getY() - hubSideLength / 2;
     public static final double hubYb = fieldCentre.getY() + hubSideLength / 2;
 
-    /* How far from the field center line the hub centre/front/back is offset */
-    public static final double hubCentreOffset = 3.645;
+    /* How far from the field center line the hub front/back is offset */
     public static final double hubFrontOffset = hubCentreOffset + hubSideLength / 2;
     public static final double hubBackOffset  = hubCentreOffset - hubSideLength / 2;
 

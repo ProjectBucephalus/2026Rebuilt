@@ -2,6 +2,9 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+
 public final class Constants 
 {
   public static final class RumblerConstants 
@@ -178,5 +181,19 @@ public final class Constants
   {
     public static final double minAngle = 0;
     public static final double maxAngle = 180;
+
+    public static final InterpolatingDoubleTreeMap interpTableHub = new InterpolatingDoubleTreeMap();
+    static 
+    {
+      interpTableHub.put(3.0, 8.0);
+      interpTableHub.put(666.0, 88.0);
+    }
+
+    public static final InterpolatingDoubleTreeMap interpTableLow = new InterpolatingDoubleTreeMap();
+    static 
+    {
+      interpTableLow.put(3.0, 8.0);
+      interpTableLow.put(99.0, 117.0);
+    }
   }
 }
