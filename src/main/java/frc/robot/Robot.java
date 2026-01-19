@@ -28,6 +28,9 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import frc.robot.commands.swerve.*;
 import frc.robot.constants.*;
+import frc.robot.constants.Constants.Swerve;
+import frc.robot.constants.FieldConstants.GeoFencing;
+
 import static frc.robot.constants.IDConstants.*;
 import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
@@ -145,12 +148,13 @@ public class Robot extends TimedRobot
     /* Default Commands */
     s_Swerve.setDefaultCommand
     (
-      new ManualDrive
+      new OffsetDrive
       (
         s_Swerve, 
         driverStick::stickOutput,
         () -> -driver.getRightX(),
-        driver::getRightTriggerAxis
+        driver::getRightTriggerAxis,
+        Swerve.extendedCentreOffset
       )
     );
 
