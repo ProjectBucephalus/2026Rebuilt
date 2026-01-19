@@ -30,8 +30,10 @@ public final class IDConstants
 
   /* Mechanism */
   /* _________ */
-  public static final int shooterID = 22;
-  public static final int turretID = 21;
+  public static final int shooterMainID = 22;
+  public static final int shooterAuxID = 23;
+  
+  public static final int turretID = 0;
 
   /* Limelights */
   /* __________ */
