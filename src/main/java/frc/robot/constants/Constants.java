@@ -187,7 +187,7 @@ public final class Constants
     // hub inperpolation table values defined here
     public static final InterpolatingDoubleTreeMap interpTableHub = new InterpolatingDoubleTreeMap();
     static 
-    {
+    {// TODO fill in the interpolation tables correctly
       interpTableHub.put(3.0, 8.0);
       interpTableHub.put(666.0, 88.0);
     }
