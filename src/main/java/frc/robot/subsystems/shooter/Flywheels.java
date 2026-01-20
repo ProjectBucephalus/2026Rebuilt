@@ -38,12 +38,12 @@ public class Flywheels {
     // set Motion Magic settings
     shooterConfigs.MotionMagic.MotionMagicCruiseVelocity = velocity; 
     shooterConfigs.MotionMagic.MotionMagicAcceleration = acceleration;
-
+    // sets m_Aux to a follower of m_Main
     m_Main.getConfigurator().apply(shooterConfigs);
 
     m_Aux.setControl(new Follower(mainID, MotorAlignmentValue.Opposed));
   }
-   
+   // gives the control of the flywheels to m_Requests.
   public void setSpeed(int speed)
     {m_Main.setControl(m_Request.withVelocity(speed));}
 }

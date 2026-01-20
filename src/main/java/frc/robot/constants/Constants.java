@@ -159,6 +159,8 @@ public final class Constants
     /** How many good MT1 readings to get before setting rotation and moving to MT2 */
     public static final int mt1CyclesNeeded = 10;
   }
+
+  // values that the turret uses 
   public static final class TurretConstants
   {
     public static final double maxTurretAzimuth = 270;
@@ -182,13 +184,14 @@ public final class Constants
     public static final double minAngle = 0;
     public static final double maxAngle = 180;
 
+    // hub inperpolation table values defined here
     public static final InterpolatingDoubleTreeMap interpTableHub = new InterpolatingDoubleTreeMap();
     static 
     {
       interpTableHub.put(3.0, 8.0);
       interpTableHub.put(666.0, 88.0);
     }
-
+    // interpolation table for shooting fuel at the ground defined here
     public static final InterpolatingDoubleTreeMap interpTableLow = new InterpolatingDoubleTreeMap();
     static 
     {

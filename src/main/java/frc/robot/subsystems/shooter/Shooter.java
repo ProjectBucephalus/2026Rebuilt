@@ -19,6 +19,7 @@ import static frc.robot.constants.Constants.Shooter.*;
 import java.util.function.Supplier;
 
 public class Shooter extends SubsystemBase {
+  // creates states that are used in Hood
   public enum Target 
   {
     Manual, 
@@ -42,7 +43,8 @@ public class Shooter extends SubsystemBase {
   }
 
   private Target target = Target.Hub;
-
+  
+  // these variables are defined here but used in the corsponding files 
   private final Flywheels flywheels; 
   private final Turret turret;
   private final Hood hood;

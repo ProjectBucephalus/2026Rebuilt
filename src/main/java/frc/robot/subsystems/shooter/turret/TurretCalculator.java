@@ -9,6 +9,7 @@ public class TurretCalculator
 {
   public static double normaliseAngle(double newAngle, double currentAngle)
   {
+    // this handles the definitions for the different doubles
     double newAngleWrapped = Conversions.mod(newAngle, 360);
     double currentAngleWrapped = Conversions.mod(currentAngle, 360);
 

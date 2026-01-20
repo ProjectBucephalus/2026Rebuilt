@@ -43,7 +43,7 @@ public class Turret
 
     m_Turret.getConfigurator().apply(turretConfigs);
   }
-
+  // calculates the Angle to the target 
   private double calculateTargetAngle(Pose2d robotPose, Translation2d targetPoint)
   {
     double robotTarget = targetPoint.minus(robotPose.getTranslation()).getAngle().getDegrees();
@@ -59,7 +59,7 @@ public class Turret
       case Point -> calculateTargetAngle(robotPose, target.point);
       case Hub -> calculateTargetAngle(robotPose, FieldUtils.getAllianceHubCentre());
     };
-
+    // gives control of the motors to m_Requests
     m_Turret.setControl(m_Request.withPosition(targetAngle / 360));     
   }   
 }

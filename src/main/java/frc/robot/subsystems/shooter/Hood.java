@@ -20,23 +20,27 @@ public class Hood {
     m_Servo = new Servo(id);
     this.shooterOffset = shooterOffset;
   }
-
+  // calculates the distance to the target from the shooter
   private double calculateTargetDist(Pose2d robotPose, Translation2d targetPoint)
   {
+    //get the current rbot position and adds the offset of the shooter to this in order to get the position of the the shooter 
     var shooterPose = robotPose.plus(shooterOffset);
     double targetDist = targetPoint.minus(shooterPose.getTranslation()).getNorm();
    
     return targetDist;
   }
-
   public void update(Pose2d robotPose, Target target)
   {
-    double targetAngle = switch (target) {
+    double targetAngle = switch (target) 
+    {
+      // fixed angle 
       case Manual -> target.hoodAngle;
+      //aimed at a point on the field that can be changed 
       case Point -> interpTableLow.get(calculateTargetDist(robotPose, target.point));
+      //always aimed at hub
       case Hub -> interpTableHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre()));
     };
-
+    // sets the angle of m_Servo to targetAngle while only being able to go to minAngle or maxAngle
     m_Servo.setAngle(Conversions.clamp(targetAngle, minAngle, maxAngle));
   }
 }
