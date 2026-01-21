@@ -1,21 +1,16 @@
-package frc.robot.subsystems.shooter.turret;
-import frc.robot.constants.IDConstants;
-import frc.robot.subsystems.shooter.Shooter.Target;
+package frc.robot.subsystems.shooter;
+
+import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
 import static frc.robot.constants.Constants.TurretConstants.*;
-
-import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Turret
 {
@@ -48,18 +43,22 @@ public class Turret
   {
     double robotTarget = targetPoint.minus(robotPose.getTranslation()).getAngle().getDegrees();
     double fieldTarget = robotTarget - robotPose.getRotation().getDegrees();
-    double wrappedTarget = TurretCalculator.normaliseAngle(fieldTarget, m_Turret.getPosition().getValueAsDouble() * 360);
+    double wrappedTarget = Conversions.normaliseAngle(fieldTarget, m_Turret.getPosition().getValueAsDouble() * 360, maxTurretAzimuth);
     return wrappedTarget;
   }
 
   public void update(Pose2d robotPose, Target target)
   {
-    double targetAngle = switch (target) {
-      case Manual -> target.heading;
+    double targetAzimuth = switch (target.state) 
+    {
+      case Manual -> target.azimuth;
       case Point -> calculateTargetAngle(robotPose, target.point);
       case Hub -> calculateTargetAngle(robotPose, FieldUtils.getAllianceHubCentre());
     };
+
+    target.azimuth = targetAzimuth;
+
     // gives control of the motors to m_Requests
-    m_Turret.setControl(m_Request.withPosition(targetAngle / 360));     
+    m_Turret.setControl(m_Request.withPosition(targetAzimuth / 360));     
   }   
 }

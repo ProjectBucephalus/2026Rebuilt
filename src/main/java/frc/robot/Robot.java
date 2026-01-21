@@ -33,7 +33,7 @@ import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.turret.Turret;
+import frc.robot.subsystems.shooter.Turret;
 import frc.robot.subsystems.vision.*;
 import frc.robot.subsystems.vision.Vision.TagPOI;
 import frc.robot.util.AutoFactories;

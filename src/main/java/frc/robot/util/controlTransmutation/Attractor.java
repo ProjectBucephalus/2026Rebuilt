@@ -92,7 +92,7 @@ public class Attractor extends FieldObject
     if 
     (
       !lastInputAngle.equals(Rotation2d.kZero) && 
-      Conversions.isRotationNear(lastInputAngle, controlInput.getAngle(), minAngleTolerance)
+      Conversions.nearRotation(lastInputAngle, controlInput.getAngle(), minAngleTolerance)
     )
     {
       return true;
@@ -100,14 +100,14 @@ public class Attractor extends FieldObject
     
     if (distance <= buffer)
     {
-      return Conversions.isRotationNear(approachHeadingRotation, controlInput.getAngle(), maxAngleTolerance);
+      return Conversions.nearRotation(approachHeadingRotation, controlInput.getAngle(), maxAngleTolerance);
     }
 
     Rotation2d angleToTarget = centre.minus(robotPos).getAngle();
     
     double angleTolerance = Conversions.clamp(2*Math.atan(buffer/distance), minAngleTolerance, maxAngleTolerance);
 
-    return Conversions.isRotationNear(angleToTarget, controlInput.getAngle(), angleTolerance);
+    return Conversions.nearRotation(angleToTarget, controlInput.getAngle(), angleTolerance);
   }
 
   @Override

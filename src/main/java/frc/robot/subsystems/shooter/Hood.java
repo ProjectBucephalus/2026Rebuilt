@@ -1,11 +1,9 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Servo;
-import frc.robot.subsystems.shooter.Shooter.Target;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
@@ -20,6 +18,7 @@ public class Hood {
     m_Servo = new Servo(id);
     this.shooterOffset = shooterOffset;
   }
+
   // calculates the distance to the target from the shooter
   private double calculateTargetDist(Pose2d robotPose, Translation2d targetPoint)
   {
@@ -29,18 +28,22 @@ public class Hood {
    
     return targetDist;
   }
+
   public void update(Pose2d robotPose, Target target)
   {
-    double targetAngle = switch (target) 
+    double targetAltitude = switch (target.state) 
     {
       // fixed angle 
-      case Manual -> target.hoodAngle;
+      case Manual -> target.altitude;
       //aimed at a point on the field that can be changed 
       case Point -> interpTableLow.get(calculateTargetDist(robotPose, target.point));
       //always aimed at hub
       case Hub -> interpTableHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre()));
     };
+
+    target.altitude = targetAltitude;
+
     // sets the angle of m_Servo to targetAngle while only being able to go to minAngle or maxAngle
-    m_Servo.setAngle(Conversions.clamp(targetAngle, minAngle, maxAngle));
+    m_Servo.setAngle(Conversions.clamp(targetAltitude, minAngle, maxAngle));
   }
 }
