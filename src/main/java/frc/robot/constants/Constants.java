@@ -63,21 +63,27 @@ public final class Constants
 
   public static final class Shooter
   {
-    public static final double speed = 1.0;
+    /*
+     * To tune shooter:
+     *    Find voltage KS required to overcome static friction
+     *    Run with voltage at maximum safe limit, record voltage and RPS
+     *    Set voltage KV as voltage/RPS
+     *    Once KV is tuned, use KP for additional gain as needed
+     */
 
-    public static final double slot0S = 0.0;
-    public static final double slot0V = 0.0;
-    public static final double slot0A = 0.0;
-    public static final double slot0P = 10.0;
-    public static final double slot0I = 0.0;
-    public static final double slot0D = 0.0;
+    public static final double flywheelKS = 0.2;
+    public static final double flywheelKV = 0.08;
+    public static final double flywheelKA = 0.0;
+    public static final double flywheelKP = 0.0;
+    public static final double flywheelKI = 0.0;
+    public static final double flywheelKD = 0.0;
 
-    public static final double velocity = 0.0;
-    public static final double acceleration = 0.0;
+    public static final double flywheelAcceleration = 50.0;
+    public static final double flywheelJerk = 50.0;
 
-    public static final double idleSpeed = 0.0;
-    public static final double revSpeed = 0.0;
-    public static final double leliency = 0.0;
+    public static final double idleSpeed = 10.0;
+    public static final double revSpeed = 50.0;
+    public static final double leliency = 5.0;
 
     //simulation
     public static final double kGearRatio = 10.0;
@@ -86,16 +92,6 @@ public final class Constants
 
   public static final class Vision
   {
-    /* public static final int[] validIDs = 
-    {
-      //1, 2, 3,               // Red Human Player Stations
-      //4, 5,                  // Red Barge
-      //6, 7, 8, 9, 10, 11,      // Red Reef
-      //12, 13, 16,            // Blue Human Player Stations
-      //14, 15,                // Blue Barge
-      17, 18, 19, 20, 21, 22   // Blue Reef
-    };*/
-
     public static final int[] hubIDs = 
     {
       /* RED */ 
