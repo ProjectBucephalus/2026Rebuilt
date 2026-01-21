@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.robotRadiusExpanded;
+import static frc.robot.constants.FieldConstants.GeoFencing.robotRadiusInscribed;
 
 import java.util.function.BiPredicate;
 
@@ -20,15 +21,15 @@ public class FieldConstants
   /** Length of the field in the X direction, metres */
   public static final double fieldLength = 16.54;
   /** Width of the field in the Y direction, metres */
-  public static final double fieldWidth = 8.07;
+  public static final double fieldWidth = 8.08;
 
   /** Distance of the start lines from fieldCentre, metres */
   public static final double startLineOffset = 4.2418;
 
   public static final Translation2d fieldCentre = new Translation2d(fieldLength / 2, fieldWidth / 2);
 
-  public static final Pose2d redStartLine  = new Pose2d(fieldCentre.plus(new Translation2d((startLineOffset + robotRadiusExpanded), 0)), Rotation2d.kZero);
-  public static final Pose2d blueStartLine = new Pose2d(fieldCentre.plus(new Translation2d(-(startLineOffset + robotRadiusExpanded), 0)), Rotation2d.k180deg);
+  public static final Pose2d redStartLine  = new Pose2d(fieldCentre.plus(new Translation2d((startLineOffset + robotRadiusInscribed), 0)), Rotation2d.kZero);
+  public static final Pose2d blueStartLine = new Pose2d(fieldCentre.plus(new Translation2d(-(startLineOffset + robotRadiusInscribed), 0)), Rotation2d.k180deg);
 
   public static final class GeoFencing
   {   
@@ -163,13 +164,13 @@ public class FieldConstants
     /** Depth of Tower base, m */
     public static final double towerDepth = 1.15;
     /** Distance from Outpost wall to Tower base, m */
-    public static final double towerSpacing = 3;      // TODO
+    public static final double towerSpacing = 3.26;
     /** Radius to treat Tower uprights as circles, m */
-    public static final double towerPostRadius = 0.05;
+    public static final double towerPostRadius = 0.1;
     /** Distance from edge of Tower base to centre of upright, m */
-    public static final double towerPostEdge   = 0.1; // TODO
+    public static final double towerPostEdge   = 0.06;
     /** Distance from front of Tower base to centre of upright, m */
-    public static final double towerPostFront  = 0.2; // TODO
+    public static final double towerPostFront  = 0.08;
 
     public static final Box towerBlue = new Box(0, towerSpacing, towerDepth, towerSpacing + towerWidth);
     public static final Point towerPostBlueN = new Point(towerDepth - towerPostFront, towerSpacing + towerWidth - towerPostEdge, towerPostRadius, 0.25);
@@ -184,7 +185,7 @@ public class FieldConstants
     // Speed should be limited in own Depot, must NOT enter opposing
     public static final double depotWidth = 1.07;
     public static final double depotDepth = 0.69;
-    public static final double depotSpacing = 1.5; // TODO
+    public static final double depotSpacing = 1.58;
     
     public static final Box depotBlueFence = new Box(0, fieldWidth - depotSpacing, depotDepth, fieldWidth - (depotSpacing + depotWidth), 0.1, 0.25);
     public static final Box depotRedFence  = new Box(fieldLength, depotSpacing, fieldLength - depotDepth, depotSpacing + depotWidth, 0.1, 0.25);
