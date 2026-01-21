@@ -172,35 +172,27 @@ public static final class Turret
   public static final class Interpolation 
   {
     public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
-    {
-      {
-        put(0.0, 0.0);
-        put(0.25, 0.25);
-      }
-    };
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
 
     public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
-    {
-      {
-        put(0.0, 0.0);
-        put(0.25, 0.25);
-      }
-    };
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
 
     public static final InterpolatingDoubleTreeMap turretPotAzimuth = new InterpolatingDoubleTreeMap()
-    {
-      {
-        put(0.0, 0.0);
-        put(0.25, 0.25);
-      }
-    };
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
 
     public static final InterpolatingDoubleTreeMap turretPotAltitude = new InterpolatingDoubleTreeMap()
-    {
-      {
-        put(0.0, 0.0);
-        put(0.25, 0.25);
-      }
-    }; 
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }}; 
   }
 }
