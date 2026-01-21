@@ -189,13 +189,8 @@ public class Robot extends TimedRobot
         s_Swerve, 
         () -> this.swerveState, 
         1, 
-        Rotation2d.k180deg,
-        new Translation2d[] 
-        {
-          new Translation2d(15, 2),
-          new Translation2d(11, 2),
-          new Translation2d(11, 6)
-        }
+        Pathfinding.testPathRotation,
+        Pathfinding.testPath
       )
     );
 
