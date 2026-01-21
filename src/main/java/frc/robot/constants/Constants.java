@@ -34,11 +34,25 @@ public final class Constants
 
   public static final class Swerve
   {
-    /** Centre-centre distance (length and width) between wheels, metres */
+    /** Forward offset between the centre of the drivebase and Robot coordinate origin, metres */
+    public static final double drivebaseOffset = 0.095;
+    /** Centre-centre distance between wheels, metres */
     public static final double drivebaseWidth = 0.485;
+    /** Centre-centre distance between wheels, metres */
+    public static final double drivebaseLength = drivebaseWidth;
+    /** Wheel-centre to Robot-centre distance to Port wheels, metres */
+    public static final double wheelPortY = drivebaseWidth/2;
+    /** Wheel-centre to Robot-centre distance to Stbd wheels, metres */
+    public static final double wheelStbdY = -drivebaseWidth/2;
+    /** Wheel-centre to Robot-centre distance to Fore wheels, metres */
+    public static final double wheelForeX = (drivebaseLength/2) - drivebaseOffset;
+    /** Wheel-centre to Robot-centre distance to Aft wheels, metres */
+    public static final double wheelAftX = (-drivebaseLength/2) - drivebaseOffset;
+
+
     public static final double initialHeading = 0;
     /** Offset from centre of drivebase to use as centre of rotation when extended, metres Fore/Port */
-    public static final Translation2d extendedCentreOffset = new Translation2d(0.095,0);
+    public static final Translation2d extendedCentreOffset = new Translation2d(drivebaseOffset,0);
 
     /* Drive PID Values */
     public static final double driveKP = 2.5;

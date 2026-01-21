@@ -167,13 +167,12 @@ public class Robot extends TimedRobot
     /* Default Commands */
     s_Swerve.setDefaultCommand
     (
-      new OffsetDrive
+      new ManualDrive
       (
         s_Swerve, 
         driverStick::stickOutput,
         () -> -driver.getRightX(),
-        driver::getRightTriggerAxis,
-        Swerve.extendedCentreOffset
+        driver::getRightTriggerAxis
       )
     );
 
