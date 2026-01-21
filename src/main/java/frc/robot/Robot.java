@@ -159,7 +159,7 @@ public class Robot extends TimedRobot
         robotRadiusInscribed
       );
     FieldObject.setRobotPosSup(this::getTranslation);
-    GeoFencing.fieldGeoFence.setActiveCondition(SD.FENCE_TOGGLE::get);
+    GeoFencing.fieldGeoFence.setActiveCondition(() -> SD.FENCE_TOGGLE.get() && SD.LL_TOGGLE.get());
   }
 
   private void bindControls()
@@ -269,6 +269,7 @@ public class Robot extends TimedRobot
   public void teleopInit() 
   {
     if (autoCommand != null) autoCommand.cancel();
+    initInputTransmute();
   }
 
   @Override
