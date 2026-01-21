@@ -37,6 +37,9 @@ public final class IDConstants
 
   public static final int hoodID = 20;
 
+  public static final int indexerID = 24;
+
+  public static final int beltID = 25;
   /* Limelights */
   /* __________ */
   public static final String foreLimelightName = "limelight-port";

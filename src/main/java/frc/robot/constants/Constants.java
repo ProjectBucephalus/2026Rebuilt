@@ -199,4 +199,17 @@ public final class Constants
       interpTableLow.put(99.0, 117.0);
     }
   }
+
+  public  static final class IndexerConstants 
+  {
+    public static final double speed = 0.5;
+    
+  }
+
+
+  public static final class  FeedBeltConstants 
+  {
+    public static final double speed = 0.5;
+    
+  }
 }
