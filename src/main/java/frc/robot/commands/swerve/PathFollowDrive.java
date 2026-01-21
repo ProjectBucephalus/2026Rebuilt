@@ -28,7 +28,7 @@ public class PathFollowDrive extends Command
 
   private final Rotation2d targetRotation;
 
-  private final ArrayList<Translation2d> waypoints;
+  private final ArrayList<Pose2d> waypoints;
   private final ArrayList<Double> radiusPerSegment;
 
   private boolean onPath = false;
@@ -36,7 +36,14 @@ public class PathFollowDrive extends Command
 
   private Pose2d robotPose;
 
-  /** Creates a new PathFollowDrive. */
+  /**
+   * Creates a new PathFollowDrive to follow the given sequence
+   * @param s_Swerve        Swervedrive subsystem
+   * @param swerveStateSup  Swerve state supplier from Robot to avoid expensive calls to the swerve system
+   * @param pointRadius     Approach distance before switching to next point, metres
+   * @param targetRotation  Rotation for robot to face, applies over entire path
+   * @param targetSequence  List of Translation2d to navigate through, start to end
+   */
   public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, double pointRadius, Rotation2d targetRotation, Translation2d... targetSequence)
   {
     this.swerveStateSup = swerveStateSup;
@@ -58,18 +65,29 @@ public class PathFollowDrive extends Command
       final var waypoint2 = next.interpolate(current, lengthRatio);
 
       radiusPerSegment.add(waypointDist);
-      waypoints.addAll(Arrays.asList(current, waypoint1, waypoint2));
+      waypoints.addAll
+      (
+        Arrays.asList
+        (
+          new Pose2d(current, targetRotation), 
+          new Pose2d(waypoint1, targetRotation), 
+          new Pose2d(waypoint2, targetRotation)
+        )
+      );
     }
 
     radiusPerSegment.add(0.0);
-    waypoints.add(targetSequence[targetSequence.length - 1]);
+    waypoints.add(new Pose2d(targetSequence[targetSequence.length - 1], targetRotation));
     this.targetRotation = targetRotation;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() 
-    {currentWaypoint = 0;}
+  {
+    currentWaypoint = 0;
+    onPath = false;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -79,20 +97,20 @@ public class PathFollowDrive extends Command
 
     final var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
     
-    final var targetTranslation = waypoints.get(targetIndex);
+    final var targetPose = waypoints.get(targetIndex);
     
     s_Swerve.setControl
     (
       driveRequest.withSpeeds
       (
-        s_Swerve.calculateDrivePID(new Pose2d(targetTranslation, targetRotation), robotPose)
+        s_Swerve.calculateDrivePID(targetPose, robotPose)
       )
     );
         
     final var currentSegment = Math.floorDiv(currentWaypoint, 3);
     final double targetDist = radiusPerSegment.get(currentSegment);
 
-    if (FieldUtils.nearTranslation(robotPose.getTranslation(), targetTranslation, targetDist)) 
+    if (FieldUtils.nearTranslation(robotPose.getTranslation(), targetPose.getTranslation(), targetDist)) 
     {
       currentWaypoint = Math.min(++currentWaypoint, waypoints.size());
       onPath = true;
@@ -106,6 +124,6 @@ public class PathFollowDrive extends Command
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return currentWaypoint == waypoints.size() && FieldUtils.atRotation(robotPose.getRotation(), targetRotation);
+    return FieldUtils.atPose(robotPose, waypoints.get(waypoints.size()-1));
   }
 }
