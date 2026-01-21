@@ -4,13 +4,10 @@
 
 package frc.robot.subsystems;
 
-import frc.robot.constants.IDConstants;
 import static frc.robot.constants.Constants.IndexerConstants.*;
 
 public class Indexer extends BinaryMotor {
   /** Creates a new Indexer. */
-  public Indexer() 
-  {
-    super(speed, IDConstants.indexerID);
-  }
+  public Indexer(int id) 
+    {super(speed, id);}
 }
