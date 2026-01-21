@@ -3,6 +3,7 @@ package frc.robot.constants;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 public final class Constants 
 {
@@ -176,5 +177,30 @@ public static final class Turret
     public static final double turnBackThreshold = 135;
   }
 
+  public static final class Interpolation 
+  {
+    public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
 
+    public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
+
+    public static final InterpolatingDoubleTreeMap turretPotAzimuth = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
+
+    public static final InterpolatingDoubleTreeMap turretPotAltitude = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }}; 
+  }
 }
