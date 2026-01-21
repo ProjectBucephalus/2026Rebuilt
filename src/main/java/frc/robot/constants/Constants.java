@@ -213,7 +213,7 @@ public final class Constants
     
     public static final class ExtensionConstants 
     {
-      // TODO actual ratios
+      // TODO actual ratios and gains
       public static final double extensionPlanetaryRatio = 1;
       public static final double extensionPinionTeeth = 1;
       public static final double extensionRackTeeth = 1;
