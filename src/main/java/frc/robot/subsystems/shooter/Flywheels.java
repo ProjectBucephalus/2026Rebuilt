@@ -18,7 +18,7 @@ public class Flywheels {
   private final TalonFX m_Main; 
   private final TalonFX m_Aux;
 
-  private final MotionMagicVelocityVoltage m_Request = new MotionMagicVelocityVoltage(0);
+  private final MotionMagicVelocityVoltage request = new MotionMagicVelocityVoltage(0);
 
   public Flywheels(int mainID, int auxID)
   {
@@ -43,7 +43,7 @@ public class Flywheels {
 
     m_Aux.setControl(new Follower(mainID, MotorAlignmentValue.Opposed));
   }
-   // gives the control of the flywheels to m_Requests.
+   // gives the control of the flywheels to request.
   public void setSpeed(int speed)
-    {m_Main.setControl(m_Request.withVelocity(speed));}
+    {m_Main.setControl(request.withVelocity(speed));}
 }

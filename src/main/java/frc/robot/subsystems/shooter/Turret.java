@@ -16,7 +16,7 @@ public class Turret
 {
   private final TalonFX m_Turret;
 
-  private final MotionMagicVoltage m_Request = new MotionMagicVoltage(0);
+  private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
   public Turret(int id) 
   {
@@ -58,7 +58,7 @@ public class Turret
 
     target.azimuth = targetAzimuth;
 
-    // gives control of the motors to m_Requests
-    m_Turret.setControl(m_Request.withPosition(targetAzimuth / 360));     
+    // gives control of the motors to request
+    m_Turret.setControl(request.withPosition(targetAzimuth / 360));     
   }   
 }
