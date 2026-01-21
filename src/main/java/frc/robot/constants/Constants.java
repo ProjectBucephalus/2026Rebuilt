@@ -2,6 +2,8 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 
@@ -218,21 +220,34 @@ public final class Constants
       public static final double extensionRackRatio = extensionPinionTeeth / extensionRackTeeth;
       public static final double extensionRatio = extensionPlanetaryRatio * extensionRackRatio;
 
-      public static final double  maxRotations = 1;
+      public static final double maxRotations = 1;
 
-      
-    public static final double extensionKS = 0.0;
-    public static final double extensionKV = 0.0;
-    public static final double extensionKA = 0.0;
-    public static final double extensionKP = 0.0;
-    public static final double extensionKI = 0.0;
-    public static final double extensionKD = 0.0;
+      private static final double gainS = 0.0;
+      private static final double gainV = 0.0;
+      private static final double gainA = 0.0;
+      private static final double gainP = 0.0;
+      private static final double gainI = 0.0;
+      private static final double gainD = 0.0;
 
-    public static final double extensionVelocityUnhomed = 0;
-    public static final double extensionVelocity = 0;
-    public static final double extensionAcceleration = 0;
+      public static final TalonFXConfiguration config = new TalonFXConfiguration() 
+      {{
+        config.MotionMagic.MotionMagicCruiseVelocity = 0;
+        config.MotionMagic.MotionMagicAcceleration = 0;
 
-      
+        config.Slot0.kS = gainS;
+        config.Slot0.kV = gainV;
+        config.Slot0.kA = gainA;
+        config.Slot0.kP = gainP;
+        config.Slot0.kI = gainI;
+        config.Slot0.kD = gainD;
+
+        config.Slot1.kS = gainS;
+        config.Slot1.kV = gainV;
+        config.Slot1.kA = gainA;
+        config.Slot1.kP = gainP;
+        config.Slot1.kI = gainI;
+        config.Slot1.kD = gainD;
+      }};
     }
   }
 

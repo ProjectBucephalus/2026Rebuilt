@@ -37,9 +37,25 @@ public final class IDConstants
   public static final int indexerID = 24;
   public static final int beltID = 25;
   public static final int intakeID = 26;
+  public static final int extensionID = 27;
 
   /* Limelights */
   /* __________ */
   public static final String foreLimelightName = "limelight-port";
   public static final String aftLimelightName = "limelight-stbd";
+
+
+
+
+  /*sensors */
+  /*_______ */
+  public static final int extensionLimitID = 1;
+
+
+
+
+
+
 }
+
+
