@@ -31,6 +31,9 @@ public class SD
   public static final DoubleKey  RUMBLE_DRIVER    = new DoubleKey("Driver Rumble", Constants.RumblerConstants.driverDefault);
   public static final DoubleKey  RUMBLE_OPERATOR  = new DoubleKey("Operator Rumble", Constants.RumblerConstants.operatorDefault);
 
+  public static final DoubleKey  BOTTOM_SHOOTER_SPEED  = new DoubleKey("Bottom Shooter Speed", 0);
+  public static final DoubleKey  TOP_SHOOTER_SPEED  = new DoubleKey("Top Shooter Speed", 0);
+
   static
   {
     try 
