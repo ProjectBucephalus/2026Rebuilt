@@ -41,6 +41,28 @@ import frc.robot.util.SD;
 import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
 
+/**
+ * 5985 Robot Super-Structure
+ * <p>
+ * Coordinate system notes:
+ * <ul>
+ * <li> Robot Relative:
+ * <ul>
+ * <li> +Port / -Stbd -> Y axis in Robot corrdinates
+ * <li> +Fore / -Aft -> X axis in Robot coordinates
+ * </ul>
+ * <li> Field Absolute:
+ * <ul>
+ * <li> +North / -South -> Y axis in Field coordinates
+ * <li> +East / -West -> X axis in Field coordinates
+ * </ul>
+ * <li> Driver Relative:
+ * <ul>
+ * <li> Left / Right -> From driver perspective, to make their lives easier
+ * <li> In / Out -> From driver perspective, to make their lives easier
+ * </ul>
+ * </ul>
+ */
 @Logged
 public class Robot extends TimedRobot 
 {
