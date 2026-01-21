@@ -6,7 +6,7 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVelocityDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
@@ -18,7 +18,7 @@ public class Flywheels {
   private final TalonFX m_Main; 
   private final TalonFX m_Aux;
 
-  private final MotionMagicVelocityDutyCycle m_Request = new MotionMagicVelocityDutyCycle(0);
+  private final MotionMagicVelocityVoltage m_Request = new MotionMagicVelocityVoltage(0);
 
   public Flywheels(int mainID, int auxID)
   {
@@ -28,16 +28,16 @@ public class Flywheels {
     var shooterConfigs = new TalonFXConfiguration();
 
     // set slot 0 gains
-    shooterConfigs.Slot0.kS = slot0S; 
-    shooterConfigs.Slot0.kV = slot0V; 
-    shooterConfigs.Slot0.kA = slot0A; 
-    shooterConfigs.Slot0.kP = slot0P;
-    shooterConfigs.Slot0.kI = slot0I; 
-    shooterConfigs.Slot0.kD = slot0D; 
+    shooterConfigs.Slot0.kS = flywheelKS; 
+    shooterConfigs.Slot0.kV = flywheelKV; 
+    shooterConfigs.Slot0.kA = flywheelKA; 
+    shooterConfigs.Slot0.kP = flywheelKP;
+    shooterConfigs.Slot0.kI = flywheelKI; 
+    shooterConfigs.Slot0.kD = flywheelKD; 
 
     // set Motion Magic settings
-    shooterConfigs.MotionMagic.MotionMagicCruiseVelocity = velocity; 
-    shooterConfigs.MotionMagic.MotionMagicAcceleration = acceleration;
+    shooterConfigs.MotionMagic.MotionMagicAcceleration = flywheelAcceleration;
+    shooterConfigs.MotionMagic.MotionMagicJerk = flywheelJerk; 
     // sets m_Aux to a follower of m_Main
     m_Main.getConfigurator().apply(shooterConfigs);
 
