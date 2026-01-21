@@ -4,20 +4,12 @@
 
 package frc.robot.subsystems.hopper;
 
-import com.ctre.phoenix6.hardware.TalonFX;
-
-import edu.wpi.first.wpilibj2.command.Command;
-
 import static frc.robot.constants.Constants.FeedBeltConstants.*;
-import frc.robot.constants.IDConstants;
 import frc.robot.subsystems.BinaryMotor;
 
 /** Add your docs here. */
 public class FeedBelt extends BinaryMotor
 {
-  public FeedBelt()
-  {
-    super(speed, IDConstants.beltID);
-  }
-
+  public FeedBelt(int id)
+    {super(speed, id);}
 }
