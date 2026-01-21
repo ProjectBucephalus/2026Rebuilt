@@ -203,9 +203,37 @@ public final class Constants
   }
 
 
-  public static final class  FeedBeltConstants 
+  public static final class HopperConstants
   {
-    public static final double speed = 0.5;
+    public static final double beltSpeed = 0.5;
+    public static final double intakeSpeed = 0.5; 
+
     
+    public static final class ExtensionConstants 
+    {
+      // TODO actual ratios
+      public static final double extensionPlanetaryRatio = 1;
+      public static final double extensionPinionTeeth = 1;
+      public static final double extensionRackTeeth = 1;
+      public static final double extensionRackRatio = extensionPinionTeeth / extensionRackTeeth;
+      public static final double extensionRatio = extensionPlanetaryRatio * extensionRackRatio;
+
+      public static final double  maxRotations = 1;
+
+      
+    public static final double extensionKS = 0.0;
+    public static final double extensionKV = 0.0;
+    public static final double extensionKA = 0.0;
+    public static final double extensionKP = 0.0;
+    public static final double extensionKI = 0.0;
+    public static final double extensionKD = 0.0;
+
+    public static final double extensionVelocityUnhomed = 0;
+    public static final double extensionVelocity = 0;
+    public static final double extensionAcceleration = 0;
+
+      
+    }
   }
+
 }

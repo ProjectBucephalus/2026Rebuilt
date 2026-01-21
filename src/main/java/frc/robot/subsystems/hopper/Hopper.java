@@ -5,12 +5,23 @@
 package frc.robot.subsystems.hopper;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static frc.robot.constants.Constants.HopperConstants.*;
+import frc.robot.subsystems.BinaryMotor;
+
 
 public class Hopper extends SubsystemBase {
-  /** Creates a new Hopper. */
-  public Hopper() {}
-
+  private BinaryMotor feedBelt;
+  private BinaryMotor intake;
   
+  /** Creates a new Hopper. */
+  public Hopper(int feedBeltID, int intakeID) 
+  {
+    feedBelt = new BinaryMotor(beltSpeed, feedBeltID);
+    intake = new BinaryMotor(intakeSpeed, intakeID);
+
+  }
+
+
 
   @Override
   public void periodic() {

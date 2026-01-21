@@ -32,14 +32,12 @@ public final class IDConstants
   /* _________ */
   public static final int shooterMainID = 22;
   public static final int shooterAuxID = 23;
-  
   public static final int turretID = 21;
-
   public static final int hoodID = 20;
-
   public static final int indexerID = 24;
-
   public static final int beltID = 25;
+  public static final int intakeID = 26;
+
   /* Limelights */
   /* __________ */
   public static final String foreLimelightName = "limelight-port";
