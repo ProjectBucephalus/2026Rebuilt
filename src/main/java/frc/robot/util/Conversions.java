@@ -22,8 +22,27 @@ public class Conversions
     return value;
   }
   
+  /**
+   * Modulus over the given range. Recursively adds or subtracts the size of the range until the result is within range.
+   * @param value number to wrap
+   * @param min lowest end of target range, inclusive
+   * @param max highest end of target range, inclusive
+   * @return modulus of the number over the range
+   */
   public static int wrap(int value, int min, int max)
   {
+    if (max == min)
+    {
+      return 0;
+    }
+
+    if (max < min)
+    {
+      int trueMax = min;
+      min = max;
+      max = trueMax;
+    }
+
     if (value < min)
     {
       value += ((max-min) + 1);
