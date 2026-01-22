@@ -42,9 +42,8 @@ public class Launchpad extends GenericHID
 
         public final int value;
 
-        PadColour(int value) {
-            this.value = value;
-        }
+        PadColour(int value) 
+            {this.value = value;}
     }
 
     /**
