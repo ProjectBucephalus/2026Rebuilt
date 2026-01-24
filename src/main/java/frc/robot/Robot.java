@@ -27,6 +27,9 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import frc.robot.commands.swerve.*;
 import frc.robot.constants.*;
 import static frc.robot.constants.IDConstants.*;
+
+import javax.sound.sampled.Line;
+
 import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
@@ -77,6 +80,9 @@ public class Robot extends TimedRobot
       //new Limelight(foreLimelightName), 
       new Limelight(aftLimelightName)
     );
+
+
+  private final LinearExtension s_Climber = new LinearExtension(IDConstants.climberID, IDConstants.climberLimitID, 0, Constants.ClimberConstants.maxRotations, Constants.ClimberConstants.config);
 
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(0);

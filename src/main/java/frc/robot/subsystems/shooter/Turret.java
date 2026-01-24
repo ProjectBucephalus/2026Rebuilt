@@ -38,7 +38,9 @@ public class Turret
 
     m_Turret.getConfigurator().apply(turretConfigs);
   }
-  // calculates the Angle to the target 
+
+  
+  // calculates the Angle to the target. Using targetPoint from Target.java
   private double calculateTargetAngle(Pose2d robotPose, Translation2d targetPoint)
   {
     double robotTarget = targetPoint.minus(robotPose.getTranslation()).getAngle().getDegrees();
@@ -46,7 +48,8 @@ public class Turret
     double wrappedTarget = Conversions.normaliseAngle(fieldTarget, m_Turret.getPosition().getValueAsDouble() * 360, maxTurretAzimuth);
     return wrappedTarget;
   }
-
+  
+  //using the states defined in Target.java to set the place that the turret is tracking
   public void update(Pose2d robotPose, Target target)
   {
     double targetAzimuth = switch (target.state) 
@@ -58,7 +61,7 @@ public class Turret
 
     target.azimuth = targetAzimuth;
 
-    // gives control of the motors to request
+    // gives control of the motors to request to be called in Robot.java
     m_Turret.setControl(request.withPosition(targetAzimuth / 360));     
   }   
 }
