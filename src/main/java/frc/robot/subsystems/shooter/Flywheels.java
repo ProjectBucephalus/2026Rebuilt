@@ -44,6 +44,6 @@ public class Flywheels {
     m_Aux.setControl(new Follower(mainID, MotorAlignmentValue.Opposed));
   }
    // gives the control of the flywheels to request.
-  public void setSpeed(int speed)
+  public void setSpeed(double speed)
     {m_Main.setControl(request.withVelocity(speed));}
 }

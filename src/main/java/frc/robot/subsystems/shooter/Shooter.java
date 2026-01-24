@@ -39,6 +39,9 @@ public class Shooter extends SubsystemBase {
   public void setTarget(Target target)
     {this.target = target;}
 
+  public void setFlywheels(double speed)
+    {flywheels.setSpeed(speed);}
+
   @Override
   public void periodic()
   {
