@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
@@ -15,6 +14,11 @@ public class FieldUtils
   {
     var alliance = DriverStation.getAlliance();
     return alliance.isPresent() && alliance.get() == Alliance.Red;
+  }
+
+  public static Translation2d getAllianceHubCentre() 
+  {
+    return isRedAlliance() ? FieldConstants.redHubCentre : FieldConstants.blueHubCentre;
   }
 
   public static final int getDriverLocation()
@@ -60,26 +64,5 @@ public class FieldUtils
   {
     GeoFencing.fieldRedGeoFence.setActiveCondition(() -> redAlliance);
     GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> !redAlliance);
-  }
-
-  public static boolean atPose(Pose2d robotPose, Pose2d targetPose)
-  {
-    return nearPose(robotPose, targetPose, 0.0);
-  }
-  
-  public static boolean nearPose(Pose2d robotPose, Pose2d targetPose, double distanceTolerance)
-  {
-    return nearTranslation(robotPose.getTranslation(), targetPose.getTranslation(), distanceTolerance) &&
-    atRotation(robotPose.getRotation(), targetPose.getRotation());  
-  }
-
-  public static boolean nearTranslation(Translation2d robotPos, Translation2d targetPos, double distanceTolerance)
-  {
-    return robotPos.getDistance(targetPos) < (Constants.Control.lineupTolerance + distanceTolerance);
-  }
-
-  public static boolean atRotation(Rotation2d robotTheta, Rotation2d targetTheta)
-  {
-    return Math.abs(robotTheta.getDegrees() - targetTheta.getDegrees()) < Constants.Control.angleLineupTolerance;
   }
 }

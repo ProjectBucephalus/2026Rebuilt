@@ -2,6 +2,13 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+
 public final class Constants 
 {
   public static final class RumblerConstants 
@@ -60,21 +67,27 @@ public final class Constants
 
   public static final class Shooter
   {
-    public static final double speed = 1.0;
+    /*
+     * To tune shooter:
+     *    Find voltage KS required to overcome static friction
+     *    Run with voltage at maximum safe limit, record voltage and RPS
+     *    Set voltage KV as voltage/RPS
+     *    Once KV is tuned, use KP for additional gain as needed
+     */
 
-    public static final double slot0S = 0.0;
-    public static final double slot0V = 0.0;
-    public static final double slot0A = 0.0;
-    public static final double slot0P = 0.0;
-    public static final double slot0I = 0.0;
-    public static final double slot0D = 0.0;
+    public static final double flywheelKS = 0.2;
+    public static final double flywheelKV = 0.08;
+    public static final double flywheelKA = 0.0;
+    public static final double flywheelKP = 0.0;
+    public static final double flywheelKI = 0.0;
+    public static final double flywheelKD = 0.0;
 
-    public static final double velocity = 0.0;
-    public static final double acceleration = 0.0;
+    public static final double flywheelAcceleration = 50.0;
+    public static final double flywheelJerk = 50.0;
 
-    public static final double idleSpeed = 0.0;
-    public static final double revSpeed = 0.0;
-    public static final double leliency = 0.0;
+    public static final double idleSpeed = 10.0;
+    public static final double revSpeed = 50.0;
+    public static final double leliency = 5.0;
 
     //simulation
     public static final double kGearRatio = 10.0;
@@ -83,7 +96,6 @@ public final class Constants
 
   public static final class Vision
   {
-
     public static final int[] hubIDs = 
     {
       /* RED */ 
@@ -147,7 +159,9 @@ public final class Constants
     /** How many good MT1 readings to get before setting rotation and moving to MT2 */
     public static final int mt1CyclesNeeded = 10;
   }
-public static final class Turret
+
+  // values that the turret uses 
+  public static final class TurretConstants
   {
     public static final double maxTurretAzimuth = 270;
     public static final double gearRatio = 7;
@@ -155,7 +169,115 @@ public static final class Turret
     public static final double turretVelocity = 1;  
     public static final double turretIdlePosition = 0;
     public static final double turretTurnSpeed = 0.25;
+    public static final double turnBackThreshold = 135;
+
+    public static final double slot0S = 0.0;
+    public static final double slot0V = 0.0;
+    public static final double slot0A = 0.0;
+    public static final double slot0P = 10.0;
+    public static final double slot0I = 0.0;
+    public static final double slot0D = 0.0;
   }
 
+  public static final class Interpolation 
+  {
+    public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
+
+    public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
+
+    public static final InterpolatingDoubleTreeMap turretPotAzimuth = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
+
+    public static final InterpolatingDoubleTreeMap turretPotAltitude = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }}; 
+  }
+
+  public static final class HoodConstants 
+  {
+    public static final double minAngle = 0;
+    public static final double maxAngle = 180;
+
+    // hub inperpolation table values defined here
+    public static final InterpolatingDoubleTreeMap interpTableHub = new InterpolatingDoubleTreeMap();
+    static 
+    {// TODO fill in the interpolation tables correctly
+      interpTableHub.put(3.0, 8.0);
+      interpTableHub.put(666.0, 88.0);
+    }
+    // interpolation table for shooting fuel at the ground defined here
+    public static final InterpolatingDoubleTreeMap interpTableLow = new InterpolatingDoubleTreeMap();
+    static 
+    {
+      interpTableLow.put(3.0, 8.0);
+      interpTableLow.put(99.0, 117.0);
+    }
+  }
+
+  public  static final class IndexerConstants 
+  {
+    public static final double speed = 0.5;
+    
+  }
+
+
+  public static final class HopperConstants
+  {
+    public static final double beltSpeed = 0.5;
+    public static final double intakeSpeed = 0.5; 
+
+    
+    public static final class ExtensionConstants 
+    {
+      // TODO actual ratios and gains
+      public static final double extensionPlanetaryRatio = 1;
+      public static final double extensionPinionTeeth = 1;
+      public static final double extensionRackTeeth = 1;
+      public static final double extensionRackRatio = extensionPinionTeeth / extensionRackTeeth;
+      public static final double extensionRatio = extensionPlanetaryRatio * extensionRackRatio;
+
+      public static final double maxRotations = 1;
+
+      private static final double gainS = 0.0;
+      private static final double gainV = 0.0;
+      private static final double gainA = 0.0;
+      private static final double gainP = 0.0;
+      private static final double gainI = 0.0;
+      private static final double gainD = 0.0;
+
+      public static final TalonFXConfiguration config = new TalonFXConfiguration() 
+      {{
+        config.MotionMagic.MotionMagicCruiseVelocity = 0;
+        config.MotionMagic.MotionMagicAcceleration = 0;
+
+        config.Slot0.kS = gainS;
+        config.Slot0.kV = gainV;
+        config.Slot0.kA = gainA;
+        config.Slot0.kP = gainP;
+        config.Slot0.kI = gainI;
+        config.Slot0.kD = gainD;
+
+        config.Slot1.kS = gainS;
+        config.Slot1.kV = gainV;
+        config.Slot1.kA = gainA;
+        config.Slot1.kP = gainP;
+        config.Slot1.kI = gainI;
+        config.Slot1.kD = gainD;
+      }};
+    }
+  }
 
 }

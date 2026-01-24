@@ -6,6 +6,7 @@ package frc.robot;
 
 //import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -29,6 +30,7 @@ import static frc.robot.constants.IDConstants.*;
 import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.*;
 import frc.robot.subsystems.vision.Vision.TagPOI;
 import frc.robot.util.AutoFactories;
@@ -56,6 +58,14 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
+  private final Shooter s_Shooter = new Shooter
+    (
+      () -> swerveState.Pose,
+      IDConstants.shooterMainID, 
+      IDConstants.shooterAuxID, 
+      IDConstants.turretID, 
+      IDConstants.hoodID
+    );
   private final Vision s_Vision = new Vision
     (
       (poseEst, timestmp, stdDevs) -> 
@@ -208,6 +218,9 @@ public class Robot extends TimedRobot
 
   /** Returns the t2d of the robot centre in field coordinates */
   public Translation2d getTranslation() {return swerveState.Pose.getTranslation();}
+
+  /** Returns the r2d of the robot in field coordinates */
+  public Rotation2d getRotation() {return swerveState.Pose.getRotation();}
   
   /* OPMODE METHODS */
   /* ============ */
@@ -232,7 +245,7 @@ public class Robot extends TimedRobot
   {
     autoCommand = AutoFactories.getCommandList(SD.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
-    if (autoCommand != null) autoCommand.schedule();
+    if (autoCommand != null) CommandScheduler.getInstance().schedule(autoCommand);
   }
 
   @Override

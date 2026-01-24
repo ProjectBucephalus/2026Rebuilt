@@ -17,7 +17,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
-import frc.robot.util.FieldUtils;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class PathFollowDrive extends Command 
@@ -92,7 +91,7 @@ public class PathFollowDrive extends Command
     final var currentSegment = Math.floorDiv(currentWaypoint, 3);
     final double targetDist = radiusPerSegment.get(currentSegment);
 
-    if (FieldUtils.nearTranslation(robotPose.getTranslation(), targetTranslation, targetDist)) 
+    if (Conversions.nearTranslation(robotPose.getTranslation(), targetTranslation, targetDist)) 
     {
       currentWaypoint = Math.min(++currentWaypoint, waypoints.size());
       onPath = true;
@@ -106,6 +105,6 @@ public class PathFollowDrive extends Command
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return currentWaypoint == waypoints.size() && FieldUtils.atRotation(robotPose.getRotation(), targetRotation);
+    return currentWaypoint == waypoints.size() && Conversions.atRotation(robotPose.getRotation(), targetRotation);
   }
 }

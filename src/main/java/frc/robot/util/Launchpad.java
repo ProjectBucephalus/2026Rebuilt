@@ -9,13 +9,19 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-/** Add your docs here. */
+/** 
+ * Interface for using a "novation LaunchPad S" as a HID controller and LED display <p>
+ * Requires additional programs to be run on the device to convert between MIDI, HID, and NetworkTables
+ */
 public class Launchpad extends GenericHID
 {
     private final String tableName = "LaunchPadColours";
     private final IntegerPublisher[] publishers = new IntegerPublisher[72];
 
-    public enum PadColor
+    /** 
+     * Each button has a Red and Green LED with 4 levels, giving a set of 16 available colours
+     */
+    public enum PadColour
     {
         OFF(12),
         DIM_RED(13),
@@ -36,45 +42,104 @@ public class Launchpad extends GenericHID
 
         public final int value;
 
-        PadColor(int value) {
-            this.value = value;
-        }
+        PadColour(int value) 
+            {this.value = value;}
     }
 
-    public Launchpad(int port) {
+    /**
+     * Construct an instance of a controller.
+     *
+     * @param port The port index on the Driver Station that the controller is plugged into.
+     */
+    public Launchpad(int port) 
+    {
+        // Creates generic HID
         super(port);
 
+        // Accesses network tables and creates a table to send colour data over
         var ntInstance = NetworkTableInstance.getDefault();
         ntInstance.startServer();
         var table = ntInstance.getTable(tableName);
-        for (int i = 0; i < 72; i++) {
+
+        // Create table value for each button
+        for (int i = 0; i < 72; i++)
+        {
             var topic = table.getIntegerTopic(Integer.toString(i));
             publishers[i] = topic.publish();
         }
     }
 
-    /** btn should be in range [0..63]. Don't ask for -1, you'll make me sad :( */
+    /**
+     * Creates a trigger linked to a button on the Launchpad controller
+     * @param btn Button index, [0..63] normal reading order of the square buttons:
+     * <ul>
+     * <li> [0..15] (the top two rows) are a mutually exclusive set, pressing a second button releases the first, etc.
+     * <li> [16..24] (third row) are a mutually exclusive set
+     * <li> [24..31] (fourth row) are a mutually exclusive set
+     * <li> [32..63] (bottom half) are all individually addressable
+     * </ul>
+     * @return Trigger linked to button
+     */
     public Trigger getBtn(int btn) 
     {
-        return new Trigger(() -> {
-            if (btn >= 32)  
-                return super.getRawButton(btn - 32);
-            else if (btn < 16) 
-                return super.getPOV(1) == btn;
-            else if (btn < 24) 
-                return super.getPOV(2) == btn - 16;
-            else if (btn < 32)
-                return super.getPOV(3) == btn - 24;
-            else 
-                return false;
-        });
+        if (btn < 0 || btn >= 64)
+            return new Trigger(() -> false);
+    
+        if (btn < 16) 
+            return new Trigger(() -> super.getPOV(1) == btn);
+            
+        if (btn < 24) 
+            return new Trigger(() -> super.getPOV(2) == btn - 16);
+            
+        if (btn < 32)
+            return new Trigger(() -> super.getPOV(3) == btn - 24);
+            
+        //if (btn >= 32)  
+            return new Trigger(() -> super.getRawButton(btn - 32));
     }
 
-    /** btn should be in range [0..7]. Don't ask for -1, you'll make me sad :( */
+    /**
+     * Creates a trigger linked to a round button on the sidebar of the Launchpad controller <p>
+     * Due to limitations in the controller interface these form a mutually exclusive set,
+     * such that pressing a second button releases the first, etc.
+     * @param modeBtn Button index, [0..7] from the top
+     * @return Trigger linked to button
+     */
     public Trigger getModeBtn(int modeBtn) 
-        {return new Trigger(() -> super.getPOV(0) == modeBtn);}
+    {
+        if (modeBtn < 0 || modeBtn >= 8)
+            return new Trigger(() -> false);        
+        
+        return new Trigger(() -> super.getPOV(0) == modeBtn);
+    }
 
-    public void setColour(int btn, PadColor colour) {
-        publishers[btn].accept(colour.value);
+    /**
+     * Sets the colour value displayed on one or more buttons
+     * @param colour Predefined colour value to set all given buttons to
+     * @param buttons list of button indexes, [0..71] 
+     * <ul>
+     * <li> [0..63] normal reading order of square buttons
+     * <li> [64..71] top-down of round sidebar buttons
+     * </ul>
+     */
+    public void setColour(PadColour colour, int... buttons) // TODO confirm the valid input range
+    {
+        for (int btn : buttons)
+            if (btn >= 0 && btn < 72)
+                publishers[btn].accept(colour.value);
+    }
+
+    /**
+     * Sets the colour value displayed on a continious sequence of buttons
+     * @param colour Predefined colour value to set all given buttons to
+     * @param start Index of first button, [0..71] as per setColour()
+     * @param end Index of last button, [0..71] as per setColour()
+     */
+    public void setColourSpan(PadColour colour, int start, int end)
+    {
+        start = Conversions.clamp(start, 0, 71);
+        end = Conversions.clamp(end, start, 71);
+        for (int btn = start; btn <= end; btn++)
+            publishers[btn].accept(colour.value);
     }
 }
