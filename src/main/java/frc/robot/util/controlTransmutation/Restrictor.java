@@ -3,6 +3,7 @@ package frc.robot.util.controlTransmutation;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
@@ -44,6 +45,17 @@ public class Restrictor extends FieldObject
    */
   public Restrictor()
     {this(0, 0, 0, 0, 0);}
+
+  public Restrictor withSpeedLimit(double localSpeedLimit)
+  {
+    this.localSpeedLimit = localSpeedLimit;
+    return this;
+  }
+
+  public Trigger asTrigger()
+  {
+    return new Trigger(() -> checkPosition() && getDistance() <= 0);
+  }
 
   @Override
   public Translation2d process(Translation2d controlInput)

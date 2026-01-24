@@ -26,6 +26,9 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import frc.robot.commands.swerve.*;
 import frc.robot.constants.*;
+import frc.robot.constants.Constants.Swerve;
+import frc.robot.constants.FieldConstants.GeoFencing;
+
 import static frc.robot.constants.IDConstants.*;
 import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
@@ -39,6 +42,28 @@ import frc.robot.util.SD;
 import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
 
+/**
+ * 5985 Robot Super-Structure
+ * <p>
+ * Coordinate system notes:
+ * <ul>
+ * <li> Robot Relative:
+ * <ul>
+ * <li> +Fore / -Aft -> X axis in Robot coordinates
+ * <li> +Port / -Stbd -> Y axis in Robot corrdinates
+ * </ul>
+ * <li> Field Absolute:
+ * <ul>
+ * <li> +East / -West -> X axis in Field coordinates
+ * <li> +North / -South -> Y axis in Field coordinates
+ * </ul>
+ * <li> Driver Relative:
+ * <ul>
+ * <li> In / Out -> From driver perspective, to make their lives easier
+ * <li> Left / Right -> From driver perspective, to make their lives easier
+ * </ul>
+ * </ul>
+ */
 @Logged
 public class Robot extends TimedRobot 
 {
@@ -142,7 +167,7 @@ public class Robot extends TimedRobot
         robotRadiusInscribed
       );
     FieldObject.setRobotPosSup(this::getTranslation);
-    GeoFencing.fieldGeoFence.setActiveCondition(SD.FENCE_TOGGLE::get);
+    GeoFencing.fieldGeoFence.setActiveCondition(() -> SD.FENCE_TOGGLE.get() && SD.LL_TOGGLE.get());
   }
 
   private void bindControls()
@@ -172,13 +197,8 @@ public class Robot extends TimedRobot
         s_Swerve, 
         () -> this.swerveState, 
         1, 
-        Rotation2d.k180deg,
-        new Translation2d[] 
-        {
-          new Translation2d(15, 2),
-          new Translation2d(11, 2),
-          new Translation2d(11, 6)
-        }
+        Pathfinding.testPathRotation,
+        Pathfinding.testPath
       )
     );
 
@@ -252,6 +272,7 @@ public class Robot extends TimedRobot
   public void teleopInit() 
   {
     if (autoCommand != null) autoCommand.cancel();
+    initInputTransmute();
   }
 
   @Override
