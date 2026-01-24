@@ -7,28 +7,21 @@ package frc.robot.subsystems.hopper;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.constants.Constants.HopperConstants.*;
 
-import frc.robot.constants.Constants;
-import frc.robot.constants.IDConstants;
 import frc.robot.subsystems.BinaryMotor;
 import frc.robot.subsystems.LinearExtension;
 
-
 public class Hopper extends SubsystemBase {
-  private BinaryMotor feedBelt;
+  private BinaryMotor spindexer;
   private BinaryMotor intake;
   private LinearExtension extension;
-
   
   /** Creates a new Hopper. */
-  public Hopper(int feedBeltID, int intakeID) 
+  public Hopper(int spindexerID, int intakeID, int extensionID, int extensionLimitID) 
   {
-    feedBelt = new BinaryMotor(beltSpeed, feedBeltID);
+    spindexer = new BinaryMotor(spindexerSpeed, spindexerID);
     intake = new BinaryMotor(intakeSpeed, intakeID);
-    extension = new LinearExtension(IDConstants.extensionID, IDConstants.extensionLimitID, 0, ExtensionConstants.maxRotations, ExtensionConstants.config);
-
+    extension = new LinearExtension(extensionID, extensionLimitID, 0, ExtensionConstants.maxRotations, ExtensionConstants.config);
   }
-
-
 
   @Override
   public void periodic() {

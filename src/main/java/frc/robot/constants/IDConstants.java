@@ -35,7 +35,7 @@ public final class IDConstants
   public static final int turretID = 21;
   public static final int hoodID = 1;
   public static final int indexerID = 24;
-  public static final int beltID = 25;
+  public static final int spindexerID = 25;
   public static final int intakeID = 26;
   public static final int extensionID = 27;
   public static final int climberID = 28;

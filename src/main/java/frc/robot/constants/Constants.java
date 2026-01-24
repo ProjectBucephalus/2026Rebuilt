@@ -240,7 +240,7 @@ public final class Constants
 
   public static final class HopperConstants
   {
-    public static final double beltSpeed = 0.5;
+    public static final double spindexerSpeed = 0.5;
     public static final double intakeSpeed = 0.5; 
 
     

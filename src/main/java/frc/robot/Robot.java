@@ -33,6 +33,7 @@ import javax.sound.sampled.Line;
 import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.*;
 import frc.robot.subsystems.vision.Vision.TagPOI;
@@ -81,10 +82,16 @@ public class Robot extends TimedRobot
       //new Limelight(foreLimelightName), 
       new Limelight(aftLimelightName)
     );
-
-
-  private final LinearExtension s_Climber = new LinearExtension(IDConstants.climberID, IDConstants.climberLimitID, 0, Constants.ClimberConstants.maxRotations, Constants.ClimberConstants.config);
-
+  private final LinearExtension s_Climber = new LinearExtension
+    (
+      IDConstants.climberID, 
+      IDConstants.climberLimitID, 
+      0, 
+      Constants.ClimberConstants.maxRotations, 
+      Constants.ClimberConstants.config
+    );
+  private final Hopper s_Hopper = new Hopper(IDConstants.spindexerID, IDConstants.intakeID, IDConstants.extensionID, IDConstants.extensionLimitID);
+  
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(0);
   private final CommandXboxController operator = new CommandXboxController(1);
