@@ -17,6 +17,8 @@ public class Target
   public double azimuth; 
   public Translation2d point;
 
+
+  // creates a function accesible to everything to store where a target is
   public Target(TargetState state, double altitude, double azimuth, Translation2d point) 
   {
     this.state = state;

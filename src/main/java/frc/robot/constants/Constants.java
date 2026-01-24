@@ -282,6 +282,17 @@ public final class Constants
         config.Slot1.kD = gainD;
       }};
     }
+
+
+  
+  }   //TODO change maxrotaions 
+  public static final class ClimberConstants {
+    public static final double maxRotations = 1;
+
+    public static final TalonFXConfiguration config = new TalonFXConfiguration();
+  
+  
+    
   }
 
 }

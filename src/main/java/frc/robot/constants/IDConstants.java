@@ -38,6 +38,7 @@ public final class IDConstants
   public static final int beltID = 25;
   public static final int intakeID = 26;
   public static final int extensionID = 27;
+  public static final int climberID = 28;
 
   /* Limelights */
   /* __________ */
@@ -50,6 +51,7 @@ public final class IDConstants
   /*sensors */
   /*_______ */
   public static final int extensionLimitID = 1;
+  public static final int climberLimitID = 2;
 
 
 

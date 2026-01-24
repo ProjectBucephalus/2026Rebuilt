@@ -48,7 +48,8 @@ public class Turret
 
   public Rotation2d getRotation() 
     {return new Rotation2d(m_Turret.getPosition().getValue());}
-
+  
+  //using the states defined in Target.java to set the place that the turret is tracking
   public void update(Pose2d robotPose, Target target)
   {
     double targetAzimuth = switch (target.state) 
@@ -60,7 +61,7 @@ public class Turret
 
     target.azimuth = targetAzimuth;
 
-    // gives control of the motors to request
+    // gives control of the motors to request to be called in Robot.java
     m_Turret.setControl(request.withPosition(targetAzimuth / 360));     
   }   
 }
