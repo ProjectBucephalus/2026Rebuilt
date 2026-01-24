@@ -27,13 +27,21 @@ public class Limelight
   // TODO should probably initialise photonEstimator in the constructor so that the tag layout and robotToCam transform can be just restricted to the constructor
   // Also, maybe let the robotToCam transform be provided in the constructor
   private static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
-  private static final Transform3d kRobotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
-  private final PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
+  private Transform3d kRobotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+  private final PhotonPoseEstimator photonEstimator;
   private PhotonPipelineResult result;
-  
-  /** Creates a new Limelight. */
-  public Limelight(String name) 
-    {this.camera = new PhotonCamera(name);}
+
+  /**
+   * 
+   * @param name
+   * @param robotToCamera Transform3d from the centre of the robot to the camera, or from centre of a turret.
+   */
+  public Limelight(String name, Transform3d robotToCamera) 
+    {
+      this.camera = new PhotonCamera(name);
+      kRobotToCam = robotToCamera;
+      photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
+    }
 
   public void getLatestResult() 
   {
@@ -43,9 +51,9 @@ public class Limelight
       {result = results.get(results.size()-1);}
   }
 
-  protected void updateValidIDs(int[] validIDs)
+  protected void updateValidIDs(int[] validIDs) //TODO: Re-implement
   {
-    // TODO re-implement
+    
   }
 
   protected void updatePipeline(int pipelineIndex)
