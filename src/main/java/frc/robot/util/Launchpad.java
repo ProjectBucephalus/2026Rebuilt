@@ -65,7 +65,9 @@ public class Launchpad extends GenericHID
     for (int i = 0; i < 72; i++)
     {
       var topic = table.getIntegerTopic(Integer.toString(i));
+      topic.setPersistent(false);
       publishers[i] = topic.publish();
+      publishers[i].accept(PadColour.DIM_AMBER.value);
     }
   }
 
@@ -107,7 +109,7 @@ public class Launchpad extends GenericHID
    */
   public Trigger getModeBtn(int modeBtn) 
   {
-    if (modeBtn < 0 || modeBtn >= 8)
+    if (modeBtn < 0 || modeBtn > 7)
       return new Trigger(() -> false);        
     
     return new Trigger(() -> super.getPOV(0) == modeBtn);
