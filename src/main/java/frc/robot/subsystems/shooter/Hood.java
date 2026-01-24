@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Servo;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
+import frc.robot.constants.Constants.Interpolation;
 import static frc.robot.constants.Constants.HoodConstants.*;
 
 public class Hood {
@@ -36,9 +37,9 @@ public class Hood {
       // fixed angle 
       case Manual -> target.altitude;
       //aimed at a point on the field that can be changed 
-      case Point -> interpTableLow.get(calculateTargetDist(robotPose, target.point));
+      case Point -> Interpolation.shooterAltitudeLow.get(calculateTargetDist(robotPose, target.point));
       //always aimed at hub
-      case Hub -> interpTableHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre()));
+      case Hub -> Interpolation.shooterAltitudeHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre()));
     };
 
     target.altitude = targetAltitude;

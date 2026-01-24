@@ -7,6 +7,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+
 public final class Constants 
 {
   public static final class RumblerConstants 
@@ -175,6 +177,33 @@ public final class Constants
     public static final double slot0P = 10.0;
     public static final double slot0I = 0.0;
     public static final double slot0D = 0.0;
+  }
+
+  public static final class Interpolation 
+  {
+    public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
+
+    public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
+
+    public static final InterpolatingDoubleTreeMap turretPotAzimuth = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
+
+    public static final InterpolatingDoubleTreeMap turretPotAltitude = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }}; 
   }
 
   public static final class HoodConstants 
