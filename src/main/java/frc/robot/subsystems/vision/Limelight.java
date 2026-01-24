@@ -6,6 +6,7 @@ package frc.robot.subsystems.vision;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -18,6 +19,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -30,18 +32,30 @@ public class Limelight
   private Transform3d kRobotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
   private final PhotonPoseEstimator photonEstimator;
   private PhotonPipelineResult result;
+  private boolean turretToRobot = false;
+  
 
   /**
    * 
    * @param name
-   * @param robotToCamera Transform3d from the centre of the robot to the camera, or from centre of a turret.
+   * @param robotToCamera Transform3d from the centre of the turret to the camera.
    */
   public Limelight(String name, Transform3d robotToCamera) 
     {
       this.camera = new PhotonCamera(name);
       kRobotToCam = robotToCamera;
       photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
+      turretToRobot = false;
     }
+
+ // rotation2d supplier, translation2d assign in constructor + set flag to true (turret to robot)
+  public Limelight(String name, Transform3d robotToCamera, Supplier<Rotation2d> turretAngleSup, Translation2d robotToTurret) 
+  {
+    this.camera = new PhotonCamera(name);
+    kRobotToCam = robotToCamera;
+    photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
+    turretToRobot = true;
+  }
 
   public void getLatestResult() 
   {
