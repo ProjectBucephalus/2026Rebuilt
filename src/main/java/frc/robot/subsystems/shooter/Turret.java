@@ -46,6 +46,15 @@ public class Turret
     return Conversions.normaliseAngle(robotTarget, getRotation().getDegrees(), maxTurretAzimuth);
   }
 
+  public void unwind()
+  {
+    double angle = getRotation().getDegrees();
+    m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(angle + 360, angle, maxTurretAzimuth) / 360)); 
+  }
+
+  public void home()
+    {m_Turret.setControl(request.withPosition(0));}
+
   public Rotation2d getRotation() 
     {return new Rotation2d(m_Turret.getPosition().getValue());}
   
