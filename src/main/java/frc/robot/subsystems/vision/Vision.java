@@ -66,6 +66,7 @@ public class Vision extends SubsystemBase
     SD.LL_EXPOSURE.put((double)pipelineIndex);
   }
 
+  // TODO Additional processing is required to account for cameras mounted on turrets
   @Override
   public void periodic() 
   {
@@ -80,14 +81,14 @@ public class Vision extends SubsystemBase
         if (maybeEst.isPresent()) 
         {
           var est = maybeEst.get(); 
-          boolean useUpdate = !(est.targetsUsed.size() != 0 && rpsSup.get() > 2.0);
+          boolean useUpdate = (est.targetsUsed.size() != 0 && rpsSup.get() < 2.0);
           
           if (useUpdate) 
           {
             double avgTagDist = 0;
             for (var target : est.targetsUsed)
               {avgTagDist += target.getBestCameraToTarget().getTranslation().getNorm();}
-            // TODO Should divide avgTagDist by target count here so it is actually the avg and not the total
+
 
             double stdDevFactor = Math.pow((avgTagDist/est.targetsUsed.size()), 2.0) / est.targetsUsed.size();
 

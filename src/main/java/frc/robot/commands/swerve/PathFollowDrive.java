@@ -17,7 +17,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
-import frc.robot.util.FieldUtils;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class PathFollowDrive extends Command 
@@ -25,8 +24,6 @@ public class PathFollowDrive extends Command
   private final Supplier<SwerveDriveState> swerveStateSup;
   private final CommandSwerveDrivetrain s_Swerve;
   private final SwerveRequest.ApplyRobotSpeeds driveRequest = new SwerveRequest.ApplyRobotSpeeds();    
-
-  private final Rotation2d targetRotation;
 
   private final ArrayList<Pose2d> waypoints;
   private final ArrayList<Double> radiusPerSegment;
@@ -78,7 +75,6 @@ public class PathFollowDrive extends Command
 
     radiusPerSegment.add(0.0);
     waypoints.add(new Pose2d(targetSequence[targetSequence.length - 1], targetRotation));
-    this.targetRotation = targetRotation;
   }
 
   // Called when the command is initially scheduled.
@@ -110,7 +106,7 @@ public class PathFollowDrive extends Command
     final var currentSegment = Math.floorDiv(currentWaypoint, 3);
     final double targetDist = radiusPerSegment.get(currentSegment);
 
-    if (FieldUtils.nearTranslation(robotPose.getTranslation(), targetPose.getTranslation(), targetDist)) 
+    if (Conversions.nearTranslation(robotPose.getTranslation(), targetPose.getTranslation(), targetDist)) 
     {
       currentWaypoint = Math.min(++currentWaypoint, waypoints.size());
       onPath = true;
@@ -124,6 +120,6 @@ public class PathFollowDrive extends Command
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return FieldUtils.atPose(robotPose, waypoints.get(waypoints.size()-1));
+    return Conversions.atPose(robotPose, waypoints.get(waypoints.size()-1));
   }
 }
