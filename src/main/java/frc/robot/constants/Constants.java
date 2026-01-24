@@ -6,7 +6,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
-
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 public final class Constants 
@@ -165,18 +165,22 @@ public final class Constants
   {
     public static final double maxTurretAzimuth = 270;
     public static final double gearRatio = 7;
-    public static final double turretAcceleration = 1;
-    public static final double turretVelocity = 1;  
     public static final double turretIdlePosition = 0;
     public static final double turretTurnSpeed = 0.25;
     public static final double turnBackThreshold = 135;
 
-    public static final double slot0S = 0.0;
-    public static final double slot0V = 0.0;
-    public static final double slot0A = 0.0;
-    public static final double slot0P = 10.0;
-    public static final double slot0I = 0.0;
-    public static final double slot0D = 0.0;
+    public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration()
+    {{
+      turretConfigs.Slot0.kS = 0.0;
+      turretConfigs.Slot0.kV = 0.0;
+      turretConfigs.Slot0.kA = 0.0;
+      turretConfigs.Slot0.kP = 10.0;
+      turretConfigs.Slot0.kI = 0.0;
+      turretConfigs.Slot0.kD = 0.0;
+
+      turretConfigs.MotionMagic.MotionMagicAcceleration = 1;
+      turretConfigs.MotionMagic.MotionMagicCruiseVelocity = 1;
+    }};
   }
 
   public static final class Interpolation 

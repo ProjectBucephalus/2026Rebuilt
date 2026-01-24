@@ -61,6 +61,7 @@ public class Robot extends TimedRobot
   private final Shooter s_Shooter = new Shooter
     (
       () -> swerveState.Pose,
+      Translation2d.kZero,
       IDConstants.shooterMainID, 
       IDConstants.shooterAuxID, 
       IDConstants.turretID, 

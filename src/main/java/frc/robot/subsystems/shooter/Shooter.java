@@ -2,7 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
-
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shooter.Target.TargetState;
 
@@ -22,6 +22,7 @@ public class Shooter extends SubsystemBase {
   public Shooter
   (
     Supplier<Pose2d> robotPoseSup,
+    Translation2d turretOffset,
     int shooterMainID, 
     int shooterAuxID, 
     int turretID, 
@@ -31,7 +32,7 @@ public class Shooter extends SubsystemBase {
     this.robotPoseSup = robotPoseSup;
 
     flywheels = new Flywheels(shooterMainID, shooterAuxID);
-    turret = new Turret(turretID);
+    turret = new Turret(turretID, turretOffset);
     hood = new Hood(hoodID, Transform2d.kZero);
   }
 

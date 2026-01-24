@@ -5,12 +5,14 @@ import frc.robot.util.FieldUtils;
 
 import static frc.robot.constants.Constants.TurretConstants.*;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.Units;
 
 public class Turret
 {
@@ -18,34 +20,34 @@ public class Turret
 
   private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
-  public Turret(int id) 
+  private final Translation2d robotOffset;
+
+  public Turret(int id, Translation2d robotOffset) 
   {
+    this.robotOffset = robotOffset;
     m_Turret = new TalonFX(id);
-
-    // in init function
-    var turretConfigs = new TalonFXConfiguration();
-
-    // set slot 0 gains
-    turretConfigs.Slot0.kS = slot0S;
-    turretConfigs.Slot0.kV = slot0V;
-    turretConfigs.Slot0.kA = slot0A;
-    turretConfigs.Slot0.kP = slot0P;
-    turretConfigs.Slot0.kI = slot0I;
-    turretConfigs.Slot0.kD = slot0D;
-
-    turretConfigs.MotionMagic.MotionMagicAcceleration = turretAcceleration;
-    turretConfigs.MotionMagic.MotionMagicCruiseVelocity = turretVelocity;
 
     m_Turret.getConfigurator().apply(turretConfigs);
   }
-  // calculates the Angle to the target 
+
+  /**
+   * @param robotPose Current Pose2d of the robot
+   * @param targetPoint Translation2d of the target
+   * @return Desired turret angle to aim at target, in degrees
+   */
   private double calculateTargetAngle(Pose2d robotPose, Translation2d targetPoint)
   {
-    double robotTarget = targetPoint.minus(robotPose.getTranslation()).getAngle().getDegrees();
-    double fieldTarget = robotTarget - robotPose.getRotation().getDegrees();
-    double wrappedTarget = Conversions.normaliseAngle(fieldTarget, m_Turret.getPosition().getValueAsDouble() * 360, maxTurretAzimuth);
-    return wrappedTarget;
+    var turretPos = robotPose.getTranslation().plus(robotOffset);
+    // Angle from turret centre to target relative to field +X axis
+    double fieldTarget = targetPoint.minus(turretPos).getAngle().getDegrees();
+    // Robot-Relative angle from turret to target
+    double robotTarget = fieldTarget - robotPose.getRotation().getDegrees();
+
+    return Conversions.normaliseAngle(robotTarget, getRotation().getDegrees(), maxTurretAzimuth);
   }
+
+  public Rotation2d getRotation() 
+    {return new Rotation2d(m_Turret.getPosition().getValue());}
 
   public void update(Pose2d robotPose, Target target)
   {
