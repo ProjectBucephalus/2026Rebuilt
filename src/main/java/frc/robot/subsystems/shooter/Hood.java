@@ -9,7 +9,7 @@ import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
 import frc.robot.constants.Constants.Interpolation;
-import static frc.robot.constants.Constants.HoodConstants.*;
+import static frc.robot.constants.Constants.Shooter.HoodConstants.*;
 
 public class Hood {
   private final Servo m_Servo;
@@ -51,6 +51,6 @@ public class Hood {
     target.altitude = targetAltitude;
 
     // sets the angle of m_Servo to targetAngle while only being able to go to minAngle or maxAngle
-    m_Servo.setAngle(Conversions.clamp(targetAltitude.getDegrees(), minAngle, maxAngle));
+    m_Servo.set(Conversions.clamp(targetAltitude.getDegrees(), 0, hoodRange) / (servoRange * hoodRatio));
   }
 }
