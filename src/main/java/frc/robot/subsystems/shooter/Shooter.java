@@ -1,12 +1,20 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.constants.FieldConstants;
+import frc.robot.constants.Constants.HoodConstants;
+import frc.robot.constants.Constants.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
+import frc.robot.util.Conversions;
 
 import java.util.function.Supplier;
+
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 public class Shooter extends SubsystemBase 
 {  
@@ -15,14 +23,15 @@ public class Shooter extends SubsystemBase
   private final Turret turret;
   private final Hood hood;
 
-  private final Supplier<Pose2d> robotPoseSup;
+  private final Supplier<SwerveDriveState> swerveStateSup;
+  private SwerveDriveState swerveState;
 
   private Target target = new Target(TargetState.Hub);
 
   /** Creates a new shooter. */
   public Shooter
   (
-    Supplier<Pose2d> robotPoseSup,
+    Supplier<SwerveDriveState> swerveStateSup,
     Translation2d turretOffset,
     int flywheelLeaderCAN, 
     int flywheelFollowerCAN, 
@@ -30,7 +39,7 @@ public class Shooter extends SubsystemBase
     int hoodPWM
   ) 
   {
-    this.robotPoseSup = robotPoseSup;
+    this.swerveStateSup = swerveStateSup;
 
     flywheels = new Flywheels(flywheelLeaderCAN, flywheelFollowerCAN);
     turret = new Turret(turretCAN, turretOffset);
@@ -43,10 +52,23 @@ public class Shooter extends SubsystemBase
   public void setFlywheels(double speed)
     {flywheels.setSpeed(speed);}
 
+  public Trigger shootReadyTrigger()
+  {
+    return new Trigger
+      (() -> {
+        return Conversions.nearRotation(turret.getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance)
+                && Conversions.nearRotation(hood.getAltitude(), target.altitude, HoodConstants.altTolerance)
+                && flywheels.atSpeed()
+                && (turret.getRPM() + Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond)) < TurretConstants.maxRPM;
+      });
+  }
+
   @Override
   public void periodic()
   {
-    turret.update(robotPoseSup.get(), target);
-    hood.update(robotPoseSup.get(), target);
+    swerveState = swerveStateSup.get();
+
+    turret.update(swerveState.Pose, target);
+    hood.update(swerveState.Pose, target);
   }
 }

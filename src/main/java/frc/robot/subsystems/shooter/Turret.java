@@ -9,6 +9,7 @@ import static frc.robot.constants.Constants.TurretConstants.*;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -41,7 +42,7 @@ public class Turret
    * @param targetPoint Translation2d of the target
    * @return Desired turret angle to aim at target, in degrees
    */
-  private double calculateTargetAngle(Pose2d robotPose, Translation2d targetPoint)
+  private Rotation2d calculateTargetAngle(Pose2d robotPose, Translation2d targetPoint)
   {
     var turretPos = robotPose.getTranslation().plus(robotOffset);
     // Angle from turret centre to target relative to field +X axis
@@ -49,28 +50,32 @@ public class Turret
     // Robot-Relative angle from turret to target
     double robotTarget = fieldTarget - robotPose.getRotation().getDegrees();
 
-    return Conversions.normaliseAngle(robotTarget, getRotation(), maxTurretAzimuth);
+    return Rotation2d.fromDegrees(Conversions.normaliseAngle(robotTarget, getAzimuth(), maxTurretAzimuth));
   }
 
   public void unwind()
   {
-    double angle = getRotation();
+    double angle = getAzimuth();
     m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(angle + 360, angle, maxTurretAzimuth) / 360)); 
+  }
+
+  public double getRPM()
+  {
+    return m_Turret.getVelocity().getValueAsDouble();
   }
 
   public void home()
     {m_Turret.setControl(request.withPosition(0));}
 
-  /** Returns mechanism rotation in degrees */
-  public double getRotation() 
-    {return m_Turret.getPosition().getValue().in(Units.Degrees);} // TODO Define and standadise rotation direction
-  
+  /** Returns mechanism angle in degrees */
+  public double getAzimuth() 
+    {return m_Turret.getPosition().getValue().in(Units.Degrees);}
+
+ 
   //using the states defined in Target.java to set the place that the turret is tracking
   public void update(Pose2d robotPose, Target target)
   {
-    calibrate();
-    
-    double targetAzimuth = switch (target.state) 
+    var targetAzimuth = switch (target.state) 
     {
       case Manual -> target.azimuth;
       case Point -> calculateTargetAngle(robotPose, target.point);
@@ -80,7 +85,7 @@ public class Turret
     target.azimuth = targetAzimuth;
 
     // gives control of the motors to request to be called in Robot.java
-    m_Turret.setControl(request.withPosition(targetAzimuth / 360));     
+    m_Turret.setControl(request.withPosition(targetAzimuth.getMeasure()));     
   }   
 
   public void calibrate()

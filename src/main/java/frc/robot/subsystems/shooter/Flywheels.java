@@ -10,6 +10,9 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
+import edu.wpi.first.math.MathUtil;
+import frc.robot.constants.Constants;
+
 import static frc.robot.constants.Constants.Shooter.*;
 
 /** Add your docs here. */
@@ -46,4 +49,13 @@ public class Flywheels
    // gives the control of the flywheels to request.
   public void setSpeed(double speed)
     {m_Leader.setControl(request.withVelocity(speed));}
+
+  public boolean atSpeed() 
+  {
+    double targetSpeed = request.Velocity;
+    var currentSpeed = m_Leader.getVelocity().getValueAsDouble();
+    return MathUtil.isNear(targetSpeed, currentSpeed,flySpeedTolerance);
+    
+    
+  }
 }
