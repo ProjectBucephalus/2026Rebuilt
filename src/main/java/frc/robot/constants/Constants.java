@@ -108,6 +108,51 @@ public final class Constants
     //simulation
     public static final double kGearRatio = 10.0;
     public static final double kMOI = 0.001; 
+
+    public static final class HoodConstants 
+    {
+      public static final double altTolerance = 3;
+
+      public static final double servoRange = 270;
+      public static final double servoGear = 20;
+      public static final double hoodGear = 193;
+      public static final double hoodRange = 25;
+      public static final double hoodRatio = servoGear / hoodGear;
+    }
+
+    public static final class TurretConstants
+    {
+      public static final double maxTurretAzimuth = 270;
+      
+      public static final double turretIdlePosition = 0;
+
+      public static final double turretTurnSpeed = 0.25;
+
+      public static final double potRange = 3600;
+      public static final double potPortOffset = -1800;
+      public static final double potStbdOffset = -1800;
+      public static final double potGear = 20;
+      public static final double turretGear = 90;
+      public static final double azimuthGearRatio = potGear / turretGear;
+
+      public static final double azimuthTolerance = 3;
+      public static final double maxRPM = 2000;
+      public static final double limitBufferZone = 10;
+      
+
+      public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration()
+      {{
+        turretConfigs.Slot0.kS = 0.0;
+        turretConfigs.Slot0.kV = 0.0;
+        turretConfigs.Slot0.kA = 0.0;
+        turretConfigs.Slot0.kP = 10.0;
+        turretConfigs.Slot0.kI = 0.0;
+        turretConfigs.Slot0.kD = 0.0;
+
+        turretConfigs.MotionMagic.MotionMagicAcceleration = 1;
+        turretConfigs.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
+      }};
+    }
   }
 
   public static final class Vision
@@ -176,33 +221,6 @@ public final class Constants
     public static final int mt1CyclesNeeded = 10;
   }
 
-  // values that the turret uses 
-  public static final class TurretConstants
-  {
-    public static final double maxTurretAzimuth = 270;
-    public static final double gearRatio = 7;
-    public static final double turretIdlePosition = 0;
-    public static final double turretTurnSpeed = 0.25;
-    public static final double turnBackThreshold = 135;
-    public static final double azimuthTolerance = 3;
-    public static final double maxRPM = 2000;
-    public static final double limmitBufferZone = 10;
-    
-
-    public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration()
-    {{
-      turretConfigs.Slot0.kS = 0.0;
-      turretConfigs.Slot0.kV = 0.0;
-      turretConfigs.Slot0.kA = 0.0;
-      turretConfigs.Slot0.kP = 10.0;
-      turretConfigs.Slot0.kI = 0.0;
-      turretConfigs.Slot0.kD = 0.0;
-
-      turretConfigs.MotionMagic.MotionMagicAcceleration = 1;
-      turretConfigs.MotionMagic.MotionMagicCruiseVelocity = 1;
-    }};
-  }
-
   public static final class Interpolation 
   {
     public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
@@ -228,13 +246,6 @@ public final class Constants
       put(0.0, 0.0);
       put(0.25, 0.25);
     }}; 
-  }
-
-  public static final class HoodConstants 
-  {
-    public static final double minAngle = 0;
-    public static final double maxAngle = 180;
-    public static final double altTolerance = 3;
   }
 
   public  static final class IndexerConstants 

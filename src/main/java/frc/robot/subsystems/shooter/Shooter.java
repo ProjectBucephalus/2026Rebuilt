@@ -7,8 +7,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.FieldConstants;
-import frc.robot.constants.Constants.HoodConstants;
-import frc.robot.constants.Constants.TurretConstants;
+import frc.robot.constants.Constants.Shooter.HoodConstants;
+import frc.robot.constants.Constants.Shooter.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 

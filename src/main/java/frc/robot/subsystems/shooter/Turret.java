@@ -4,7 +4,7 @@ import frc.robot.constants.Constants;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
-import static frc.robot.constants.Constants.TurretConstants.*;
+import static frc.robot.constants.Constants.Shooter.TurretConstants.*;
 
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
