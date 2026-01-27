@@ -29,10 +29,12 @@ public class Limelight
   // TODO should probably initialise photonEstimator in the constructor so that the tag layout and robotToCam transform can be just restricted to the constructor
   // Also, maybe let the robotToCam transform be provided in the constructor
   private static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
-  private Transform3d kRobotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+  private final Transform3d structureToCamera;
   private final PhotonPoseEstimator photonEstimator;
   private PhotonPipelineResult result;
-  private boolean turretToRobot = false;
+  private boolean onTurret = false;
+  private Supplier<Rotation2d> turretAngleSup;
+  private Translation2d turretToRobot;
   
 
   /**
@@ -43,18 +45,20 @@ public class Limelight
   public Limelight(String name, Transform3d robotToCamera) 
     {
       this.camera = new PhotonCamera(name);
-      kRobotToCam = robotToCamera;
-      photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
-      turretToRobot = false;
+      structureToCamera = robotToCamera;
+      photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
+      onTurret = false;
     }
 
  // rotation2d supplier, translation2d assign in constructor + set flag to true (turret to robot)
-  public Limelight(String name, Transform3d robotToCamera, Supplier<Rotation2d> turretAngleSup, Translation2d robotToTurret) 
+  public Limelight(String name, Transform3d turretToCamera, Supplier<Rotation2d> turretAngleSup, Translation2d turretToRobot) 
   {
     this.camera = new PhotonCamera(name);
-    kRobotToCam = robotToCamera;
-    photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
-    turretToRobot = true;
+    this.turretAngleSup = turretAngleSup;
+    this.turretToRobot = turretToRobot;
+    structureToCamera = turretToCamera;
+    photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
+    onTurret = true;
   }
 
   public void getLatestResult() 
@@ -85,6 +89,15 @@ public class Limelight
 
     return visionEst;
   }
+
+  public boolean isOnTurret()
+  {return onTurret;}
+
+  public Rotation2d getTurretAngle()
+  {return turretAngleSup.get();}
+  
+  public Translation2d getTurretToRobot()
+  {return turretToRobot;}
 
   public void periodic() 
   {
