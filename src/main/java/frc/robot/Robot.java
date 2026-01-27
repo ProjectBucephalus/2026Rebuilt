@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-//import edu.wpi.first.epilogue.Epilogue;
+import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -82,7 +82,7 @@ public class Robot extends TimedRobot
   private final Telemetry ctreLogger = new Telemetry(Constants.Swerve.maxSpeed);
   
   /* Subsystems */
-  private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
+  private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
   private final Shooter s_Shooter = new Shooter
     (
       () -> swerveState.Pose,
@@ -140,7 +140,7 @@ public class Robot extends TimedRobot
       DriverStation.startDataLog(DataLogManager.getLog());
     }
 
-    //Epilogue.bind(this);
+    Epilogue.bind(this);
 
     SmartDashboard.putData("Field", field);
 
@@ -228,8 +228,6 @@ public class Robot extends TimedRobot
 
   /* UTIL METHODS */
   /* ============ */
-  public static void setYaw(double newYaw) {s_Swerve.getPigeon2().setYaw(newYaw);}
-
   private void updateSwerveState()
   {
     swerveState = s_Swerve.getState();
