@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Servo;
@@ -30,21 +31,26 @@ public class Hood {
     return targetDist;
   }
 
+  public Rotation2d getAltitude()
+  {
+    return Rotation2d.fromDegrees(m_Servo.getAngle());
+  }
+
   public void update(Pose2d robotPose, Target target)
   {
-    double targetAltitude = switch (target.state) 
+    var targetAltitude = switch (target.state) 
     {
       // fixed angle 
       case Manual -> target.altitude;
       //aimed at a point on the field that can be changed 
-      case Point -> Interpolation.shooterAltitudeLow.get(calculateTargetDist(robotPose, target.point));
+      case Point -> Rotation2d.fromDegrees(Interpolation.shooterAltitudeLow.get(calculateTargetDist(robotPose, target.point)));
       //always aimed at hub
-      case Hub -> Interpolation.shooterAltitudeHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre()));
+      case Hub -> Rotation2d.fromDegrees(Interpolation.shooterAltitudeHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre())));
     };
 
     target.altitude = targetAltitude;
 
     // sets the angle of m_Servo to targetAngle while only being able to go to minAngle or maxAngle
-    m_Servo.setAngle(Conversions.clamp(targetAltitude, minAngle, maxAngle));
+    m_Servo.setAngle(Conversions.clamp(targetAltitude.getDegrees(), minAngle, maxAngle));
   }
 }

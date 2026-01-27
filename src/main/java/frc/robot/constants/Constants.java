@@ -103,6 +103,8 @@ public final class Constants
     public static final double revSpeed = 50.0;
     public static final double leliency = 5.0;
 
+    public static final double flySpeedTolerance = 100;
+
     //simulation
     public static final double kGearRatio = 10.0;
     public static final double kMOI = 0.001; 
@@ -182,6 +184,10 @@ public final class Constants
     public static final double turretIdlePosition = 0;
     public static final double turretTurnSpeed = 0.25;
     public static final double turnBackThreshold = 135;
+    public static final double azimuthTolerance = 3;
+    public static final double maxRPM = 2000;
+    public static final double limmitBufferZone = 10;
+    
 
     public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration()
     {{
@@ -228,6 +234,7 @@ public final class Constants
   {
     public static final double minAngle = 0;
     public static final double maxAngle = 180;
+    public static final double altTolerance = 3;
   }
 
   public  static final class IndexerConstants 

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class Target 
@@ -13,12 +14,12 @@ public class Target
   }
 
   public TargetState state; 
-  public double altitude; 
-  public double azimuth; 
+  public Rotation2d altitude; 
+  public Rotation2d azimuth; 
   public Translation2d point;
 
   // creates a function accesible to everything to store where a target is
-  public Target(TargetState state, double altitude, double azimuth, Translation2d point) 
+  public Target(TargetState state, Rotation2d altitude, Rotation2d azimuth, Translation2d point) 
   {
     this.state = state;
     this.altitude = altitude;
@@ -27,5 +28,5 @@ public class Target
   }
 
   public Target(TargetState state) 
-    {this(state, 0, 0, Translation2d.kZero);}
+    {this(state, Rotation2d.kZero, Rotation2d.kZero, Translation2d.kZero);}
 }
