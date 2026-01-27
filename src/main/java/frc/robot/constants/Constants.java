@@ -103,6 +103,12 @@ public final class Constants
     public static final double revSpeed = 50.0;
     public static final double leliency = 5.0;
 
+    public static final double servoRange = 270;
+    public static final double servoGear = 20;
+    public static final double hoodGear = 193;
+    public static final double hoodRange = 25;
+    public static final double hoodRatio = servoGear / hoodGear;
+
     //simulation
     public static final double kGearRatio = 10.0;
     public static final double kMOI = 0.001; 
@@ -178,12 +184,17 @@ public final class Constants
   public static final class TurretConstants
   {
     public static final double maxTurretAzimuth = 270;
-    public static final double gearRatio = 7;
     public static final double turretAcceleration = 1;
     public static final double turretVelocity = 1;  
     public static final double turretIdlePosition = 0;
     public static final double turretTurnSpeed = 0.25;
     public static final double turnBackThreshold = 135;
+    public static final double potRange = 3600;
+    public static final double potPortOffset = 1800;
+    public static final double potStbdOffset = 1800;
+    public static final double potGear = 20;
+    public static final double turretGear = 90;
+    public static final double azimuthGearRatio = potGear / turretGear;
 
     public static final double slot0S = 0.0;
     public static final double slot0V = 0.0;
