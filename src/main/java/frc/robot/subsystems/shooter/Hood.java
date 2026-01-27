@@ -1,8 +1,6 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Servo;
 import frc.robot.util.Conversions;
@@ -11,46 +9,43 @@ import frc.robot.util.FieldUtils;
 import frc.robot.constants.Constants.Interpolation;
 import static frc.robot.constants.Constants.Shooter.HoodConstants.*;
 
-public class Hood {
+public class Hood 
+{
   private final Servo m_Servo;
-  private final Transform2d shooterOffset;
 
-  public Hood(int id, Transform2d shooterOffset)
-  {
-    m_Servo = new Servo(id);
-    this.shooterOffset = shooterOffset;
-  }
+  public Hood(int id)
+    {m_Servo = new Servo(id);}
 
-  // calculates the distance to the target from the shooter
-  private double calculateTargetDist(Pose2d robotPose, Translation2d targetPoint)
-  {
-    //get the current rbot position and adds the offset of the shooter to this in order to get the position of the the shooter 
-    var shooterPose = robotPose.plus(shooterOffset);
-    double targetDist = targetPoint.minus(shooterPose.getTranslation()).getNorm();
-   
-    return targetDist;
-  }
+  /**
+   * Calculate the distance from the shooter to the target
+   * 
+   * @param shooterPose the field-relative shooter pose
+   * @param targetPoint the Translation2d of the target
+   * @return the distance from shooter to the target
+   */ 
+  private double calculateTargetDist(Pose2d shooterPose, Translation2d targetPoint)
+    {return targetPoint.minus(shooterPose.getTranslation()).getNorm();}
 
-  public double getAltitude()
+  /**
+   * Recalculate the target altitude and apply it to the motor
+   * 
+   * @param shooterPose the field-relative shooter pose
+   * @param target the current {@link Target}
+   */
+  public void update(Pose2d shooterPose, Target target)
   {
-    return m_Servo.getAngle();
-  }
-
-  public void update(Pose2d robotPose, Target target)
-  {
-    double targetAltitude = switch (target.state) 
+    // Update the azimuth stored in the target based on the target state
+    // Ensures that changing to manual mode doesn't cause sudden motion
+    target.altitude = switch (target.state) 
     {
-      // fixed angle 
       case Manual -> target.altitude;
-      //aimed at a point on the field that can be changed 
-      case Point -> Interpolation.shooterAltitudeLow.get(calculateTargetDist(robotPose, target.point));
-      //always aimed at hub
-      case Hub -> Interpolation.shooterAltitudeHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre()));
+      case Point -> Interpolation.shooterAltitudeLow.get(calculateTargetDist(shooterPose, target.point));
+      case Hub -> Interpolation.shooterAltitudeHub.get(calculateTargetDist(shooterPose, FieldUtils.getAllianceHubCentre()));
     };
 
-    target.altitude = targetAltitude;
-
-    // sets the angle of m_Servo to targetAngle while only being able to go to minAngle or maxAngle
-    m_Servo.set(Conversions.clamp(targetAltitude, 0, hoodRange) / (servoRange * hoodRatio));
+    // Set the angle of the servo to the target angle, 
+    // accounting for the gear ratio between the servo and the physical hood 
+    // and limiting the target to within the hood's range of motion
+    m_Servo.set(Conversions.clamp(target.altitude, 0, hoodRange) / (servoRange * hoodRatio));
   }
 }

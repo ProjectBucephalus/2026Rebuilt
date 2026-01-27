@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter;
 
-import frc.robot.constants.Constants;
 import frc.robot.constants.Constants.Shooter.TurretConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
@@ -10,11 +9,8 @@ import static frc.robot.constants.Constants.Shooter.TurretConstants.*;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 
@@ -25,11 +21,8 @@ public class Turret
 
   private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
-  private final Translation2d robotOffset;
-
-  public Turret(int motorID, int potID, double potOffset, Translation2d robotOffset) 
+  public Turret(int motorID, int potID, double potOffset) 
   {
-    this.robotOffset = robotOffset;
     m_Turret = new TalonFX(motorID);
     io_Azimuth = new AnalogPotentiometer(potID, TurretConstants.potRange, potOffset);
 
@@ -39,62 +32,81 @@ public class Turret
   }
 
   /**
-   * @param robotPose Current Pose2d of the robot
-   * @param targetPoint Translation2d of the target
-   * @return Desired turret angle to aim at target, in degrees
+   * Get the current rotational speed of the Turret
+   * 
+   * @return the speed, in rotations per second
    */
-  private double calculateTargetAngle(Pose2d robotPose, Translation2d targetPoint)
-  {
-    var turretPos = robotPose.getTranslation().plus(robotOffset);
-    // Angle from turret centre to target relative to field +X axis
-    double fieldTarget = targetPoint.minus(turretPos).getAngle().getDegrees();
-    // Robot-Relative angle from turret to target
-    double robotTarget = fieldTarget - robotPose.getRotation().getDegrees();
+  public double getSpeed()
+    {return m_Turret.getVelocity().getValueAsDouble();}
 
-    return Conversions.normaliseAngle(robotTarget, getAzimuth(), maxTurretAzimuth);
-  }
+  /** 
+   * Get the current azimuth (rotational position) of the Turret
+   * 
+   * @return the azimuth, in degrees
+   */
+  public double getAzimuth() 
+    {return m_Turret.getPosition().getValue().in(Units.Degrees);}
 
+  /**
+   * Unwind the turret by driving it one rotation towards zero
+   */
   public void unwind()
   {
     double angle = getAzimuth();
     m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(angle + 360, angle, maxTurretAzimuth) / 360)); 
   }
 
-  public double getRPM()
-  {
-    return m_Turret.getVelocity().getValueAsDouble();
-  }
-
+  /**
+   * Drive the turret to it's robot-relative zero position
+   */
   public void home()
     {m_Turret.setControl(request.withPosition(0));}
 
-  /** Returns mechanism angle in degrees */
-  public double getAzimuth() 
-    {return m_Turret.getPosition().getValue().in(Units.Degrees);}
-
- 
-  //using the states defined in Target.java to set the place that the turret is tracking
-  public void update(Pose2d robotPose, Target target)
-  {
-    var targetAzimuth = switch (target.state) 
-    {
-      case Manual -> target.azimuth;
-      case Point -> calculateTargetAngle(robotPose, target.point);
-      case Hub -> calculateTargetAngle(robotPose, FieldUtils.getAllianceHubCentre());
-    };
-
-    target.azimuth = targetAzimuth;
-
-    // gives control of the motors to request to be called in Robot.java
-    m_Turret.setControl(request.withPosition(targetAzimuth/360));  
-  }   
-
+  /**
+   * If the turret is not moving, resets the motor's internal position to the current potentiometer reading
+   */
   public void calibrate()
   {
     // If the turret is not moving, pull the value from the pot, convert to mechanism angle, and send to motor
     if (Math.abs(m_Turret.getVelocity().getValueAsDouble()) < 0.1)
-    {
-      m_Turret.setPosition((io_Azimuth.get()*azimuthGearRatio)/360.0);
-    }
+      m_Turret.setPosition((io_Azimuth.get() * azimuthGearRatio) / 360.0);
   }
+
+  /**
+   * Calculate the angle that the turret should rotate to in order to aim at the given target point
+   * 
+   * @param shooterPose the field-relative shooter pose
+   * @param targetPoint the Translation2d of the target
+   * @return the robot-relative target angle in degrees 
+   */
+  private double calculateTargetAngle(Pose2d shooterPose, Translation2d targetPoint)
+  {
+    // Angle from turret centre to target relative to field +X axis
+    double fieldTarget = targetPoint.minus(shooterPose.getTranslation()).getAngle().getDegrees();
+    // Robot-Relative angle from turret to target
+    double robotTarget = fieldTarget - shooterPose.getRotation().getDegrees();
+
+    return Conversions.normaliseAngle(robotTarget, getAzimuth(), maxTurretAzimuth);
+  }
+
+  /**
+   * Recalculate the target azimuth and apply it to the motor
+   * 
+   * @param shooterPose the field-relative shooter pose
+   * @param target the current {@link Target}
+   */
+  public void update(Pose2d shooterPose, Target target)
+  {
+    // Update the azimuth stored in the target based on the target state
+    // Ensures that changing to manual mode doesn't cause sudden motion
+    target.azimuth = switch (target.state) 
+    {
+      case Manual -> target.azimuth;
+      case Point -> calculateTargetAngle(shooterPose, target.point);
+      // aim at our alliance's hub
+      case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre());
+    };
+
+    m_Turret.setControl(request.withPosition(target.azimuth / 360));  
+  }   
 }

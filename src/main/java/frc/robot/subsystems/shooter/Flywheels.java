@@ -11,9 +11,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.math.MathUtil;
-import frc.robot.constants.Constants;
 
 import static frc.robot.constants.Constants.Shooter.*;
+import frc.robot.constants.Constants.Shooter;
 
 /** Add your docs here. */
 public class Flywheels 
@@ -46,16 +46,23 @@ public class Flywheels
 
     m_Follower.setControl(new Follower(leaderCAN, MotorAlignmentValue.Opposed));
   }
-   // gives the control of the flywheels to request.
+
+  /**
+   * Set the motor speed
+   * 
+   * @param speed the desired speed, in rotations per second
+   */
   public void setSpeed(double speed)
     {m_Leader.setControl(request.withVelocity(speed));}
 
+  /**
+   * Checks if the current motor speed is within {@link Shooter#flySpeedTolerance flySpeedTolerance} of the requested speed
+   * 
+   * @return true if the motor is at speed
+   */
   public boolean atSpeed() 
   {
-    double targetSpeed = request.Velocity;
-    var currentSpeed = m_Leader.getVelocity().getValueAsDouble();
-    return MathUtil.isNear(targetSpeed, currentSpeed,flySpeedTolerance);
-    
-    
+    double currentSpeed = m_Leader.getVelocity().getValueAsDouble();
+    return MathUtil.isNear(request.Velocity, currentSpeed, flySpeedTolerance);
   }
 }

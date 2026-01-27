@@ -8,6 +8,7 @@ package frc.robot;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -36,7 +37,6 @@ import javax.sound.sampled.Line;
 import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.*;
 import frc.robot.subsystems.vision.Vision.TagPOI;
@@ -90,7 +90,7 @@ public class Robot extends TimedRobot
   private final Shooter s_PortShooter = new Shooter
     (
       () -> swerveState,
-      Translation2d.kZero,
+      Transform2d.kZero,
       IDConstants.portFlyLeaderCAN, 
       IDConstants.portFlyFollowerCAN, 
       IDConstants.portTurretCAN, 
@@ -99,7 +99,7 @@ public class Robot extends TimedRobot
   private final Shooter s_StbdShooter = new Shooter
     (
       () -> swerveState,
-      Translation2d.kZero,
+      Transform2d.kZero,
       IDConstants.stbdFlyLeaderCAN, 
       IDConstants.stbdFlyFollowerCAN, 
       IDConstants.stbdTurretCAN, 

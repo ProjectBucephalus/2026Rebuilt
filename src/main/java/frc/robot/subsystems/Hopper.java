@@ -2,15 +2,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.hopper;
+package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.constants.Constants.HopperConstants.*;
 
-import frc.robot.subsystems.BinaryMotor;
-import frc.robot.subsystems.LinearExtension;
-
-public class Hopper extends SubsystemBase {
+public class Hopper extends SubsystemBase 
+{
   private BinaryMotor spindexer;
   private BinaryMotor intake;
   private LinearExtension extension;
@@ -24,7 +22,5 @@ public class Hopper extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+  public void periodic() {}
 }

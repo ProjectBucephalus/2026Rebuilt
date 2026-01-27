@@ -32,10 +32,7 @@ public class Conversions
    */
   public static int wrap(int value, int min, int max)
   {
-    if (max == min)
-    {
-      return 0;
-    }
+    if (max == min) return 0;
 
     if (max < min)
     {
@@ -54,7 +51,8 @@ public class Conversions
       value -= ((max-min) + 1);
       value = wrap(value,min,max);
     }
-    return  value;
+
+    return value;
   }
 
   /** 
@@ -84,9 +82,12 @@ public class Conversions
   /** Returns the input T2D with a maximum length of 1 */
   public static Translation2d clamp(Translation2d value)
   {
-    if (value.getNorm() > 1)
-    {return value.div(value.getNorm());}
-    return value;
+    double norm = value.getNorm();
+
+    if (norm > 1)
+      return value.div(norm);
+    else 
+      return value;
   }
 
   /**
@@ -120,9 +121,7 @@ public class Conversions
 
   /** Returns true if the wrapped input angles are within the given tollerance */
   public static boolean nearRotation(Rotation2d rotationA, Rotation2d rotationB, double degreesTolerance)
-  {
-    return nearRotation(rotationA.getDegrees(), rotationB.getDegrees(), degreesTolerance);
-  }
+    {return nearRotation(rotationA.getDegrees(), rotationB.getDegrees(), degreesTolerance);}
 
   /** Returns true if the wrapped input angles are within the given tollerance */
   public static boolean nearRotation(double angleA, double angleB, double degreesTolerance)
