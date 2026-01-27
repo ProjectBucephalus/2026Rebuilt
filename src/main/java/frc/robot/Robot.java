@@ -89,7 +89,7 @@ public class Robot extends TimedRobot
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
   private final Shooter s_PortShooter = new Shooter
     (
-      () -> swerveState.Pose,
+      () -> swerveState,
       Translation2d.kZero,
       IDConstants.portFlyLeaderCAN, 
       IDConstants.portFlyFollowerCAN, 
@@ -98,7 +98,7 @@ public class Robot extends TimedRobot
     );
   private final Shooter s_StbdShooter = new Shooter
     (
-      () -> swerveState.Pose,
+      () -> swerveState,
       Translation2d.kZero,
       IDConstants.stbdFlyLeaderCAN, 
       IDConstants.stbdFlyFollowerCAN, 
