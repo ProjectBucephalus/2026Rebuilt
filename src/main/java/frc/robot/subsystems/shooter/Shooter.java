@@ -42,7 +42,7 @@ public class Shooter extends SubsystemBase
     this.swerveStateSup = swerveStateSup;
 
     flywheels = new Flywheels(flywheelLeaderCAN, flywheelFollowerCAN);
-    turret = new Turret(turretCAN, turretOffset);
+    turret = new Turret(turretCAN, 1, 1, turretOffset);
     hood = new Hood(hoodPWM, Transform2d.kZero);
   }
 

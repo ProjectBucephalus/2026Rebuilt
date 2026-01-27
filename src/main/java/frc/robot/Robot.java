@@ -112,9 +112,9 @@ public class Robot extends TimedRobot
         s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
         s_Swerve.addVisionMeasurement(poseEst, timestmp);
       },
-      () -> swerveState.Speeds.omegaRadiansPerSecond, 
-      //new Limelight(foreLimelightName), 
-      new Limelight(aftLimelightName)
+      () -> swerveState.Speeds.omegaRadiansPerSecond,
+      new Limelight(portLimelightName, Constants.Vision.portLimelightOffset), 
+      new Limelight(stbdLimelightName, Constants.Vision.stbdLimelightOffset)
     );
   private final LinearExtension s_Climber = new LinearExtension
     (

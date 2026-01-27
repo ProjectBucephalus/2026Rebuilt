@@ -121,7 +121,13 @@ public class Conversions
   /** Returns true if the wrapped input angles are within the given tollerance */
   public static boolean nearRotation(Rotation2d rotationA, Rotation2d rotationB, double degreesTolerance)
   {
-    double difference = Math.abs(mod(rotationA.getDegrees(), 360) - mod(rotationB.getDegrees(), 360));
+    return nearRotation(rotationA.getDegrees(), rotationB.getDegrees(), degreesTolerance);
+  }
+
+  /** Returns true if the wrapped input angles are within the given tollerance */
+  public static boolean nearRotation(double angleA, double angleB, double degreesTolerance)
+  {
+    double difference = Math.abs(mod(angleA, 360) - mod(angleB, 360));
 
     return
       difference < 0 + degreesTolerance

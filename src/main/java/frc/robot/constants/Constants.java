@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public final class Constants 
@@ -157,6 +158,9 @@ public final class Constants
 
   public static final class Vision
   {
+    public static final Transform3d portLimelightOffset = new Transform3d();
+    public static final Transform3d stbdLimelightOffset = new Transform3d();
+
     public static final int[] hubIDs = 
     {
       /* RED */ 

@@ -31,26 +31,26 @@ public class Hood {
     return targetDist;
   }
 
-  public Rotation2d getAltitude()
+  public double getAltitude()
   {
-    return Rotation2d.fromDegrees(m_Servo.getAngle());
+    return m_Servo.getAngle();
   }
 
   public void update(Pose2d robotPose, Target target)
   {
-    var targetAltitude = switch (target.state) 
+    double targetAltitude = switch (target.state) 
     {
       // fixed angle 
       case Manual -> target.altitude;
       //aimed at a point on the field that can be changed 
-      case Point -> Rotation2d.fromDegrees(Interpolation.shooterAltitudeLow.get(calculateTargetDist(robotPose, target.point)));
+      case Point -> Interpolation.shooterAltitudeLow.get(calculateTargetDist(robotPose, target.point));
       //always aimed at hub
-      case Hub -> Rotation2d.fromDegrees(Interpolation.shooterAltitudeHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre())));
+      case Hub -> Interpolation.shooterAltitudeHub.get(calculateTargetDist(robotPose, FieldUtils.getAllianceHubCentre()));
     };
 
     target.altitude = targetAltitude;
 
     // sets the angle of m_Servo to targetAngle while only being able to go to minAngle or maxAngle
-    m_Servo.set(Conversions.clamp(targetAltitude.getDegrees(), 0, hoodRange) / (servoRange * hoodRatio));
+    m_Servo.set(Conversions.clamp(targetAltitude, 0, hoodRange) / (servoRange * hoodRatio));
   }
 }

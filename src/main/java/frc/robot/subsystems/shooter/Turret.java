@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.constants.Constants;
+import frc.robot.constants.Constants.Shooter.TurretConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
@@ -30,7 +31,7 @@ public class Turret
   {
     this.robotOffset = robotOffset;
     m_Turret = new TalonFX(motorID);
-    io_Azimuth = new AnalogPotentiometer(potID, Constants.TurretConstants.maxTurretAzimuth, potOffset);
+    io_Azimuth = new AnalogPotentiometer(potID, TurretConstants.potRange, potOffset);
 
     m_Turret.getConfigurator().apply(turretConfigs);
 
@@ -42,7 +43,7 @@ public class Turret
    * @param targetPoint Translation2d of the target
    * @return Desired turret angle to aim at target, in degrees
    */
-  private Rotation2d calculateTargetAngle(Pose2d robotPose, Translation2d targetPoint)
+  private double calculateTargetAngle(Pose2d robotPose, Translation2d targetPoint)
   {
     var turretPos = robotPose.getTranslation().plus(robotOffset);
     // Angle from turret centre to target relative to field +X axis
@@ -50,7 +51,7 @@ public class Turret
     // Robot-Relative angle from turret to target
     double robotTarget = fieldTarget - robotPose.getRotation().getDegrees();
 
-    return Rotation2d.fromDegrees(Conversions.normaliseAngle(robotTarget, getAzimuth(), maxTurretAzimuth));
+    return Conversions.normaliseAngle(robotTarget, getAzimuth(), maxTurretAzimuth);
   }
 
   public void unwind()
@@ -85,7 +86,7 @@ public class Turret
     target.azimuth = targetAzimuth;
 
     // gives control of the motors to request to be called in Robot.java
-    m_Turret.setControl(request.withPosition(targetAzimuth.getMeasure()));     
+    m_Turret.setControl(request.withPosition(targetAzimuth/360));  
   }   
 
   public void calibrate()
@@ -93,7 +94,7 @@ public class Turret
     // If the turret is not moving, pull the value from the pot, convert to mechanism angle, and send to motor
     if (Math.abs(m_Turret.getVelocity().getValueAsDouble()) < 0.1)
     {
-      m_Turret.setPosition((io_Azimuth.get()*gearRatio)/360.0);
+      m_Turret.setPosition((io_Azimuth.get()*azimuthGearRatio)/360.0);
     }
   }
 }
