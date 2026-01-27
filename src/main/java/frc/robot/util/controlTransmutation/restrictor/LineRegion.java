@@ -9,7 +9,7 @@ import frc.robot.util.Conversions;
 import frc.robot.util.controlTransmutation.Restrictor;
 
 /** Add your docs here. */
-public class Line extends Restrictor
+public class LineRegion extends Restrictor
 {
   private Translation2d pointA;
   private Translation2d pointB;    
@@ -26,7 +26,7 @@ public class Line extends Restrictor
   private double dotXY;
   
 
-  public Line(Translation2d pointA, Translation2d pointB)
+  public LineRegion(Translation2d pointA, Translation2d pointB)
   {
     this.pointA = pointA;
     this.pointB = pointB;

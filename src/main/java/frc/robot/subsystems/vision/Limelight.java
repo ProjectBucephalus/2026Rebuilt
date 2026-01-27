@@ -67,6 +67,6 @@ public class Limelight
   public void periodic() 
   {
     getLatestResult();
-    SmartDashboard.putString(camera.getName() + "result", (result.toString()));
+    //SmartDashboard.putString(camera.getName() + "result", (result.toString()));
   }
 }
