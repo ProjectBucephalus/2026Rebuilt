@@ -16,11 +16,11 @@ public class Hopper extends SubsystemBase {
   private LinearExtension extension;
   
   /** Creates a new Hopper. */
-  public Hopper(int spindexerID, int intakeID, int extensionID, int extensionLimitID) 
+  public Hopper(int spindexerCAN, int intakeCAN, int extensionCAN, int extensionLimitCAN) 
   {
-    spindexer = new BinaryMotor(spindexerSpeed, spindexerID);
-    intake = new BinaryMotor(intakeSpeed, intakeID);
-    extension = new LinearExtension(extensionID, extensionLimitID, 0, ExtensionConstants.maxRotations, ExtensionConstants.config);
+    spindexer = new BinaryMotor(spindexerSpeed, spindexerCAN);
+    intake = new BinaryMotor(intakeSpeed, intakeCAN);
+    extension = new LinearExtension(extensionCAN, extensionLimitCAN, 0, ExtensionConstants.maxRotations, ExtensionConstants.config);
   }
 
   @Override

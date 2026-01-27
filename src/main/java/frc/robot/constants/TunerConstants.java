@@ -89,7 +89,7 @@ public class TunerConstants
   private static final boolean kInvertLeftSide = false;
   private static final boolean kInvertRightSide = true;
 
-  private static final int kPigeonId = IDConstants.pigeonID;
+  private static final int kPigeonId = IDConstants.pigeonCAN;
 
   // These are only used for simulation
   private static final MomentOfInertia kSteerInertia = KilogramSquareMeters.of(0.01);
@@ -128,9 +128,9 @@ public class TunerConstants
         .withDriveFrictionVoltage(kDriveFrictionVoltage);
 
   // Front Left
-  private static final int kFrontLeftDriveMotorId = IDConstants.forePortDriveMotorID;
-  private static final int kFrontLeftSteerMotorId = IDConstants.forePortAngleMotorID;
-  private static final int kFrontLeftEncoderId    = IDConstants.forePortCANcoderID;
+  private static final int kFrontLeftDriveMotorId = IDConstants.forePortDriveMotorCAN;
+  private static final int kFrontLeftSteerMotorId = IDConstants.forePortAngleMotorCAN;
+  private static final int kFrontLeftEncoderId    = IDConstants.forePortCANcoderCAN;
   private static final Angle kFrontLeftEncoderOffset = Rotations.of(0); // This value is ignored in favour of the in-module callibration 
   private static final boolean kFrontLeftSteerMotorInverted = true;
   private static final boolean kFrontLeftEncoderInverted = false;
@@ -139,9 +139,9 @@ public class TunerConstants
   private static final Distance kFrontLeftYPos = Meter.of(Constants.Swerve.wheelPortY);
 
   // Front Right
-  private static final int kFrontRightDriveMotorId = IDConstants.foreStbdDriveMotorID;
-  private static final int kFrontRightSteerMotorId = IDConstants.foreStbdAngleMotorID;
-  private static final int kFrontRightEncoderId    = IDConstants.foreStbdCANcoderID;
+  private static final int kFrontRightDriveMotorId = IDConstants.foreStbdDriveMotorCAN;
+  private static final int kFrontRightSteerMotorId = IDConstants.foreStbdAngleMotorCAN;
+  private static final int kFrontRightEncoderId    = IDConstants.foreStbdCANcoderCAN;
   private static final Angle kFrontRightEncoderOffset = Rotations.of(0.25); // This value is ignored in favour of the in-module callibration 
   private static final boolean kFrontRightSteerMotorInverted = true;
   private static final boolean kFrontRightEncoderInverted = false;
@@ -150,9 +150,9 @@ public class TunerConstants
   private static final Distance kFrontRightYPos = Meter.of(-Constants.Swerve.wheelStbdY);
 
   // Back Left
-  private static final int kBackLeftDriveMotorId = IDConstants.aftPortDriveMotorID;
-  private static final int kBackLeftSteerMotorId = IDConstants.aftPortAngleMotorID;
-  private static final int kBackLeftEncoderId    = IDConstants.aftPortCANcoderID;
+  private static final int kBackLeftDriveMotorId = IDConstants.aftPortDriveMotorCAN;
+  private static final int kBackLeftSteerMotorId = IDConstants.aftPortAngleMotorCAN;
+  private static final int kBackLeftEncoderId    = IDConstants.aftPortCANcoderCAN;
   private static final Angle kBackLeftEncoderOffset = Rotations.of(0.25); // This value is ignored in favour of the in-module callibration  
   private static final boolean kBackLeftSteerMotorInverted = true;
   private static final boolean kBackLeftEncoderInverted = false;
@@ -161,9 +161,9 @@ public class TunerConstants
   private static final Distance kBackLeftYPos = Meter.of(Constants.Swerve.wheelPortY);
 
   // Back Right
-  private static final int kBackRightDriveMotorId = IDConstants.aftStbdDriveMotorID;
-  private static final int kBackRightSteerMotorId = IDConstants.aftStbdAngleMotorID;
-  private static final int kBackRightEncoderId    = IDConstants.aftStbdCANcoderID;
+  private static final int kBackRightDriveMotorId = IDConstants.aftStbdDriveMotorCAN;
+  private static final int kBackRightSteerMotorId = IDConstants.aftStbdAngleMotorCAN;
+  private static final int kBackRightEncoderId    = IDConstants.aftStbdCANcoderCAN;
   private static final Angle kBackRightEncoderOffset = Rotations.of(0); // This value is ignored in favour of the in-module callibration 
   private static final boolean kBackRightSteerMotorInverted = true;
   private static final boolean kBackRightEncoderInverted = false;
@@ -206,22 +206,22 @@ public class TunerConstants
     // # 5985 ADDITION >> Pulls previous calibration before it's wiped for persistant calibration!!! # //
     CANcoderConfiguration oldValueHolder = new CANcoderConfiguration();
 
-    CANcoder flCoder = new CANcoder(IDConstants.forePortCANcoderID);
+    CANcoder flCoder = new CANcoder(IDConstants.forePortCANcoderCAN);
     flCoder.getConfigurator().refresh(oldValueHolder);
     FrontLeft.EncoderOffset = oldValueHolder.MagnetSensor.MagnetOffset;
     flCoder.close();
     
-    CANcoder frCoder = new CANcoder(IDConstants.foreStbdCANcoderID);
+    CANcoder frCoder = new CANcoder(IDConstants.foreStbdCANcoderCAN);
     frCoder.getConfigurator().refresh(oldValueHolder);
     FrontRight.EncoderOffset = oldValueHolder.MagnetSensor.MagnetOffset;
     frCoder.close();
     
-    CANcoder blCoder = new CANcoder(IDConstants.aftPortCANcoderID);
+    CANcoder blCoder = new CANcoder(IDConstants.aftPortCANcoderCAN);
     blCoder.getConfigurator().refresh(oldValueHolder);
     BackLeft.EncoderOffset = oldValueHolder.MagnetSensor.MagnetOffset;
     blCoder.close();
     
-    CANcoder brCoder = new CANcoder(IDConstants.aftStbdCANcoderID);
+    CANcoder brCoder = new CANcoder(IDConstants.aftStbdCANcoderCAN);
     brCoder.getConfigurator().refresh(oldValueHolder);
     BackRight.EncoderOffset = oldValueHolder.MagnetSensor.MagnetOffset;
     brCoder.close();

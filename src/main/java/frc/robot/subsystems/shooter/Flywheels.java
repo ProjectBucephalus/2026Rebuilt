@@ -12,18 +12,18 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import static frc.robot.constants.Constants.Shooter.*;
 
-
 /** Add your docs here. */
-public class Flywheels {
-  private final TalonFX m_Main; 
-  private final TalonFX m_Aux;
+public class Flywheels 
+{
+  private final TalonFX m_Leader; 
+  private final TalonFX m_Follower;
 
   private final MotionMagicVelocityVoltage request = new MotionMagicVelocityVoltage(0);
 
-  public Flywheels(int mainID, int auxID)
+  public Flywheels(int leaderCAN, int followerCAN)
   {
-    m_Main = new TalonFX(mainID);
-    m_Aux = new TalonFX(auxID);
+    m_Leader = new TalonFX(leaderCAN);
+    m_Follower = new TalonFX(followerCAN);
 
     var shooterConfigs = new TalonFXConfiguration();
 
@@ -39,11 +39,11 @@ public class Flywheels {
     shooterConfigs.MotionMagic.MotionMagicAcceleration = flywheelAcceleration;
     shooterConfigs.MotionMagic.MotionMagicJerk = flywheelJerk; 
     // sets m_Aux to a follower of m_Main
-    m_Main.getConfigurator().apply(shooterConfigs);
+    m_Leader.getConfigurator().apply(shooterConfigs);
 
-    m_Aux.setControl(new Follower(mainID, MotorAlignmentValue.Opposed));
+    m_Follower.setControl(new Follower(leaderCAN, MotorAlignmentValue.Opposed));
   }
    // gives the control of the flywheels to request.
   public void setSpeed(double speed)
-    {m_Main.setControl(request.withVelocity(speed));}
+    {m_Leader.setControl(request.withVelocity(speed));}
 }

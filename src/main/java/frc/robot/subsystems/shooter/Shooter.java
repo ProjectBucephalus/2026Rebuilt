@@ -8,7 +8,8 @@ import frc.robot.subsystems.shooter.Target.TargetState;
 
 import java.util.function.Supplier;
 
-public class Shooter extends SubsystemBase {  
+public class Shooter extends SubsystemBase 
+{  
   // these variables are defined here but used in the corsponding files 
   private final Flywheels flywheels; 
   private final Turret turret;
@@ -23,17 +24,17 @@ public class Shooter extends SubsystemBase {
   (
     Supplier<Pose2d> robotPoseSup,
     Translation2d turretOffset,
-    int shooterMainID, 
-    int shooterAuxID, 
-    int turretID, 
-    int hoodID
+    int flywheelLeaderCAN, 
+    int flywheelFollowerCAN, 
+    int turretCAN, 
+    int hoodPWM
   ) 
   {
     this.robotPoseSup = robotPoseSup;
 
-    flywheels = new Flywheels(shooterMainID, shooterAuxID);
-    turret = new Turret(turretID, turretOffset);
-    hood = new Hood(hoodID, Transform2d.kZero);
+    flywheels = new Flywheels(flywheelLeaderCAN, flywheelFollowerCAN);
+    turret = new Turret(turretCAN, turretOffset);
+    hood = new Hood(hoodPWM, Transform2d.kZero);
   }
 
   public void setTarget(Target target)

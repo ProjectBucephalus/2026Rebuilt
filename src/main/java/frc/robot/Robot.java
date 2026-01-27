@@ -87,14 +87,23 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
-  private final Shooter s_Shooter = new Shooter
+  private final Shooter s_PortShooter = new Shooter
     (
       () -> swerveState.Pose,
       Translation2d.kZero,
-      IDConstants.shooterMainID, 
-      IDConstants.shooterAuxID, 
-      IDConstants.turretID, 
-      IDConstants.hoodID
+      IDConstants.portFlyLeaderCAN, 
+      IDConstants.portFlyFollowerCAN, 
+      IDConstants.portTurretCAN, 
+      IDConstants.portHoodPWM
+    );
+  private final Shooter s_StbdShooter = new Shooter
+    (
+      () -> swerveState.Pose,
+      Translation2d.kZero,
+      IDConstants.stbdFlyLeaderCAN, 
+      IDConstants.stbdFlyFollowerCAN, 
+      IDConstants.stbdTurretCAN, 
+      IDConstants.stbdHoodPWM
     );
   private final Vision s_Vision = new Vision
     (
@@ -109,13 +118,19 @@ public class Robot extends TimedRobot
     );
   private final LinearExtension s_Climber = new LinearExtension
     (
-      IDConstants.climberID, 
-      IDConstants.climberLimitID, 
+      IDConstants.climberCAN, 
+      IDConstants.climberLimitDIO, 
       0, 
       Constants.ClimberConstants.maxRotations, 
       Constants.ClimberConstants.config
     );
-  private final Hopper s_Hopper = new Hopper(IDConstants.spindexerID, IDConstants.intakeID, IDConstants.extensionID, IDConstants.extensionLimitID);
+  private final Hopper s_Hopper = new Hopper
+    (
+      IDConstants.spindexerCAN,
+      IDConstants.intakeCAN, 
+      IDConstants.extensionCAN, 
+      IDConstants.extensionLimitDIO
+    );
   
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(0);
