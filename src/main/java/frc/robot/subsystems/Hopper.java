@@ -24,15 +24,14 @@ public class Hopper extends SubsystemBase
     extension = new LinearExtension(extensionCAN, extensionLimitCAN, 0, ExtensionConstants.maxRotations, ExtensionConstants.config);
   }
   
-  // intake
+  /**@return Command to intake*/
   public Command runIntakeCommand()
   {return intake.startCommand();}
 
   public Command stopIntakeCommand()
   {return intake.stopCommand();}
-
   
-  //spindexer
+  /** @return Command to start spindexe */
   public Command runSpindexerCommand()
   {return spindexer.startCommand();}
 
@@ -54,10 +53,10 @@ public class Hopper extends SubsystemBase
     .repeatedly();
   }
 
-  // extension
+  /**@return Command for extensions */
   public Command retractCommand()
   {return extension.setTargetCommand(0);}
-  
+
   public Command extendCommand()
   {return extension.setTargetCommand(ExtensionConstants.maxRotations);}
 
