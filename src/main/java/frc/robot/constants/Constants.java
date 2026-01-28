@@ -89,16 +89,18 @@ public final class Constants
      *    Set voltage KV as voltage/RPS
      *    Once KV is tuned, use KP for additional gain as needed
      */
+    public static final TalonFXConfiguration flywheelConfig = new TalonFXConfiguration(); 
+    {
+      flywheelConfig.Slot0.kS = 0.2;
+      flywheelConfig.Slot0.kV = 0.08;
+      flywheelConfig.Slot0.kA = 0.0;
+      flywheelConfig.Slot0.kP = 0.0;
+      flywheelConfig.Slot0.kI = 0.0;
+      flywheelConfig.Slot0.kD = 0.0;
 
-    public static final double flywheelKS = 0.2;
-    public static final double flywheelKV = 0.08;
-    public static final double flywheelKA = 0.0;
-    public static final double flywheelKP = 0.0;
-    public static final double flywheelKI = 0.0;
-    public static final double flywheelKD = 0.0;
-
-    public static final double flywheelAcceleration = 50.0;
-    public static final double flywheelJerk = 50.0;
+      flywheelConfig.MotionMagic.MotionMagicAcceleration = 50.0;
+      flywheelConfig.MotionMagic.MotionMagicJerk = 50.0;
+    }
 
     public static final double idleSpeed = 10.0;
     public static final double revSpeed = 50.0;
@@ -141,8 +143,8 @@ public final class Constants
       public static final double limitBufferZone = 10;
       
 
-      public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration()
-      {{
+      public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration();
+      {
         turretConfigs.Slot0.kS = 0.0;
         turretConfigs.Slot0.kV = 0.0;
         turretConfigs.Slot0.kA = 0.0;
@@ -152,7 +154,7 @@ public final class Constants
 
         turretConfigs.MotionMagic.MotionMagicAcceleration = 1;
         turretConfigs.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
-      }};
+      }
     }
   }
 
@@ -283,8 +285,8 @@ public final class Constants
       private static final double gainI = 0.0;
       private static final double gainD = 0.0;
 
-      public static final TalonFXConfiguration config = new TalonFXConfiguration() 
-      {{
+      public static final TalonFXConfiguration config = new TalonFXConfiguration();
+      {
         config.MotionMagic.MotionMagicCruiseVelocity = 0;
         config.MotionMagic.MotionMagicAcceleration = 0;
 
@@ -301,7 +303,7 @@ public final class Constants
         config.Slot1.kP = gainP;
         config.Slot1.kI = gainI;
         config.Slot1.kD = gainD;
-      }};
+      }
     }
 
 

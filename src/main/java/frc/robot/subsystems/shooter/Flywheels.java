@@ -15,7 +15,11 @@ import edu.wpi.first.math.MathUtil;
 import static frc.robot.constants.Constants.Shooter.*;
 import frc.robot.constants.Constants.Shooter;
 
-/** Add your docs here. */
+/**
+ * Interface class for a shooter flywheel. <p>
+ * Uses two linked TalonFX controlled motors. <p>
+ * Uses MotionMagic to control velocity.
+ */
 public class Flywheels 
 {
   private final TalonFX m_Leader; 
@@ -23,25 +27,18 @@ public class Flywheels
 
   private final MotionMagicVelocityVoltage request = new MotionMagicVelocityVoltage(0);
 
+  /**
+   * Creates a velocity controlled flywheel, to be managed by {@link Shooter} master-system
+   * @param leaderCAN CAN-ID of primary shooter motor
+   * @param followerCAN CAN-ID of secondary shooter motor, set to follow first
+   */
   public Flywheels(int leaderCAN, int followerCAN)
   {
     m_Leader = new TalonFX(leaderCAN);
     m_Follower = new TalonFX(followerCAN);
 
-    var shooterConfigs = new TalonFXConfiguration();
+    var shooterConfigs = flywheelConfig;
 
-    // set slot 0 gains
-    shooterConfigs.Slot0.kS = flywheelKS; 
-    shooterConfigs.Slot0.kV = flywheelKV; 
-    shooterConfigs.Slot0.kA = flywheelKA; 
-    shooterConfigs.Slot0.kP = flywheelKP;
-    shooterConfigs.Slot0.kI = flywheelKI; 
-    shooterConfigs.Slot0.kD = flywheelKD; 
-
-    // set Motion Magic settings
-    shooterConfigs.MotionMagic.MotionMagicAcceleration = flywheelAcceleration;
-    shooterConfigs.MotionMagic.MotionMagicJerk = flywheelJerk; 
-    // sets m_Aux to a follower of m_Main
     m_Leader.getConfigurator().apply(shooterConfigs);
 
     m_Follower.setControl(new Follower(leaderCAN, MotorAlignmentValue.Opposed));
@@ -50,7 +47,7 @@ public class Flywheels
   /**
    * Set the motor speed
    * 
-   * @param speed the desired speed, in rotations per second
+   * @param speed the desired speed, in mechanism rotations per second
    */
   public void setSpeed(double speed)
     {m_Leader.setControl(request.withVelocity(speed));}

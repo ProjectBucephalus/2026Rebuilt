@@ -72,7 +72,7 @@ import frc.robot.util.libs.Telemetry;
 public class Robot extends TimedRobot 
 {
   /* Enums */
-  public enum TargetPosition {Left, Right, Centre, None}
+  public enum TargetPosition {Left, Right, Centre, None} // TODO Unused
   public enum DriveState {None, Hub, Tower}
   
   /* State */
@@ -90,19 +90,23 @@ public class Robot extends TimedRobot
   private final Shooter s_PortShooter = new Shooter
     (
       () -> swerveState,
-      Transform2d.kZero,
+      Transform2d.kZero, // TODO
       IDConstants.portFlyLeaderCAN, 
       IDConstants.portFlyFollowerCAN, 
-      IDConstants.portTurretCAN, 
+      IDConstants.portTurretCAN,
+      1,
+      1,
       IDConstants.portHoodPWM
     );
   private final Shooter s_StbdShooter = new Shooter
     (
       () -> swerveState,
-      Transform2d.kZero,
+      Transform2d.kZero, // TODO
       IDConstants.stbdFlyLeaderCAN, 
       IDConstants.stbdFlyFollowerCAN, 
-      IDConstants.stbdTurretCAN, 
+      IDConstants.stbdTurretCAN,
+      2,
+      1,
       IDConstants.stbdHoodPWM
     );
   private final Vision s_Vision = new Vision
