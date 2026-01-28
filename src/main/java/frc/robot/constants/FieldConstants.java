@@ -12,7 +12,6 @@ import frc.robot.Robot.DriveState;
 import frc.robot.Robot.TargetPosition;
 import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.ObjectList;
-import frc.robot.util.controlTransmutation.Restrictor;
 import frc.robot.util.controlTransmutation.geoFence.*;
 import frc.robot.util.controlTransmutation.restrictor.*;
 
