@@ -261,6 +261,7 @@ public final class Constants
 
   public static final class HopperConstants
   {
+    public static final double spindexerPulseDelay = 0.25;
     public static final double spindexerSpeed = 0.5;
     public static final double intakeSpeed = 0.5; 
 
@@ -275,6 +276,7 @@ public final class Constants
       public static final double extensionRatio = extensionPlanetaryRatio * extensionRackRatio;
 
       public static final double maxRotations = 1;
+      public static final double extensionJostleDelay = 0.25;
 
       private static final double gainS = 0.0;
       private static final double gainV = 0.0;
@@ -282,6 +284,9 @@ public final class Constants
       private static final double gainP = 0.0;
       private static final double gainI = 0.0;
       private static final double gainD = 0.0;
+
+
+    
 
       public static final TalonFXConfiguration config = new TalonFXConfiguration() 
       {{
