@@ -91,14 +91,17 @@ public class Turret
    * @param targetPoint the Translation2d of the target
    * @return the robot-relative target angle in degrees 
    */
-  private double calculateTargetAngle(Pose2d shooterPose, Translation2d targetPoint)
+  private double calculateTargetAngle(Pose2d shooterPose, Translation2d targetPoint, double robotDegreesPerSecond )
   {
     // Angle from turret centre to target relative to field +X axis
     double fieldTarget = targetPoint.minus(shooterPose.getTranslation()).getAngle().getDegrees();
     // Robot-Relative angle from turret to target
     double robotTarget = fieldTarget - shooterPose.getRotation().getDegrees();
 
-    return Conversions.normaliseAngle(robotTarget, getAzimuth(), maxTurretAzimuth);
+    double robotDegreesPerCycle = robotDegreesPerSecond / 50;
+
+    return Conversions.normaliseAngle(robotTarget, getAzimuth(), maxTurretAzimuth) + robotDegreesPerCycle;
+
   }
 
   /**
@@ -108,16 +111,16 @@ public class Turret
    * @param shooterPose the field-relative shooter pose
    * @param target the current {@link Target}
    */
-  public void update(Pose2d shooterPose, Target target)
+  public void update(Pose2d shooterPose, Target target, double robotDegreesPerSecond)
   {
     // Update the azimuth stored in the target based on the target state
     // Ensures that changing to manual mode doesn't cause sudden motion
     target.azimuth = switch (target.state) 
     {
       case Manual -> target.azimuth;
-      case Point -> calculateTargetAngle(shooterPose, target.point);
+      case Point -> calculateTargetAngle(shooterPose, target.point, robotDegreesPerSecond);
       // aim at our alliance's hub
-      case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre());
+      case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre(), robotDegreesPerSecond);
     };
 
     m_Turret.setControl(request.withPosition(target.azimuth / 360));  
