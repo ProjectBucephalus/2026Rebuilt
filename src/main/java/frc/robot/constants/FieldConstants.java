@@ -12,7 +12,6 @@ import frc.robot.Robot.DriveState;
 import frc.robot.Robot.TargetPosition;
 import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.ObjectList;
-import frc.robot.util.controlTransmutation.Restrictor;
 import frc.robot.util.controlTransmutation.geoFence.*;
 import frc.robot.util.controlTransmutation.restrictor.*;
 
@@ -121,6 +120,7 @@ public class FieldConstants
     // Rotation must NOT be square when traversing
     /** Throttle limit when within bump zone */
     public static final double bumpSpeedLimit = 0.6;
+    public static final double bumpRotationTolerance = 15;
     public static final double bumpWidth = 1.85;
     public static final double bumpYa = hubYa - bumpWidth;
     public static final double bumpYb = hubYb + bumpWidth;
@@ -133,6 +133,14 @@ public class FieldConstants
     public static final BoxRegion bumpNB = new BoxRegion(fieldCentre.getX() - bumpXa, hubYb,  fieldCentre.getX() - bumpXb, bumpYb);
     public static final BoxRegion bumpSR = new BoxRegion(fieldCentre.getX() + bumpXa, bumpYa, fieldCentre.getX() + bumpXb, hubYa);
     public static final BoxRegion bumpNR = new BoxRegion(fieldCentre.getX() + bumpXa, hubYb,  fieldCentre.getX() + bumpXb, bumpYb);
+
+    static 
+    {
+      bumpSB.withSpeedLimit(bumpSpeedLimit);
+      bumpNB.withSpeedLimit(bumpSpeedLimit);
+      bumpSR.withSpeedLimit(bumpSpeedLimit);
+      bumpNR.withSpeedLimit(bumpSpeedLimit);
+    }
     
     /* Trench Zone */
     // Rotation MUST be within tollerance when traversing
@@ -205,10 +213,10 @@ public class FieldConstants
 
     public static final ObjectList fieldStaticGeoFence = new ObjectList
     (
-      bumpSB.withSpeedLimit(bumpSpeedLimit),
-      bumpNB.withSpeedLimit(bumpSpeedLimit),
-      bumpSR.withSpeedLimit(bumpSpeedLimit),
-      bumpNR.withSpeedLimit(bumpSpeedLimit),
+      bumpSB,
+      bumpNB,
+      bumpSR,
+      bumpNR,
       trenchColSB,
       trenchColNB,
       trenchColSR,
