@@ -15,7 +15,6 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 public class Shooter extends SubsystemBase 
 {  
-  /* The  */
   private final Flywheels flywheels; 
   private final Turret turret;
   private final Hood hood;
@@ -25,30 +24,43 @@ public class Shooter extends SubsystemBase
   private final Supplier<SwerveDriveState> swerveStateSup;
   private SwerveDriveState swerveState;
 
+  /** Current active target for the shooter */
   private Target target = new Target(TargetState.Hub);
 
-  /** Creates a new shooter. */
+  /**
+   * Creates Turreted Shooter master-system, internally creates and manages associated subsystems
+   * @param swerveStateSup Supplier for drivebase state to access pose and motion values
+   * @param robotToShooter Offset from robot-centre to turret-centre, including rotation
+   * @param flywheelLeaderCAN CAN-ID of primary shooter motor
+   * @param flywheelFollowerCAN CAN-ID of secondary shooter motor, set to follow first
+   * @param turretCAN CAN-ID of turret azimuth motor
+   * @param azimuthIO AIO-ID of azimuth potentiometer
+   * @param azimuthOffset Potentiometer reading for centre of rotation
+   * @param hoodPWM PWM-ID of hood altitude servo
+   */
   public Shooter
   (
     Supplier<SwerveDriveState> swerveStateSup,
-    Transform2d shooterOffset,
+    Transform2d robotToShooter,
     int flywheelLeaderCAN, 
     int flywheelFollowerCAN, 
-    int turretCAN, 
+    int turretCAN,
+    int azimuthIO,
+    double azimuthOffset,
     int hoodPWM
   ) 
   {
     this.swerveStateSup = swerveStateSup;
-    this.shooterOffset = shooterOffset;
+    this.shooterOffset = robotToShooter;
 
     flywheels = new Flywheels(flywheelLeaderCAN, flywheelFollowerCAN);
-    turret = new Turret(turretCAN, 1, 1);
+    turret = new Turret(turretCAN, azimuthIO, azimuthOffset);
     hood = new Hood(hoodPWM);
   }
 
   /**
-   * Construct a command that sets the target for the Hood and Turret to track
-   * <p> Keep in mind that the provided target is only evaluated once, when this function runs (during control binding)
+   * Construct a command that sets the target for the Hood and Turret to track <p>
+   * NOTE: The provided target is only evaluated when the command is created
    * 
    * @param target the {@link Target} to be set
    * @return the {@link Command}
@@ -57,7 +69,8 @@ public class Shooter extends SubsystemBase
     {return runOnce(() -> this.target = target);}
 
   /**
-   * Construct a command that sets the speed for the Flywheels
+   * Construct a command that sets the speed for the Flywheels <p>
+   * NOTE: The provided value is only evaluated when the command is created
    * 
    * @param speed the desired Flywheel speed, in rotations per second
    * @return the {@link Command}
@@ -81,6 +94,7 @@ public class Shooter extends SubsystemBase
     return new Trigger
       (() -> {
         return Conversions.nearRotation(turret.getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance)
+                && hood.atAltitude()
                 && flywheels.atSpeed()
                 && (turret.getSpeed() + Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond)) < TurretConstants.maxRPM;
       });

@@ -57,7 +57,7 @@ public class LinearExtension extends SubsystemBase
   }
   
   @Override
-  public void periodic() 
+  public void periodic() // TODO This is causing loop overruns???
   {
     if (io_Limit.get())
       if (!homeLastCycle)

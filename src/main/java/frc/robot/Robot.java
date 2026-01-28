@@ -32,9 +32,6 @@ import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.IDConstants.*;
 
-import javax.sound.sampled.Line;
-
-import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.shooter.Shooter;
@@ -52,27 +49,27 @@ import frc.robot.util.libs.Telemetry;
  * Coordinate system notes:
  * <ul>
  * <li> Robot Relative:
- * <ul>
- * <li> +Fore / -Aft -> X axis in Robot coordinates
- * <li> +Port / -Stbd -> Y axis in Robot corrdinates
- * </ul>
+ *  <ul>
+ *  <li> +Fore / -Aft -> X axis in Robot coordinates
+ *  <li> +Port / -Stbd -> Y axis in Robot corrdinates
+ *  </ul>
  * <li> Field Absolute:
- * <ul>
- * <li> +East / -West -> X axis in Field coordinates
- * <li> +North / -South -> Y axis in Field coordinates
- * </ul>
+ *  <ul>
+ *  <li> +East / -West -> X axis in Field coordinates
+ *  <li> +North / -South -> Y axis in Field coordinates
+ *  </ul>
  * <li> Driver Relative:
- * <ul>
- * <li> In / Out -> From driver perspective, to make their lives easier
- * <li> Left / Right -> From driver perspective, to make their lives easier
- * </ul>
+ *  <ul>
+ *  <li> In / Out -> From driver perspective, to make their lives easier
+ *  <li> Left / Right -> From driver perspective, to make their lives easier
+ *  </ul>
  * </ul>
  */
 @Logged
 public class Robot extends TimedRobot 
 {
   /* Enums */
-  public enum TargetPosition {Left, Right, Centre, None}
+  public enum TargetPosition {Left, Right, Centre, None} // TODO Unused
   public enum DriveState {None, Hub, Tower}
   
   /* State */
@@ -90,19 +87,23 @@ public class Robot extends TimedRobot
   private final Shooter s_PortShooter = new Shooter
     (
       () -> swerveState,
-      Transform2d.kZero,
+      Transform2d.kZero, // TODO
       IDConstants.portFlyLeaderCAN, 
       IDConstants.portFlyFollowerCAN, 
-      IDConstants.portTurretCAN, 
+      IDConstants.portTurretCAN,
+      1,
+      1,
       IDConstants.portHoodPWM
     );
   private final Shooter s_StbdShooter = new Shooter
     (
       () -> swerveState,
-      Transform2d.kZero,
+      Transform2d.kZero, // TODO
       IDConstants.stbdFlyLeaderCAN, 
       IDConstants.stbdFlyFollowerCAN, 
-      IDConstants.stbdTurretCAN, 
+      IDConstants.stbdTurretCAN,
+      2,
+      1,
       IDConstants.stbdHoodPWM
     );
   private final Vision s_Vision = new Vision
@@ -179,13 +180,6 @@ public class Robot extends TimedRobot
   private void initInputTransmute()
   {
     boolean redAlliance = FieldUtils.isRedAlliance();
-    
-    driverStick
-      .rotated(redAlliance)
-      .withFieldObjects(GeoFencing.fieldGeoFence)
-      .withBrake(driverBrake)
-      .withInputCurve(driverInputCurve)
-      .withDeadband(driverDeadband);
 
     FieldUtils.activateAllianceFencing(redAlliance);
     FieldConstants.GeoFencing.configureAttractors((testTarget, testState) -> currentTarget == testTarget && currentDriveState == testState);
@@ -196,6 +190,14 @@ public class Robot extends TimedRobot
         robotRadiusInscribed
       );
     FieldObject.setRobotPosSup(this::getTranslation);
+    
+    driverStick
+      .rotated(redAlliance)
+      .withFieldObjects(GeoFencing.fieldGeoFence)
+      .withBrake(driverBrake)
+      .withInputCurve(driverInputCurve)
+      .withDeadband(driverDeadband);
+
     GeoFencing.fieldGeoFence.setActiveCondition(() -> SD.FENCE_TOGGLE.get() && SD.LL_TOGGLE.get());
   }
 
@@ -212,6 +214,23 @@ public class Robot extends TimedRobot
         driver::getRightTriggerAxis
       )
     );
+
+    bumpNB.asTrigger()
+      .or(bumpSB.asTrigger())
+      .or(bumpNR.asTrigger())
+      .or(bumpSR.asTrigger())
+      .whileTrue
+      (
+        new NonCardinalDrive
+        (
+          s_Swerve, 
+          () -> swerveState.Pose.getRotation(), 
+          driverStick::stickOutput, 
+          () -> -driver.getRightX(), 
+          driver::getRightTriggerAxis, 
+          bumpRotationTolerance
+        )
+      );
 
     /* Setting Drive States */
     driver.povLeft().onTrue(runOnce(() -> currentTarget = TargetPosition.Left));
