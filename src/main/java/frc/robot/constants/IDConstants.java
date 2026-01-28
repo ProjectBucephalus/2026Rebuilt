@@ -35,12 +35,14 @@ public final class IDConstants
   public static final int portFlyLeaderCAN = 16;
   public static final int portFlyFollowerCAN = 17;
   public static final int portTurretCAN = 18;
+  public static final int portPotIO = 1;
   public static final int portHoodPWM = 1;
 
   /* Stbd Turret, [20..22], PWM [2] */
   public static final int stbdFlyLeaderCAN = 20;
   public static final int stbdFlyFollowerCAN = 21;
   public static final int stbdTurretCAN = 22;
+  public static final int stbdPotIO = 2;
   public static final int stbdHoodPWM = 2;
 
   /* Feeder, [24] */

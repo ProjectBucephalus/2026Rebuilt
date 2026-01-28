@@ -32,9 +32,6 @@ import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.IDConstants.*;
 
-import javax.sound.sampled.Line;
-
-import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.shooter.Shooter;
@@ -52,20 +49,20 @@ import frc.robot.util.libs.Telemetry;
  * Coordinate system notes:
  * <ul>
  * <li> Robot Relative:
- * <ul>
- * <li> +Fore / -Aft -> X axis in Robot coordinates
- * <li> +Port / -Stbd -> Y axis in Robot corrdinates
- * </ul>
+ *  <ul>
+ *  <li> +Fore / -Aft -> X axis in Robot coordinates
+ *  <li> +Port / -Stbd -> Y axis in Robot corrdinates
+ *  </ul>
  * <li> Field Absolute:
- * <ul>
- * <li> +East / -West -> X axis in Field coordinates
- * <li> +North / -South -> Y axis in Field coordinates
- * </ul>
+ *  <ul>
+ *  <li> +East / -West -> X axis in Field coordinates
+ *  <li> +North / -South -> Y axis in Field coordinates
+ *  </ul>
  * <li> Driver Relative:
- * <ul>
- * <li> In / Out -> From driver perspective, to make their lives easier
- * <li> Left / Right -> From driver perspective, to make their lives easier
- * </ul>
+ *  <ul>
+ *  <li> In / Out -> From driver perspective, to make their lives easier
+ *  <li> Left / Right -> From driver perspective, to make their lives easier
+ *  </ul>
  * </ul>
  */
 @Logged
@@ -212,6 +209,23 @@ public class Robot extends TimedRobot
         driver::getRightTriggerAxis
       )
     );
+
+    bumpNB.asTrigger()
+      .or(bumpSB.asTrigger())
+      .or(bumpNR.asTrigger())
+      .or(bumpSR.asTrigger())
+      .whileTrue
+      (
+        new NonCardinalDrive
+        (
+          s_Swerve, 
+          () -> swerveState.Pose.getRotation(), 
+          driverStick::stickOutput, 
+          () -> -driver.getRightX(), 
+          driver::getRightTriggerAxis, 
+          bumpRotationTolerance
+        )
+      );
 
     /* Setting Drive States */
     driver.povLeft().onTrue(runOnce(() -> currentTarget = TargetPosition.Left));

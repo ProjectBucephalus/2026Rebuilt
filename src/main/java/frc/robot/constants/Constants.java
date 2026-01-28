@@ -141,8 +141,10 @@ public final class Constants
       public static final double limitBufferZone = 10;
       
 
-      public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration()
-      {{
+      public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration();
+      
+      static 
+      {
         turretConfigs.Slot0.kS = 0.0;
         turretConfigs.Slot0.kV = 0.0;
         turretConfigs.Slot0.kA = 0.0;
@@ -152,7 +154,7 @@ public final class Constants
 
         turretConfigs.MotionMagic.MotionMagicAcceleration = 1;
         turretConfigs.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
-      }};
+      }
     }
   }
 
