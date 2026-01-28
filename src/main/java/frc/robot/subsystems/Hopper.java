@@ -26,7 +26,7 @@ public class Hopper extends SubsystemBase
   
   // intake
   public Command runIntakeCommand()
-    {return intake.startCommand();}
+  {return intake.startCommand();}
 
   public Command stopIntakeCommand()
   {return intake.stopCommand();}
