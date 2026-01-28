@@ -5,7 +5,7 @@
 package frc.robot.util.controlTransmutation.restrictor;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.util.controlTransmutation.Restrictor;
+
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /** Add your docs here. */

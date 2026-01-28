@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** Add your docs here. */
-public class BinaryMotor extends SubsystemBase {
+public class BinaryMotor extends SubsystemBase 
+{
   private final double defaultSpeed;
   private final TalonFX m_Inner;
 
