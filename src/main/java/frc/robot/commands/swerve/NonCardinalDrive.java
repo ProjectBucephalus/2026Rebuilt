@@ -68,22 +68,27 @@ public class NonCardinalDrive extends SwerveCommandBase
 
     double robotRotation = robotRotationSup.get().getDegrees();
 
+    // Rotation stick not being actively controlled
     if (Math.abs(rotationVal) <= deadband) 
     {
+      // Wrap the robot's rotation to [0..90) (effectively, clockwise degrees past previous cardinal) 
       double wrappedRotation = Conversions.mod(robotRotation, 90);
 
+      // If we're less than tolerance past the previous cardinal, rotate to be tolerance past it
       if (wrappedRotation < tolerance)
       {
         double error = tolerance - wrappedRotation;
         double targetRotation = robotRotation + error;
         rotationVal = thetaController.calculate(robotRotation, targetRotation);
       }
+      // If we're less than tolerance before the next cardinal, rotate to be tolerance before it
       else if (wrappedRotation > 90 - tolerance)
       {
         double error = wrappedRotation - (90 - tolerance);
         double targetRotation = robotRotation - error;
         rotationVal = thetaController.calculate(robotRotation, targetRotation);
       }
+      // If not close to cardinal, don't change rotation
       else
         rotationVal = 0;
     }
