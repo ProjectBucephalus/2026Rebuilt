@@ -2,6 +2,8 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Set;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -110,8 +112,8 @@ public final class Constants
 
   public static final class Vision
   {
-    public static final int[] hubIDs = 
-    {
+    public static final Set<Integer> hubIDs = Set.of
+    (
       /* RED */ 
       3, 4, // Inner
       9, 10, // Outer
@@ -123,48 +125,46 @@ public final class Constants
       25, 26, // Outer
       18, 27, // Scoring Side
       21, 24 // Non-Scoring Side
-    };
+    );
 
-    public static final int[] towerIDs = 
-    {
+    public static final Set<Integer> towerIDs = Set.of
+    (
       /* RED */
       15, 16,
 
       /* BLUE */
       31, 32
-    };
+    );
 
-    public static final int[] outpostIDs = 
-    {
+    public static final Set<Integer> outpostIDs = Set.of
+    (
       /* RED */
       13, 14,
 
       /* BLUE */
       29, 30
-    };
+    );
 
-    public static final int[] trenchIDs = 
-    {
-      /* RED */
+    public static final Set<Integer> trenchIDs = Set.of
+    (      /* RED */
       6, 7, // Scoring Side
       1, 12, // Non-Scoring Side
 
       /* BLUE */
       17, 28, // Scoring Side
       22, 23 // Non-Scoring Side
-    };
+    );
 
-    public static final int[] allIDs;
-    static 
+    public static final Set<Integer> allIDs = Set.of();
+    static
     {
-      allIDs = new int[hubIDs.length + towerIDs.length + outpostIDs.length + trenchIDs.length];
-
-      // Combine all of the ID arrays efficiently with checked memcpys
-      System.arraycopy(hubIDs, 0, allIDs, 0, hubIDs.length);
-      System.arraycopy(towerIDs, 0, allIDs, hubIDs.length, towerIDs.length);
-      System.arraycopy(outpostIDs, 0, allIDs, hubIDs.length + towerIDs.length, outpostIDs.length);
-      System.arraycopy(trenchIDs, 0, allIDs, hubIDs.length + towerIDs.length + outpostIDs.length, trenchIDs.length);
+      allIDs.addAll(trenchIDs);
+      allIDs.addAll(outpostIDs);
+      allIDs.addAll(towerIDs);
+      allIDs.addAll(hubIDs);
     }
+
+    
 
     /** Baseline 1 meter, 1 tag stddev for x and y, in meters */
     public static final double linearStdDevBaseline = 0.08;
