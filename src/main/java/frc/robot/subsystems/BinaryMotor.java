@@ -18,7 +18,7 @@ public class BinaryMotor extends SubsystemBase
   /**
    * Creates a wrapper around a TalonFX to provides simple binary control (on or off)
    * 
-   * @param defaultSpeed the duty-cycle speed to run at when on [-1.0..1.0]
+   * @param defaultSpeed the duty-cycle speed to run at when on [-1..1]
    * @param id the id of the motor
    */
   public BinaryMotor(double defaultSpeed, int id) 
@@ -47,7 +47,7 @@ public class BinaryMotor extends SubsystemBase
    * Construct a command that sets the speed for the motor to an arbitrary value <p>
    * NOTE: The provided value is only evaluated when the command is created
    * 
-   * @param speed the duty-cycle speed to run at [-1.0..1.0]
+   * @param speed the duty-cycle speed to run at [-1..1]
    * @return the {@link Command}
    */
   public Command setSpeedCommand(double speed)
