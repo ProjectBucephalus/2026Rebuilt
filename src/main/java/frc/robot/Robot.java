@@ -35,7 +35,6 @@ import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.*;
-import frc.robot.subsystems.vision.Vision.TagPOI;
 import frc.robot.util.AutoFactories;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.SD;
@@ -204,7 +203,6 @@ public class Robot extends TimedRobot
 
     /* Heading Locking */
     new Trigger(() -> currentDriveState == DriveState.None)
-      .onTrue(runOnce(() -> s_Vision.setActivePOI(TagPOI.ALL)))
       .whileTrue
       (
         new ManualDrive
