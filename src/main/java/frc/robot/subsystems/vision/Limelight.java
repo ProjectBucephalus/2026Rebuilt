@@ -4,22 +4,20 @@
 
 package frc.robot.subsystems.vision;
 
-import java.util.List;
+import static frc.robot.constants.Constants.Vision.trenchIDs;
+
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Limelight  
 {    
@@ -43,17 +41,23 @@ public class Limelight
       {result = results.get(results.size()-1);}
   }
 
-  protected void updateValidIDs(int[] validIDs)
-  {
-    // TODO re-implement
-  }
-
   protected void updatePipeline(int pipelineIndex)
     {camera.setPipelineIndex(pipelineIndex);}
 
   public Optional<EstimatedRobotPose> getPhotonEst()
   { 
     if (result == null) return Optional.empty();
+
+    for (int i = result.targets.size(); i >= 0; i--)
+    {
+      double targetAmb = result.targets.get(i).getPoseAmbiguity();
+      int targetID = result.targets.get(i).fiducialId;
+      
+      if (targetAmb > 0.2 || trenchIDs.contains(targetID)) 
+      {
+        result.targets.remove(i);
+      } 
+    }
 
     var visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
     if (visionEst.isEmpty()) 
