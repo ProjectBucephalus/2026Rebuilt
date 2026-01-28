@@ -14,6 +14,12 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 
+/**
+ * Interface class for a turret mechanism to control the azimuth of a shooter. <p>
+ * Ensures rotation limits are respected to prevent damage to cables. <p>
+ * Uses a TalonFX controlled motor, and a potentiometer for calibration. <p>
+ * Includes functionality to track a point on the field while the robot is in motion. <p>
+ */
 public class Turret
 {
   private final TalonFX m_Turret;
@@ -21,6 +27,12 @@ public class Turret
 
   private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
+  /**
+   * Creates a turret controller, to be managed by {@link Shooter} master-system
+   * @param motorID
+   * @param potID
+   * @param potOffset
+   */
   public Turret(int motorID, int potID, double potOffset) 
   {
     m_Turret = new TalonFX(motorID);
@@ -68,7 +80,7 @@ public class Turret
   public void calibrate()
   {
     // If the turret is not moving, pull the value from the pot, convert to mechanism angle, and send to motor
-    if (Math.abs(m_Turret.getVelocity().getValueAsDouble()) < 0.1)
+    if (Math.abs(m_Turret.getVelocity().getValueAsDouble()) < 0.1) // TODO Put this in constants
       m_Turret.setPosition((io_Azimuth.get() * azimuthGearRatio) / 360.0);
   }
 
@@ -90,6 +102,7 @@ public class Turret
   }
 
   /**
+   * Intended to be called in {@link Shooter#periodic()} <p>
    * Recalculate the target azimuth and apply it to the motor
    * 
    * @param shooterPose the field-relative shooter pose
