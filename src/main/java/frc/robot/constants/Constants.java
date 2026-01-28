@@ -92,6 +92,7 @@ public final class Constants
      *    Once KV is tuned, use KP for additional gain as needed
      */
     public static final TalonFXConfiguration flywheelConfig = new TalonFXConfiguration(); 
+    static
     {
       flywheelConfig.Slot0.kS = 0.2;
       flywheelConfig.Slot0.kV = 0.08;
@@ -146,7 +147,6 @@ public final class Constants
       
 
       public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration();
-      
       static 
       {
         turretConfigs.Slot0.kS = 0.0;
@@ -219,8 +219,6 @@ public final class Constants
       allIDs.addAll(hubIDs);
     }
 
-    
-
     /** Baseline 1 meter, 1 tag stddev for x and y, in meters */
     public static final double linearStdDevBaseline = 0.08;
     /** Baseline 1 meter, 1 tag stddev rotation, in radians */
@@ -259,9 +257,7 @@ public final class Constants
   public  static final class IndexerConstants 
   {
     public static final double speed = 0.5;
-    
   }
-
 
   public static final class HopperConstants
   {
@@ -290,6 +286,7 @@ public final class Constants
       private static final double gainD = 0.0;
 
       public static final TalonFXConfiguration config = new TalonFXConfiguration();
+      static
       {
         config.MotionMagic.MotionMagicCruiseVelocity = 0;
         config.MotionMagic.MotionMagicAcceleration = 0;
@@ -309,17 +306,17 @@ public final class Constants
         config.Slot1.kD = gainD;
       };
     }
+  }   
 
-
-  
-  }   //TODO change maxrotaions 
-  public static final class ClimberConstants {
+  //TODO change maxrotaions 
+  public static final class ClimberConstants 
+  {
     public static final double maxRotations = 1;
 
-    public static final TalonFXConfiguration config = new TalonFXConfiguration();
-  
-  
-    
+    public static final TalonFXConfiguration config = new TalonFXConfiguration(); 
+    static 
+    {
+      // TODO configure config object
+    }
   }
-
 }
