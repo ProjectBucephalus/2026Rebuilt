@@ -27,7 +27,7 @@ import frc.robot.util.SD;
  */
 public class NonCardinalDrive extends SwerveCommandBase 
 {
-  private final PIDController thetaController = new PIDController(Swerve.rotationKP, Swerve.rotationKI, Swerve.rotationKD);
+  private final PIDController thetaController = new PIDController(0.02, Swerve.rotationKI, Swerve.rotationKD);
 
   protected DoubleSupplier rotationSup;
   protected double rotationVal;
@@ -90,7 +90,7 @@ public class NonCardinalDrive extends SwerveCommandBase
     else
       {rotationVal *= MathUtil.interpolate(Control.maxRotThrottle, Control.minRotThrottle, brakeSup.getAsDouble());}
 
-    if (motionXY.getNorm() != 0)
+    if (motionXY.getX() != 0 || motionXY.getY() != 0)
       {SD.STATE_DRIVE.put("Manual");}
 
     s_Swerve.setControl

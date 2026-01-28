@@ -180,13 +180,6 @@ public class Robot extends TimedRobot
   private void initInputTransmute()
   {
     boolean redAlliance = FieldUtils.isRedAlliance();
-    
-    driverStick
-      .rotated(redAlliance)
-      .withFieldObjects(GeoFencing.fieldGeoFence)
-      .withBrake(driverBrake)
-      .withInputCurve(driverInputCurve)
-      .withDeadband(driverDeadband);
 
     FieldUtils.activateAllianceFencing(redAlliance);
     FieldConstants.GeoFencing.configureAttractors((testTarget, testState) -> currentTarget == testTarget && currentDriveState == testState);
@@ -197,6 +190,14 @@ public class Robot extends TimedRobot
         robotRadiusInscribed
       );
     FieldObject.setRobotPosSup(this::getTranslation);
+    
+    driverStick
+      .rotated(redAlliance)
+      .withFieldObjects(GeoFencing.fieldGeoFence)
+      .withBrake(driverBrake)
+      .withInputCurve(driverInputCurve)
+      .withDeadband(driverDeadband);
+
     GeoFencing.fieldGeoFence.setActiveCondition(() -> SD.FENCE_TOGGLE.get() && SD.LL_TOGGLE.get());
   }
 
