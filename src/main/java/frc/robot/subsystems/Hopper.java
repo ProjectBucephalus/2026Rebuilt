@@ -54,7 +54,7 @@ public class Hopper extends SubsystemBase
     .repeatedly();
   }
 
-  // extension
+
   public Command retractCommand()
   {return extension.setTargetCommand(0);}
   

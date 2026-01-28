@@ -308,7 +308,7 @@ public final class Constants
         config.Slot1.kP = gainP;
         config.Slot1.kI = gainI;
         config.Slot1.kD = gainD;
-      }
+      }};
     }
 
 
