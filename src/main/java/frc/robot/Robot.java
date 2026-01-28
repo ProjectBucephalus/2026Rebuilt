@@ -8,6 +8,7 @@ import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,6 +31,9 @@ import frc.robot.constants.Constants.Swerve;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.IDConstants.*;
+
+import javax.sound.sampled.Line;
+
 import static frc.robot.constants.FieldConstants.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
@@ -83,13 +87,23 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
-  private final Shooter s_Shooter = new Shooter
+  private final Shooter s_PortShooter = new Shooter
     (
-      () -> swerveState.Pose,
-      IDConstants.shooterMainID, 
-      IDConstants.shooterAuxID, 
-      IDConstants.turretID, 
-      IDConstants.hoodID
+      () -> swerveState,
+      Transform2d.kZero,
+      IDConstants.portFlyLeaderCAN, 
+      IDConstants.portFlyFollowerCAN, 
+      IDConstants.portTurretCAN, 
+      IDConstants.portHoodPWM
+    );
+  private final Shooter s_StbdShooter = new Shooter
+    (
+      () -> swerveState,
+      Transform2d.kZero,
+      IDConstants.stbdFlyLeaderCAN, 
+      IDConstants.stbdFlyFollowerCAN, 
+      IDConstants.stbdTurretCAN, 
+      IDConstants.stbdHoodPWM
     );
   private final Vision s_Vision = new Vision
     (
@@ -98,11 +112,26 @@ public class Robot extends TimedRobot
         s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
         s_Swerve.addVisionMeasurement(poseEst, timestmp);
       },
-      () -> swerveState.Speeds.omegaRadiansPerSecond, 
-      //new Limelight(foreLimelightName), 
-      new Limelight(aftLimelightName)
+      () -> swerveState.Speeds.omegaRadiansPerSecond,
+      new Limelight(portLimelightName, Constants.Vision.portLimelightOffset), 
+      new Limelight(stbdLimelightName, Constants.Vision.stbdLimelightOffset)
     );
-
+  private final LinearExtension s_Climber = new LinearExtension
+    (
+      IDConstants.climberCAN, 
+      IDConstants.climberLimitDIO, 
+      0, 
+      Constants.ClimberConstants.maxRotations, 
+      Constants.ClimberConstants.config
+    );
+  private final Hopper s_Hopper = new Hopper
+    (
+      IDConstants.spindexerCAN,
+      IDConstants.intakeCAN, 
+      IDConstants.extensionCAN, 
+      IDConstants.extensionLimitDIO
+    );
+  
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(0);
   private final CommandXboxController operator = new CommandXboxController(1);

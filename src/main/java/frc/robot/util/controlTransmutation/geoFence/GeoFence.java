@@ -19,10 +19,8 @@ public abstract class GeoFence extends FieldObject
    */
   public GeoFence addAttractors(Attractor ...newAttractors)
   {
-    for (int i = 0; i < newAttractors.length; i++)
-    {
-      attractors.add(newAttractors[i]);
-    }
+    for (var attractor : newAttractors)
+      attractors.add(attractor);
     return this;
   }
 
@@ -51,14 +49,9 @@ public abstract class GeoFence extends FieldObject
    */
   public boolean checkAttractors()
   {
-    if (attractors.size() > 0)
-    {
-      for (int i = 0; i < attractors.size(); i++)
-      {
-        if (attractors.get(i).checkPosition())
-          {return true;}
-      }
-    }
+    for (var attractor : attractors)
+      if (attractor.checkPosition())
+        return true;
 
     return false;
   }
@@ -71,18 +64,19 @@ public abstract class GeoFence extends FieldObject
   public Translation2d processAttractors(Translation2d controlInput)
   {
     double distance = 100;
-    int index = 0;
+    var closest = attractors.get(0);
 
-    for (int i = 0; i < attractors.size(); i++)
+    for (var attractor : attractors)
+    {
+      double currentDistance = attractor.getDistance();
+      if (attractor.checkAngle(controlInput) && currentDistance < distance)
       {
-        if (attractors.get(i).checkAngle(controlInput) && attractors.get(i).getDistance() < distance)
-        {
-          distance = attractors.get(i).getDistance();
-          index = i;
-        }
+        distance = currentDistance;
+        closest = attractor;
       }
+    }
 
-    return attractors.get(index).process(controlInput);
+    return closest.process(controlInput);
   }
   
   /**

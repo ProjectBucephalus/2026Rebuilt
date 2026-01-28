@@ -4,8 +4,9 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 public final class Constants 
 {
@@ -103,13 +104,63 @@ public final class Constants
     public static final double revSpeed = 50.0;
     public static final double leliency = 5.0;
 
+    public static final double flySpeedTolerance = 100;
+
     //simulation
     public static final double kGearRatio = 10.0;
     public static final double kMOI = 0.001; 
+
+    public static final class HoodConstants 
+    {
+      public static final double altTolerance = 3;
+
+      public static final double servoRange = 270;
+      public static final double servoGear = 20;
+      public static final double hoodGear = 193;
+      public static final double hoodRange = 25;
+      public static final double hoodRatio = servoGear / hoodGear;
+    }
+
+    public static final class TurretConstants
+    {
+      public static final double maxTurretAzimuth = 270;
+      
+      public static final double turretIdlePosition = 0;
+
+      public static final double turretTurnSpeed = 0.25;
+
+      public static final double potRange = 3600;
+      public static final double potPortOffset = -1800;
+      public static final double potStbdOffset = -1800;
+      public static final double potGear = 20;
+      public static final double turretGear = 90;
+      public static final double azimuthGearRatio = potGear / turretGear;
+
+      public static final double azimuthTolerance = 3;
+      public static final double maxRPM = 2000;
+      public static final double limitBufferZone = 10;
+      
+
+      public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration()
+      {{
+        turretConfigs.Slot0.kS = 0.0;
+        turretConfigs.Slot0.kV = 0.0;
+        turretConfigs.Slot0.kA = 0.0;
+        turretConfigs.Slot0.kP = 10.0;
+        turretConfigs.Slot0.kI = 0.0;
+        turretConfigs.Slot0.kD = 0.0;
+
+        turretConfigs.MotionMagic.MotionMagicAcceleration = 1;
+        turretConfigs.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
+      }};
+    }
   }
 
   public static final class Vision
   {
+    public static final Transform3d portLimelightOffset = new Transform3d();
+    public static final Transform3d stbdLimelightOffset = new Transform3d();
+
     public static final int[] hubIDs = 
     {
       /* RED */ 
@@ -174,25 +225,6 @@ public final class Constants
     public static final int mt1CyclesNeeded = 10;
   }
 
-  // values that the turret uses 
-  public static final class TurretConstants
-  {
-    public static final double maxTurretAzimuth = 270;
-    public static final double gearRatio = 7;
-    public static final double turretAcceleration = 1;
-    public static final double turretVelocity = 1;  
-    public static final double turretIdlePosition = 0;
-    public static final double turretTurnSpeed = 0.25;
-    public static final double turnBackThreshold = 135;
-
-    public static final double slot0S = 0.0;
-    public static final double slot0V = 0.0;
-    public static final double slot0A = 0.0;
-    public static final double slot0P = 10.0;
-    public static final double slot0I = 0.0;
-    public static final double slot0D = 0.0;
-  }
-
   public static final class Interpolation 
   {
     public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
@@ -220,27 +252,6 @@ public final class Constants
     }}; 
   }
 
-  public static final class HoodConstants 
-  {
-    public static final double minAngle = 0;
-    public static final double maxAngle = 180;
-
-    // hub inperpolation table values defined here
-    public static final InterpolatingDoubleTreeMap interpTableHub = new InterpolatingDoubleTreeMap();
-    static 
-    {// TODO fill in the interpolation tables correctly
-      interpTableHub.put(3.0, 8.0);
-      interpTableHub.put(666.0, 88.0);
-    }
-    // interpolation table for shooting fuel at the ground defined here
-    public static final InterpolatingDoubleTreeMap interpTableLow = new InterpolatingDoubleTreeMap();
-    static 
-    {
-      interpTableLow.put(3.0, 8.0);
-      interpTableLow.put(99.0, 117.0);
-    }
-  }
-
   public  static final class IndexerConstants 
   {
     public static final double speed = 0.5;
@@ -250,7 +261,7 @@ public final class Constants
 
   public static final class HopperConstants
   {
-    public static final double beltSpeed = 0.5;
+    public static final double spindexerSpeed = 0.5;
     public static final double intakeSpeed = 0.5; 
 
     
@@ -292,6 +303,17 @@ public final class Constants
         config.Slot1.kD = gainD;
       }};
     }
+
+
+  
+  }   //TODO change maxrotaions 
+  public static final class ClimberConstants {
+    public static final double maxRotations = 1;
+
+    public static final TalonFXConfiguration config = new TalonFXConfiguration();
+  
+  
+    
   }
 
 }

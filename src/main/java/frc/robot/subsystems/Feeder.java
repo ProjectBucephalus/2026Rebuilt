@@ -6,8 +6,10 @@ package frc.robot.subsystems;
 
 import static frc.robot.constants.Constants.IndexerConstants.*;
 
-public class Indexer extends BinaryMotor {
+public class Feeder extends BinaryMotor {
   /** Creates a new Indexer. */
-  public Indexer(int id) 
+  public Feeder(int id) 
     {super(speed, id);}
+
+  // TODO control????
 }

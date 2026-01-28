@@ -31,14 +31,15 @@ public class LinearExtension extends SubsystemBase
 
   private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
-  public LinearExtension(int motorID, int limitID, double minRotations, double maxRotations, TalonFXConfiguration configs)
+  // creates a new fuunction that other subsystems can call
+  public LinearExtension(int motorCAN, int limitCAN, double minRotations, double maxRotations, TalonFXConfiguration configs)
   {
     this.maxRotations = maxRotations;
     this.minRotations = minRotations;
     slot1Valid = configs.Slot1.kP != 0;
 
-    m_Extension = new TalonFX(motorID);
-    io_Limit = new DigitalInput(limitID);
+    m_Extension = new TalonFX(motorCAN);
+    io_Limit = new DigitalInput(limitCAN);
 
     m_Extension.getConfigurator().apply(configs);
 

@@ -17,21 +17,10 @@ public class FieldUtils
   }
 
   public static Translation2d getAllianceHubCentre() 
-  {
-    return isRedAlliance() ? FieldConstants.redHubCentre : FieldConstants.blueHubCentre;
-  }
+    {return isRedAlliance() ? FieldConstants.redHubCentre : FieldConstants.blueHubCentre;}
 
   public static final int getDriverLocation()
-  {
-    if (DriverStation.getLocation().isPresent())
-    {
-      return DriverStation.getLocation().getAsInt();
-    }
-    else
-    {
-      return 0;
-    }
-  }
+    {return DriverStation.getLocation().orElse(0);}
 
   public static Pose2d flipPose(Pose2d pose) 
   {
@@ -51,13 +40,11 @@ public class FieldUtils
   {
     // flip pose when red
     if (isRedAlliance()) 
-    {
       // reflect the pose around center point, flip both the X and Y position and rotation
       return pose.rotateAround(FieldConstants.fieldCentre, Rotation2d.k180deg);
-    }
-
-    // Blue or we don't know; return the original pose
-    return pose;
+    else 
+      // Blue or we don't know; return the original pose
+      return pose;
   }
 
   public static void activateAllianceFencing(boolean redAlliance) 

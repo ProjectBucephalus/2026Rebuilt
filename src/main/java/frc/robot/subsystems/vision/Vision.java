@@ -12,6 +12,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,6 +28,9 @@ public class Vision extends SubsystemBase
   private final PoseEstimateConsumer estimateConsumer;
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
+  private boolean onTurret;
+
+  private Pose2d poseOut = Pose2d.kZero;
 
   private int pipelineIndex = (int)SD.LL_EXPOSURE.defaultValue();
 
@@ -77,6 +82,7 @@ public class Vision extends SubsystemBase
         ll.periodic();
 
         var maybeEst = ll.getPhotonEst();
+        onTurret = ll.isOnTurret();
 
         if (maybeEst.isPresent()) 
         {
@@ -95,9 +101,16 @@ public class Vision extends SubsystemBase
             double linearStdDev = linearStdDevBaseline * stdDevFactor;
             double rotStdDev = rotStdDevBaseline * stdDevFactor;
 
-            estimateConsumer.accept(est.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+            
+            if (onTurret == true)
+              poseOut = est.estimatedPose.toPose2d().transformBy(new Transform2d(ll.getTurretToRobot(), ll.getTurretAngle().unaryMinus()));
+            else 
+              poseOut = est.estimatedPose.toPose2d();
+
+            estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
           }
         }
+        
       }
     }
   }
