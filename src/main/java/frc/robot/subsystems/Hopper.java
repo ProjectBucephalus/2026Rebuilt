@@ -18,7 +18,8 @@ public class Hopper extends SubsystemBase
   
   /** Creates a new Hopper. */
   public Hopper(int spindexerCAN, int intakeCAN, int extensionCAN, int extensionLimitCAN) 
-  {
+  { 
+    // creates new defintions to be used in the commands 
     spindexer = new BinaryMotor(spindexerSpeed, spindexerCAN);
     intake = new BinaryMotor(intakeSpeed, intakeCAN);
     extension = new LinearExtension(extensionCAN, extensionLimitCAN, 0, ExtensionConstants.maxRotations, ExtensionConstants.config);
@@ -38,6 +39,7 @@ public class Hopper extends SubsystemBase
   public Command stopSpindexerCommand()
   {return spindexer.stopCommand();}
 
+  // command that rapidly moves the spindexer in order to remove any jammed fuel
   public Command pulseSpindexerCommand()
   {
     return 
@@ -60,6 +62,7 @@ public class Hopper extends SubsystemBase
   public Command extendCommand()
   {return extension.setTargetCommand(ExtensionConstants.maxRotations);}
 
+  // creates a command that jostles the extension to remove jammed fuel
   public Command extensionJostleCommand()
   {
     return 
