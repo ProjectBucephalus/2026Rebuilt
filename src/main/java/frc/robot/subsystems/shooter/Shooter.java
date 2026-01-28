@@ -92,7 +92,7 @@ public class Shooter extends SubsystemBase
     swerveState = swerveStateSup.get();
     var shooterPose = swerveState.Pose.plus(shooterOffset);
 
-    turret.update(shooterPose, target);
+    turret.update(shooterPose, target, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update(shooterPose, target);
   }
 }
