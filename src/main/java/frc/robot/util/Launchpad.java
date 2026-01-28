@@ -124,7 +124,7 @@ public class Launchpad extends GenericHID
    * <li> [64..71] top-down of round sidebar buttons
    * </ul>
    */
-  public void setColour(PadColour colour, int... buttons) // TODO confirm the valid input range
+  public void setColour(PadColour colour, int... buttons)
   {
     for (int btn : buttons)
       if (btn >= 0 && btn < 72)
