@@ -1,8 +1,10 @@
-package frc.robot.util.controlTransmutation;
+package frc.robot.util.controlTransmutation.geoFence;
 
 import java.util.ArrayList;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
+import frc.robot.util.controlTransmutation.Attractor;
+import frc.robot.util.controlTransmutation.FieldObject;
 
 /** Add your docs here. */
 public abstract class GeoFence extends FieldObject

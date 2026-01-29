@@ -37,6 +37,7 @@ public abstract class FieldObject extends InputTransmuter
   public static void setRobotPosSup(Supplier<Translation2d> robotPosSupplier)
   {
     robotPosSup = robotPosSupplier;
+    fetchRobotPos();
   }
   
   /** Pulls the robot position from the supplier into the global value for all field objects */

@@ -6,7 +6,6 @@ package frc.robot.util.controlTransmutation.restrictor;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
-import frc.robot.util.controlTransmutation.Restrictor;
 
 /** Add your docs here. */
 public class LineRegion extends Restrictor
