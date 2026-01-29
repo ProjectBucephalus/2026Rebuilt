@@ -31,21 +31,34 @@ public class LinearExtension extends SubsystemBase
 
   private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
-  // creates a new fuunction that other subsystems can call
-  public LinearExtension(int motorCAN, int limitCAN, double minRotations, double maxRotations, TalonFXConfiguration configs)
+  /**
+   * Creates generic linear extension system
+   * @param motorCAN CAN-ID of extension motor
+   * @param limitIO DIO-ID of home limit-sensor
+   * @param minRotations Minimum position in mechanism rotations
+   * @param maxRotations Maximum position in mechanism rotations
+   * @param configs Motor configuration object, uses Slot1 if present when not calibrated
+   */
+  public LinearExtension(int motorCAN, int limitIO, double minRotations, double maxRotations, TalonFXConfiguration configs)
   {
     this.maxRotations = maxRotations;
     this.minRotations = minRotations;
     slot1Valid = configs.Slot1.kP != 0;
 
     m_Extension = new TalonFX(motorCAN);
-    io_Limit = new DigitalInput(limitCAN);
+    io_Limit = new DigitalInput(limitIO);
 
     m_Extension.getConfigurator().apply(configs);
 
     m_Extension.setPosition(maxRotations);
   } 
 
+  /**
+   * Creates a command to set the target point for the extension
+   * NOTE: The provided value is only evaluated when the command is created
+   * @param targetRotations
+   * @return
+   */
   public Command setTargetCommand(double targetRotations)
   {
     return runOnce(() -> {
@@ -66,7 +79,7 @@ public class LinearExtension extends SubsystemBase
         homeLastCycle = true;
         m_Extension.setPosition(0);
       }
-    else 
-      homeLastCycle = false;
+      else 
+        homeLastCycle = false;
   }
 }
