@@ -11,7 +11,7 @@ import frc.robot.constants.Constants.Swerve;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.SD;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+/** Swerve drive interface to have the robot face a fixed direction */
 public class HeadingLockedDrive extends SwerveCommandBase 
 {
   protected Rotation2d rotationOffset;
@@ -28,7 +28,14 @@ public class HeadingLockedDrive extends SwerveCommandBase
     .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.OpenLoopVoltage)
     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-  /** Creates a new ManualDrive. */
+  /**
+   * Creates a basic Heading-locked drive command
+   * @param s_Swerve Drivebase subsystem
+   * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
+   * @param targetHeading Heading for robot to face relative to Offset
+   * @param rotationOffset Field relative rotation to treat as 0
+   * @param robotPosSup Supplier for robot XY position in field coordinates
+   */
   public HeadingLockedDrive
   (
     CommandSwerveDrivetrain s_Swerve,  
