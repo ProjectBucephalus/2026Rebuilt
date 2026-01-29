@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Conversions;
 
 
-/** Add your docs here. */
+/** Generic subclass for a range-limited motor with a binary switch at the home position */
 public class LinearExtension extends SubsystemBase
 {
   private TalonFX m_Extension;
