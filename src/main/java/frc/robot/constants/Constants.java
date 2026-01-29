@@ -201,7 +201,8 @@ public final class Constants
     );
 
     public static final Set<Integer> trenchIDs = Set.of
-    (      /* RED */
+    (
+      /* RED */
       6, 7, // Scoring Side
       1, 12, // Non-Scoring Side
 
@@ -213,11 +214,11 @@ public final class Constants
     public static final Set<Integer> allIDs = Set.of();
     static
     {
-      allIDs.addAll(trenchIDs);
-      allIDs.addAll(outpostIDs);
-      allIDs.addAll(towerIDs);
-      allIDs.addAll(hubIDs);
-    }
+      //allIDs.addAll(trenchIDs);
+      //allIDs.addAll(outpostIDs);
+      //allIDs.addAll(towerIDs);
+      //allIDs.addAll(hubIDs);
+    };
 
     /** Baseline 1 meter, 1 tag stddev for x and y, in meters */
     public static final double linearStdDevBaseline = 0.08;
