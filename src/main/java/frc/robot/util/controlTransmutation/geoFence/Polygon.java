@@ -11,7 +11,7 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
-import frc.robot.util.controlTransmutation.GeoFence;
+
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /**
@@ -89,39 +89,39 @@ public class Polygon extends GeoFence
   {
     Line processLine = nearestLine();
     // If the robot is inside the polygon, process based on the inscribed circle
-      if (processLine.getDirectionalDistance() < 0)
-        {return pointDamping(centre.getX(), centre.getY(), motionXY);}
-  
-    /* 
+    if (processLine.getDirectionalDistance() < 0)
+      return pointDamping(centre.getX(), centre.getY(), motionXY);
+    else 
+      /* 
       * Damps the motion based on the line closest to the robot:
       * Polygon objects consist of a list of lines and a list of reference points
       * Finding the index of the closest reference point gives the index of the closest line
       */
-    return processLine.dampMotion(motionXY);
+      return processLine.dampMotion(motionXY);
   }
 
   @Override
   public double getDistance()
-  {
-    return nearestLine().getDirectionalDistance();
-  }
+    {return nearestLine().getDirectionalDistance();}
 
   @Override
   public boolean checkAttractors() 
-  {
-    return nearestLine().checkAttractors();
-  }
+    {return nearestLine().checkAttractors();}
 
   @Override
   public Translation2d processAttractors(Translation2d controlInput) 
   {
     int nearestIndex = nearestLineIndex();
+
     Translation2d controlOutput = edgeLines.get(nearestIndex).processAttractors(controlInput);
     if (!controlOutput.equals(controlInput)) {return controlOutput;}
+
     controlOutput = edgeLines.get(Conversions.wrap(nearestIndex - 1, 0, edgeLines.size() - 1)).processAttractors(controlInput);
     if (!controlOutput.equals(controlInput)) {return controlOutput;}
+
     controlOutput = edgeLines.get(Conversions.wrap(nearestIndex + 1, 0, edgeLines.size() - 1)).processAttractors(controlInput);
     if (!controlOutput.equals(controlInput)) {return controlOutput;}
+
     return controlInput;
   }
 
@@ -171,10 +171,8 @@ public class Polygon extends GeoFence
   {
     ArrayList<Translation2d> midPoints = new ArrayList<Translation2d>();
 
-    for (int i = 0; i < edgeLines.size(); i++)
-    {
-      midPoints.add(edgeLines.get(i).getCentre());
-    }
+    for (var edge : edgeLines)
+      midPoints.add(edge.getCentre());
 
     midPoints.add(centre);
     return midPoints;
@@ -191,10 +189,8 @@ public class Polygon extends GeoFence
    */
   public Polygon addRelativeAttractors(double normalOffset, double tangentOffset, double effectRadius, double targetBuffer, BooleanSupplier activeCondition)
   {
-    for (int i = 0; i < edgeLines.size(); i++)
-    {
-      edgeLines.get(i).addRelativeAttractor(false, normalOffset, tangentOffset, effectRadius, targetBuffer, activeCondition);
-    }
+    for (var edge : edgeLines)
+      edge.addRelativeAttractor(false, normalOffset, tangentOffset, effectRadius, targetBuffer, activeCondition);
     return this;
   }
 }

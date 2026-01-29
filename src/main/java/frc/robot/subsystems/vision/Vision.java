@@ -23,8 +23,7 @@ import static frc.robot.constants.Constants.Vision.*;
 
 public class Vision extends SubsystemBase 
 {
-  public enum TagPOI {ALL, HUB, TOWER, OUTPOST, TRENCH}
-  
+ 
   private final PoseEstimateConsumer estimateConsumer;
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
@@ -40,21 +39,6 @@ public class Vision extends SubsystemBase
     this.estimateConsumer = estimateConsumer;
     this.rpsSup = rpsSup;
     this.lls = lls;
-    setActivePOI(TagPOI.ALL);
-  }
-
-  public void setActivePOI(TagPOI activePOI) 
-  {
-    var validIDs = switch (activePOI) 
-    {
-      case ALL -> allIDs;
-      case HUB -> hubIDs;
-      case TOWER -> towerIDs;
-      case OUTPOST -> outpostIDs;
-      case TRENCH -> trenchIDs;
-    };
-
-    for (var ll : lls) ll.updateValidIDs(validIDs);
   }
 
   public void incrementPipeline() 

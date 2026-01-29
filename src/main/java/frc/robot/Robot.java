@@ -4,10 +4,11 @@
 
 package frc.robot;
 
-//import edu.wpi.first.epilogue.Epilogue;
+import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,12 +31,11 @@ import frc.robot.constants.Constants.Swerve;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.IDConstants.*;
-import static frc.robot.constants.FieldConstants.*;
+
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.*;
-import frc.robot.subsystems.vision.Vision.TagPOI;
 import frc.robot.util.AutoFactories;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.SD;
@@ -48,27 +48,27 @@ import frc.robot.util.libs.Telemetry;
  * Coordinate system notes:
  * <ul>
  * <li> Robot Relative:
- * <ul>
- * <li> +Fore / -Aft -> X axis in Robot coordinates
- * <li> +Port / -Stbd -> Y axis in Robot corrdinates
- * </ul>
+ *  <ul>
+ *  <li> +Fore / -Aft -> X axis in Robot coordinates
+ *  <li> +Port / -Stbd -> Y axis in Robot corrdinates
+ *  </ul>
  * <li> Field Absolute:
- * <ul>
- * <li> +East / -West -> X axis in Field coordinates
- * <li> +North / -South -> Y axis in Field coordinates
- * </ul>
+ *  <ul>
+ *  <li> +East / -West -> X axis in Field coordinates
+ *  <li> +North / -South -> Y axis in Field coordinates
+ *  </ul>
  * <li> Driver Relative:
- * <ul>
- * <li> In / Out -> From driver perspective, to make their lives easier
- * <li> Left / Right -> From driver perspective, to make their lives easier
- * </ul>
+ *  <ul>
+ *  <li> In / Out -> From driver perspective, to make their lives easier
+ *  <li> Left / Right -> From driver perspective, to make their lives easier
+ *  </ul>
  * </ul>
  */
 @Logged
 public class Robot extends TimedRobot 
 {
   /* Enums */
-  public enum TargetPosition {Left, Right, Centre, None}
+  public enum TargetPosition {Left, Right, Centre, None} // TODO Unused
   public enum DriveState {None, Hub, Tower}
   
   /* State */
@@ -82,14 +82,28 @@ public class Robot extends TimedRobot
   private final Telemetry ctreLogger = new Telemetry(Constants.Swerve.maxSpeed);
   
   /* Subsystems */
-  private final static CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
-  private final Shooter s_Shooter = new Shooter
+  private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
+  private final Shooter s_PortShooter = new Shooter
     (
-      () -> swerveState.Pose,
-      IDConstants.shooterMainID, 
-      IDConstants.shooterAuxID, 
-      IDConstants.turretID, 
-      IDConstants.hoodID
+      () -> swerveState,
+      Transform2d.kZero, // TODO
+      IDConstants.portFlyLeaderCAN, 
+      IDConstants.portFlyFollowerCAN, 
+      IDConstants.portTurretCAN,
+      1,
+      1,
+      IDConstants.portHoodPWM
+    );
+  private final Shooter s_StbdShooter = new Shooter
+    (
+      () -> swerveState,
+      Transform2d.kZero, // TODO
+      IDConstants.stbdFlyLeaderCAN, 
+      IDConstants.stbdFlyFollowerCAN, 
+      IDConstants.stbdTurretCAN,
+      2,
+      1,
+      IDConstants.stbdHoodPWM
     );
   private final Vision s_Vision = new Vision
     (
@@ -98,11 +112,26 @@ public class Robot extends TimedRobot
         s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
         s_Swerve.addVisionMeasurement(poseEst, timestmp);
       },
-      () -> swerveState.Speeds.omegaRadiansPerSecond, 
-      //new Limelight(foreLimelightName), 
-      new Limelight(aftLimelightName)
+      () -> swerveState.Speeds.omegaRadiansPerSecond,
+      new Limelight(portLimelightName, Constants.Vision.portLimelightOffset), 
+      new Limelight(stbdLimelightName, Constants.Vision.stbdLimelightOffset)
     );
-
+  private final LinearExtension s_Climber = new LinearExtension
+    (
+      IDConstants.climberCAN, 
+      IDConstants.climberLimitDIO, 
+      0, 
+      Constants.ClimberConstants.maxRotations, 
+      Constants.ClimberConstants.config
+    );
+  private final Hopper s_Hopper = new Hopper
+    (
+      IDConstants.spindexerCAN,
+      IDConstants.intakeCAN, 
+      IDConstants.extensionCAN, 
+      IDConstants.extensionLimitDIO
+    );
+  
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(0);
   private final CommandXboxController operator = new CommandXboxController(1);
@@ -140,7 +169,7 @@ public class Robot extends TimedRobot
       DriverStation.startDataLog(DataLogManager.getLog());
     }
 
-    //Epilogue.bind(this);
+    Epilogue.bind(this);
 
     SmartDashboard.putData("Field", field);
 
@@ -150,13 +179,6 @@ public class Robot extends TimedRobot
   private void initInputTransmute()
   {
     boolean redAlliance = FieldUtils.isRedAlliance();
-    
-    driverStick
-      .rotated(redAlliance)
-      .withFieldObjects(GeoFencing.fieldGeoFence)
-      .withBrake(driverBrake)
-      .withInputCurve(driverInputCurve)
-      .withDeadband(driverDeadband);
 
     FieldUtils.activateAllianceFencing(redAlliance);
     FieldConstants.GeoFencing.configureAttractors((testTarget, testState) -> currentTarget == testTarget && currentDriveState == testState);
@@ -167,6 +189,14 @@ public class Robot extends TimedRobot
         robotRadiusInscribed
       );
     FieldObject.setRobotPosSup(this::getTranslation);
+    
+    driverStick
+      .rotated(redAlliance)
+      .withFieldObjects(GeoFencing.fieldGeoFence)
+      .withBrake(driverBrake)
+      .withInputCurve(driverInputCurve)
+      .withDeadband(driverDeadband);
+
     GeoFencing.fieldGeoFence.setActiveCondition(() -> SD.FENCE_TOGGLE.get() && SD.LL_TOGGLE.get());
   }
 
@@ -183,6 +213,23 @@ public class Robot extends TimedRobot
         driver::getRightTriggerAxis
       )
     );
+
+    bumpNB.asTrigger()
+      .or(bumpSB.asTrigger())
+      .or(bumpNR.asTrigger())
+      .or(bumpSR.asTrigger())
+      .whileTrue
+      (
+        new NonCardinalDrive
+        (
+          s_Swerve, 
+          () -> swerveState.Pose.getRotation(), 
+          driverStick::stickOutput, 
+          () -> -driver.getRightX(), 
+          driver::getRightTriggerAxis, 
+          bumpRotationTolerance
+        )
+      );
 
     /* Setting Drive States */
     driver.povLeft().onTrue(runOnce(() -> currentTarget = TargetPosition.Left));
@@ -204,7 +251,6 @@ public class Robot extends TimedRobot
 
     /* Heading Locking */
     new Trigger(() -> currentDriveState == DriveState.None)
-      .onTrue(runOnce(() -> s_Vision.setActivePOI(TagPOI.ALL)))
       .whileTrue
       (
         new ManualDrive
@@ -228,8 +274,6 @@ public class Robot extends TimedRobot
 
   /* UTIL METHODS */
   /* ============ */
-  public static void setYaw(double newYaw) {s_Swerve.getPigeon2().setYaw(newYaw);}
-
   private void updateSwerveState()
   {
     swerveState = s_Swerve.getState();

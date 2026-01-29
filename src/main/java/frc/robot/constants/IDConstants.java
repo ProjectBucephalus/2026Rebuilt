@@ -6,56 +6,63 @@ package frc.robot.constants;
 
 public final class IDConstants 
 {   
-  public static final int pdhID = 0;
+  public static final int pdhCAN = 0;
 
   /* Drive */
   /* _____ */
-  public static final int foreStbdDriveMotorID = 1;
-  public static final int foreStbdAngleMotorID = 2;
-  public static final int foreStbdCANcoderID   = 3;
+  public static final int foreStbdDriveMotorCAN = 1;
+  public static final int foreStbdAngleMotorCAN = 2;
+  public static final int foreStbdCANcoderCAN   = 3;
 
-  public static final int forePortDriveMotorID = 4;
-  public static final int forePortAngleMotorID = 5;
-  public static final int forePortCANcoderID   = 6;
+  public static final int forePortDriveMotorCAN = 4;
+  public static final int forePortAngleMotorCAN = 5;
+  public static final int forePortCANcoderCAN   = 6;
 
-  public static final int aftPortDriveMotorID = 7;
-  public static final int aftPortAngleMotorID = 8;
-  public static final int aftPortCANcoderID   = 9;
+  public static final int aftPortDriveMotorCAN = 7;
+  public static final int aftPortAngleMotorCAN = 8;
+  public static final int aftPortCANcoderCAN   = 9;
 
-  public static final int aftStbdDriveMotorID = 10;
-  public static final int aftStbdAngleMotorID = 11;
-  public static final int aftStbdCANcoderID   = 12;
+  public static final int aftStbdDriveMotorCAN = 10;
+  public static final int aftStbdAngleMotorCAN = 11;
+  public static final int aftStbdCANcoderCAN   = 12;
 
-  public static final int pigeonID = 53; // Pigeon ID hardset to 53, we can't change it
+  public static final int pigeonCAN = 13;
 
   /* Mechanism */
   /* _________ */
-  public static final int shooterMainID = 22;
-  public static final int shooterAuxID = 23;
-  public static final int turretID = 21;
-  public static final int hoodID = 20;
-  public static final int indexerID = 24;
-  public static final int beltID = 25;
-  public static final int intakeID = 26;
-  public static final int extensionID = 27;
+
+  /* Port Turret, [16..18], PWM [1] */
+  public static final int portFlyLeaderCAN = 16;
+  public static final int portFlyFollowerCAN = 17;
+  public static final int portTurretCAN = 18;
+  public static final int portPotIO = 1;
+  public static final int portHoodPWM = 1;
+
+  /* Stbd Turret, [20..22], PWM [2] */
+  public static final int stbdFlyLeaderCAN = 20;
+  public static final int stbdFlyFollowerCAN = 21;
+  public static final int stbdTurretCAN = 22;
+  public static final int stbdPotIO = 2;
+  public static final int stbdHoodPWM = 2;
+
+  /* Feeder, [24] */
+  public static final int feederCAN = 24;
+
+  /* Processor, [28..30] */
+  public static final int spindexerCAN = 28;
+  public static final int intakeCAN = 29;
+  public static final int extensionCAN = 30;
+
+  /* Climber, [32] */
+  public static final int climberCAN = 32;
 
   /* Limelights */
   /* __________ */
-  public static final String foreLimelightName = "LemonLightPort";
-  public static final String aftLimelightName = "LemonLightStbd";
+  public static final String portLimelightName = "LemonLightPort";
+  public static final String stbdLimelightName = "LemonLightStbd";
 
-
-
-
-  /*sensors */
-  /*_______ */
-  public static final int extensionLimitID = 1;
-
-
-
-
-
-
+  /* Sensors */
+  /* _______ */
+  public static final int extensionLimitDIO = 1;
+  public static final int climberLimitDIO = 2;
 }
-
-
