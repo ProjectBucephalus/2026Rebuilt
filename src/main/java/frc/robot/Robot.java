@@ -69,7 +69,7 @@ public class Robot extends TimedRobot
 {
   /* Enums */
   public enum TargetPosition {Left, Right, Centre, None} // TODO Unused
-  public enum DriveState {None, Hub, Tower}
+  public enum DriveState {None, Hub, Tower} // Depending on how we're doing climb lineup, we can probably remove both of these
   
   /* State */
   private SwerveDriveState swerveState;

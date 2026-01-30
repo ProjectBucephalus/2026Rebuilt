@@ -5,6 +5,7 @@
 package frc.robot.subsystems.vision;
 
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.Utils;
 
@@ -12,7 +13,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -27,9 +27,6 @@ public class Vision extends SubsystemBase
   private final PoseEstimateConsumer estimateConsumer;
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
-  private boolean onTurret;
-
-  private Pose2d poseOut = Pose2d.kZero;
 
   private int pipelineIndex = (int)SD.LL_EXPOSURE.defaultValue();
 
@@ -55,7 +52,6 @@ public class Vision extends SubsystemBase
     SD.LL_EXPOSURE.put((double)pipelineIndex);
   }
 
-  // TODO Additional processing is required to account for cameras mounted on turrets
   @Override
   public void periodic() 
   {
@@ -66,7 +62,6 @@ public class Vision extends SubsystemBase
         ll.periodic();
 
         var maybeEst = ll.getPhotonEst();
-        onTurret = ll.isOnTurret();
 
         if (maybeEst.isPresent()) 
         {
@@ -75,21 +70,20 @@ public class Vision extends SubsystemBase
           
           if (useUpdate) 
           {
-            double avgTagDist = 0;
-            for (var target : est.targetsUsed)
-              {avgTagDist += target.getBestCameraToTarget().getTranslation().getNorm();}
+            double avgTagDist = est
+              .targetsUsed
+              .stream()
+              .collect(Collectors.averagingDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm()));
 
-
-            double stdDevFactor = Math.pow((avgTagDist/est.targetsUsed.size()), 2.0) / est.targetsUsed.size();
+            double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
 
             double linearStdDev = linearStdDevBaseline * stdDevFactor;
             double rotStdDev = rotStdDevBaseline * stdDevFactor;
 
-            
-            if (onTurret == true)
-              poseOut = est.estimatedPose.toPose2d().transformBy(new Transform2d(ll.getTurretToRobot(), ll.getTurretAngle().unaryMinus()));
-            else 
-              poseOut = est.estimatedPose.toPose2d();
+            var poseOut = 
+              ll.isOnTurret() 
+              ? est.estimatedPose.toPose2d().transformBy(new Transform2d(ll.getTurretToRobot(), ll.getTurretAngle().unaryMinus()))
+              : est.estimatedPose.toPose2d();
 
             estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
           }

@@ -2,6 +2,7 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -92,6 +93,7 @@ public final class Constants
      *    Once KV is tuned, use KP for additional gain as needed
      */
     public static final TalonFXConfiguration flywheelConfig = new TalonFXConfiguration(); 
+    static
     {
       flywheelConfig.Slot0.kS = 0.2;
       flywheelConfig.Slot0.kV = 0.08;
@@ -146,7 +148,6 @@ public final class Constants
       
 
       public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration();
-      
       static 
       {
         turretConfigs.Slot0.kS = 0.0;
@@ -201,7 +202,8 @@ public final class Constants
     );
 
     public static final Set<Integer> trenchIDs = Set.of
-    (      /* RED */
+    (
+      /* RED */
       6, 7, // Scoring Side
       1, 12, // Non-Scoring Side
 
@@ -210,16 +212,14 @@ public final class Constants
       22, 23 // Non-Scoring Side
     );
 
-    public static final Set<Integer> allIDs = Set.of();
+    public static final Set<Integer> allIDs = new HashSet<>(32);
     static
     {
       allIDs.addAll(trenchIDs);
       allIDs.addAll(outpostIDs);
       allIDs.addAll(towerIDs);
       allIDs.addAll(hubIDs);
-    }
-
-    
+    };
 
     /** Baseline 1 meter, 1 tag stddev for x and y, in meters */
     public static final double linearStdDevBaseline = 0.08;
@@ -259,9 +259,7 @@ public final class Constants
   public  static final class IndexerConstants 
   {
     public static final double speed = 0.5;
-    
   }
-
 
   public static final class HopperConstants
   {
@@ -290,6 +288,7 @@ public final class Constants
       private static final double gainD = 0.0;
 
       public static final TalonFXConfiguration config = new TalonFXConfiguration();
+      static
       {
         config.MotionMagic.MotionMagicCruiseVelocity = 0;
         config.MotionMagic.MotionMagicAcceleration = 0;
@@ -307,19 +306,19 @@ public final class Constants
         config.Slot1.kP = gainP;
         config.Slot1.kI = gainI;
         config.Slot1.kD = gainD;
-      }
+      };
     }
+  }   
 
-
-  
-  }   //TODO change maxrotaions 
-  public static final class ClimberConstants {
+  //TODO change maxrotaions 
+  public static final class ClimberConstants 
+  {
     public static final double maxRotations = 1;
 
-    public static final TalonFXConfiguration config = new TalonFXConfiguration();
-  
-  
-    
+    public static final TalonFXConfiguration config = new TalonFXConfiguration(); 
+    static 
+    {
+      // TODO configure config object
+    }
   }
-
 }
