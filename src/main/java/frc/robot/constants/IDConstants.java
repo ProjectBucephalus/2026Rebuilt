@@ -58,8 +58,8 @@ public final class IDConstants
 
   /* Limelights */
   /* __________ */
-  public static final String portLimelightName = "LemonLightPort";
-  public static final String stbdLimelightName = "LemonLightStbd";
+  public static final String portLimelightName = "PhotonPort";
+  public static final String stbdLimelightName = "PhotonStbd";
 
   /* Sensors */
   /* _______ */
