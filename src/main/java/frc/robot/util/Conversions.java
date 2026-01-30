@@ -233,24 +233,24 @@ public class Conversions
     if (offset >= 135)
     {
       if (currentAngle >= 45)
-        {return targetAngle - 360;}
+        return targetAngle - 360;
       else
-        {return targetAngle;}
+        return targetAngle;
     }
     else if (offset <= -135)
     {
       if (currentAngle <= -45)
-        {return targetAngle + 360;}
+        return targetAngle + 360;
       else
-        {return targetAngle;}
+        return targetAngle;
     }
 
     // If the target absolute angle is outside the allowed range, bring it one rotation towards centre
     if (targetAngle > maxAngle)
-      {return targetAngle - 360;}
+      return targetAngle - 360;
     else if (targetAngle < -maxAngle)
-      {return targetAngle + 360;}
+      return targetAngle + 360;
     else 
-      {return targetAngle;}
+      return targetAngle;
   }
 }
