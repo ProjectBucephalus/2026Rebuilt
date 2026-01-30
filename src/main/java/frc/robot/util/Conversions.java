@@ -135,7 +135,11 @@ public class Conversions
 
   public static double normaliseAngle(double newAngle, double currentAngle, double maxAngle)
   {
-    // this handles the definitions for the different doubles
+    // Ensure allowed range of motion is greater than a rotation
+    if (maxAngle < 180)
+      {return currentAngle;}
+
+    // Wrap both input angles to be strictly relative within a rotation
     double newAngleWrapped = Conversions.mod(newAngle, 360);
     double currentAngleWrapped = Conversions.mod(currentAngle, 360);
 
@@ -143,6 +147,23 @@ public class Conversions
 
     double targetAngle = currentAngleWrapped + offset;
 
+    // When the travel is almost half a rotation, take the longer path if it brings the mechanism closer to centre
+    if (offset >= 135)
+    {
+      if (currentAngle >= 45)
+        {return targetAngle - 360;}
+      else
+        {return targetAngle;}
+    }
+    else if (offset <= -135)
+    {
+      if (currentAngle <= -45)
+        {return targetAngle + 360;}
+      else
+        {return targetAngle;}
+    }
+
+    // If the target absolute angle is outside the allowed range, bring it one rotation towards centre
     if (targetAngle > maxAngle)
       {return targetAngle - 360;}
     else if (targetAngle < -maxAngle)
