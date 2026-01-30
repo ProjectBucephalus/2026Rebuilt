@@ -13,6 +13,10 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
+/**
+ * Turreted Shooter master-system, internally creates and manages associated subsystems
+ * @author 5985
+ */
 public class Shooter extends SubsystemBase 
 {  
   private final Flywheels flywheels; 

@@ -10,41 +10,47 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.constants.Constants.HopperConstants.*;
 import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.extensionJostleDelay;
 
+/**
+ * Ball processing master-system with extendable intake, internally creates and manages associated subsystems
+ * @author 5985
+ */
 public class Hopper extends SubsystemBase 
 {
   private BinaryMotor spindexer;
   private BinaryMotor intake;
   private LinearExtension extension;
   
-  /** Creates a new Hopper. */
-  public Hopper(int spindexerCAN, int intakeCAN, int extensionCAN, int extensionLimitCAN) 
+  /**
+   * Creates a ball processing master-system with extendable intake, internally creates and manages associated subsystems
+   * @param processorCAN CAN-ID for processor motor (e.g. belt-grid, spindexer, etc.)
+   * @param intakeCAN CAN-ID for intake motor
+   * @param extensionCAN CAN-ID for intake-extension motor
+   * @param extensionLimitIO DIO-ID of extension home switch
+   */
+  public Hopper(int processorCAN, int intakeCAN, int extensionCAN, int extensionLimitIO)
   { 
-    /** Creates new defintions to be used in the commands*/
-    spindexer = new BinaryMotor(spindexerSpeed, spindexerCAN);
+    spindexer = new BinaryMotor(spindexerSpeed, processorCAN);
     intake = new BinaryMotor(intakeSpeed, intakeCAN);
-    extension = new LinearExtension(extensionCAN, extensionLimitCAN, 0, ExtensionConstants.maxRotations, ExtensionConstants.config);
+    extension = new LinearExtension(extensionCAN, extensionLimitIO, 0, ExtensionConstants.maxRotations, ExtensionConstants.config);
   }
   
-  /**@return Command the intake of the fuel
-   * Starts intaking fuel
-  */
+  /** @return Command to start running intake at default speed */
   public Command runIntakeCommand()
   {return intake.startCommand();}
 
-  //Stops intaking fuel
+  /** @return Command to stop the intake */
   public Command stopIntakeCommand()
   {return intake.stopCommand();}
   
-  /**@return Command for the spindexer*/
-  //Starts running the spindexer
+  /** @return Command to start running spindexer at default speed */
   public Command runSpindexerCommand()
   {return spindexer.startCommand();}
 
-  // Stops the spindexer
+  /** @return Command to stop the spindexer */
   public Command stopSpindexerCommand()
   {return spindexer.stopCommand();}
 
-  //Rapidly pulses the spindexer in order to remove any jammed fuel
+  /** @return Command to continually pulse the spindexer to agitate gamepieces */
   public Command pulseSpindexerCommand()
   {
     return 
@@ -59,29 +65,53 @@ public class Hopper extends SubsystemBase
     .repeatedly();
   }
 
-  /**@return Command for all the extensions */
-  //Retracts the extension
+  /** @return Command to retract the extension to home */
   public Command retractCommand()
   {return extension.setTargetCommand(0);}
 
-  //Extends the extension until it's at it's max rotations
+  /** @return Command to extend the extension to max */
   public Command extendCommand()
   {return extension.setTargetCommand(ExtensionConstants.maxRotations);}
 
-  // Creates a command that jostles the extension to remove jammed fuel
+  /** @return Command to continually jostle the extension to agitate gamepieces */
   public Command extensionJostleCommand()
   {
     return 
     Commands.sequence
     (
-      extendCommand(), 
+      retractCommand(),
       //Waits for 0.25 seconds
       Commands.waitSeconds(extensionJostleDelay),
-      retractCommand(),
+      extendCommand(), 
       Commands.waitSeconds(extensionJostleDelay)
     )
     .repeatedly();
   }
+
+  /** @return Command to activate all systems */
+  public Command deployAllCommand()
+  {
+    return
+    Commands.parallel
+    (
+      runIntakeCommand(),
+      runSpindexerCommand(),
+      extendCommand()
+    );
+  }
+
+  /** @return Command to stow all systems */
+  public Command stowAllCommand()
+  {
+    return
+    Commands.parallel
+    (
+      stopIntakeCommand(),
+      stopSpindexerCommand(),
+      retractCommand()
+    );
+  }
+
   @Override
   public void periodic() {}
 }
