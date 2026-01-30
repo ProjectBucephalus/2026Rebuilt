@@ -32,7 +32,7 @@ public class Hopper extends SubsystemBase
   public Command stopIntakeCommand()
   {return intake.stopCommand();}
   
-  /** @return Command to start spindexe */
+  /** @return Command to start spindex*/
   public Command runSpindexerCommand()
   {return spindexer.startCommand();}
 
