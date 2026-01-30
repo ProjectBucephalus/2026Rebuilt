@@ -2,6 +2,7 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -211,13 +212,13 @@ public final class Constants
       22, 23 // Non-Scoring Side
     );
 
-    public static final Set<Integer> allIDs = Set.of();
+    public static final Set<Integer> allIDs = new HashSet<>(32);
     static
     {
-      //allIDs.addAll(trenchIDs);
-      //allIDs.addAll(outpostIDs);
-      //allIDs.addAll(towerIDs);
-      //allIDs.addAll(hubIDs);
+      allIDs.addAll(trenchIDs);
+      allIDs.addAll(outpostIDs);
+      allIDs.addAll(towerIDs);
+      allIDs.addAll(hubIDs);
     };
 
     /** Baseline 1 meter, 1 tag stddev for x and y, in meters */
