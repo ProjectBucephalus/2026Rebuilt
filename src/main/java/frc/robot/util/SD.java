@@ -34,15 +34,74 @@ public class SD
   public static final DoubleKey  BOTTOM_SHOOTER_SPEED  = new DoubleKey("Bottom Shooter Speed", 0);
   public static final DoubleKey  TOP_SHOOTER_SPEED  = new DoubleKey("Top Shooter Speed", 0);
 
-  static
+  private interface Key<T> extends Supplier<T>, Consumer<T>
   {
-    try 
+    public default void accept(T value) {put(value);}
+
+    public T get();
+
+    public void put(T value);
+
+    public void init();
+  }
+
+  public record BooleanKey (String label, boolean defaultValue) implements Key<Boolean>
+  {
+    public BooleanKey(String label, boolean defaultValue)
     {
-      for (var field : SD.class.getFields())
+      this.label = label;
+      this.defaultValue = defaultValue;
+      init();
+    }
+
+    public Boolean get() {return SmartDashboard.getBoolean(label, defaultValue);}
+
+    public boolean button() 
+    {
+      if (get()) 
       {
-        if (field.get(null) instanceof Key key) key.init();
-      }
-    } catch (Exception e) {/* This will verifiably never happen */}
+        put(false); 
+        return true;
+      } 
+      else 
+        {return false;}
+    }
+
+    public void init() {SmartDashboard.putBoolean(label, defaultValue);}
+
+    public void put(Boolean value) {SmartDashboard.putBoolean(label, value);}
+  }
+
+  public record DoubleKey (String label, double defaultValue) implements Key<Double>
+  {
+    public DoubleKey(String label, double defaultValue)
+    {
+      this.label = label;
+      this.defaultValue = defaultValue;
+      init();
+    }
+
+    public Double get() {return SmartDashboard.getNumber(label, defaultValue);}
+
+    public void init() {SmartDashboard.putNumber(label, defaultValue);}
+
+    public void put(Double value) {SmartDashboard.putNumber(label, value);}
+  }
+
+  public record StringKey (String label, String defaultValue) implements Key<String>
+  {
+    public StringKey(String label, String defaultValue)
+    {
+      this.label = label;
+      this.defaultValue = defaultValue;
+      init();
+    }
+
+    public String get() {return SmartDashboard.getString(label, defaultValue);}
+
+    public void init() {SmartDashboard.putString(label, defaultValue);}
+
+    public void put(String value) {SmartDashboard.putString(label, value);}
   }
 
   public static void initSwerveDisplay(CommandSwerveDrivetrain s_Swerve)
@@ -76,52 +135,4 @@ public class SD
     );
   }
 
-  private interface Key<T> extends Supplier<T>, Consumer<T>
-  {
-    public default void accept(T value) {put(value);}
-
-    public T get();
-
-    public void put(T value);
-
-    public void init();
-  }
-
-  public record BooleanKey (String label, boolean defaultValue) implements Key<Boolean>
-  {
-    public Boolean get() {return SmartDashboard.getBoolean(label, defaultValue);}
-
-    public boolean button() 
-    {
-      if (get()) 
-      {
-        put(false); 
-        return true;
-      } 
-      else 
-        {return false;}
-    }
-
-    public void init() {SmartDashboard.putBoolean(label, defaultValue);}
-
-    public void put(Boolean value) {SmartDashboard.putBoolean(label, value);}
-  }
-
-  public record DoubleKey (String label, double defaultValue) implements Key<Double>
-  {
-    public Double get() {return SmartDashboard.getNumber(label, defaultValue);}
-
-    public void init() {SmartDashboard.putNumber(label, defaultValue);}
-
-    public void put(Double value) {SmartDashboard.putNumber(label, value);}
-  }
-
-  public record StringKey (String label, String defaultValue) implements Key<String>
-  {
-    public String get() {return SmartDashboard.getString(label, defaultValue);}
-
-    public void init() {SmartDashboard.putString(label, defaultValue);}
-
-    public void put(String value) {SmartDashboard.putString(label, value);}
-  }
 }
