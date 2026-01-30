@@ -15,7 +15,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants.Control;
 import frc.robot.constants.Constants.Swerve;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.util.SD;
+import frc.robot.util.PBDash;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class OffsetDrive extends SwerveCommandBase 
@@ -59,7 +59,7 @@ public class OffsetDrive extends SwerveCommandBase
       {rotationVal *= MathUtil.interpolate(Control.maxRotThrottle, Control.minRotThrottle, brakeSup.getAsDouble());}
 
     if (motionXY.getNorm() != 0)
-      {SD.STATE_DRIVE.put("Manual");}
+      {PBDash.STATE_DRIVE.put("Manual");}
 
     s_Swerve.setControl
     (

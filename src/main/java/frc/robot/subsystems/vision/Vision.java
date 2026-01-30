@@ -18,7 +18,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.util.SD;
+import frc.robot.util.PBDash;
 import static frc.robot.constants.Constants.Vision.*;
 
 public class Vision extends SubsystemBase 
@@ -28,7 +28,7 @@ public class Vision extends SubsystemBase
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
 
-  private int pipelineIndex = (int)SD.LL_EXPOSURE.defaultValue();
+  private int pipelineIndex = (int)PBDash.LL_EXPOSURE.defaultVal();
 
   /** Creates a new Vision. */
   public Vision(PoseEstimateConsumer estimateConsumer, Supplier<Double> rpsSup, Limelight... lls) 
@@ -42,20 +42,20 @@ public class Vision extends SubsystemBase
   {
     pipelineIndex = MathUtil.clamp(pipelineIndex + 1, 0, 7);
     for (var ll : lls) {ll.updatePipeline(pipelineIndex);}
-    SD.LL_EXPOSURE.put((double)pipelineIndex);
+    PBDash.LL_EXPOSURE.put(pipelineIndex);
   }
 
   public void decrementPipeline()
   {
     pipelineIndex = MathUtil.clamp(pipelineIndex - 1, 0, 7);
     for (var ll : lls) {ll.updatePipeline(pipelineIndex);}
-    SD.LL_EXPOSURE.put((double)pipelineIndex);
+    PBDash.LL_EXPOSURE.put(pipelineIndex);
   }
 
   @Override
   public void periodic() 
   {
-    if (SD.LL_TOGGLE.get()) 
+    if (PBDash.LL_TOGGLE.get()) 
     {
       for (var ll : lls)
       {
