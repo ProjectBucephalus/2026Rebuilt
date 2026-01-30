@@ -178,9 +178,7 @@ public class Robot extends TimedRobot
 
   private void initInputTransmute()
   {
-    boolean redAlliance = FieldUtils.isRedAlliance();
-
-    FieldUtils.activateAllianceFencing(redAlliance);
+    FieldUtils.activateAllianceFencing();
     FieldConstants.GeoFencing.configureAttractors((testTarget, testState) -> currentTarget == testTarget && currentDriveState == testState);
     FieldObject.setRobotRadiusSup
       (() -> 
@@ -191,7 +189,7 @@ public class Robot extends TimedRobot
     FieldObject.setRobotPosSup(this::getTranslation);
     
     driverStick
-      .rotated(redAlliance)
+      .rotated(FieldUtils.isRedAlliance())
       .withFieldObjects(GeoFencing.fieldGeoFence)
       .withBrake(driverBrake)
       .withInputCurve(driverInputCurve)
@@ -298,6 +296,7 @@ public class Robot extends TimedRobot
   @Override
   public void disabledInit()
   {
+    FieldUtils.updateAlliance();
     if (getTranslation().equals(Translation2d.kZero))
     {
       s_Swerve.resetPose(FieldUtils.isRedAlliance() ? FieldConstants.redStartLine : FieldConstants.blueStartLine);
@@ -307,6 +306,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
+    FieldUtils.updateAlliance();
     autoCommand = AutoFactories.getCommandList(SD.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
     if (autoCommand != null) CommandScheduler.getInstance().schedule(autoCommand);
@@ -316,6 +316,7 @@ public class Robot extends TimedRobot
   public void teleopInit() 
   {
     if (autoCommand != null) autoCommand.cancel();
+    FieldUtils.updateAlliance();
     initInputTransmute();
   }
 
