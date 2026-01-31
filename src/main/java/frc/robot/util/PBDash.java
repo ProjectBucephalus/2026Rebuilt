@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-/** Simplified interface for most SmartDashboard interactions */
+/** Simplified interface for most dashboard/NT interactions */
 public class PBDash 
 {
   private static final NetworkTable table = NetworkTableInstance.getDefault().getTable("PBDash");
