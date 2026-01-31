@@ -14,8 +14,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -38,7 +36,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.*;
 import frc.robot.util.AutoFactories;
 import frc.robot.util.FieldUtils;
-import frc.robot.util.SD;
+import frc.robot.util.PBDash;
 import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
 
@@ -78,7 +76,6 @@ public class Robot extends TimedRobot
   private Command autoCommand;
 
   /* Telemetry and SD */
-  private Field2d field = new Field2d();
   private final Telemetry ctreLogger = new Telemetry(Constants.Swerve.maxSpeed);
   
   /* Subsystems */
@@ -137,10 +134,10 @@ public class Robot extends TimedRobot
   private final CommandXboxController operator = new CommandXboxController(1);
 
   /* Rumble */
-  private final RumbleRequester io_driverRight   = new RumbleRequester(driver, RumbleType.kRightRumble, SD.RUMBLE_DRIVER);
-  private final RumbleRequester io_driverLeft    = new RumbleRequester(driver, RumbleType.kLeftRumble, SD.RUMBLE_DRIVER);
-  private final RumbleRequester io_operatorRight  = new RumbleRequester(operator, RumbleType.kRightRumble, SD.RUMBLE_OPERATOR);
-  private final RumbleRequester io_operatorLeft   = new RumbleRequester(operator, RumbleType.kLeftRumble, SD.RUMBLE_OPERATOR);
+  private final RumbleRequester io_driverRight   = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
+  private final RumbleRequester io_driverLeft    = new RumbleRequester(driver, RumbleType.kLeftRumble, PBDash.RUMBLE_DRIVER::get);
+  private final RumbleRequester io_operatorRight  = new RumbleRequester(operator, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
+  private final RumbleRequester io_operatorLeft   = new RumbleRequester(operator, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
@@ -171,8 +168,6 @@ public class Robot extends TimedRobot
 
     Epilogue.bind(this);
 
-    SmartDashboard.putData("Field", field);
-
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
   }
 
@@ -195,7 +190,7 @@ public class Robot extends TimedRobot
       .withInputCurve(driverInputCurve)
       .withDeadband(driverDeadband);
 
-    GeoFencing.fieldGeoFence.setActiveCondition(() -> SD.FENCE_TOGGLE.get() && SD.LL_TOGGLE.get());
+    GeoFencing.fieldGeoFence.setActiveCondition(() -> PBDash.FENCE_TOGGLE.get() && PBDash.LL_TOGGLE.get());
   }
 
   private void bindControls()
@@ -259,8 +254,8 @@ public class Robot extends TimedRobot
       );
     
     /* Other */
-    new Trigger(SD.LL_EXPOSURE_UP::button).onTrue(runOnce(s_Vision::incrementPipeline));
-    new Trigger(SD.LL_EXPOSURE_DOWN::button).onTrue(runOnce(s_Vision::decrementPipeline));
+    new Trigger(PBDash.LL_EXPOSURE_UP::button).onTrue(runOnce(s_Vision::incrementPipeline));
+    new Trigger(PBDash.LL_EXPOSURE_DOWN::button).onTrue(runOnce(s_Vision::decrementPipeline));
   }
 
   private void bindRumbles()
@@ -273,7 +268,6 @@ public class Robot extends TimedRobot
   private void updateSwerveState()
   {
     swerveState = s_Swerve.getState();
-    field.setRobotPose(swerveState.Pose);
   }
 
   /** Returns the t2d of the robot centre in field coordinates */
@@ -305,7 +299,7 @@ public class Robot extends TimedRobot
   public void autonomousInit() 
   {
     FieldUtils.updateAlliance();
-    autoCommand = AutoFactories.getCommandList(SD.AUTO_STRING.get(), s_Swerve, () -> swerveState);
+    autoCommand = AutoFactories.getCommandList(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
     if (autoCommand != null) CommandScheduler.getInstance().schedule(autoCommand);
   }

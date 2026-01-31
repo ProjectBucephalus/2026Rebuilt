@@ -9,7 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants.Swerve;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.util.SD;
+import frc.robot.util.PBDash;
 
 /** Swerve drive interface to have the robot face a fixed direction */
 public class HeadingLockedDrive extends SwerveCommandBase 
@@ -68,7 +68,7 @@ public class HeadingLockedDrive extends SwerveCommandBase
     updateRotationPID();
 
     if (motionXY.getNorm() != 0)
-      {SD.STATE_DRIVE.put("Heading Locked");}
+      {PBDash.STATE_DRIVE.put("Heading Locked");}
 
     s_Swerve.setControl
     (

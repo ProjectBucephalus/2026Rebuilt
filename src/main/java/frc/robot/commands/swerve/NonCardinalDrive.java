@@ -20,7 +20,7 @@ import frc.robot.constants.Constants.Control;
 import frc.robot.constants.Constants.Swerve;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
-import frc.robot.util.SD;
+import frc.robot.util.PBDash;
 
 /**
  * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned
@@ -96,7 +96,7 @@ public class NonCardinalDrive extends SwerveCommandBase
       {rotationVal *= MathUtil.interpolate(Control.maxRotThrottle, Control.minRotThrottle, brakeSup.getAsDouble());}
 
     if (motionXY.getX() != 0 || motionXY.getY() != 0)
-      {SD.STATE_DRIVE.put("Manual");}
+      {PBDash.STATE_DRIVE.put("Manual");}
 
     s_Swerve.setControl
     (

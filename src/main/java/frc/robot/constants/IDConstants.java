@@ -69,4 +69,7 @@ public final class IDConstants
   /* _______ */
   public static final int extensionLimitDIO = 1;
   public static final int climberLimitDIO = 2;
+
+  /* NT Table Name */
+  public static final String dashTableName = "PBDash";
 }
