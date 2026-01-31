@@ -9,7 +9,10 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-/** A subsystem wrapped around a TalonFX to provide a simple subsystem for any motor mainly intended for binary operation (on or off) */
+/** 
+ * A subsystem wrapped around a TalonFX to provide a simple subsystem for any motor mainly intended for binary operation (on or off) 
+ * @author 5985
+ */
 public class BinaryMotor extends SubsystemBase 
 {
   private final TalonFX m_Inner;

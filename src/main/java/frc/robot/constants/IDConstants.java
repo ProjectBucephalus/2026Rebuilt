@@ -4,7 +4,10 @@
 
 package frc.robot.constants;
 
-/** CAN IDs, PWM ports, IO ports */
+/** 
+ * CAN IDs, PWM ports, IO ports, device names, etc.
+ * @author 5985
+ */
 public final class IDConstants 
 {   
   public static final int pdhCAN = 0;

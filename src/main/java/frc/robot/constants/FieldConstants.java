@@ -15,6 +15,10 @@ import frc.robot.util.controlTransmutation.ObjectList;
 import frc.robot.util.controlTransmutation.geoFence.*;
 import frc.robot.util.controlTransmutation.restrictor.*;
 
+/**
+ * Geometry data for "Rebuilt" field
+ * @author 5985
+ */
 public class FieldConstants 
 {
   /** Length of the field in the X direction, metres */

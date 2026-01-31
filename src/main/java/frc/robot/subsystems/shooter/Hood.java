@@ -11,6 +11,7 @@ import static frc.robot.constants.Constants.Shooter.HoodConstants.*;
 
 /**
  * Interface class for a Servo-driven shooter hood to control altitude.
+ * @author 5985
  */
 public class Hood 
 {

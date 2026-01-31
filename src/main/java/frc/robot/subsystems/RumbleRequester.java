@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 /** 
  * A subsystem that provides a convenient interface for managing controller rumble. Each instance manages one side of one controller <p>
  * This subsystem operates on requests. It rumbles while there are any requests, and when all requests are removed it stops rumbling
+ * @author 5985
  */
 public class RumbleRequester extends SubsystemBase
 {

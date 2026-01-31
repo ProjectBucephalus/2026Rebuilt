@@ -11,6 +11,10 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
+/**
+ * Constant values for mechanism geometry, motor configuration, input parameters, targets, etc.
+ * @author 5985
+ */
 public final class Constants 
 {
   public static final class RumblerConstants 

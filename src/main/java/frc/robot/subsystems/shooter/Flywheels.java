@@ -19,6 +19,7 @@ import frc.robot.constants.Constants.Shooter;
  * Interface class for a shooter flywheel. <p>
  * Uses two linked TalonFX controlled motors. <p>
  * Uses MotionMagic to control velocity.
+ * @author 5985
  */
 public class Flywheels 
 {

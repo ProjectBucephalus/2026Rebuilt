@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
  * Ensures rotation limits are respected to prevent damage to cables. <p>
  * Uses a TalonFX controlled motor, and a potentiometer for calibration. <p>
  * Includes functionality to track a point on the field while the robot is in motion. <p>
+ * @author 5985
  */
 public class Turret
 {
