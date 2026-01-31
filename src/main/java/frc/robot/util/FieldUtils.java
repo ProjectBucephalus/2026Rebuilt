@@ -47,18 +47,29 @@ public class FieldUtils
    * @param pose a blue-origin pose
    * @return the pose mirrored to match our alliance
    */
-  public static Pose2d flipPose(Pose2d pose) 
+  public static Pose2d allianceFlipPose(Pose2d pose) 
   {
     // flip pose when red
     if (isRedAlliance()) 
     {
-      Rotation2d rot = pose.getRotation();
-      // reflect the pose over center line, flip both the X and the rotation
-      return new Pose2d(FieldConstants.fieldLength - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
+      return flipPose(pose);
     }
 
     // Blue or we don't know; return the original pose
     return pose;
+  }
+
+  /**
+   * Mirrors the provided pose
+   * 
+   * @param pose original pose
+   * @return the pose mirrored accross field centreline
+   */
+  public static Pose2d flipPose(Pose2d pose) 
+  {
+    Rotation2d rot = pose.getRotation();
+    // reflect the pose over center line, flip both the X and the rotation
+    return new Pose2d(FieldConstants.fieldLength - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
   }
 
   /**
@@ -67,7 +78,7 @@ public class FieldUtils
    * @param pose a blue-origin pose
    * @return the pose rotated to match our alliance
    */
-  public static Pose2d rotatePose(Pose2d pose) 
+  public static Pose2d allianceRotatePose(Pose2d pose) 
   {
     // flip pose when red
     if (isRedAlliance()) 
@@ -77,6 +88,77 @@ public class FieldUtils
       // Blue or we don't know; return the original pose
       return pose;
   }
+
+  /**
+   * Rotates the provided pose
+   * 
+   * @param pose original pose
+   * @return the pose rotated around the field centre
+   */
+  public static Pose2d rotatePose(Pose2d pose) 
+  {
+    // reflect the pose around center point, flip both the X and Y position and rotation
+    return pose.rotateAround(FieldConstants.fieldCentre, Rotation2d.k180deg);
+  }
+
+  /**
+   * Mirrors the provided translation accross the field centreline if we're on the red alliance
+   * 
+   * @param translation a blue-origin translation
+   * @return the translation mirrored to match our alliance
+   */
+  public static Translation2d allianceFlipTranslation(Translation2d translation) 
+  {
+    // flip translation when red
+    if (isRedAlliance()) 
+      // reflect the translation around center point, flip both the X and Y position
+      return flipTranslation(translation);
+    else 
+      // Blue or we don't know; return the original translation
+      return translation;
+  }
+
+  /**
+   * Mirrors the provided translation accross the field centreline
+   * 
+   * @param translation original translation
+   * @return the translation mirrored accross field centre
+   */
+  public static Translation2d flipTranslation(Translation2d translation) 
+  {
+    // reflect the translation around center point, flip both the X and Y position
+    return translation.rotateAround(FieldConstants.fieldCentre, Rotation2d.k180deg);
+  }
+
+  /**
+   * Rotates the provided translation if we're on the red alliance
+   * 
+   * @param translation a blue-origin translation
+   * @return the translation rotated to match our alliance
+   */
+  public static Translation2d allianceRotateTranslation(Translation2d translation) 
+  {
+    // flip translation when red
+    if (isRedAlliance()) 
+      // reflect the translation around center point, flip both the X and Y position
+      return rotateTranslation(translation);
+    else 
+      // Blue or we don't know; return the original translation
+      return translation;
+  }
+
+  /**
+   * Rotates the provided translation
+   * 
+   * @param translation original translation
+   * @return the translation rotated around field centre
+   */
+  public static Translation2d rotateTranslation(Translation2d translation) 
+  {
+    // reflect the translation around center point, flip both the X and Y position
+    return translation.rotateAround(FieldConstants.fieldCentre, Rotation2d.k180deg);
+  }
+
 
   /**
    * Activates the relevant geofences for our alliance
