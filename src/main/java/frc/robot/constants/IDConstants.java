@@ -13,7 +13,7 @@ public final class IDConstants
   public static final int pdhCAN = 0;
 
   /* Drive */
-  /* _____ */
+  /* ----- */
   public static final int foreStbdDriveMotorCAN = 1;
   public static final int foreStbdAngleMotorCAN = 2;
   public static final int foreStbdCANcoderCAN   = 3;
@@ -33,21 +33,21 @@ public final class IDConstants
   public static final int pigeonCAN = 13;
 
   /* Mechanism */
-  /* _________ */
+  /* --------- */
 
-  /* Port Turret, [16..18], PWM [1] */
+  /* Port Turret, [16..18], PWM/AIO [0] */
   public static final int portFlyLeaderCAN = 16;
   public static final int portFlyFollowerCAN = 17;
   public static final int portTurretCAN = 18;
-  public static final int portPotIO = 1;
-  public static final int portHoodPWM = 1;
+  public static final int portPotIO = 0;
+  public static final int portHoodPWM = 0;
 
-  /* Stbd Turret, [20..22], PWM [2] */
+  /* Stbd Turret, [20..22], PWM/AIO [1] */
   public static final int stbdFlyLeaderCAN = 20;
   public static final int stbdFlyFollowerCAN = 21;
   public static final int stbdTurretCAN = 22;
-  public static final int stbdPotIO = 2;
-  public static final int stbdHoodPWM = 2;
+  public static final int stbdPotIO = 1;
+  public static final int stbdHoodPWM = 1;
 
   /* Feeder, [24] */
   public static final int feederCAN = 24;
@@ -60,16 +60,15 @@ public final class IDConstants
   /* Climber, [32] */
   public static final int climberCAN = 32;
 
-  /* Limelights */
-  /* __________ */
+  /* Sensors */
+  /* ------- */
+  public static final int extensionLimitDIO = 0;
+  public static final int climberLimitDIO = 1;
+  
+  /* Network device names */
+  /* -------------------- */
   public static final String portLimelightName = "PhotonPort";
   public static final String stbdLimelightName = "PhotonStbd";
 
-  /* Sensors */
-  /* _______ */
-  public static final int extensionLimitDIO = 1;
-  public static final int climberLimitDIO = 2;
-
-  /* NT Table Name */
   public static final String dashTableName = "PBDash";
 }
