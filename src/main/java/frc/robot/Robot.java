@@ -240,9 +240,7 @@ public class Robot extends TimedRobot
       new PathFollowDrive
       (
         s_Swerve, 
-        () -> this.swerveState, 
-        1, 
-        Pathfinding.testPathRotation,
+        () -> this.swerveState,
         Pathfinding.testPath
       )
     );

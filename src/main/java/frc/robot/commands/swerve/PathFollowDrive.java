@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.constants.Pathfinding.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 
@@ -41,21 +42,21 @@ public class PathFollowDrive extends Command
    * @param targetRotation  Rotation for robot to face, applies over entire path
    * @param targetSequence  List of Translation2d to navigate through, start to end
    */
-  public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, double pointRadius, Rotation2d targetRotation, Translation2d... targetSequence)
+  public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, Path path)
   {
     this.swerveStateSup = swerveStateSup;
     this.s_Swerve = s_Swerve;
 
-    this.waypoints = new ArrayList<>(targetSequence.length * 3 - 2);
-    this.radiusPerSegment = new ArrayList<>(targetSequence.length - 1);
+    this.waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
+    this.radiusPerSegment = new ArrayList<>(path.sequence().length - 1);
 
-    for (int i = 0; i < targetSequence.length - 1; i++) 
+    for (int i = 0; i < path.sequence().length - 1; i++) 
     {
-      final var current = targetSequence[i];
-      final var next = targetSequence[i + 1];
+      final var current = path.sequence()[i];
+      final var next = path.sequence()[i + 1];
 
       final double segmentLength = current.getDistance(next);
-      final double waypointDist = Conversions.clamp(pointRadius, 0, segmentLength / 3);
+      final double waypointDist = Conversions.clamp(path.pointRadius(), 0, segmentLength / 3);
       final double lengthRatio = waypointDist / segmentLength;
 
       final var waypoint1 = current.interpolate(next, lengthRatio);
@@ -66,15 +67,15 @@ public class PathFollowDrive extends Command
       (
         Arrays.asList
         (
-          new Pose2d(current, targetRotation), 
-          new Pose2d(waypoint1, targetRotation), 
-          new Pose2d(waypoint2, targetRotation)
+          new Pose2d(current, path.heading()), 
+          new Pose2d(waypoint1, path.heading()), 
+          new Pose2d(waypoint2, path.heading())
         )
       );
     }
 
     radiusPerSegment.add(0.0);
-    waypoints.add(new Pose2d(targetSequence[targetSequence.length - 1], targetRotation));
+    waypoints.add(new Pose2d(path.sequence()[path.sequence().length - 1], path.heading()));
   }
 
   // Called when the command is initially scheduled.
