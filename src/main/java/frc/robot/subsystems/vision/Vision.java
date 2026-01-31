@@ -28,7 +28,7 @@ public class Vision extends SubsystemBase
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
 
-  private int pipelineIndex = (int)PBDash.LL_EXPOSURE.defaultVal();
+  private int pipelineIndex = PBDash.LL_EXPOSURE.defaultVal();
 
   /** Creates a new Vision. */
   public Vision(PoseEstimateConsumer estimateConsumer, Supplier<Double> rpsSup, Limelight... lls) 

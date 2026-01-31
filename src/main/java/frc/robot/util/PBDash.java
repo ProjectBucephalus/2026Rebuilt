@@ -6,6 +6,7 @@ package frc.robot.util;
 
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -36,17 +37,32 @@ public class PBDash
   public static final Key<Double>  BOTTOM_SHOOTER_SPEED = new Key<>("Bottom Shooter Speed", 0.0);
   public static final Key<Double>  TOP_SHOOTER_SPEED    = new Key<>("Top Shooter Speed", 0.0);
 
-  public static <T> void put(String name, T value)
-  {
-    var publisher = table.getTopic(name).genericPublish(value.getClass().getSimpleName());
-      {publisher.setValue(value);}
-  }
+  public static void putInt(String name, int value)
+    {entry(name).setInteger(Long.valueOf(value));}
 
-  public static <T> T get(String name)
-  {
-    var subscriber = table.getTopic(name).genericSubscribe();
-      {return (T)subscriber.get().getValue();}
-  }
+  public static void putDouble(String name, double value)
+    {entry(name).setDouble(value);}
+
+  public static void putBool(String name, Boolean value)
+    {entry(name).setBoolean(value);}
+
+  public static void putString(String name, String value)
+    {entry(name).setString(value);}
+
+  public static int getInt(String name)
+    {return (int)entry(name).getInteger(0);}
+
+  public static double getDouble(String name)
+    {return entry(name).getDouble(0);}
+
+  public static boolean getBool(String name)
+    {return entry(name).getBoolean(false);}
+
+  public static String getString(String name)
+    {return entry(name).getString("");}
+
+  private static final NetworkTableEntry entry(String name)
+    {return table.getEntry(name);}
 
   public static class Key<T>
   {

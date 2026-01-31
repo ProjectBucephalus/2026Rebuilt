@@ -150,10 +150,6 @@ public class Robot extends TimedRobot
 
   public Robot() 
   {
-    PBDash.put("test", 3);
-
-    PBDash.put("test2", PBDash.<Integer>get("test"));
-
     updateSwerveState();
 
     initLogging();
