@@ -88,7 +88,7 @@ public class Shooter extends SubsystemBase
    * <li> The turret is within {@link TurretConstants#azimuthTolerance azimuthTolerance} of it's target azimuth
    * <li> The hood is within {@link HoodConstants#altTolerance altTolerance} of it's target altitude
    * <li> The flywheels are at target speed, as per {@link Flywheels#atSpeed()}
-   * <li> The combined rotational velocity of the turret and the drivebase is less than {@link TurretConstants#maxRPM maxRPM}
+   * <li> The combined rotational velocity of the turret and the drivebase is less than {@link TurretConstants#maxRPS maxRPS}
    * </ul>
    * 
    * @return A {@link Trigger} encoding the above behaviour
@@ -100,7 +100,7 @@ public class Shooter extends SubsystemBase
         return Conversions.nearRotation(turret.getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance)
                 && hood.atAltitude()
                 && flywheels.atSpeed()
-                && (turret.getSpeed() + Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond)) < TurretConstants.maxRPM;
+                && (turret.getSpeed() + (Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond)/360)) < TurretConstants.maxRPS;
       });
   }
 
