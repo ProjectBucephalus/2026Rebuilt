@@ -167,6 +167,8 @@ public final class Constants
   {
     public static final Transform3d portLimelightOffset = new Transform3d();
     public static final Transform3d stbdLimelightOffset = new Transform3d();
+    /** Maximum time between vision estimates before switching to odometry only, seconds */
+    public static final double visionFrequencyThreshold = 10;
 
     public static final Set<Integer> hubIDs = Set.of
     (
