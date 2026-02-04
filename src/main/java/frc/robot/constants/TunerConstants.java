@@ -138,8 +138,8 @@ public class TunerConstants
   private static final boolean kFrontLeftSteerMotorInverted = true;
   private static final boolean kFrontLeftEncoderInverted = false;
 
-  private static final Distance kFrontLeftXPos = Meter.of(Constants.Swerve.wheelForeX);
-  private static final Distance kFrontLeftYPos = Meter.of(Constants.Swerve.wheelPortY);
+  private static final Distance kFrontLeftXPos = Meter.of(Constants.SwerveConstants.wheelForeX);
+  private static final Distance kFrontLeftYPos = Meter.of(Constants.SwerveConstants.wheelPortY);
 
   // Front Right
   private static final int kFrontRightDriveMotorId = IDConstants.foreStbdDriveMotorCAN;
@@ -149,8 +149,8 @@ public class TunerConstants
   private static final boolean kFrontRightSteerMotorInverted = true;
   private static final boolean kFrontRightEncoderInverted = false;
 
-  private static final Distance kFrontRightXPos = Meter.of(Constants.Swerve.wheelForeX);
-  private static final Distance kFrontRightYPos = Meter.of(Constants.Swerve.wheelStbdY);
+  private static final Distance kFrontRightXPos = Meter.of(Constants.SwerveConstants.wheelForeX);
+  private static final Distance kFrontRightYPos = Meter.of(Constants.SwerveConstants.wheelStbdY);
 
   // Back Left
   private static final int kBackLeftDriveMotorId = IDConstants.aftPortDriveMotorCAN;
@@ -160,8 +160,8 @@ public class TunerConstants
   private static final boolean kBackLeftSteerMotorInverted = true;
   private static final boolean kBackLeftEncoderInverted = false;
 
-  private static final Distance kBackLeftXPos = Meter.of(Constants.Swerve.wheelAftX);
-  private static final Distance kBackLeftYPos = Meter.of(Constants.Swerve.wheelPortY);
+  private static final Distance kBackLeftXPos = Meter.of(Constants.SwerveConstants.wheelAftX);
+  private static final Distance kBackLeftYPos = Meter.of(Constants.SwerveConstants.wheelPortY);
 
   // Back Right
   private static final int kBackRightDriveMotorId = IDConstants.aftStbdDriveMotorCAN;
@@ -171,8 +171,8 @@ public class TunerConstants
   private static final boolean kBackRightSteerMotorInverted = true;
   private static final boolean kBackRightEncoderInverted = false;
 
-  private static final Distance kBackRightXPos = Meter.of(Constants.Swerve.wheelAftX);
-  private static final Distance kBackRightYPos = Meter.of(Constants.Swerve.wheelStbdY);
+  private static final Distance kBackRightXPos = Meter.of(Constants.SwerveConstants.wheelAftX);
+  private static final Distance kBackRightYPos = Meter.of(Constants.SwerveConstants.wheelStbdY);
 
 
   public static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FrontLeft =

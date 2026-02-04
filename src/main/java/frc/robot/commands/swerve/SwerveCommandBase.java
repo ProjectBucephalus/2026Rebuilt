@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public abstract class SwerveCommandBase extends Command
 {
-  protected final double deadband = Constants.Control.stickDeadband;
+  protected final double deadband = Constants.ControlConstants.stickDeadband;
 
   protected CommandSwerveDrivetrain s_Swerve;
 

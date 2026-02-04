@@ -17,7 +17,7 @@ public class Deadband extends InputTransmuter
    * @param deadband Optional, absolute value of input below which the output will be zero. Defaults to Constants.Control.stickDeadband
    */
   public Deadband()
-    {this(Constants.Control.stickDeadband);}
+    {this(Constants.ControlConstants.stickDeadband);}
   
   /**
    * Creates a deadband filter to zero any inputs below the given threshold

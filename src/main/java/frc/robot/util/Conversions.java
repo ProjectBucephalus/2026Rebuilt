@@ -120,15 +120,15 @@ public class Conversions
     {return new Pose2d(x, y, new Rotation2d(Units.degreesToRadians(rotation)));}
 
   /**
-   * Checks if two poses are within {@link Constants.Control#lineupTolerance lineupTolerance} of each other translationally, 
-   * and {@link Constants.Control#angleLineupTolerance angleLineupTolerance} of each other rotationally
+   * Checks if two poses are within {@link Constants.ControlConstants#lineupTolerance lineupTolerance} of each other translationally, 
+   * and {@link Constants.ControlConstants#angleLineupTolerance angleLineupTolerance} of each other rotationally
    * 
    * @param robotPose the first pose
    * @param targetPose the second pose
    * @return true if the poses are within tolerance of each other
    */
   public static boolean atPose(Pose2d robotPose, Pose2d targetPose)
-    {return nearPose(robotPose, targetPose, Constants.Control.lineupTolerance, Constants.Control.angleLineupTolerance);}
+    {return nearPose(robotPose, targetPose, Constants.ControlConstants.lineupTolerance, Constants.ControlConstants.angleLineupTolerance);}
   
   /**
    * Checks if two poses are within provided tolerances of each other translationally and rotationally
@@ -147,14 +147,14 @@ public class Conversions
   }
 
   /**
-   * Checks if two translations are within {@link Constants.Control#lineupTolerance lineupTolerance} of each other 
+   * Checks if two translations are within {@link Constants.ControlConstants#lineupTolerance lineupTolerance} of each other 
    * 
    * @param robotPose the first translation
    * @param targetPose the second translation
    * @return true if the two translations are within tolerance of each other
    */
   public static boolean atTranslation(Translation2d robotPos, Translation2d targetPos)
-    {return nearTranslation(robotPos, targetPos, Constants.Control.lineupTolerance);}
+    {return nearTranslation(robotPos, targetPos, Constants.ControlConstants.lineupTolerance);}
 
   /**
    * Checks if two translations are within a provided tolerance of each other
@@ -168,14 +168,14 @@ public class Conversions
     {return robotPos.getDistance(targetPos) < distanceTolerance;}
 
   /**
-   * Checks if two rotations are within {@link Constants.Control#angleLineupTolerance angleLineupTolerance} of each other, wrapping the angles
+   * Checks if two rotations are within {@link Constants.ControlConstants#angleLineupTolerance angleLineupTolerance} of each other, wrapping the angles
    * 
    * @param robotPose the first rotation
    * @param targetPose the second rotation
    * @return true if the rotations are within tolerance of each other
    */
   public static boolean atRotation(Rotation2d robotTheta, Rotation2d targetTheta)
-    {return nearRotation(robotTheta, targetTheta, Constants.Control.angleLineupTolerance);}
+    {return nearRotation(robotTheta, targetTheta, Constants.ControlConstants.angleLineupTolerance);}
 
   /**
    * Checks if two rotations are within a provided tolerance of each other, wrapping the angles

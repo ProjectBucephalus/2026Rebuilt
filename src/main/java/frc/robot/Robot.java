@@ -6,9 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -25,7 +23,8 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import frc.robot.commands.swerve.*;
 import frc.robot.constants.*;
-import frc.robot.constants.Constants.Swerve;
+import frc.robot.constants.Constants.FeederConstants;
+import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.IDConstants.*;
@@ -76,58 +75,66 @@ public class Robot extends TimedRobot
   private Command autoCommand;
 
   /* Telemetry and SD */
-  private final Telemetry ctreLogger = new Telemetry(Constants.Swerve.maxSpeed);
+  private final Telemetry ctreLogger = new Telemetry(Constants.SwerveConstants.maxSpeed);
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
   private final Shooter s_PortShooter = new Shooter
-    (
-      () -> swerveState,
-      Transform2d.kZero, // TODO
-      IDConstants.portFlyLeaderCAN, 
-      IDConstants.portFlyFollowerCAN, 
-      IDConstants.portTurretCAN,
-      1,
-      1,
-      IDConstants.portHoodPWM
-    );
+  (
+    () -> swerveState,
+    ShooterConstants.portShooterOffset,
+    IDConstants.portFlyLeaderCAN, 
+    IDConstants.portFlyFollowerCAN, 
+    IDConstants.portTurretCAN,
+    1,
+    1,
+    IDConstants.portHoodPWM,
+    false // TODO confirm
+  );
   private final Shooter s_StbdShooter = new Shooter
-    (
-      () -> swerveState,
-      Transform2d.kZero, // TODO
-      IDConstants.stbdFlyLeaderCAN, 
-      IDConstants.stbdFlyFollowerCAN, 
-      IDConstants.stbdTurretCAN,
-      2,
-      1,
-      IDConstants.stbdHoodPWM
-    );
+  (
+    () -> swerveState,
+    ShooterConstants.stbdShooterOffset,
+    IDConstants.stbdFlyLeaderCAN, 
+    IDConstants.stbdFlyFollowerCAN, 
+    IDConstants.stbdTurretCAN,
+    2,
+    1,
+    IDConstants.stbdHoodPWM,
+    true // TODO confirm
+  );
   private final Vision s_Vision = new Vision
-    (
-      (poseEst, timestmp, stdDevs) -> 
-      {
-        s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
-        s_Swerve.addVisionMeasurement(poseEst, timestmp);
-      },
-      () -> swerveState.Speeds.omegaRadiansPerSecond,
-      new Limelight(portLimelightName, Constants.Vision.portLimelightOffset), 
-      new Limelight(stbdLimelightName, Constants.Vision.stbdLimelightOffset)
-    );
+  (
+    (poseEst, timestmp, stdDevs) -> 
+    {
+      s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
+      s_Swerve.addVisionMeasurement(poseEst, timestmp);
+    },
+    () -> swerveState.Speeds.omegaRadiansPerSecond,
+    new Limelight(portLimelightName, Constants.VisionConstants.portLimelightOffset), 
+    new Limelight(stbdLimelightName, Constants.VisionConstants.stbdLimelightOffset)
+  );
   private final LinearExtension s_Climber = new LinearExtension
-    (
-      IDConstants.climberCAN, 
-      IDConstants.climberLimitDIO, 
-      0, 
-      Constants.ClimberConstants.maxRotations, 
-      Constants.ClimberConstants.config
-    );
+  (
+    IDConstants.climberCAN, 
+    IDConstants.climberLimitDIO, 
+    0, 
+    Constants.ClimberConstants.maxRotations, 
+    Constants.ClimberConstants.config
+  );
   private final Hopper s_Hopper = new Hopper
-    (
-      IDConstants.spindexerCAN,
-      IDConstants.intakeCAN, 
-      IDConstants.extensionCAN, 
-      IDConstants.extensionLimitDIO
-    );
+  (
+    IDConstants.spindexerCAN,
+    IDConstants.intakeCAN, 
+    IDConstants.extensionCAN, 
+    IDConstants.extensionLimitDIO
+  );
+  private final BinaryMotor s_Feeder = new BinaryMotor
+  (
+    IDConstants.feederCAN,
+    FeederConstants.feederSpeed,
+    FeederConstants.feederConfig
+  );
   
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -141,7 +148,7 @@ public class Robot extends TimedRobot
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
-  private final Brake driverBrake = new Brake(driver::getRightTriggerAxis, Constants.Control.maxThrottle, Constants.Control.minThrottle);
+  private final Brake driverBrake = new Brake(driver::getRightTriggerAxis, Constants.ControlConstants.maxThrottle, Constants.ControlConstants.minThrottle);
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
 

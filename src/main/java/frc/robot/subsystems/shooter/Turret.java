@@ -1,10 +1,10 @@
 package frc.robot.subsystems.shooter;
 
-import frc.robot.constants.Constants.Shooter.TurretConstants;
+import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
-import static frc.robot.constants.Constants.Shooter.TurretConstants.*;
+import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -39,7 +39,7 @@ public class Turret
     m_Turret = new TalonFX(motorID);
     io_Azimuth = new AnalogPotentiometer(potID, TurretConstants.potRange, potOffset);
 
-    m_Turret.getConfigurator().apply(turretConfigs);
+    m_Turret.getConfigurator().apply(turretConfig);
 
     calibrate();
   }
