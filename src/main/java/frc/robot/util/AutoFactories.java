@@ -35,6 +35,7 @@ public class AutoFactories
     {
       switch (splitCommand.charAt(0)) 
       {
+        // g - Go to (g x:y;r)
         case 'g' ->
 				{
           int seperatorIndex = splitCommand.indexOf(":");
@@ -53,9 +54,11 @@ public class AutoFactories
           commandList.addCommands(s_Swerve.poseDriveCommand(new AlliancePose2dSup(posTarget, rotationTarget), swerveStateSup));
         }
 
+        // w - Wait for duration
         case 'w' -> 
           commandList.addCommands(Commands.waitSeconds(Double.parseDouble(splitCommand.substring(1))));
 
+        // t - wait until Time
         case 't' ->
 				{
           double targetMatchTimeElapsed = Double.parseDouble(splitCommand.substring(1));
