@@ -13,3 +13,4 @@ public final class Main { // Defines the Main class
     RobotBase.startRobot(Robot::new); // Starts the robot using a new Robot (this comment makes no sense)
   } // Terminates the main method
 } // Terminates the Main class
+// Have a nice day :)
