@@ -12,7 +12,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.math.MathUtil;
 
-import static frc.robot.constants.Constants.Shooter.*;
+import static frc.robot.constants.Constants.Shooter.FlywheelConstants.*;
 import frc.robot.constants.Constants.Shooter;
 
 /**
