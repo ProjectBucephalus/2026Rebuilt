@@ -22,9 +22,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 import frc.robot.util.PBDash;
 
-/**
- * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned
- */
+/** A drive command that prevents the robot from being within a given tolerance of cardinal-aligned */
 public class NonCardinalDrive extends SwerveCommandBase 
 {
   private final PIDController thetaController = new PIDController(0.02, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
@@ -40,14 +38,22 @@ public class NonCardinalDrive extends SwerveCommandBase
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-  /** Creates a new NonCardinalDrive. */
+  /**
+   * Creates a basic Manual drive command
+   * @param s_Swerve Drivebase subsystem
+   * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
+   * @param rotationSup Rotation input from joystick, [-1..1]
+   * @param brakeSup Brake axis input for rotation, [0..1]
+   * @param robotRotationSup Supplier for current robot rotation
+   * @param tolerance Minimum allowed angle away from cardinal, degrees
+   */
   public NonCardinalDrive
   (
     CommandSwerveDrivetrain s_Swerve, 
-    Supplier<Rotation2d> robotRotationSup,
     Supplier<Translation2d> joystickSupplier, 
     DoubleSupplier rotationSup, 
     DoubleSupplier brakeSup, 
+    Supplier<Rotation2d> robotRotationSup,
     double tolerance
   ) 
   {

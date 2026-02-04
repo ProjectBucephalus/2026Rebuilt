@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
+/** Foundation of all other drive commands */
 public abstract class SwerveCommandBase extends Command
 {
   protected final double deadband = Constants.ControlConstants.stickDeadband;

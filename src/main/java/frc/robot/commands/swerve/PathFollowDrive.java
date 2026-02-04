@@ -19,7 +19,7 @@ import frc.robot.constants.Pathfinding.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+/** A drive command for following pre-planned paths */
 public class PathFollowDrive extends Command 
 {
   private final Supplier<SwerveDriveState> swerveStateSup;
@@ -55,14 +55,19 @@ public class PathFollowDrive extends Command
       final var current = path.sequence()[i];
       final var next = path.sequence()[i + 1];
 
+      // Find the distance between the current point and the next
+      // If the input radius is greater than 1/3 the distance between points, use 1/3 for next step
       final double segmentLength = current.getDistance(next);
       final double waypointDist = Conversions.clamp(path.pointRadius(), 0, segmentLength / 3);
       final double lengthRatio = waypointDist / segmentLength;
 
+      // Project additional waypoints using input radius to give a smoother path
       final var waypoint1 = current.interpolate(next, lengthRatio);
       final var waypoint2 = next.interpolate(current, lengthRatio);
 
+      // Record distance at which to switch waypoints for this segment
       radiusPerSegment.add(waypointDist);
+      // Add current waypoint and projected midpoints to path list
       waypoints.addAll
       (
         Arrays.asList
@@ -74,11 +79,11 @@ public class PathFollowDrive extends Command
       );
     }
 
+    // Final waypoint does not trigger until the robot arives at it
     radiusPerSegment.add(0.0);
     waypoints.add(new Pose2d(path.sequence()[path.sequence().length - 1], path.heading()));
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() 
   {
@@ -86,12 +91,12 @@ public class PathFollowDrive extends Command
     onPath = false;
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() 
   {
     robotPose = swerveStateSup.get().Pose;
 
+    // If the robot is close to the path, follow one point ahead to give smoother cornering
     final var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
     
     final var targetPose = waypoints.get(targetIndex);
@@ -104,6 +109,7 @@ public class PathFollowDrive extends Command
       )
     );
         
+    // Switch to next waypoint when within the given distance of the current one
     final var currentSegment = Math.floorDiv(currentWaypoint, 3);
     final double targetDist = radiusPerSegment.get(currentSegment);
 
@@ -114,13 +120,10 @@ public class PathFollowDrive extends Command
     }
   }
 
-  // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
+  public boolean isFinished() 
+  {
+    // Finish when robot is at the final waypoint
     return Conversions.atPose(robotPose, waypoints.get(waypoints.size()-1));
   }
 }
