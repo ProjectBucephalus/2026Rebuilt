@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems.vision;
 
-import static frc.robot.constants.Constants.Vision.trenchIDs;
+import static frc.robot.constants.Constants.VisionConstants.trenchIDs;
 
 import java.util.Optional;
 import java.util.function.Supplier;

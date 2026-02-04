@@ -4,8 +4,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.constants.Constants.Shooter.HoodConstants;
-import frc.robot.constants.Constants.Shooter.TurretConstants;
+import frc.robot.constants.Constants.ShooterConstants.HoodConstants;
+import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 
@@ -51,7 +51,8 @@ public class Shooter extends SubsystemBase
     int turretCAN,
     int azimuthIO,
     double azimuthOffset,
-    int hoodPWM
+    int hoodPWM,
+    boolean invertedHood
   ) 
   {
     this.swerveStateSup = swerveStateSup;
@@ -59,7 +60,7 @@ public class Shooter extends SubsystemBase
 
     flywheels = new Flywheels(flywheelLeaderCAN, flywheelFollowerCAN);
     turret = new Turret(turretCAN, azimuthIO, azimuthOffset);
-    hood = new Hood(hoodPWM);
+    hood = new Hood(hoodPWM, invertedHood);
   }
 
   /**

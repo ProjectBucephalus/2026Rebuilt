@@ -7,7 +7,7 @@ import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
 import frc.robot.constants.Constants.Interpolation;
-import static frc.robot.constants.Constants.Shooter.HoodConstants.*;
+import static frc.robot.constants.Constants.ShooterConstants.HoodConstants.*;
 
 /**
  * Interface class for a Servo-driven shooter hood to control altitude.
@@ -16,13 +16,17 @@ import static frc.robot.constants.Constants.Shooter.HoodConstants.*;
 public class Hood 
 {
   private final Servo m_Servo;
+  private final boolean inverted;
 
   /**
    * Creates a Servo driven shooter hood, to be managed by {@link Shooter} master-system
    * @param id PWM-ID of hood altitude servo
    */
-  public Hood(int id)
-    {m_Servo = new Servo(id);}
+  public Hood(int id, boolean inverted)
+  {
+    m_Servo = new Servo(id);
+    this.inverted = inverted;
+  }
 
   /**
    * Calculate the distance from the shooter to the target
@@ -63,9 +67,16 @@ public class Hood
       case Hub -> Interpolation.shooterAltitudeHub.get(calculateTargetDist(shooterPose, FieldUtils.getAllianceHubCentre()));
     };
 
-    // Set the angle of the servo to the target angle, 
-    // accounting for the gear ratio between the servo and the physical hood 
-    // and limiting the target to within the hood's range of motion
-    m_Servo.set(Conversions.clamp(target.altitude, 0, hoodRange) / (servoRange * hoodRatio)); // TODO verify this calculation
+    // Limit the target altitude to within the hood's range of motion
+    target.altitude = Conversions.clamp(target.altitude, 0, hoodRange);
+
+    // Convert hood target in degrees to servo position from [0..1]
+    double servoTarget = (target.altitude * hoodRatio) / servoRange;
+
+    // Invert the target position if needed
+    if (inverted) servoTarget = 1 - servoTarget;
+
+    // Set the position of the servo to the calculated target position 
+    m_Servo.set(servoTarget);
   }
 }

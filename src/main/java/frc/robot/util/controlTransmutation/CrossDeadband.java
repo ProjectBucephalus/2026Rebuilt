@@ -19,7 +19,7 @@ public class CrossDeadband extends Deadband
      */
     public CrossDeadband()
     {
-      this(Constants.Control.stickDeadband, 1);
+      this(Constants.ControlConstants.stickDeadband, 1);
     }
 
     /**

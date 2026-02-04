@@ -19,7 +19,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.PBDash;
-import static frc.robot.constants.Constants.Vision.*;
+import static frc.robot.constants.Constants.VisionConstants.*;
 
 /** Computer-vision localisation master-system to manage multiple photon or limelight cameras */
 public class Vision extends SubsystemBase 

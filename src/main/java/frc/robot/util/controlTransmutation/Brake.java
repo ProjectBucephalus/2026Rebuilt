@@ -28,8 +28,8 @@ public class Brake extends InputTransmuter
   public Brake()
   {
     brakeAxis = null;
-    max = Constants.Control.maxThrottle;
-    min = Constants.Control.minThrottle;
+    max = Constants.ControlConstants.maxThrottle;
+    min = Constants.ControlConstants.minThrottle;
   }
 
   /**
