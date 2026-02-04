@@ -17,7 +17,7 @@ import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.PBDash;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+/** A drive command for rotating about a point other than robot-centre */
 public class OffsetDrive extends SwerveCommandBase 
 {
   protected DoubleSupplier rotationSup;

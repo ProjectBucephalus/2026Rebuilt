@@ -7,9 +7,17 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
+/** Heading-locked drive command with dynamic heading switching based on robot position */
 public class TargetStationDrive extends HeadingLockedDrive 
 {
-  /** Creates a new TargetStationDrive. */
+  /**
+   * Creates a Heading-locked drive command to face the nearest station <p>
+   * (From 2025 Reefscape, left as an example)
+   * @param s_Swerve Drivebase subsystem
+   * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
+   * @param rotationOffset Field relative rotation to treat as 0
+   * @param robotPosSup Supplier for robot XY position in field coordinates
+   */
   public TargetStationDrive
   (
     CommandSwerveDrivetrain s_Swerve, 
