@@ -4,87 +4,40 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.*;
-
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.Conversions;
-
 
 /** 
- * Generic subclass for a range-limited motor with a binary switch at the home position 
+ * Generic subclass for a linear extension with a binary switch at the home position 
  * @author 5985
  */
-public class LinearExtension extends SubsystemBase
+public class LinearExtension extends LimitedMotor 
 {
-  private TalonFX m_Extension;
-  private DigitalInput io_Limit;
-  private final double maxRotations;
-  private final double minRotations;
-  private boolean homed = false;
-  private boolean homeLastCycle = false;
-  private final boolean slot1Valid;
-
-  private final MotionMagicVoltage request = new MotionMagicVoltage(0);
+  private final double metersPerRotation;
 
   /**
    * Creates generic linear extension system
    * @param motorCAN CAN-ID of extension motor
    * @param limitIO DIO-ID of home limit-sensor
-   * @param minRotations Minimum position in mechanism rotations
-   * @param maxRotations Maximum position in mechanism rotations
+   * @param minPosition Minimum position in meters
+   * @param maxPosition Maximum position in meters
+   * @param metersPerRotation Meters of extension per mechanism rotation
    * @param configs Motor configuration object, uses Slot1 if present when not calibrated
    */
-  public LinearExtension(int motorCAN, int limitIO, double minRotations, double maxRotations, TalonFXConfiguration configs)
+  public LinearExtension(int motorCAN, int limitIO, double minPosition, double maxPosition, double metersPerRotation, TalonFXConfiguration configs)
   {
-    this.maxRotations = maxRotations;
-    this.minRotations = minRotations;
-    slot1Valid = configs.Slot1.kP != 0;
-
-    m_Extension = new TalonFX(motorCAN);
-    io_Limit = new DigitalInput(limitIO);
-
-    m_Extension.getConfigurator().apply(configs);
-
-    m_Extension.setPosition(maxRotations);
+    super(motorCAN, limitIO, minPosition / metersPerRotation, maxPosition / metersPerRotation, configs);
+    this.metersPerRotation = metersPerRotation;
   } 
 
   /**
-   * Creates a command to set the target point for the extension
+   * Creates a command to set the target point for the extension <p>
    * NOTE: The provided value is only evaluated when the command is created
-   * @param targetRotations
-   * @return
+   * @param targetPosition meters
+   * @return the Command
    */
-  public Command setTargetCommand(double targetRotations)
-  {
-    return runOnce(() -> {
-      double clampedRotations = Conversions.clamp(targetRotations, minRotations, maxRotations);
-      int slot = !homed && slot1Valid ? 1 : 0;
-      m_Extension.setControl
-        (request.withPosition(clampedRotations).withSlot(slot));
-    });
-  }
-  
   @Override
-  public void periodic() 
-  {
-    if (io_Limit.get())
-    {  
-      if (!homeLastCycle)
-      {
-        homed = true;
-        homeLastCycle = true;
-        m_Extension.setPosition(0);
-      }
-    }
-    else 
-      homeLastCycle = false;
-  }
+  public Command setTargetCommand(double targetPosition) 
+    {return super.setTargetCommand(targetPosition / metersPerRotation);}
 }

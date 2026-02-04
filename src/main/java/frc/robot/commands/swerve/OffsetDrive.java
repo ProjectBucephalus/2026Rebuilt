@@ -12,8 +12,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.constants.Constants.Control;
-import frc.robot.constants.Constants.Swerve;
+import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.PBDash;
 
@@ -56,7 +56,7 @@ public class OffsetDrive extends SwerveCommandBase
     if (Math.abs(rotationVal) <= deadband) 
       {rotationVal = 0;}
     else
-      {rotationVal *= MathUtil.interpolate(Control.maxRotThrottle, Control.minRotThrottle, brakeSup.getAsDouble());}
+      {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
 
     if (motionXY.getNorm() != 0)
       {PBDash.STATE_DRIVE.put("Manual");}
@@ -64,9 +64,9 @@ public class OffsetDrive extends SwerveCommandBase
     s_Swerve.setControl
     (
       driveRequest
-      .withVelocityX(motionXY.getX() * Swerve.maxSpeed)
-      .withVelocityY(motionXY.getY() * Swerve.maxSpeed)
-      .withRotationalRate(rotationVal * Swerve.maxAngularVelocity)
+      .withVelocityX(motionXY.getX() * SwerveConstants.maxSpeed)
+      .withVelocityY(motionXY.getY() * SwerveConstants.maxSpeed)
+      .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
     );
   }
 }
