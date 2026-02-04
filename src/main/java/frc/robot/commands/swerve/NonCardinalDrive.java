@@ -44,10 +44,10 @@ public class NonCardinalDrive extends SwerveCommandBase
   public NonCardinalDrive
   (
     CommandSwerveDrivetrain s_Swerve, 
-    Supplier<Rotation2d> robotRotationSup,
     Supplier<Translation2d> joystickSupplier, 
     DoubleSupplier rotationSup, 
     DoubleSupplier brakeSup, 
+    Supplier<Rotation2d> robotRotationSup,
     double tolerance
   ) 
   {

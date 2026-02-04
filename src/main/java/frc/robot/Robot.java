@@ -227,10 +227,10 @@ public class Robot extends TimedRobot
         new NonCardinalDrive
         (
           s_Swerve, 
-          () -> swerveState.Pose.getRotation(), 
           driverStick::stickOutput, 
           () -> -driver.getRightX(), 
           driver::getRightTriggerAxis, 
+          () -> swerveState.Pose.getRotation(), 
           bumpRotationTolerance
         )
       );
