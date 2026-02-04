@@ -18,7 +18,7 @@ public class Hopper extends SubsystemBase
 {
   private BinaryMotor spindexer;
   private BinaryMotor intake;
-  private LinearExtension extension;
+  private LimitedMotor extension;
   
   /**
    * Creates a ball processing master-system with extendable intake, internally creates and manages associated subsystems
@@ -31,7 +31,7 @@ public class Hopper extends SubsystemBase
   { 
     spindexer = new BinaryMotor(processorCAN, SpindexerConstants.spindexerSpeed, SpindexerConstants.spindexerConfig);
     intake = new BinaryMotor(intakeCAN, IntakeConstants.intakeSpeed, IntakeConstants.intakeConfig);
-    extension = new LinearExtension(extensionCAN, extensionLimitIO, 0, ExtensionConstants.maxRotations, ExtensionConstants.extensionConfig);
+    extension = new LimitedMotor(extensionCAN, extensionLimitIO, 0, ExtensionConstants.maxRotations, ExtensionConstants.extensionConfig);
   }
   
   /** @return Command to start running intake at default speed */

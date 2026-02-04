@@ -384,12 +384,23 @@ public final class Constants
   /** Geometry and tuning data of climber system */
   public static final class ClimberConstants 
   {
-    public static final double maxRotations = 1;
+    /** meters */
+    public static final double maxPosition = 0.478;
 
-    public static final TalonFXConfiguration config = new TalonFXConfiguration(); 
+    private static final double planetaryRatio = 25;
+    private static final double motorPulley = 12;
+    private static final double winchPulley = 15;
+    private static final double winchChainRatio = winchPulley / motorPulley;
+
+    /** meters */
+    private static final double winchDiameter = 0.029;
+    private static final double cordDiameter = 0.006;
+    public static final double metersPerRotation = (winchDiameter + cordDiameter) * Math.PI;
+
+    public static final TalonFXConfiguration climberConfig = new TalonFXConfiguration(); 
     static 
     {
-      // TODO configure config object
+      climberConfig.Feedback.SensorToMechanismRatio = winchChainRatio * planetaryRatio;
     }
   }
 }
