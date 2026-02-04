@@ -207,6 +207,8 @@ public final class Constants
     public static final Transform3d portLimelightOffset = new Transform3d(0, 0, 0, new Rotation3d(0, -15, 0));
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
     public static final Transform3d stbdLimelightOffset = new Transform3d(0, 0, 0, new Rotation3d(0, -15, 0));
+    /** Maximum time between vision estimates before switching to odometry only, seconds */
+    public static final double visionFrequencyThreshold = 10;
 
     public static final Set<Integer> hubIDs = Set.of
     (
@@ -262,11 +264,9 @@ public final class Constants
     };
 
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
-    public static final double linearStdDevBaseline = 0.08;
+    public static final double linearStdDevBaseline = 0.06;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
-    public static final double rotStdDevBaseline = 0.5;
-    /** How many good MT1 readings to get before setting rotation and moving to MT2 */
-    public static final int mt1CyclesNeeded = 10;
+    public static final double rotStdDevBaseline = Math.toRadians(8);
   }
 
   /** Interpolation tables for converting measured input to calibrated output */

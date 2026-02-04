@@ -16,8 +16,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.util.PBDash;
 import static frc.robot.constants.Constants.Vision.*;
 
@@ -27,6 +27,11 @@ public class Vision extends SubsystemBase
   private final PoseEstimateConsumer estimateConsumer;
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
+  /** Timestamp of last good pose estimate, seconds */
+  double lastGoodPose = -1; 
+  /** Time since last good pose estimate, seconds */
+  double timeSince = 0; 
+  boolean havePoseFromVision = false;
 
   private int pipelineIndex = PBDash.LL_EXPOSURE.defaultVal();
 
@@ -85,10 +90,20 @@ public class Vision extends SubsystemBase
               ? est.estimatedPose.toPose2d().transformBy(new Transform2d(ll.getTurretToRobot(), ll.getTurretAngle().unaryMinus()))
               : est.estimatedPose.toPose2d();
 
+            lastGoodPose = Timer.getTimestamp();
+            timeSince = 0;
+            havePoseFromVision = true;
+
             estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
           }
+        } else 
+        {
+          timeSince = Timer.getTimestamp() - lastGoodPose;
+          if (lastGoodPose == -1 || timeSince >= visionFrequencyThreshold) 
+          {
+            havePoseFromVision = false;
+          }
         }
-        
       }
     }
   }

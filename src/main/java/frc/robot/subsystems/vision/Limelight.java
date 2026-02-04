@@ -76,7 +76,7 @@ public class Limelight
   { 
     if (result == null) return Optional.empty();
 
-    for (int i = result.targets.size(); i >= 0; i--)
+    for (int i = result.targets.size() - 1; i >= 0; i--)
     {
       double targetAmb = result.targets.get(i).getPoseAmbiguity();
       int targetID = result.targets.get(i).fiducialId;
