@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /** Full joystick processor, takes XY suppliers and runs multiple layers of transmutation to give an XY output */
-public class JoystickTransmuter extends InputTransmuter
+public class JoystickTransmuter implements InputTransmuter
 {
   private InputCurve inputCurve;
   private Deadband deadband;
