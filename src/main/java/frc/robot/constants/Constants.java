@@ -346,14 +346,19 @@ public final class Constants
     /** Geometry and tuning data of intake/hopper extension */
     public static final class ExtensionConstants 
     {
-      // TODO actual ratios and gains
-      public static final double extensionPlanetaryRatio = 1;
-      public static final double extensionPinionTeeth = 1;
-      public static final double extensionRackTeeth = 1;
-      public static final double extensionRackRatio = extensionPinionTeeth / extensionRackTeeth;
-      public static final double extensionRatio = extensionPlanetaryRatio * extensionRackRatio;
+      private static final double extensionPlanetaryRatio = 9;
 
-      public static final double maxRotations = 1;
+      private static final double extensionInGear = 20;
+      private static final double extensionOutGear = 40;
+      private static final double extensionGearRatio = extensionOutGear / extensionInGear;
+
+      private static final double extensionInPulley = 15;
+      private static final double extensionOutPulley = 30;
+      private static final double extensionChainRatio = extensionOutPulley / extensionInPulley;
+
+      public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
+
+      public static final double maxRotations = 120.0 / 360.0; // TODO may change slightly with final design
 
       /** Duration and interval of retraction/extension pulses when agitating, seconds */
       public static final double extensionJostleDelay = 0.25;
@@ -361,6 +366,8 @@ public final class Constants
       public static final TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
       static
       {
+        extensionConfig.Feedback.SensorToMechanismRatio = extensionRatio;
+
         extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0;
         extensionConfig.MotionMagic.MotionMagicAcceleration = 0;
 
