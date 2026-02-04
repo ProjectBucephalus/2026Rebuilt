@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.constants.FieldConstants;
 
 /** Extension of Supplier<Pose2d> to rotate a Blue alliance pose to be Red alliance relative when needed */
 public class AlliancePose2dSup implements Supplier<Pose2d>
