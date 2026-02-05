@@ -99,9 +99,9 @@ public class Vision extends SubsystemBase
             // If the camera is mounted on a turret, apply additional offset processing
             var poseOut = 
               ll.isOnTurret() 
-              ? est.estimatedPose.toPose2d().transformBy(new Transform2d(ll.getTurretToRobot(), ll.getTurretAngle().unaryMinus()))
+              ? est.estimatedPose.toPose2d().transformBy(ll.getTurretToRobot())
               : est.estimatedPose.toPose2d();
-
+            
             // Update time since last good pose estimate
             lastGoodPose = Timer.getTimestamp();
             timeSince = 0;
