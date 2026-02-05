@@ -5,27 +5,28 @@
 package frc.robot.util.controlTransmutation;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.constants.Constants;
+import frc.robot.constants.Constants.ControlConstants;;
 
-/** Deadband region for the input */
-public class Deadband extends InputTransmuter
+/** Applies a deadband region to the input */
+public class Deadband implements InputTransmuter
 {
   protected double deadband;
 
   /**
-   * Creates a deadband filter to zero any inputs below the given threshold
-   * @param deadband Optional, absolute value of input below which the output will be zero. Defaults to Constants.Control.stickDeadband
+   * Creates a deadband filter to zero any inputs below a threshold
+   * @param deadband Optional, absolute value of input below which the output will be zero. Defaults to {@link ControlConstants#stickDeadband stickDeadband}
    */
   public Deadband()
-    {this(Constants.ControlConstants.stickDeadband);}
+    {this(ControlConstants.stickDeadband);}
   
   /**
-   * Creates a deadband filter to zero any inputs below the given threshold
-   * @param deadband Optional, absolute value of input below which the output will be zero
+   * Creates a deadband filter to zero any inputs below a threshold
+   * @param deadband Optional, absolute value of input below which the output will be zero. Defaults to {@link ControlConstants#stickDeadband stickDeadband}
    */
   public Deadband(double deadband)
     {this.deadband = deadband;}
   
+  /** Zeroes the input if its normal is below the threshold */
   @Override
   public Translation2d process(Translation2d controlInput)
   {

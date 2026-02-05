@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants;
 
 /** Throttle modifier for the input */
-public class Brake extends InputTransmuter
+public class Brake implements InputTransmuter
 {
   private DoubleSupplier brakeAxis;
   /** Maximum throttle when the brake is fully released, [0..1] */
