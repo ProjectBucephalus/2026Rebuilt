@@ -148,8 +148,8 @@ public final class Constants
     {
       /** Allowed variation in hood altitude when targeting, degrees */
       public static final double altTolerance = 1;
-      /** Angle range of servo given input of [0..1], degrees */
-      public static final double servoRange = 300;
+      /** Angle range of servo given input of [0..1], degrees anticlockwise */
+      public static final double servoRange = 250;
       /** Range of motion of hood, degrees */
       public static final double hoodRange = 25;
 
