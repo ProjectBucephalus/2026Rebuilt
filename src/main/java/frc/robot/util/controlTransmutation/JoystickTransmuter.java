@@ -59,21 +59,22 @@ public class JoystickTransmuter implements InputTransmuter
   public Translation2d process(Translation2d controlInput)
   {
     Translation2d motionXY = 
-    brake.process
+    brake.process         // Processed third
     (
-      inputCurve.process
+      inputCurve.process  // Processed second
       (
-        deadband.process
+        deadband.process  // Processed first
         (
           controlInput
         )
       )
     );
 
+    // Processing field objects requires field-absolute directions, input and output are processed driver-relative
     if (rotateThroughput)
       {motionXY = motionXY.unaryMinus();}
     
-    motionXY = fieldObjectList.process(motionXY);
+    motionXY = fieldObjectList.process(motionXY); // Processed fourth
     
     if (rotateThroughput)
       {motionXY = motionXY.unaryMinus();}
