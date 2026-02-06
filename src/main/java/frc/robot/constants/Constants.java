@@ -195,4 +195,9 @@ public static final class Turret
       put(0.25, 0.25);
     }}; 
   }
+
+  public static final class LEDConstants 
+  {
+    public static final int LEDStripLen = 120;
+  }
 }

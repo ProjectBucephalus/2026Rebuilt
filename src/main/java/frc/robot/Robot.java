@@ -92,7 +92,7 @@ public class Robot extends TimedRobot
   public Robot() 
   {
     updateSwerveState();
-
+    
     initLogging();
     initInputTransmute();
     bindControls();
