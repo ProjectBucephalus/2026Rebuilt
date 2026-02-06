@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 
@@ -102,7 +103,16 @@ public class Turret
     double robotDegreesPerCycle = robotDegreesPerSecond / 50;
 
     return Conversions.normaliseAngle(robotTarget, getAzimuth(), maxTurretAzimuth) + robotDegreesPerCycle;
+  }
 
+  public boolean safeToShoot(ChassisSpeeds swerveSpeeds)
+  {
+    return (getSpeed() + (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < TurretConstants.maxRPS;
+  }
+
+  public boolean atAzimuth(Target target)
+  {
+    return Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance);
   }
 
   /**
@@ -119,9 +129,9 @@ public class Turret
     target.azimuth = switch (target.state) 
     {
       case Manual -> target.azimuth;
-      case Point -> calculateTargetAngle(shooterPose, target.point, robotDegreesPerSecond);
+      case Point -> calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
       // aim at our alliance's hub
-      case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre(), robotDegreesPerSecond);
+      case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
     };
 
     m_Turret.setControl(request.withPosition(target.azimuth / 360));  

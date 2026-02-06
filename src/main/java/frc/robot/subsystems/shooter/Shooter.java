@@ -103,10 +103,10 @@ public class Shooter extends SubsystemBase
   {
     return new Trigger
       (() -> {
-        return Conversions.nearRotation(turret.getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance)
+        return turret.atAzimuth(target)
                 && hood.atAltitude()
                 && flywheels.atSpeed()
-                && (turret.getSpeed() + (Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond)/360)) < TurretConstants.maxRPS;
+                && turret.safeToShoot(swerveState.Speeds);
       });
   }
 
@@ -115,6 +115,7 @@ public class Shooter extends SubsystemBase
   {
     swerveState = swerveStateSup.get();
     var shooterPose = swerveState.Pose.plus(shooterOffset);
+    //target.offset = baseOffset.rotatedBy(Pose.rotation.minus) + speeds*distance*leadFactor
 
     turret.update(shooterPose, target, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update(shooterPose, target);

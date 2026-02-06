@@ -34,6 +34,8 @@ public class Target
   public double azimuth; 
   /** The target point, used for the {@link TargetState#Point Manual} state */
   public Translation2d point;
+  /** Offset from target point, used for leading shots while moving and separating ball-streams from multiple shooters */
+  public Translation2d offset;
 
   public Target(TargetState state, double altitude, double azimuth, Translation2d point) 
   {
@@ -41,6 +43,7 @@ public class Target
     this.altitude = altitude;
     this.azimuth = azimuth;
     this.point = point;
+    this.offset = Translation2d.kZero;
   }
 
   /**
