@@ -1,7 +1,10 @@
 package frc.robot.util.controlTransmutation;
 import edu.wpi.first.math.geometry.Translation2d;
 
-/** Standard interface for input transformation functions */
+/** 
+ * Standard interface for input transformation functions 
+ * @author 5985
+ */
 public interface InputTransmuter
 {
   /**

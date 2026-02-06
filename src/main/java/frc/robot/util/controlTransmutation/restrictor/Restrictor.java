@@ -11,6 +11,7 @@ import static frc.robot.constants.FieldConstants.GeoFencing.*;
 /** 
  * Derived from GeoFence logic, acts as a non-directional speed-limit within the given area </p>
  * Using a local speed limit <= 0 allows it to be used as a position/distance check
+ * @author 5985
  */
 public class Restrictor extends FieldObject
 {

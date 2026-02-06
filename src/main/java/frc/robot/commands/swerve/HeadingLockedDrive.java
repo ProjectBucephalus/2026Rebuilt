@@ -12,7 +12,10 @@ import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.PBDash;
 
-/** Swerve drive interface to have the robot face a fixed direction */
+/** 
+ * Swerve drive interface to have the robot face a fixed direction 
+ * @author 5985
+ */
 public class HeadingLockedDrive extends SwerveCommandBase 
 {
   protected Rotation2d rotationOffset;

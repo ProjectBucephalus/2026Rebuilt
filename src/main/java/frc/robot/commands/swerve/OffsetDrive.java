@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.swerve;
 
 import java.util.function.DoubleSupplier;
@@ -17,7 +13,10 @@ import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.PBDash;
 
-/** A drive command for rotating about a point other than robot-centre */
+/** 
+ * A drive command for rotating about a point other than robot-centre 
+ * @author 5985
+ */
 public class OffsetDrive extends SwerveCommandBase 
 {
   protected DoubleSupplier rotationSup;

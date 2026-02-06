@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems.vision;
 
 import static frc.robot.constants.Constants.VisionConstants.trenchIDs;
@@ -24,12 +20,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.util.PBDash;
 
-/** Wrapper class to interface with Limelight camera running Photonvision */
+/** 
+ * Wrapper class to interface with Limelight camera running Photonvision 
+ * @author 5985
+ */
 public class Limelight
 {    
   private final PhotonCamera camera;
-  // TODO should probably initialise photonEstimator in the constructor so that the tag layout and robotToCam transform can be just restricted to the constructor
-  // Also, maybe let the robotToCam transform be provided in the constructor
   private static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
   private final Transform3d structureToCamera;
   private final PhotonPoseEstimator photonEstimator;

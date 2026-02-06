@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.swerve;
 
 import java.util.Optional;
@@ -22,7 +18,10 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 import frc.robot.util.PBDash;
 
-/** A drive command that prevents the robot from being within a given tolerance of cardinal-aligned */
+/** 
+ * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned 
+ * @author 5985
+ */
 public class NonCardinalDrive extends SwerveCommandBase 
 {
   private final PIDController thetaController = new PIDController(0.02, SwerveConstants.rotationKI, SwerveConstants.rotationKD);

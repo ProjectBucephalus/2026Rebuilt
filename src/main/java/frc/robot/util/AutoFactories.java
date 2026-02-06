@@ -16,6 +16,10 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
+/**
+ * Dynamically creates Command list from input string of tags
+ * @author 5985
+ */
 public class AutoFactories 
 {
   /**

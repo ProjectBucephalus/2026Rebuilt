@@ -4,7 +4,10 @@ import java.util.ArrayList;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
-/** Utility object for handling multiple FieldObjects simultaneously */
+/** 
+ * Utility object for handling multiple FieldObjects simultaneously 
+ * @author 5985
+ */
 public class ObjectList extends FieldObject
 {
   /** 

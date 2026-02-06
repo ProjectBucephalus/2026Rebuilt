@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 /**
  * Virtual objects on the field for changing inputs based on robot position
+ * @author 5985
  */
 public abstract class FieldObject implements InputTransmuter
 {

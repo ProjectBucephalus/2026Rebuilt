@@ -1,13 +1,12 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.util.controlTransmutation;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants.ControlConstants;
 
-/** Applies a modified deadband that locks the input to cardinal outputs */
+/** 
+ * Applies a modified deadband that locks the input to cardinal outputs 
+ * @author 5985
+ */
 public class CrossDeadband extends Deadband
 {
   protected double overlap;

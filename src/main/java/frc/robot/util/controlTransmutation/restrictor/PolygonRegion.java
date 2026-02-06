@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.util.controlTransmutation.restrictor;
 
 import java.util.ArrayList;
@@ -12,7 +8,9 @@ import frc.robot.util.Conversions;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
-/** Add your docs here. */
+/** 
+ * @author 5985
+ */
 public class PolygonRegion extends Restrictor 
 {
   private ArrayList<LineRegion> polygonLines;

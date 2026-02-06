@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.swerve;
 
 import java.util.ArrayList;
@@ -19,7 +15,10 @@ import frc.robot.constants.Pathfinding.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 
-/** A drive command for following pre-planned paths */
+/** 
+ * A drive command for following pre-planned paths 
+ * @author 5985
+ */
 public class PathFollowDrive extends Command 
 {
   private final Supplier<SwerveDriveState> swerveStateSup;

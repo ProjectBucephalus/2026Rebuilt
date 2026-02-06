@@ -14,15 +14,12 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-/*
- * NOTES:
- * For coordinate definitions, see Robot
- * When possible, all units are Metres and Degrees
- * Gear ratios are defined by Teeth-Out/Teeth-In (except for pre-made gearboxes)
- */
-
 /**
- * Constant values for mechanism geometry, motor configuration, input parameters, targets, etc.
+ * Constant values for mechanism geometry, motor configuration, input parameters, targets, etc. <p>
+ * @Note For coordinate definitions, see Robot
+ * <li> When possible, all units are Metres and Degrees (right-hand rotation)
+ * <li> Gear ratios are defined by Teeth-Out/Teeth-In (except for pre-made gearboxes)
+ * 
  * @author 5985
  */
 public final class Constants 

@@ -1,13 +1,12 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.util.controlTransmutation;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants.ControlConstants;;
 
-/** Applies a deadband region to the input */
+/** 
+ * Applies a deadband region to the input 
+ * @author 5985
+ */
 public class Deadband implements InputTransmuter
 {
   protected double deadband;

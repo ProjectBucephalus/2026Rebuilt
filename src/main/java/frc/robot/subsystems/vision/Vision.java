@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems.vision;
 
 import java.util.function.Supplier;
@@ -13,7 +9,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
@@ -21,7 +16,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.PBDash;
 import static frc.robot.constants.Constants.VisionConstants.*;
 
-/** Computer-vision localisation master-system to manage multiple photon or limelight cameras */
+/** 
+ * Computer-vision localisation master-system to manage multiple photon or limelight cameras 
+ * @author 5985
+ */
 public class Vision extends SubsystemBase 
 {
   private final PoseEstimateConsumer estimateConsumer;

@@ -6,7 +6,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-/** Extension of Supplier<Pose2d> to rotate a Blue alliance pose to be Red alliance relative when needed */
+/** 
+ * Extension of Supplier<Pose2d> to rotate a Blue alliance pose to be Red alliance relative when needed 
+ * @author 5985
+ */
 public class AlliancePose2dSup implements Supplier<Pose2d>
 {
   private final Pose2d poseBlue, poseRed;
