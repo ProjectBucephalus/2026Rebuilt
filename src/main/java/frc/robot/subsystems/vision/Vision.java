@@ -59,6 +59,11 @@ public class Vision extends SubsystemBase
     SD.LL_EXPOSURE.put((double)pipelineIndex);
   }
 
+  public boolean getPoseFromVision()
+  {
+    return havePoseFromVision;
+  }
+
   @Override
   public void periodic() 
   {
@@ -103,7 +108,7 @@ public class Vision extends SubsystemBase
           timeSince = Timer.getTimestamp() - lastGoodPose;
           if (lastGoodPose == -1 || timeSince >= Constants.Vision.visionFrequencyThreshold) 
           {
-            havePoseFromVision = false;
+            havePoseFromVision = false; 
           }
         }
       }

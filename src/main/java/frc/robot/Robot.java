@@ -197,7 +197,7 @@ public class Robot extends TimedRobot
       .withInputCurve(driverInputCurve)
       .withDeadband(driverDeadband);
 
-    GeoFencing.fieldGeoFence.setActiveCondition(() -> SD.FENCE_TOGGLE.get() && SD.LL_TOGGLE.get());
+    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.getPoseFromVision() && SD.FENCE_TOGGLE.get() && SD.LL_TOGGLE.get());
   }
 
   private void bindControls()
@@ -237,7 +237,7 @@ public class Robot extends TimedRobot
     driver.povUp().onTrue(runOnce(() -> currentTarget = TargetPosition.Centre));
     driver.povDown().onTrue(runOnce(() -> currentTarget = TargetPosition.None));
     
-    driver.x().onTrue
+    driver.x().and(s_Vision::getPoseFromVision).onTrue
     (
       new PathFollowDrive
       (
