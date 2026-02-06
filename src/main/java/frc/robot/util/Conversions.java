@@ -10,6 +10,7 @@ import frc.robot.constants.Constants;
 /** 
  * Frequently-used maths operations <p>
  * Contains corrections or improvements of external implementations, specialised operations, and other utilities
+ * @author 5985
  */
 public class Conversions 
 {

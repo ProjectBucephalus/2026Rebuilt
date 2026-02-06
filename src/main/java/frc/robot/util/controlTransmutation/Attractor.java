@@ -6,7 +6,11 @@ import frc.robot.util.Conversions;
 
 import static frc.robot.constants.FieldConstants.AutoDrive.*;
 
-/** Guides the robot towards a point along a given heading */
+/** 
+ * Guides the robot towards a point along a given heading 
+ * @author 5985
+ * @deprecated requires full rework to use PID-to-pose
+ */
 public class Attractor extends FieldObject
 {
   /** Angle of the robot motion for the final approach, degrees */

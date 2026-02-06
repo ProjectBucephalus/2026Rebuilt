@@ -247,8 +247,12 @@ public class FieldConstants
       depotBlueFence
     );
 
-    public static final ObjectList fieldGeoFence = new ObjectList(fieldStaticGeoFence, fieldBlueGeoFence, fieldRedGeoFence)
-                                                        .addPriority(field);
+    public static final ObjectList fieldGeoFence = new ObjectList
+    (
+      fieldStaticGeoFence, 
+      fieldBlueGeoFence, 
+      fieldRedGeoFence
+    ).addPriority(field);
 
     /** Minimum speed limit within a restrictor */
     public static final double minLocalSpeedLimit = 0.05;

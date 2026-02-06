@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.swerve;
 
 import java.util.ArrayList;
@@ -12,18 +8,18 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Pathfinding.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PathFollowDrive extends Command 
+/** 
+ * A drive command for following pre-planned paths 
+ * @author 5985
+ */
+public class PathFollowDrive extends SwerveCommandBase 
 {
   private final Supplier<SwerveDriveState> swerveStateSup;
-  private final CommandSwerveDrivetrain s_Swerve;
   private final SwerveRequest.ApplyRobotSpeeds driveRequest = new SwerveRequest.ApplyRobotSpeeds();    
 
   private final ArrayList<Pose2d> waypoints;
@@ -32,20 +28,16 @@ public class PathFollowDrive extends Command
   private boolean onPath = false;
   private int currentWaypoint = 0;
 
-  private Pose2d robotPose;
-
   /**
    * Creates a new PathFollowDrive to follow the given sequence
    * @param s_Swerve        Swervedrive subsystem
    * @param swerveStateSup  Swerve state supplier from Robot to avoid expensive calls to the swerve system
-   * @param pointRadius     Approach distance before switching to next point, metres
-   * @param targetRotation  Rotation for robot to face, applies over entire path
-   * @param targetSequence  List of Translation2d to navigate through, start to end
+   * @param path            Predefined path for command to follow
    */
   public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, Path path)
   {
+    super(s_Swerve, () -> Translation2d.kZero);
     this.swerveStateSup = swerveStateSup;
-    this.s_Swerve = s_Swerve;
 
     this.waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
     this.radiusPerSegment = new ArrayList<>(path.sequence().length - 1);
@@ -55,14 +47,19 @@ public class PathFollowDrive extends Command
       final var current = path.sequence()[i];
       final var next = path.sequence()[i + 1];
 
+      // Find the distance between the current point and the next
+      // If the input radius is greater than 1/3 the distance between points, use 1/3 for next step
       final double segmentLength = current.getDistance(next);
       final double waypointDist = Conversions.clamp(path.pointRadius(), 0, segmentLength / 3);
       final double lengthRatio = waypointDist / segmentLength;
 
+      // Project additional waypoints using input radius to give a smoother path
       final var waypoint1 = current.interpolate(next, lengthRatio);
       final var waypoint2 = next.interpolate(current, lengthRatio);
 
+      // Record distance at which to switch waypoints for this segment
       radiusPerSegment.add(waypointDist);
+      // Add current waypoint and projected midpoints to path list
       waypoints.addAll
       (
         Arrays.asList
@@ -74,24 +71,24 @@ public class PathFollowDrive extends Command
       );
     }
 
+    // Final waypoint does not trigger until the robot arives at it
     radiusPerSegment.add(0.0);
     waypoints.add(new Pose2d(path.sequence()[path.sequence().length - 1], path.heading()));
   }
 
-  // Called when the command is initially scheduled.
   @Override
-  public void initialize() 
+  public void initDriveConstraints() 
   {
     currentWaypoint = 0;
     onPath = false;
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() 
   {
     robotPose = swerveStateSup.get().Pose;
 
+    // If the robot is close to the path, follow one point ahead to give smoother cornering
     final var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
     
     final var targetPose = waypoints.get(targetIndex);
@@ -104,6 +101,7 @@ public class PathFollowDrive extends Command
       )
     );
         
+    // Switch to next waypoint when within the given distance of the current one
     final var currentSegment = Math.floorDiv(currentWaypoint, 3);
     final double targetDist = radiusPerSegment.get(currentSegment);
 
@@ -114,13 +112,10 @@ public class PathFollowDrive extends Command
     }
   }
 
-  // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
+  public boolean isFinished() 
+  {
+    // Finish when robot is at the final waypoint
     return Conversions.atPose(robotPose, waypoints.get(waypoints.size()-1));
   }
 }

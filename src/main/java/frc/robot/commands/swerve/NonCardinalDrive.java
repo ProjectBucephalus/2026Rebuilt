@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.swerve;
 
 import java.util.Optional;
@@ -22,8 +18,9 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 import frc.robot.util.PBDash;
 
-/**
- * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned
+/** 
+ * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned 
+ * @author 5985
  */
 public class NonCardinalDrive extends SwerveCommandBase 
 {
@@ -40,14 +37,22 @@ public class NonCardinalDrive extends SwerveCommandBase
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-  /** Creates a new NonCardinalDrive. */
+  /**
+   * Creates a basic Manual drive command
+   * @param s_Swerve Drivebase subsystem
+   * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
+   * @param rotationSup Rotation input from joystick, [-1..1]
+   * @param brakeSup Brake axis input for rotation, [0..1]
+   * @param robotRotationSup Supplier for current robot rotation
+   * @param tolerance Minimum allowed angle away from cardinal, degrees
+   */
   public NonCardinalDrive
   (
     CommandSwerveDrivetrain s_Swerve, 
-    Supplier<Rotation2d> robotRotationSup,
     Supplier<Translation2d> joystickSupplier, 
     DoubleSupplier rotationSup, 
     DoubleSupplier brakeSup, 
+    Supplier<Rotation2d> robotRotationSup,
     double tolerance
   ) 
   {

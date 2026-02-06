@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.util.controlTransmutation;
 
 import java.util.function.DoubleSupplier;
@@ -9,8 +5,11 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
-/** Full joystick processor, takes XY suppliers and runs multiple layers of transmutation to give an XY output */
-public class JoystickTransmuter extends InputTransmuter
+/** 
+ * Full joystick processor, takes XY suppliers and runs multiple layers of transmutation to give an XY output 
+ * @author 5985
+ */
+public class JoystickTransmuter implements InputTransmuter
 {
   private InputCurve inputCurve;
   private Deadband deadband;
@@ -59,21 +58,22 @@ public class JoystickTransmuter extends InputTransmuter
   public Translation2d process(Translation2d controlInput)
   {
     Translation2d motionXY = 
-    brake.process
+    brake.process         // Processed third
     (
-      inputCurve.process
+      inputCurve.process  // Processed second
       (
-        deadband.process
+        deadband.process  // Processed first
         (
           controlInput
         )
       )
     );
 
+    // Processing field objects requires field-absolute directions, input and output are processed driver-relative
     if (rotateThroughput)
       {motionXY = motionXY.unaryMinus();}
     
-    motionXY = fieldObjectList.process(motionXY);
+    motionXY = fieldObjectList.process(motionXY); // Processed fourth
     
     if (rotateThroughput)
       {motionXY = motionXY.unaryMinus();}

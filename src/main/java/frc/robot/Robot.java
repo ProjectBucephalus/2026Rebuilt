@@ -86,7 +86,7 @@ public class Robot extends TimedRobot
       IDConstants.portFlyFollowerCAN, 
       IDConstants.portTurretCAN,
       IDConstants.portPotIO,
-      ShooterConstants.TurretConstants.potPortOffset,
+      ShooterConstants.TurretConstants.portPotOffset,
       IDConstants.portHoodPWM,
       false // TODO confirm
     );
@@ -98,43 +98,44 @@ public class Robot extends TimedRobot
       IDConstants.stbdFlyFollowerCAN, 
       IDConstants.stbdTurretCAN,
       IDConstants.stbdPotIO,
-      ShooterConstants.TurretConstants.potStbdOffset,
+      ShooterConstants.TurretConstants.stbdPotOffset,
       IDConstants.stbdHoodPWM,
       true // TODO confirm
     );
   private final Vision s_Vision = new Vision
-    (
-      (poseEst, timestmp, stdDevs) -> 
-      {
-        s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
-        s_Swerve.addVisionMeasurement(poseEst, timestmp);
-      },
-      () -> swerveState.Speeds.omegaRadiansPerSecond,
-      new Limelight(portLimelightName, VisionConstants.portLimelightOffset), 
-      new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset)
-    );
+  (
+    (poseEst, timestmp, stdDevs) -> 
+    {
+      s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
+      s_Swerve.addVisionMeasurement(poseEst, timestmp);
+    },
+    () -> swerveState.Speeds.omegaRadiansPerSecond,
+    new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
+    new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
+  );
+
   private final LinearExtension s_Climber = new LinearExtension
-    (
-      IDConstants.climberCAN, 
-      IDConstants.climberLimitDIO, 
-      0, 
-      ClimberConstants.maxPosition, 
-      ClimberConstants.metersPerRotation,
-      ClimberConstants.climberConfig
-    );
+  (
+    IDConstants.climberCAN, 
+    IDConstants.climberLimitDIO, 
+    0, 
+    ClimberConstants.maxPosition, 
+    ClimberConstants.metersPerRotation,
+    ClimberConstants.climberConfig
+  );
   private final Hopper s_Hopper = new Hopper
-    (
-      IDConstants.spindexerCAN,
-      IDConstants.intakeCAN, 
-      IDConstants.extensionCAN, 
-      IDConstants.extensionLimitDIO
-    );
+  (
+    IDConstants.spindexerCAN,
+    IDConstants.intakeCAN, 
+    IDConstants.extensionCAN, 
+    IDConstants.extensionLimitDIO
+  );
   private final BinaryMotor s_Feeder = new BinaryMotor
-    (
-      IDConstants.feederCAN,
-      FeederConstants.feederSpeed,
-      FeederConstants.feederConfig
-    );
+  (
+    IDConstants.feederCAN,
+    FeederConstants.feederSpeed,
+    FeederConstants.feederConfig
+  );
   
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -164,6 +165,7 @@ public class Robot extends TimedRobot
 
   /* INIT METHODS */
   /* ============ */
+  /** Set up logging and telemetry systems */
   private void initLogging() 
   {
     SignalLogger.enableAutoLogging(false);
@@ -178,6 +180,7 @@ public class Robot extends TimedRobot
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
   }
 
+  /** Set up input modification and fencing systems */
   private void initInputTransmute()
   {
     FieldUtils.activateAllianceFencing();
@@ -200,6 +203,7 @@ public class Robot extends TimedRobot
     GeoFencing.fieldGeoFence.setActiveCondition(() -> PBDash.FENCE_TOGGLE.get() && PBDash.LL_TOGGLE.get());
   }
 
+  /** Sets primary control bindings */
   private void bindControls()
   {
     /* Default Commands */
@@ -223,10 +227,10 @@ public class Robot extends TimedRobot
         new NonCardinalDrive
         (
           s_Swerve, 
-          () -> swerveState.Pose.getRotation(), 
           driverStick::stickOutput, 
           () -> -driver.getRightX(), 
           driver::getRightTriggerAxis, 
+          () -> swerveState.Pose.getRotation(), 
           bumpRotationTolerance
         )
       );
@@ -265,6 +269,7 @@ public class Robot extends TimedRobot
     new Trigger(PBDash.LL_EXPOSURE_DOWN::button).onTrue(runOnce(s_Vision::decrementPipeline));
   }
 
+  /** Sets trigger conditions to activate controller rumbles */
   private void bindRumbles()
   {
     io_operatorRight.addRumbleTrigger("ScoreReady", new Trigger(() -> false)); // EXAMPLE
@@ -272,6 +277,7 @@ public class Robot extends TimedRobot
 
   /* UTIL METHODS */
   /* ============ */
+  /** Pull current state from drivebase for external use, to avoid repeated expensive calls */
   private void updateSwerveState()
   {
     swerveState = s_Swerve.getState();

@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems.vision;
 
 import static frc.robot.constants.Constants.VisionConstants.trenchIDs;
@@ -18,60 +14,84 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.util.PBDash;
 
-public class Limelight  
+/** 
+ * Wrapper class to interface with Limelight camera running Photonvision 
+ * @author 5985
+ */
+public class Limelight
 {    
   private final PhotonCamera camera;
-  // TODO should probably initialise photonEstimator in the constructor so that the tag layout and robotToCam transform can be just restricted to the constructor
-  // Also, maybe let the robotToCam transform be provided in the constructor
   private static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
   private final Transform3d structureToCamera;
   private final PhotonPoseEstimator photonEstimator;
   private PhotonPipelineResult result;
   private boolean onTurret = false;
   private Supplier<Rotation2d> turretAngleSup;
-  private Translation2d turretToRobot;
+  private Transform2d robotToTurret;
   
 
   /**
-   * 
-   * @param name
-   * @param robotToCamera Transform3d from the centre of the turret to the camera.
+   * Creates a new static Limelight vision camera
+   * @param name Device name as published to network
+   * @param robotToCamera Transform3d from robot-centre at floor level to the centre of the camera lens
    */
   public Limelight(String name, Transform3d robotToCamera) 
     {
       this.camera = new PhotonCamera(name);
       structureToCamera = robotToCamera;
       photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
+      
+      turretAngleSup = () -> Rotation2d.kZero;
+      robotToTurret = Transform2d.kZero;
       onTurret = false;
     }
 
  // rotation2d supplier, translation2d assign in constructor + set flag to true (turret to robot)
-  public Limelight(String name, Transform3d turretToCamera, Supplier<Rotation2d> turretAngleSup, Translation2d turretToRobot) 
+ /**
+  * Creates a new turret-mounted Limelight vision camera
+  * @param name Device name as published to network
+  * @param turretToCamera Transform3d from turret-centre at floor level to the centre of the camera lens
+  * @param turretAngleSup Supplier for the current robot-relative azimuth of the turret, degrees
+  * @param robotToTurret Transform2d from robot-centre to turret-centre
+  */
+  public Limelight(String name, Transform3d turretToCamera, Supplier<Rotation2d> turretAngleSup, Transform2d robotToTurret) 
   {
     this.camera = new PhotonCamera(name);
     this.turretAngleSup = turretAngleSup;
-    this.turretToRobot = turretToRobot;
+    this.robotToTurret = robotToTurret;
     structureToCamera = turretToCamera;
     photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
     onTurret = true;
   }
 
+  /** 
+   * Pulls all unread results from the camera and stores the latest <p>
+   * Subsequent requests before the camera produces a new result will not clear the stored result
+   */
   public void getLatestResult() 
   {
+    // getAllUnreadResults() should generally only be called once per cycle, as it clears the internal list
+    // The logic here protects against that feature to allow the latest result to be called as needed
     var results = camera.getAllUnreadResults();
 
     if (!results.isEmpty()) 
       {result = results.get(results.size()-1);}
   }
 
+  /** @param pipelineIndex Vision pipeline index to start using */
   protected void updatePipeline(int pipelineIndex)
     {camera.setPipelineIndex(pipelineIndex);}
 
+  /**
+   * Removes uncertain or unwanted tags from the pose estimate before calculating
+   * @return Sanitised pose estimate
+   */
   public Optional<EstimatedRobotPose> getPhotonEst()
   { 
     if (result == null) return Optional.empty();
@@ -102,11 +122,21 @@ public class Limelight
   public Rotation2d getTurretAngle()
   {return turretAngleSup.get();}
   
-  public Translation2d getTurretToRobot()
-  {return turretToRobot;}
+  /** @return Transform to convert FROM ROBOT to Turret, including current azimuth */
+  public Transform2d getRobotToTurret()
+  {return new Transform2d(robotToTurret.getTranslation(), robotToTurret.getRotation().minus(turretAngleSup.get()));}
 
-  public void periodic() 
+  /** @return Transform to convert FROM TURRET to Robot, including current azimuth */
+  public Transform2d getTurretToRobot()
+  {return new Transform2d(robotToTurret.getTranslation().unaryMinus(), robotToTurret.getRotation().plus(turretAngleSup.get()).unaryMinus());}
+
+  /** 
+   * Intended to be called in {@link Vision#periodic()} <p>
+   * Pull the latest results from the camera ready to be used
+   */
+  public void update() 
   {
+    result = null;
     getLatestResult();
     //PBDash.putString(camera.getName() + "result", (result.toString()));
   }

@@ -14,15 +14,12 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-/*
- * NOTES:
- * For coordinate definitions, see Robot
- * When possible, all units are Metres and Degrees
- * Gear ratios are defined by Teeth-Out/Teeth-In (except for pre-made gearboxes)
- */
-
 /**
- * Constant values for mechanism geometry, motor configuration, input parameters, targets, etc.
+ * Constant values for mechanism geometry, motor configuration, input parameters, targets, etc. <p>
+ * @Note For coordinate definitions, see Robot
+ * <li> When possible, all units are Metres and Degrees (right-hand rotation)
+ * <li> Gear ratios are defined by Teeth-Out/Teeth-In (except for pre-made gearboxes)
+ * 
  * @author 5985
  */
 public final class Constants 
@@ -97,9 +94,9 @@ public final class Constants
   public static final class ShooterConstants
   {
     /** 2D offset from robot centre to port-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
-    public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.kZero);
+    public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg);
     /** 2D offset from robot centre to starboard-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
-    public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.kZero);
+    public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants
@@ -148,8 +145,8 @@ public final class Constants
     {
       /** Allowed variation in hood altitude when targeting, degrees */
       public static final double altTolerance = 1;
-      /** Angle range of servo given input of [0..1], degrees */
-      public static final double servoRange = 300;
+      /** Angle range of servo given input of [0..1], degrees anticlockwise */
+      public static final double servoRange = 250;
       /** Range of motion of hood, degrees */
       public static final double hoodRange = 25;
 
@@ -172,9 +169,9 @@ public final class Constants
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double potPortOffset = -1800;
+      public static final double portPotOffset = -1800;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double potStbdOffset = -1800;
+      public static final double stbdPotOffset = -1800;
 
       private static final double planetaryRatio = 12;
       private static final double driveGear = 20;

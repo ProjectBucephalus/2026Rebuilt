@@ -8,7 +8,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
-/** Field or FMS related utilities */
+/** 
+ * Field or FMS related utilities 
+ * @author 5985
+ */
 public class FieldUtils 
 {
   private static boolean redAlliance;

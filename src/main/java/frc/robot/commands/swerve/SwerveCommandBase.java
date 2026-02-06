@@ -6,9 +6,14 @@ import frc.robot.util.FieldUtils;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
+/** 
+ * Foundation of all other drive commands 
+ * @author 5985
+ */
 public abstract class SwerveCommandBase extends Command
 {
   protected final double deadband = Constants.ControlConstants.stickDeadband;
@@ -18,7 +23,7 @@ public abstract class SwerveCommandBase extends Command
   protected Supplier<Translation2d> joystickSupplier;
   
   protected Translation2d motionXY;
-  protected Translation2d robotXY;  //TODO used but not being set
+  protected Pose2d robotPose;
 
   protected boolean redAlliance;
 
