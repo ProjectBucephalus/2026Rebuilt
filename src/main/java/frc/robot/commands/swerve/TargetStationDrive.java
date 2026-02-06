@@ -16,23 +16,23 @@ public class TargetStationDrive extends HeadingLockedDrive
    * @param s_Swerve Drivebase subsystem
    * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
    * @param rotationOffset Field relative rotation to treat as 0
-   * @param robotPosSup Supplier for robot XY position in field coordinates
+   * @param robotPoseSup Supplier for robot XY position in field coordinates
    */
   public TargetStationDrive
   (
     CommandSwerveDrivetrain s_Swerve, 
     Supplier<Translation2d> joystickSupplier,
     Rotation2d rotationOffset,
-    Supplier<Translation2d> robotPosSup
+    Supplier<Pose2d> robotPoseSup
   ) 
   {
-    super(s_Swerve, joystickSupplier, Rotation2d.kZero, rotationOffset, robotPosSup);
+    super(s_Swerve, joystickSupplier, Rotation2d.kZero, rotationOffset, robotPoseSup);
   }
 
   @Override
   protected void updateTargetHeading()
   {
-    targetHeading = redAlliance ^ (robotXY.getY() >= 4.026) ? 
+    targetHeading = redAlliance ^ (robotPose.getY() >= 4.026) ? 
       new Rotation2d(Units.degreesToRadians(-55)) : // Left side if blue, right side if red
       new Rotation2d(Units.degreesToRadians(55)); // Right side if blue, left side if red
   }

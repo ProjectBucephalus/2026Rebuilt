@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants.SwerveConstants;
@@ -21,7 +22,7 @@ public class HeadingLockedDrive extends SwerveCommandBase
   protected double rotationKI;
   protected double rotationKD;
 
-  protected Supplier<Translation2d> robotPosSup;
+  protected Supplier<Pose2d> robotPoseSup;
 
   protected final SwerveRequest.FieldCentricFacingAngle driveRequest = new SwerveRequest
     .FieldCentricFacingAngle()
@@ -34,7 +35,7 @@ public class HeadingLockedDrive extends SwerveCommandBase
    * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
    * @param targetHeading Heading for robot to face relative to Offset
    * @param rotationOffset Field relative rotation to treat as 0
-   * @param robotPosSup Supplier for robot XY position in field coordinates
+   * @param robotPoseSup Supplier for robot XY position in field coordinates
    */
   public HeadingLockedDrive
   (
@@ -42,7 +43,7 @@ public class HeadingLockedDrive extends SwerveCommandBase
     Supplier<Translation2d> joystickSupplier,
     Rotation2d targetHeading, 
     Rotation2d rotationOffset,
-    Supplier<Translation2d> robotPosSup
+    Supplier<Pose2d> robotPoseSup
   ) 
   {
     super(s_Swerve, joystickSupplier);
@@ -55,14 +56,14 @@ public class HeadingLockedDrive extends SwerveCommandBase
 
     this.targetHeading = targetHeading;
     this.rotationOffset = rotationOffset;
-    this.robotPosSup = robotPosSup;
+    this.robotPoseSup = robotPoseSup;
   }
 
   @Override
   public void execute()
   {
     motionXY = joystickSupplier.get();
-    robotXY = robotPosSup.get();
+    robotPose = robotPoseSup.get();
 
     updateTargetHeading();
     updateRotationPID();

@@ -19,7 +19,7 @@ public abstract class SwerveCommandBase extends Command
   protected Supplier<Translation2d> joystickSupplier;
   
   protected Translation2d motionXY;
-  protected Translation2d robotXY;  //TODO used but not being set
+  protected Pose2d robotPose;
 
   protected boolean redAlliance;
 
