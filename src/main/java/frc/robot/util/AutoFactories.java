@@ -16,6 +16,10 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
+/**
+ * Dynamically creates Command list from input string of tags
+ * @author 5985
+ */
 public class AutoFactories 
 {
   /**
@@ -35,6 +39,7 @@ public class AutoFactories
     {
       switch (splitCommand.charAt(0)) 
       {
+        // g - Go to (g x:y;r)
         case 'g' ->
 				{
           int seperatorIndex = splitCommand.indexOf(":");
@@ -53,9 +58,11 @@ public class AutoFactories
           commandList.addCommands(s_Swerve.poseDriveCommand(new AlliancePose2dSup(posTarget, rotationTarget), swerveStateSup));
         }
 
+        // w - Wait for duration
         case 'w' -> 
           commandList.addCommands(Commands.waitSeconds(Double.parseDouble(splitCommand.substring(1))));
 
+        // t - wait until Time
         case 't' ->
 				{
           double targetMatchTimeElapsed = Double.parseDouble(splitCommand.substring(1));

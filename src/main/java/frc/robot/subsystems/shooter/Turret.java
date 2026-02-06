@@ -1,10 +1,10 @@
 package frc.robot.subsystems.shooter;
 
-import frc.robot.constants.Constants.Shooter.TurretConstants;
+import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
-import static frc.robot.constants.Constants.Shooter.TurretConstants.*;
+import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
  * Ensures rotation limits are respected to prevent damage to cables. <p>
  * Uses a TalonFX controlled motor, and a potentiometer for calibration. <p>
  * Includes functionality to track a point on the field while the robot is in motion. <p>
+ * @author 5985
  */
 public class Turret
 {
@@ -38,7 +39,7 @@ public class Turret
     m_Turret = new TalonFX(motorID);
     io_Azimuth = new AnalogPotentiometer(potID, TurretConstants.potRange, potOffset);
 
-    m_Turret.getConfigurator().apply(turretConfigs);
+    m_Turret.getConfigurator().apply(turretConfig);
 
     calibrate();
   }

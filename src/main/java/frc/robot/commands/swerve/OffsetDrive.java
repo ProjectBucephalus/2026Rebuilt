@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.swerve;
 
 import java.util.function.DoubleSupplier;
@@ -12,12 +8,15 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.constants.Constants.Control;
-import frc.robot.constants.Constants.Swerve;
+import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.PBDash;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+/** 
+ * A drive command for rotating about a point other than robot-centre 
+ * @author 5985
+ */
 public class OffsetDrive extends SwerveCommandBase 
 {
   protected DoubleSupplier rotationSup;
@@ -56,7 +55,7 @@ public class OffsetDrive extends SwerveCommandBase
     if (Math.abs(rotationVal) <= deadband) 
       {rotationVal = 0;}
     else
-      {rotationVal *= MathUtil.interpolate(Control.maxRotThrottle, Control.minRotThrottle, brakeSup.getAsDouble());}
+      {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
 
     if (motionXY.getNorm() != 0)
       {PBDash.STATE_DRIVE.put("Manual");}
@@ -64,9 +63,9 @@ public class OffsetDrive extends SwerveCommandBase
     s_Swerve.setControl
     (
       driveRequest
-      .withVelocityX(motionXY.getX() * Swerve.maxSpeed)
-      .withVelocityY(motionXY.getY() * Swerve.maxSpeed)
-      .withRotationalRate(rotationVal * Swerve.maxAngularVelocity)
+      .withVelocityX(motionXY.getX() * SwerveConstants.maxSpeed)
+      .withVelocityY(motionXY.getY() * SwerveConstants.maxSpeed)
+      .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
     );
   }
 }

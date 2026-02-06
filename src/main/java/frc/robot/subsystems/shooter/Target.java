@@ -2,7 +2,10 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
-/** A target for the shooter to track, containing the specific state and a set of values to be used across the states */
+/** 
+ * A target for the shooter to track, containing the specific state and a set of values to be used across the states 
+ * @author 5985
+ */
 public class Target 
 {
   /**

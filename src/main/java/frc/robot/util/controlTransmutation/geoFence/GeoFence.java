@@ -6,7 +6,9 @@ import frc.robot.util.Conversions;
 import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.FieldObject;
 
-/** Add your docs here. */
+/** 
+ * @author 5985
+ */
 public abstract class GeoFence extends FieldObject
 {
   // Inherits from FieldObject: T2D centre, double radius, double buffer, double checkRadius

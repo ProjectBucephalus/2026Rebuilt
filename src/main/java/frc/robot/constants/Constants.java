@@ -8,9 +8,20 @@ import java.util.Set;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
+/**
+ * Constant values for mechanism geometry, motor configuration, input parameters, targets, etc. <p>
+ * @Note For coordinate definitions, see Robot
+ * <li> When possible, all units are Metres and Degrees (right-hand rotation)
+ * <li> Gear ratios are defined by Teeth-Out/Teeth-In (except for pre-made gearboxes)
+ * 
+ * @author 5985
+ */
 public final class Constants 
 {
   public static final class RumblerConstants 
@@ -19,9 +30,9 @@ public final class Constants
     public static final double operatorDefault = 0.1;
   }
 
-  public static final class Control
+  /** Values for controller input and general driving behaviours */
+  public static final class ControlConstants
   {
-    public static final double manualDiffectorDeadband = 0.25;
     public static final double stickDeadband = 0.15;
     /** Normal maximum robot speed, relative to maximum uncapped speed */
     public static final double maxThrottle = 0.5;
@@ -33,19 +44,22 @@ public final class Constants
     public static final double minRotThrottle = 0.5;
     /** Angle tolerance to consider something as "facing" the drivers, degrees */
     public static final double driverVisionTolerance = 5;
-    /** Translation lineup tolerance, in meters */
+    /** Translation lineup tolerance, meters */
     public static final double lineupTolerance = 0.05;
-    /** Rotation lineup tolerance, in degrees */
+    /** Rotation lineup tolerance, degrees */
     public static final double angleLineupTolerance = 3;
   }
 
-  public static final class Swerve
+  /** Geometry and tuning data for drivebase */
+  public static final class SwerveConstants
   {
     /** Forward offset between the centre of the drivebase and Robot coordinate origin, metres */
     public static final double drivebaseOffset = 0.095;
-    /** Centre-centre distance between wheels, metres */
+    /** Offset from typical centre of rotation to centre of drivebase, metres Fore/Port */
+    public static final Translation2d retractedCentreOffset = new Translation2d(-drivebaseOffset,0);
+    /** Centre-centre distance between wheels port-stbd, metres */
     public static final double drivebaseWidth = 0.485;
-    /** Centre-centre distance between wheels, metres */
+    /** Centre-centre distance between wheels fore-aft, metres */
     public static final double drivebaseLength = drivebaseWidth;
     /** Wheel-centre to Robot-centre distance to Port wheels, metres */
     public static final double wheelPortY = drivebaseWidth/2;
@@ -58,8 +72,6 @@ public final class Constants
 
 
     public static final double initialHeading = 0;
-    /** Offset from centre of drivebase to use as centre of rotation when extended, metres Fore/Port */
-    public static final Translation2d extendedCentreOffset = new Translation2d(drivebaseOffset,0);
 
     /* Drive PID Values */
     public static final double driveKP = 2.5;
@@ -70,103 +82,133 @@ public final class Constants
     public static final double rotationKP = 6;
     public static final double rotationKI = 0;
     public static final double rotationKD = 0;
-    
-    /* Rotation Control PID Values when holding Algae */
-    public static final double rotationKPAlgae = 5;
-    public static final double rotationKIAlgae = 0;
-    public static final double rotationKDAlgae = 1;
 
     /* Swerve Limit Values */
-    /** Meters per Second */
+    /** Mechanical maximum staright-line robot speed, Meters per Second */
     public static final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    /** Radians per Second */
+    /** Mechanical maximum robot rotation rate, Radians per Second */
     public static final double maxAngularVelocity = 4;
   }
 
-  public static final class Shooter
+  /** Geometry and tuning data for shooter systems */
+  public static final class ShooterConstants
   {
-    /*
-     * To tune shooter:
-     *    Find voltage KS required to overcome static friction
-     *    Run with voltage at maximum safe limit, record voltage and RPS
-     *    Set voltage KV as voltage/RPS
-     *    Once KV is tuned, use KP for additional gain as needed
-     */
-    public static final TalonFXConfiguration flywheelConfig = new TalonFXConfiguration(); 
-    static
-    {
-      flywheelConfig.Slot0.kS = 0.2;
-      flywheelConfig.Slot0.kV = 0.08;
-      flywheelConfig.Slot0.kA = 0.0;
-      flywheelConfig.Slot0.kP = 0.0;
-      flywheelConfig.Slot0.kI = 0.0;
-      flywheelConfig.Slot0.kD = 0.0;
+    /** 2D offset from robot centre to port-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
+    public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg);
+    /** 2D offset from robot centre to starboard-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
+    public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
 
-      flywheelConfig.MotionMagic.MotionMagicAcceleration = 50.0;
-      flywheelConfig.MotionMagic.MotionMagicJerk = 50.0;
+    /** Tuning data for flywheels */
+    public static final class FlywheelConstants
+    {
+      private static final double motorPulley = 24;
+      private static final double mainWheelPulley = 18;
+      private static final double mainWheelBeltRatio = mainWheelPulley / motorPulley;
+
+      /*
+      * To tune flywheel:
+      *    Find voltage KS required to overcome static friction
+      *    Run with voltage at maximum safe limit, record voltage and RPS
+      *    Set voltage KV as voltage/RPS
+      *    Once KV is tuned, use KP for additional gain as needed
+      */
+      public static final TalonFXConfiguration flywheelConfig = new TalonFXConfiguration(); 
+      static
+      {
+        flywheelConfig.Feedback.SensorToMechanismRatio = mainWheelBeltRatio;
+
+        flywheelConfig.Slot0.kS = 0.2;
+        flywheelConfig.Slot0.kV = 0.08;
+        flywheelConfig.Slot0.kA = 0.0;
+        flywheelConfig.Slot0.kP = 0.0;
+        flywheelConfig.Slot0.kI = 0.0;
+        flywheelConfig.Slot0.kD = 0.0;
+
+        flywheelConfig.MotionMagic.MotionMagicAcceleration = 100.0;
+        flywheelConfig.MotionMagic.MotionMagicJerk = 500.0;
+      }
+
+      /** Target flywheel speed when idle, mechanism rps */
+      public static final double idleSpeed = 30;
+      /** Target flywheel speed for shooting, mechanism rps */
+      public static final double revSpeed = 100;
+      /** Allowed variation in flywheel speed for shooting, rps */
+      public static final double flySpeedTolerance = 5;
+
+      //simulation
+      public static final double kGearRatio = 10.0;
+      public static final double kMOI = 0.001; 
     }
 
-    public static final double idleSpeed = 10.0;
-    public static final double revSpeed = 50.0;
-    public static final double leliency = 5.0;
-
-    public static final double flySpeedTolerance = 100;
-
-    //simulation
-    public static final double kGearRatio = 10.0;
-    public static final double kMOI = 0.001; 
-
+    /** Geometry data for shooter hoods */
     public static final class HoodConstants 
     {
-      public static final double altTolerance = 3;
+      /** Allowed variation in hood altitude when targeting, degrees */
+      public static final double altTolerance = 1;
+      /** Angle range of servo given input of [0..1], degrees anticlockwise */
+      public static final double servoRange = 250;
+      /** Range of motion of hood, degrees */
+      public static final double hoodRange = 25;
 
-      public static final double servoRange = 270;
       public static final double servoGear = 20;
       public static final double hoodGear = 193;
-      public static final double hoodRange = 25;
-      public static final double hoodRatio = servoGear / hoodGear;
+      public static final double hoodRatio = hoodGear / servoGear;
     }
 
+    /** Geometry and tuning data for turret rings */
     public static final class TurretConstants
     {
+      /** Maximum rotation either side of centre before reaching mechanical/cable limits, degrees */
       public static final double maxTurretAzimuth = 270;
-      
-      public static final double turretIdlePosition = 0;
-
-      public static final double turretTurnSpeed = 0.25;
-
-      public static final double potRange = 3600;
-      public static final double potPortOffset = -1800;
-      public static final double potStbdOffset = -1800;
-      public static final double potGear = 20;
-      public static final double turretGear = 90;
-      public static final double azimuthGearRatio = potGear / turretGear;
-
-      public static final double azimuthTolerance = 3;
-      public static final double maxRPM = 2000;
+      /** Angle range at end-of-travel to stop shooting and prepare to unwind, degrees */
       public static final double limitBufferZone = 10;
-      
+      /** Position to hold when idle, degrees */
+      public static final double turretIdlePosition = 0;
+      /** Target rotation rate when moving, rps */
+      public static final double turretTurnSpeed = 0.25;
+      /** Angle range of potentiometer giving output of [0..1], degrees */
+      public static final double potRange = 3600;
+      /** Angle offset to give 0 when turret is at centre, degrees */
+      public static final double portPotOffset = -1800;
+      /** Angle offset to give 0 when turret is at centre, degrees */
+      public static final double stbdPotOffset = -1800;
 
-      public static final TalonFXConfiguration turretConfigs = new TalonFXConfiguration();
+      private static final double planetaryRatio = 12;
+      private static final double driveGear = 20;
+      private static final double ringGear = 90;
+      public static final double azimuthGearRatio = ringGear / driveGear;
+
+      /** Allowed variation in turret azimuth when targeting, degrees */
+      public static final double azimuthTolerance = 3;
+
+      /** Maximum absolute rotation rate of the turret in field-space to be considered safe to shoot, rps */
+      public static final double maxRPS = 1;
+      
+      public static final TalonFXConfiguration turretConfig = new TalonFXConfiguration();
       static 
       {
-        turretConfigs.Slot0.kS = 0.0;
-        turretConfigs.Slot0.kV = 0.0;
-        turretConfigs.Slot0.kA = 0.0;
-        turretConfigs.Slot0.kP = 10.0;
-        turretConfigs.Slot0.kI = 0.0;
-        turretConfigs.Slot0.kD = 0.0;
+        turretConfig.Feedback.SensorToMechanismRatio = azimuthGearRatio * planetaryRatio;
 
-        turretConfigs.MotionMagic.MotionMagicAcceleration = 1;
-        turretConfigs.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
+        turretConfig.Slot0.kS = 0.0;
+        turretConfig.Slot0.kV = 0.0;
+        turretConfig.Slot0.kA = 0.0;
+        turretConfig.Slot0.kP = 10.0;
+        turretConfig.Slot0.kI = 0.0;
+        turretConfig.Slot0.kD = 0.0;
+
+        turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
+        turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
       }
     }
   }
 
-  public static final class Vision
+  /** Geometry, tag, and tuning data for Vision system */
+  public static final class VisionConstants
   {
-    public static final Transform3d portLimelightOffset = new Transform3d();
-    public static final Transform3d stbdLimelightOffset = new Transform3d();
+    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
+    public static final Transform3d portLimelightOffset = new Transform3d(0, 0, 0, new Rotation3d(0, -15, 0));
+    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
+    public static final Transform3d stbdLimelightOffset = new Transform3d(0, 0, 0, new Rotation3d(0, -15, 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
     public static final double visionFrequencyThreshold = 10;
 
@@ -223,104 +265,146 @@ public final class Constants
       allIDs.addAll(hubIDs);
     };
 
-    /** Baseline 1 meter, 1 tag stddev for x and y, in meters */
+    /** Baseline 1 meter, 1 tag stddev for x and y, meters */
     public static final double linearStdDevBaseline = 0.06;
-    /** Baseline 1 meter, 1 tag stddev rotation, in radians */
+    /** Baseline 1 meter, 1 tag stddev rotation, radians */
     public static final double rotStdDevBaseline = Math.toRadians(8);
-    /** How many good MT1 readings to get before setting rotation and moving to MT2 */
-    public static final int mt1CyclesNeeded = 10;
   }
 
+  /** Interpolation tables for converting measured input to calibrated output */
   public static final class Interpolation 
   {
+    /** Distance to Altitude conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
     {{
       put(0.0, 0.0);
       put(0.25, 0.25);
     }};
-
+    
+    /** Distance to Altitude conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
     {{
       put(0.0, 0.0);
       put(0.25, 0.25);
     }};
-
-    public static final InterpolatingDoubleTreeMap turretPotAzimuth = new InterpolatingDoubleTreeMap()
-    {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
-    }};
-
-    public static final InterpolatingDoubleTreeMap turretPotAltitude = new InterpolatingDoubleTreeMap()
-    {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
-    }}; 
   }
 
-  public  static final class IndexerConstants 
+  /** Tuning data for feeder */
+  public  static final class FeederConstants 
   {
-    public static final double speed = 0.5;
+    public static final double feederSpeed = 0.5;
+
+    private static final double gearboxRatio = 1;
+    private static final double lowerRollerPulley = 24;
+    private static final double upperRollerPuller = 18;
+    private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
+    private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
+
+    public static final TalonFXConfiguration feederConfig = new TalonFXConfiguration();
+    static
+    {
+      feederConfig.Feedback.SensorToMechanismRatio = motorToUpperRatio;
+    }
   }
 
+  /** Geometry and tuning data for hopper system */
   public static final class HopperConstants
   {
-    public static final double spindexerPulseDelay = 0.25;
-    public static final double spindexerSpeed = 0.5;
-    public static final double intakeSpeed = 0.5; 
-
-    
-    public static final class ExtensionConstants 
+    public static final class SpindexerConstants 
     {
-      // TODO actual ratios and gains
-      public static final double extensionPlanetaryRatio = 1;
-      public static final double extensionPinionTeeth = 1;
-      public static final double extensionRackTeeth = 1;
-      public static final double extensionRackRatio = extensionPinionTeeth / extensionRackTeeth;
-      public static final double extensionRatio = extensionPlanetaryRatio * extensionRackRatio;
+      /** Duration and interval of spindexer pulses when agitating, seconds */
+      public static final double spindexerPulseDelay = 0.25;
+      /** Default speed of spindexer when running, [-1..1] */
+      public static final double spindexerSpeed = 0.5;
 
-      public static final double maxRotations = 1;
-      public static final double extensionJostleDelay = 0.25;
-
-      private static final double gainS = 0.0;
-      private static final double gainV = 0.0;
-      private static final double gainA = 0.0;
-      private static final double gainP = 0.0;
-      private static final double gainI = 0.0;
-      private static final double gainD = 0.0;
-
-      public static final TalonFXConfiguration config = new TalonFXConfiguration();
+      private static final double motorPulley = 24;
+      private static final double spindexerPulley = 30;
+      private static final double spindexerBeltRatio = spindexerPulley / motorPulley;
+      
+      public static final TalonFXConfiguration spindexerConfig = new TalonFXConfiguration();
       static
       {
-        config.MotionMagic.MotionMagicCruiseVelocity = 0;
-        config.MotionMagic.MotionMagicAcceleration = 0;
+        spindexerConfig.Feedback.SensorToMechanismRatio = spindexerBeltRatio;
+      }
+    }
 
-        config.Slot0.kS = gainS;
-        config.Slot0.kV = gainV;
-        config.Slot0.kA = gainA;
-        config.Slot0.kP = gainP;
-        config.Slot0.kI = gainI;
-        config.Slot0.kD = gainD;
+    public static final class IntakeConstants 
+    {
+      /** Default speed of intake when running, [-1..1] */
+      public static final double intakeSpeed = 0.5;
+      
+      public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
+      static
+      {
+        intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
+      }
+    }
 
-        config.Slot1.kS = gainS;
-        config.Slot1.kV = gainV;
-        config.Slot1.kA = gainA;
-        config.Slot1.kP = gainP;
-        config.Slot1.kI = gainI;
-        config.Slot1.kD = gainD;
+    /** Geometry and tuning data of intake/hopper extension */
+    public static final class ExtensionConstants 
+    {
+      private static final double extensionPlanetaryRatio = 9;
+
+      private static final double extensionInGear = 20;
+      private static final double extensionOutGear = 40;
+      private static final double extensionGearRatio = extensionOutGear / extensionInGear;
+
+      private static final double extensionInPulley = 15;
+      private static final double extensionOutPulley = 30;
+      private static final double extensionChainRatio = extensionOutPulley / extensionInPulley;
+
+      public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
+
+      public static final double maxRotations = 120.0 / 360.0; // TODO may change slightly with final design
+
+      /** Duration and interval of retraction/extension pulses when agitating, seconds */
+      public static final double extensionJostleDelay = 0.25;
+
+      public static final TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
+      static
+      {
+        extensionConfig.Feedback.SensorToMechanismRatio = extensionRatio;
+
+        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 0;
+
+        extensionConfig.Slot0.kS = 0.0;
+        extensionConfig.Slot0.kV = 0.0;
+        extensionConfig.Slot0.kA = 0.0;
+        extensionConfig.Slot0.kP = 0.0;
+        extensionConfig.Slot0.kI = 0.0;
+        extensionConfig.Slot0.kD = 0.0;
+
+        extensionConfig.Slot1.kS = 0.0;
+        extensionConfig.Slot1.kV = 0.0;
+        extensionConfig.Slot1.kA = 0.0;
+        extensionConfig.Slot1.kP = 0.0;
+        extensionConfig.Slot1.kI = 0.0;
+        extensionConfig.Slot1.kD = 0.0;
       };
     }
   }   
 
-  //TODO change maxrotaions 
+  /** Geometry and tuning data of climber system */
   public static final class ClimberConstants 
   {
-    public static final double maxRotations = 1;
+    /** meters */
+    public static final double maxPosition = 0.478;
 
-    public static final TalonFXConfiguration config = new TalonFXConfiguration(); 
+    private static final double planetaryRatio = 25;
+    private static final double motorPulley = 12;
+    private static final double winchPulley = 15;
+    private static final double winchChainRatio = winchPulley / motorPulley;
+
+    /** meters */
+    private static final double winchDiameter = 0.029;
+    private static final double cordDiameter = 0.006;
+    public static final double metersPerRotation = (winchDiameter + cordDiameter) * Math.PI;
+
+    public static final TalonFXConfiguration climberConfig = new TalonFXConfiguration(); 
     static 
     {
-      // TODO configure config object
+      climberConfig.Feedback.SensorToMechanismRatio = winchChainRatio * planetaryRatio;
     }
   }
 }

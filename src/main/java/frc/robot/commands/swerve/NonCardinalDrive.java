@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.swerve;
 
 import java.util.Optional;
@@ -16,18 +12,19 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.constants.Constants.Control;
-import frc.robot.constants.Constants.Swerve;
+import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 import frc.robot.util.PBDash;
 
-/**
- * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned
+/** 
+ * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned 
+ * @author 5985
  */
 public class NonCardinalDrive extends SwerveCommandBase 
 {
-  private final PIDController thetaController = new PIDController(0.02, Swerve.rotationKI, Swerve.rotationKD);
+  private final PIDController thetaController = new PIDController(0.02, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
 
   protected DoubleSupplier rotationSup;
   protected double rotationVal;
@@ -40,14 +37,22 @@ public class NonCardinalDrive extends SwerveCommandBase
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-  /** Creates a new NonCardinalDrive. */
+  /**
+   * Creates a basic Manual drive command
+   * @param s_Swerve Drivebase subsystem
+   * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
+   * @param rotationSup Rotation input from joystick, [-1..1]
+   * @param brakeSup Brake axis input for rotation, [0..1]
+   * @param robotRotationSup Supplier for current robot rotation
+   * @param tolerance Minimum allowed angle away from cardinal, degrees
+   */
   public NonCardinalDrive
   (
     CommandSwerveDrivetrain s_Swerve, 
-    Supplier<Rotation2d> robotRotationSup,
     Supplier<Translation2d> joystickSupplier, 
     DoubleSupplier rotationSup, 
     DoubleSupplier brakeSup, 
+    Supplier<Rotation2d> robotRotationSup,
     double tolerance
   ) 
   {
@@ -93,7 +98,7 @@ public class NonCardinalDrive extends SwerveCommandBase
         rotationVal = 0;
     }
     else
-      {rotationVal *= MathUtil.interpolate(Control.maxRotThrottle, Control.minRotThrottle, brakeSup.getAsDouble());}
+      {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
 
     if (motionXY.getX() != 0 || motionXY.getY() != 0)
       {PBDash.STATE_DRIVE.put("Manual");}
@@ -101,9 +106,9 @@ public class NonCardinalDrive extends SwerveCommandBase
     s_Swerve.setControl
     (
       driveRequest
-      .withVelocityX(motionXY.getX() * Swerve.maxSpeed)
-      .withVelocityY(motionXY.getY() * Swerve.maxSpeed)
-      .withRotationalRate(rotationVal * Swerve.maxAngularVelocity)
+      .withVelocityX(motionXY.getX() * SwerveConstants.maxSpeed)
+      .withVelocityY(motionXY.getY() * SwerveConstants.maxSpeed)
+      .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
     );
   }
 }

@@ -5,13 +5,17 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.constants.Constants.Swerve;
+import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.PBDash;
 
-/** Swerve drive interface to have the robot face a fixed direction */
+/** 
+ * Swerve drive interface to have the robot face a fixed direction 
+ * @author 5985
+ */
 public class HeadingLockedDrive extends SwerveCommandBase 
 {
   protected Rotation2d rotationOffset;
@@ -21,7 +25,7 @@ public class HeadingLockedDrive extends SwerveCommandBase
   protected double rotationKI;
   protected double rotationKD;
 
-  protected Supplier<Translation2d> robotPosSup;
+  protected Supplier<Pose2d> robotPoseSup;
 
   protected final SwerveRequest.FieldCentricFacingAngle driveRequest = new SwerveRequest
     .FieldCentricFacingAngle()
@@ -34,7 +38,7 @@ public class HeadingLockedDrive extends SwerveCommandBase
    * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
    * @param targetHeading Heading for robot to face relative to Offset
    * @param rotationOffset Field relative rotation to treat as 0
-   * @param robotPosSup Supplier for robot XY position in field coordinates
+   * @param robotPoseSup Supplier for robot XY position in field coordinates
    */
   public HeadingLockedDrive
   (
@@ -42,27 +46,27 @@ public class HeadingLockedDrive extends SwerveCommandBase
     Supplier<Translation2d> joystickSupplier,
     Rotation2d targetHeading, 
     Rotation2d rotationOffset,
-    Supplier<Translation2d> robotPosSup
+    Supplier<Pose2d> robotPoseSup
   ) 
   {
     super(s_Swerve, joystickSupplier);
 
-    rotationKP = Swerve.rotationKP;
-    rotationKI = Swerve.rotationKI;
-    rotationKD = Swerve.rotationKD;
+    rotationKP = SwerveConstants.rotationKP;
+    rotationKI = SwerveConstants.rotationKI;
+    rotationKD = SwerveConstants.rotationKD;
 
     driveRequest.HeadingController.setPID(rotationKP, rotationKI, rotationKD);
 
     this.targetHeading = targetHeading;
     this.rotationOffset = rotationOffset;
-    this.robotPosSup = robotPosSup;
+    this.robotPoseSup = robotPoseSup;
   }
 
   @Override
   public void execute()
   {
     motionXY = joystickSupplier.get();
-    robotXY = robotPosSup.get();
+    robotPose = robotPoseSup.get();
 
     updateTargetHeading();
     updateRotationPID();
@@ -73,8 +77,8 @@ public class HeadingLockedDrive extends SwerveCommandBase
     s_Swerve.setControl
     (
       driveRequest
-      .withVelocityX(motionXY.getX() * Swerve.maxSpeed)
-      .withVelocityY(motionXY.getY() * Swerve.maxSpeed)
+      .withVelocityX(motionXY.getX() * SwerveConstants.maxSpeed)
+      .withVelocityY(motionXY.getY() * SwerveConstants.maxSpeed)
       .withTargetDirection(targetHeading.plus(rotationOffset))
       .withHeadingPID(rotationKP, rotationKI, rotationKD)
     );
@@ -86,8 +90,8 @@ public class HeadingLockedDrive extends SwerveCommandBase
   /** Processing to dynamicaly update the heading PID */
   protected void updateRotationPID()
   {
-    rotationKP = Swerve.rotationKP;
-    rotationKI = Swerve.rotationKI;
-    rotationKD = Swerve.rotationKD;
+    rotationKP = SwerveConstants.rotationKP;
+    rotationKI = SwerveConstants.rotationKI;
+    rotationKD = SwerveConstants.rotationKD;
   }
 }

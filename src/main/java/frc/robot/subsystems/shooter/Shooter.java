@@ -1,11 +1,12 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.constants.Constants.Shooter.HoodConstants;
-import frc.robot.constants.Constants.Shooter.TurretConstants;
+import frc.robot.constants.Constants.ShooterConstants.HoodConstants;
+import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 
@@ -13,6 +14,10 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
+/**
+ * Turreted Shooter master-system, internally creates and manages associated subsystems
+ * @author 5985
+ */
 public class Shooter extends SubsystemBase 
 {  
   private final Flywheels flywheels; 
@@ -47,7 +52,8 @@ public class Shooter extends SubsystemBase
     int turretCAN,
     int azimuthIO,
     double azimuthOffset,
-    int hoodPWM
+    int hoodPWM,
+    boolean invertedHood
   ) 
   {
     this.swerveStateSup = swerveStateSup;
@@ -55,7 +61,7 @@ public class Shooter extends SubsystemBase
 
     flywheels = new Flywheels(flywheelLeaderCAN, flywheelFollowerCAN);
     turret = new Turret(turretCAN, azimuthIO, azimuthOffset);
-    hood = new Hood(hoodPWM);
+    hood = new Hood(hoodPWM, invertedHood);
   }
 
   /**
@@ -78,13 +84,17 @@ public class Shooter extends SubsystemBase
   public Command setFlySpeedCommand(double speed)
     {return runOnce(() -> flywheels.setSpeed(speed));}
 
+  /** @return Current robot-relative azimuth of the turret, degrees */
+  public Rotation2d getAzimuth()
+    {return new Rotation2d(turret.getAzimuth() - shooterOffset.getRotation().getDegrees());}
+
   /**
    * Trigger factory for whether we are in a valid state to be shooting. This requires that:
    * <ul>
    * <li> The turret is within {@link TurretConstants#azimuthTolerance azimuthTolerance} of it's target azimuth
    * <li> The hood is within {@link HoodConstants#altTolerance altTolerance} of it's target altitude
    * <li> The flywheels are at target speed, as per {@link Flywheels#atSpeed()}
-   * <li> The combined rotational velocity of the turret and the drivebase is less than {@link TurretConstants#maxRPM maxRPM}
+   * <li> The combined rotational velocity of the turret and the drivebase is less than {@link TurretConstants#maxRPS maxRPS}
    * </ul>
    * 
    * @return A {@link Trigger} encoding the above behaviour
@@ -96,7 +106,7 @@ public class Shooter extends SubsystemBase
         return Conversions.nearRotation(turret.getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance)
                 && hood.atAltitude()
                 && flywheels.atSpeed()
-                && (turret.getSpeed() + Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond)) < TurretConstants.maxRPM;
+                && (turret.getSpeed() + (Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond)/360)) < TurretConstants.maxRPS;
       });
   }
 
