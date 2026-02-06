@@ -8,9 +8,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Pathfinding.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
@@ -19,10 +17,9 @@ import frc.robot.util.Conversions;
  * A drive command for following pre-planned paths 
  * @author 5985
  */
-public class PathFollowDrive extends Command 
+public class PathFollowDrive extends SwerveCommandBase 
 {
   private final Supplier<SwerveDriveState> swerveStateSup;
-  private final CommandSwerveDrivetrain s_Swerve;
   private final SwerveRequest.ApplyRobotSpeeds driveRequest = new SwerveRequest.ApplyRobotSpeeds();    
 
   private final ArrayList<Pose2d> waypoints;
@@ -31,20 +28,16 @@ public class PathFollowDrive extends Command
   private boolean onPath = false;
   private int currentWaypoint = 0;
 
-  private Pose2d robotPose;
-
   /**
    * Creates a new PathFollowDrive to follow the given sequence
    * @param s_Swerve        Swervedrive subsystem
    * @param swerveStateSup  Swerve state supplier from Robot to avoid expensive calls to the swerve system
-   * @param pointRadius     Approach distance before switching to next point, metres
-   * @param targetRotation  Rotation for robot to face, applies over entire path
-   * @param targetSequence  List of Translation2d to navigate through, start to end
+   * @param path            Predefined path for command to follow
    */
   public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, Path path)
   {
+    super(s_Swerve, () -> Translation2d.kZero);
     this.swerveStateSup = swerveStateSup;
-    this.s_Swerve = s_Swerve;
 
     this.waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
     this.radiusPerSegment = new ArrayList<>(path.sequence().length - 1);
@@ -84,7 +77,7 @@ public class PathFollowDrive extends Command
   }
 
   @Override
-  public void initialize() 
+  public void initDriveConstraints() 
   {
     currentWaypoint = 0;
     onPath = false;
