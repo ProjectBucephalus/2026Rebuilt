@@ -7,11 +7,14 @@ import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.FieldObject;
 
 /** 
+ * 
  * @author 5985
  */
 public abstract class GeoFence extends FieldObject
 {
   // Inherits from FieldObject: T2D centre, double radius, double buffer, double checkRadius
+
+  // A list of object-relative attractors to check
   protected ArrayList<Attractor> attractors = new ArrayList<Attractor>();
 
   /**
@@ -26,20 +29,22 @@ public abstract class GeoFence extends FieldObject
     return this;
   }
 
+  /** Applies any contained attractors and then applies the geofencing */
   @Override
   public Translation2d process(Translation2d controlInput)
   {
     if (activeSupplier.getAsBoolean())
     {
-      Translation2d controlOutput;
       if (checkAttractors())
       {
-        controlOutput = processAttractors(controlInput);
+        var controlOutput = processAttractors(controlInput);
+        // If the attractors have not had any affect, we want to continue to the geofence checks rather than returning
         if (!controlOutput.equals(controlInput))
-          {return controlOutput;}
+          return controlOutput;
       }
+
       if (checkPosition())
-        {return dampMotion(controlInput);}
+        return dampMotion(controlInput);
     }
     
     return controlInput;
