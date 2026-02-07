@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import frc.robot.constants.Constants;
 
 /** 
@@ -118,7 +117,7 @@ public class Conversions
    * @param rotation heading, degrees
    */
   public static Pose2d buildPose(double x, double y, double rotation)
-    {return new Pose2d(x, y, new Rotation2d(Units.degreesToRadians(rotation)));}
+    {return new Pose2d(x, y, Rotation2d.fromDegrees(rotation));}
 
   /**
    * Checks if two poses are within {@link Constants.ControlConstants#lineupTolerance lineupTolerance} of each other translationally, 

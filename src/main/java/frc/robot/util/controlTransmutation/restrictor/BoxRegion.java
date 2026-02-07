@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /** 
+ * A rectangle shaped {@link Restrictor}
  * @author 5985
  */
 public class BoxRegion extends Restrictor 
@@ -14,25 +15,36 @@ public class BoxRegion extends Restrictor
   private double Xb;
   private double Yb;
 
-  public BoxRegion(double Xa, double Ya, double Xb, double Yb, double radius, double buffer)
+  /**
+   * Rectangle shaped restrictor
+   * @param xA X-coordinate of the first point
+   * @param yA Y-coordinate of the first point
+   * @param xB X-coordinate of the second point
+   * @param yB Y-coordinate of the second point
+   * @param radius Extra radius of restrictor zone around the box (produces a rounded rectangle shape)
+   * @param buffer Buffer around the object over which the speed is reduced
+   */
+  public BoxRegion(double xA, double yA, double xB, double yB, double radius, double buffer)
   {
-    this.Xa = Math.min(Xa, Xb);
-    this.Ya = Math.min(Ya, Yb);
-    this.Xb = Math.max(Xa, Xb);
-    this.Yb = Math.max(Ya, Yb);
+    super(new Translation2d((xA + xB)/2, (yA + yB)/2), radius, buffer);
 
-    this.radius = radius;
-    this.buffer = buffer;
+    this.Xa = Math.min(xA, xB);
+    this.Ya = Math.min(yA, yB);
+    this.Xb = Math.max(xA, xB);
+    this.Yb = Math.max(yA, yB);
 
-    centre = new Translation2d((Xa + Xb)/2, (Ya + Yb)/2);
-
-    checkRadius = (Math.hypot(Xb - Xa, Yb - Ya)/2) + radius + buffer;
+    checkRadius = (Math.hypot(xB - xA, yB - yA)/2) + radius + buffer;
   }
 
+  /**
+   * Rectangle shaped restrictor with minimum radius and buffer size
+   * @param xA X-coordinate of the first point
+   * @param yA Y-coordinate of the first point
+   * @param xB X-coordinate of the second point
+   * @param yB Y-coordinate of the second point
+   */
   public BoxRegion(double Xa, double Ya, double Xb, double Yb)
-  {
-    this(Xa, Ya, Xb, Yb, minRadius, minBuffer);
-  }
+    {this(Xa, Ya, Xb, Yb, minRadius, minBuffer);}
 
   @Override
   public double getDistance()
