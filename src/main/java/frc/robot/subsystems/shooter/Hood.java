@@ -2,12 +2,15 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 
 import frc.robot.constants.Constants.Interpolation;
 import static frc.robot.constants.Constants.ShooterConstants.HoodConstants.*;
+
+import java.util.function.Supplier;
 
 /**
  * Interface class for a Servo-driven shooter hood to control altitude.
@@ -16,16 +19,24 @@ import static frc.robot.constants.Constants.ShooterConstants.HoodConstants.*;
 public class Hood 
 {
   private final Servo m_Servo;
+  private final AnalogInput io_Altitude;
   private final boolean inverted;
+  private final Supplier<Target> targetSup;
+
 
   /**
    * Creates a Servo driven shooter hood, to be managed by {@link Shooter} master-system
-   * @param id PWM-ID of hood altitude servo
+   * @param servoID PWM-ID of hood altitude servo
+   * @param feedbackID AIO-ID of servo feedback sensor
+   * @param inverted Inverts the range and direction of motion of the servo
+   * @param targetSup Supplier for current Target object
    */
-  public Hood(int id, boolean inverted)
+  public Hood(int servoID, int feedbackID, boolean inverted, Supplier<Target> targetSup)
   {
-    m_Servo = new Servo(id);
+    m_Servo = new Servo(servoID);
+    io_Altitude = new AnalogInput(feedbackID);
     this.inverted = inverted;
+    this.targetSup = targetSup;
   }
 
   /**
@@ -45,7 +56,7 @@ public class Hood
    */
   public boolean atAltitude()
   {
-    // TODO If large changes are requested, estimate travel time assuming 1.5s to cover full range
+    // TODO Use analog feedback from servo, also return true if raw output is 0
     return true;
   }
 
@@ -54,17 +65,17 @@ public class Hood
    * Recalculate the target altitude and apply it to the motor
    * 
    * @param shooterPose the field-relative shooter pose
-   * @param target the current {@link Target}
    */
-  public void update(Pose2d shooterPose, Target target)
+  public void update(Pose2d shooterPose)
   {
+    var target = targetSup.get();
     // Update the azimuth stored in the target based on the target state
     // Ensures that changing to manual mode doesn't cause sudden motion
     target.altitude = switch (target.state) 
     {
       case Manual -> target.altitude;
-      case Point -> Interpolation.shooterAltitudeLow.get(calculateTargetDist(shooterPose, target.point));
-      case Hub -> Interpolation.shooterAltitudeHub.get(calculateTargetDist(shooterPose, FieldUtils.getAllianceHubCentre()));
+      case Point -> Interpolation.shooterAltitudeLow.get(calculateTargetDist(shooterPose, target.point.plus(target.offset)));
+      case Hub -> Interpolation.shooterAltitudeHub.get(calculateTargetDist(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset)));
     };
 
     // Limit the target altitude to within the hood's range of motion

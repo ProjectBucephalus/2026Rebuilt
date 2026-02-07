@@ -31,19 +31,29 @@ public final class IDConstants
   /* Mechanism */
   /* --------- */
 
+  public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int azimuthAIO, int altitudePWM, int altitudeAIO){}
+
   /* Port Turret, [16..18], PWM/AIO [0] */
-  public static final int portFlyLeaderCAN = 16;
-  public static final int portFlyFollowerCAN = 17;
-  public static final int portTurretCAN = 18;
-  public static final int portPotIO = 0;
-  public static final int portHoodPWM = 0;
+  public static final ShooterIDs portShooterIDs = new ShooterIDs
+  (
+    16,
+    17,
+    18,
+    0,
+    0,
+    1
+  );
 
   /* Stbd Turret, [20..22], PWM/AIO [1] */
-  public static final int stbdFlyLeaderCAN = 20;
-  public static final int stbdFlyFollowerCAN = 21;
-  public static final int stbdTurretCAN = 22;
-  public static final int stbdPotIO = 1;
-  public static final int stbdHoodPWM = 1;
+  public static final ShooterIDs stbdShooterIDs = new ShooterIDs
+  (
+    20,
+    21,
+    22,
+    2,
+    1,
+    3
+  );
 
   /* Feeder, [24] */
   public static final int feederCAN = 24;

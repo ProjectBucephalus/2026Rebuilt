@@ -82,24 +82,16 @@ public class Robot extends TimedRobot
     (
       () -> swerveState,
       ShooterConstants.portShooterOffset,
-      IDConstants.portFlyLeaderCAN, 
-      IDConstants.portFlyFollowerCAN, 
-      IDConstants.portTurretCAN,
-      IDConstants.portPotIO,
+      IDConstants.portShooterIDs,
       ShooterConstants.TurretConstants.portPotOffset,
-      IDConstants.portHoodPWM,
       false // TODO confirm
     );
   private final Shooter s_StbdShooter = new Shooter
     (
       () -> swerveState,
       ShooterConstants.stbdShooterOffset,
-      IDConstants.stbdFlyLeaderCAN, 
-      IDConstants.stbdFlyFollowerCAN, 
-      IDConstants.stbdTurretCAN,
-      IDConstants.stbdPotIO,
+      IDConstants.stbdShooterIDs,
       ShooterConstants.TurretConstants.stbdPotOffset,
-      IDConstants.stbdHoodPWM,
       true // TODO confirm
     );
   private final Vision s_Vision = new Vision
