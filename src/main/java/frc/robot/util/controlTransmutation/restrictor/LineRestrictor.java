@@ -8,7 +8,7 @@ import frc.robot.util.Conversions;
  * Due to having no area, has no active zone. Used purely as a distance check
  * @author 5985
  */
-public class LineRegion extends Restrictor
+public class LineRestrictor extends Restrictor
 {
   private Translation2d pointA;
   private Translation2d pointB;    
@@ -31,7 +31,7 @@ public class LineRegion extends Restrictor
    * @param pointA The first point TODO ordering
    * @param pointB The second point
    */
-  public LineRegion(Translation2d pointA, Translation2d pointB)
+  public LineRestrictor(Translation2d pointA, Translation2d pointB)
   {
     this.pointA = pointA;
     this.pointB = pointB;

@@ -8,7 +8,7 @@ import static frc.robot.constants.FieldConstants.GeoFencing.*;
  * A rectangle shaped {@link Restrictor}
  * @author 5985
  */
-public class BoxRegion extends Restrictor 
+public class BoxRestrictor extends Restrictor 
 {
   private double Xa;
   private double Ya;
@@ -24,7 +24,7 @@ public class BoxRegion extends Restrictor
    * @param radius Extra radius of restrictor zone around the box (produces a rounded rectangle shape)
    * @param buffer Buffer around the object over which the speed is reduced
    */
-  public BoxRegion(double xA, double yA, double xB, double yB, double radius, double buffer)
+  public BoxRestrictor(double xA, double yA, double xB, double yB, double radius, double buffer)
   {
     super(new Translation2d((xA + xB)/2, (yA + yB)/2), radius, buffer);
 
@@ -43,7 +43,7 @@ public class BoxRegion extends Restrictor
    * @param xB X-coordinate of the second point
    * @param yB Y-coordinate of the second point
    */
-  public BoxRegion(double Xa, double Ya, double Xb, double Yb)
+  public BoxRestrictor(double Xa, double Ya, double Xb, double Yb)
     {this(Xa, Ya, Xb, Yb, minRadius, minBuffer);}
 
   @Override

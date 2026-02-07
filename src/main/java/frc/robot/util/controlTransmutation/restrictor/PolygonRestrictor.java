@@ -14,9 +14,9 @@ import static frc.robot.constants.FieldConstants.GeoFencing.*;
  * A polygon shaped restrictor
  * @author 5985
  */
-public class PolygonRegion extends Restrictor 
+public class PolygonRestrictor extends Restrictor 
 {
-  private LineRegion[] polygonLines;
+  private LineRestrictor[] polygonLines;
   
   /**
    * Polygon shaped restrictor
@@ -27,7 +27,7 @@ public class PolygonRegion extends Restrictor
    * @param theta Rotation of the polygon. Zero means a point will be facing north
    * @param sides Side count of the polygon
    */
-  public PolygonRegion(double x, double y, double radius, double buffer, double theta, int sides)
+  public PolygonRestrictor(double x, double y, double radius, double buffer, double theta, int sides)
   {
     // Constraining inputs
     radius = Math.max(radius, minRadius);
@@ -51,7 +51,7 @@ public class PolygonRegion extends Restrictor
       .toList();
     
     for (int i = 0; i < sides; i++)
-      polygonLines[i] = new LineRegion(polygonPoints.get(i), polygonPoints.get(i + 1));
+      polygonLines[i] = new LineRestrictor(polygonPoints.get(i), polygonPoints.get(i + 1));
 
     /* 
     * Convert the circumscribed radius (centre-corner) to the inscribed radius (centre-edge)
@@ -71,7 +71,7 @@ public class PolygonRegion extends Restrictor
     {return nearestLine().getDirectionalDistance();}
 
   /** @return The nearest line of the polygon */
-  private LineRegion nearestLine()
+  private LineRestrictor nearestLine()
   {
     return Arrays
       .stream(polygonLines)
