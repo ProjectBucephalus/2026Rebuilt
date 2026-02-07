@@ -36,7 +36,7 @@ public class Shooter extends SubsystemBase
   private SwerveDriveState swerveState;
 
   /** Current active target for the shooter */
-  private Target target = new Target(TargetState.Hub);
+  private Target target = new Target(TargetState.Manual);
 
   /**
    * Creates Turreted Shooter master-system, internally creates and manages associated subsystems
@@ -81,6 +81,17 @@ public class Shooter extends SubsystemBase
     {return runOnce(() -> this.target = target);}
 
   /**
+   * Sets the manual position of the turret
+   * @param azimuth Turret azimuth, degrees
+   * @param altitude Hood altitude, degrees
+   */
+  public void setManual(double azimuth, double altitude)
+  {
+    target.azimuth = azimuth;
+    target.altitude = altitude;
+  }
+
+  /**
    * Construct a command that sets the speed for the Flywheels <p>
    * NOTE: The provided value is only evaluated when the command is created
    * 
@@ -89,6 +100,9 @@ public class Shooter extends SubsystemBase
    */
   public Command setFlySpeedCommand(double speed)
     {return runOnce(() -> flywheels.setSpeed(speed));}
+
+  public void setFlySpeed(double speed)
+  {flywheels.setSpeed(speed);}
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public Rotation2d getAzimuth()

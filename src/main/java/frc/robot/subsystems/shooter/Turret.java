@@ -3,6 +3,7 @@ package frc.robot.subsystems.shooter;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
+import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
@@ -131,6 +132,7 @@ public class Turret
    */
   public void update(Pose2d shooterPose, double robotDegreesPerSecond)
   {
+    calibrate();
     var target = targetSup.get();
     // Update the azimuth stored in the target based on the target state
     // Ensures that changing to manual mode doesn't cause sudden motion
@@ -143,5 +145,7 @@ public class Turret
     };
 
     m_Turret.setControl(request.withPosition(target.azimuth / 360));
+
+    PBDash.putDouble("Turret Az",getAzimuth());
   }   
 }

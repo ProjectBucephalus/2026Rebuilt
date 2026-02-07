@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -210,61 +211,12 @@ public class Robot extends TimedRobot
       )
     );
 
-    bumpNB.asTrigger()
-      .or(bumpSB.asTrigger())
-      .or(bumpNR.asTrigger())
-      .or(bumpSR.asTrigger())
-      .whileTrue
-      (
-        new NonCardinalDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput, 
-          () -> -driver.getRightX(), 
-          driver::getRightTriggerAxis, 
-          () -> swerveState.Pose.getRotation(), 
-          bumpRotationTolerance
-        )
-      );
-
-    /* Setting Drive States */
-    driver.povLeft().onTrue(runOnce(() -> currentTarget = TargetPosition.Left));
-    driver.povRight().onTrue(runOnce(() -> currentTarget = TargetPosition.Right));
-    driver.povUp().onTrue(runOnce(() -> currentTarget = TargetPosition.Centre));
-    driver.povDown().onTrue(runOnce(() -> currentTarget = TargetPosition.None));
-    
-    driver.x().onTrue
-    (
-      new PathFollowDrive
-      (
-        s_Swerve, 
-        () -> this.swerveState,
-        Pathfinding.testPath
-      )
-    );
-
-    /* Heading Locking */
-    new Trigger(() -> currentDriveState == DriveState.None)
-      .whileTrue
-      (
-        new ManualDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          () -> -driver.getRightX(),
-          driver::getRightTriggerAxis
-        )
-      );
-    
-    /* Other */
-    new Trigger(PBDash.LL_EXPOSURE_UP::button).onTrue(runOnce(s_Vision::incrementPipeline));
-    new Trigger(PBDash.LL_EXPOSURE_DOWN::button).onTrue(runOnce(s_Vision::decrementPipeline));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
   private void bindRumbles()
   {
-    io_operatorRight.addRumbleTrigger("ScoreReady", new Trigger(() -> false)); // EXAMPLE
+
   }
 
   /* UTIL METHODS */
@@ -319,4 +271,14 @@ public class Robot extends TimedRobot
 
   @Override
   public void testInit() {CommandScheduler.getInstance().cancelAll();}
+
+  @Override
+  public void testPeriodic()
+  {
+    s_PortShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
+    if (driver.leftBumper().getAsBoolean())
+    {
+      s_PortShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
+    }
+  }
 }

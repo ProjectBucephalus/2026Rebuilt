@@ -152,7 +152,7 @@ public final class Constants
       /** Angle range of servo given input of [0..1], degrees anticlockwise */
       public static final double servoRange = 250;
       /** Range of motion of hood, degrees */
-      public static final double hoodRange = 25;
+      public static final double hoodRange = 19;
 
       public static final double servoGear = 20;
       public static final double hoodGear = 193;
