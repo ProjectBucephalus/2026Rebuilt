@@ -121,8 +121,8 @@ public final class Constants
       {
         flywheelConfig.Feedback.SensorToMechanismRatio = mainWheelBeltRatio;
 
-        flywheelConfig.Slot0.kS = 0.2;
-        flywheelConfig.Slot0.kV = 0.08;
+        flywheelConfig.Slot0.kS = 0.26;
+        flywheelConfig.Slot0.kV = 0.1;
         flywheelConfig.Slot0.kA = 0.0;
         flywheelConfig.Slot0.kP = 0.0;
         flywheelConfig.Slot0.kI = 0.0;
@@ -133,11 +133,11 @@ public final class Constants
       }
 
       /** Target flywheel speed when idle, mechanism rps */
-      public static final double idleSpeed = 30;
+      public static final double idleSpeed = 20;
       /** Target flywheel speed for shooting, mechanism rps */
-      public static final double revSpeed = 100;
+      public static final double revSpeed = 40;
       /** Allowed variation in flywheel speed for shooting, rps */
-      public static final double flySpeedTolerance = 5;
+      public static final double flySpeedTolerance = 1;
 
       //simulation
       public static final double kGearRatio = 10.0;

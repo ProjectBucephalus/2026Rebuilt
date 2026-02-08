@@ -103,6 +103,8 @@ public class Shooter extends SubsystemBase
 
   public void setFlySpeed(double speed)
   {flywheels.setSpeed(speed);}
+  public void setFlyVoltage(double speed)
+  {flywheels.setVoltage(speed);}
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public Rotation2d getAzimuth()
@@ -162,5 +164,6 @@ public class Shooter extends SubsystemBase
 
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update(shooterPose);
+    flywheels.update();
   }
 }

@@ -35,6 +35,7 @@ public class Flywheels
     m_Follower = new TalonFX(followerCAN);
 
     m_Leader.getConfigurator().apply(flywheelConfig);
+    m_Follower.getConfigurator().apply(flywheelConfig);
 
     m_Follower.setControl(new Follower(leaderCAN, MotorAlignmentValue.Opposed));
   }
@@ -62,5 +63,10 @@ public class Flywheels
   {
     PBDash.putDouble("Flywheel Speed",m_Leader.getVelocity().getValueAsDouble());
     PBDash.putDouble("Flywheel Temp",m_Leader.getAncillaryDeviceTemp().getValueAsDouble());
+  }
+
+  public void setVoltage(double voltage)
+  {
+    m_Leader.setVoltage(voltage);
   }
 }

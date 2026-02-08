@@ -85,16 +85,16 @@ public class Robot extends TimedRobot
       ShooterConstants.portShooterOffset,
       IDConstants.portShooterIDs,
       ShooterConstants.TurretConstants.portPotOffset,
-      false // TODO confirm
+      true // TODO confirm
     );
-  private final Shooter s_StbdShooter = new Shooter
+  /*private final Shooter s_StbdShooter = new Shooter
     (
       () -> swerveState,
       ShooterConstants.stbdShooterOffset,
       IDConstants.stbdShooterIDs,
       ShooterConstants.TurretConstants.stbdPotOffset,
-      true // TODO confirm
-    );
+      false // TODO confirm
+    );*/
   private final Vision s_Vision = new Vision
   (
     (poseEst, timestmp, stdDevs) -> 
@@ -103,8 +103,8 @@ public class Robot extends TimedRobot
       s_Swerve.addVisionMeasurement(poseEst, timestmp);
     },
     () -> swerveState.Speeds.omegaRadiansPerSecond,
-    new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
-    new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
+    new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset)//, 
+    //new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
   );
 
   private final LinearExtension s_Climber = new LinearExtension
@@ -270,15 +270,22 @@ public class Robot extends TimedRobot
   }
 
   @Override
-  public void testInit() {CommandScheduler.getInstance().cancelAll();}
+  public void testInit() 
+  {
+    CommandScheduler.getInstance().cancelAll();
+    PBDash.putDouble("Test Azimuth", 0);
+    PBDash.putDouble("Test Altitude", 0);
+    PBDash.putDouble("Test Flyspeed", 0);
+  }
 
   @Override
   public void testPeriodic()
   {
     s_PortShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
-    if (driver.leftBumper().getAsBoolean())
+    //if (driver.leftBumper().getAsBoolean())
     {
       s_PortShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
     }
+
   }
 }
