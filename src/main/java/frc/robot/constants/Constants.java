@@ -47,7 +47,7 @@ public final class Constants
     public static final double rotationKP = 6;
     public static final double rotationKI = 0;
     public static final double rotationKD = 0;
-    
+
     /* Rotation Control PID Values when holding Algae */
     public static final double rotationKPAlgae = 5;
     public static final double rotationKIAlgae = 0;
@@ -78,13 +78,13 @@ public final class Constants
     public static final double revSpeed = 0.0;
     public static final double leliency = 0.0;
 
-    //simulation
-    public static final double kGearRatio = 10.0;
-    public static final double kMOI = 0.001; 
-  }
+      //simulation
+      public static final double kGearRatio = 10.0;
+      public static final double kMOI = 0.001; 
+    }
 
   public static final class Vision
-  {
+    {
     /* public static final int[] validIDs = 
     {
       //1, 2, 3,               // Red Human Player Stations
@@ -140,7 +140,7 @@ public final class Constants
     };
 
     public static final int[] allIDs;
-    static 
+    static
     {
       allIDs = new int[hubIDs.length + towerIDs.length + outpostIDs.length + trenchIDs.length];
 
@@ -176,7 +176,7 @@ public static final class Turret
       put(0.0, 0.0);
       put(0.25, 0.25);
     }};
-
+    
     public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
     {{
       put(0.0, 0.0);
@@ -194,10 +194,5 @@ public static final class Turret
       put(0.0, 0.0);
       put(0.25, 0.25);
     }}; 
-  }
-
-  public static final class LEDConstants 
-  {
-    public static final int LEDStripLen = 120;
   }
 }

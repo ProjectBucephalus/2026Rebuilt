@@ -8,17 +8,20 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 /**
  * Virtual objects on the field for changing inputs based on robot position
+ * @author 5985
  */
-public abstract class FieldObject extends InputTransmuter
+public abstract class FieldObject implements InputTransmuter
 {
   /** Global supplier of robot position */
   protected static Supplier<Translation2d> robotPosSup;
-  /** Global value of robot position */
+  /** Global cached value of robot position */
   protected static Translation2d robotPos;
+
   /** Global supplier of effective robot radius */
   protected static DoubleSupplier robotRadiusSup;
-  /** Global value of effective robot radius */
+  /** Global cached value of effective robot radius */
   protected static double robotRadius;
+
   /** Object centrepoint, metres */
   protected Translation2d centre;
   /** Radius of the object from the centre/lines, metres */
@@ -37,22 +40,21 @@ public abstract class FieldObject extends InputTransmuter
   public static void setRobotPosSup(Supplier<Translation2d> robotPosSupplier)
   {
     robotPosSup = robotPosSupplier;
+    fetchRobotValues();
   }
-  
-  /** Pulls the robot position from the supplier into the global value for all field objects */
-  public static void fetchRobotPos()
-  {
-    robotPos = robotPosSup.get();
-    robotRadius = robotRadiusSup.getAsDouble();
-  }
-  
+
   /**
    * Sets the global robot radius supplier for all field objects
    * @param robotRadiusSupplier Translation2d Supplier for the effective robot radius
    */
   public static void setRobotRadiusSup(DoubleSupplier robotRadiusSupplier)
+    {robotRadiusSup = robotRadiusSupplier;}
+  
+  /** Pulls the robot radius and position from the suppliers into the global values for all field objects */
+  public static void fetchRobotValues()
   {
-    robotRadiusSup = robotRadiusSupplier;
+    robotPos = robotPosSup.get();
+    robotRadius = robotRadiusSup.getAsDouble();
   }
 
   /**
@@ -69,9 +71,7 @@ public abstract class FieldObject extends InputTransmuter
    * @return XY of the centre of the object, metres
    */
   public Translation2d getCentre()
-  {
-    return centre;
-  }
+    {return centre;}
 
   /**
    * Runs minimum necessary checks on the robot position before running more intense processing

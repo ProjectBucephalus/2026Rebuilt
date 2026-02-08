@@ -14,10 +14,10 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.PBDash;
 
 /** 
- * Swerve drive interface for full manual control 
+ * A drive command for rotating about a point other than robot-centre 
  * @author 5985
  */
-public class ManualDrive extends SwerveCommandBase 
+public class OffsetDrive extends SwerveCommandBase 
 {
   protected DoubleSupplier rotationSup;
   protected double rotationVal;
@@ -29,17 +29,19 @@ public class ManualDrive extends SwerveCommandBase
     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
   /**
-   * Creates a basic Manual drive command
-   * @param s_Swerve Drivebase subsystem
-   * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
-   * @param rotationSup Rotation input from joystick, [-1..1]
-   * @param brakeSup Brake axis input for rotation, [0..1]
+   * Creates a new OffsetDrive
+   * @param s_Swerve Swerve subsystem
+   * @param joystickSupplier Joystick translation input, T2d [-1..1]
+   * @param rotationSup Joystick rotation input, [-1..1]
+   * @param brakeSup Brake axis input, [0..1]
+   * @param centreOffset Offset from centre of drivebase to centre of rotation, metres Fore/Port
    */
-  public ManualDrive(CommandSwerveDrivetrain s_Swerve, Supplier<Translation2d> joystickSupplier, DoubleSupplier rotationSup, DoubleSupplier brakeSup) 
+  public OffsetDrive(CommandSwerveDrivetrain s_Swerve, Supplier<Translation2d> joystickSupplier, DoubleSupplier rotationSup, DoubleSupplier brakeSup, Translation2d centreOffset) 
   {
     super(s_Swerve, joystickSupplier);
     this.rotationSup = rotationSup;
     this.brakeSup = brakeSup;
+    driveRequest.withCenterOfRotation(centreOffset);
   }
 
   @Override

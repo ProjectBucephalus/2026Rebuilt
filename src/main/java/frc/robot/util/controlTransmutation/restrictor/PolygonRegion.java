@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.util.controlTransmutation.restrictor;
 
 import java.util.ArrayList;
@@ -9,17 +5,19 @@ import java.util.ArrayList;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
-import frc.robot.util.controlTransmutation.Restrictor;
+
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
-/** Add your docs here. */
-public class Polygon extends Restrictor 
+/** 
+ * @author 5985
+ */
+public class PolygonRegion extends Restrictor 
 {
-  private ArrayList<Line> polygonLines;
+  private ArrayList<LineRegion> polygonLines;
   
-  public Polygon(double X, double Y, double radius, double buffer, double theta, int sides, double localSpeedLimit)
+  public PolygonRegion(double X, double Y, double radius, double buffer, double theta, int sides, double localSpeedLimit)
   {
-    polygonLines = new ArrayList<Line>();
+    polygonLines = new ArrayList<LineRegion>();
 
     centre = new Translation2d(X,Y);
 
@@ -42,7 +40,7 @@ public class Polygon extends Restrictor
     for (int i = 0; i < sides; i++)
     {
       polygonLines.add
-      (i, new Line
+      (i, new LineRegion
         (
           polygonPoints[i],
           polygonPoints[i+1]
@@ -67,7 +65,7 @@ public class Polygon extends Restrictor
     return nearestLine().getDirectionalDistance();
   }
 
-  private Line nearestLine()
+  private LineRegion nearestLine()
   {
     int index = 0;
     double minDistance = polygonLines.get(0).getCentre().getDistance(robotPos);

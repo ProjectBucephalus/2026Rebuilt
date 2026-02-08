@@ -1,10 +1,14 @@
-package frc.robot.util.controlTransmutation;
+package frc.robot.util.controlTransmutation.geoFence;
 
 import java.util.ArrayList;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
+import frc.robot.util.controlTransmutation.Attractor;
+import frc.robot.util.controlTransmutation.FieldObject;
 
-/** Add your docs here. */
+/** 
+ * @author 5985
+ */
 public abstract class GeoFence extends FieldObject
 {
   // Inherits from FieldObject: T2D centre, double radius, double buffer, double checkRadius
@@ -17,10 +21,8 @@ public abstract class GeoFence extends FieldObject
    */
   public GeoFence addAttractors(Attractor ...newAttractors)
   {
-    for (int i = 0; i < newAttractors.length; i++)
-    {
-      attractors.add(newAttractors[i]);
-    }
+    for (var attractor : newAttractors)
+      attractors.add(attractor);
     return this;
   }
 
@@ -49,14 +51,9 @@ public abstract class GeoFence extends FieldObject
    */
   public boolean checkAttractors()
   {
-    if (attractors.size() > 0)
-    {
-      for (int i = 0; i < attractors.size(); i++)
-      {
-        if (attractors.get(i).checkPosition())
-          {return true;}
-      }
-    }
+    for (var attractor : attractors)
+      if (attractor.checkPosition())
+        return true;
 
     return false;
   }
@@ -69,18 +66,19 @@ public abstract class GeoFence extends FieldObject
   public Translation2d processAttractors(Translation2d controlInput)
   {
     double distance = 100;
-    int index = 0;
+    var closest = attractors.get(0);
 
-    for (int i = 0; i < attractors.size(); i++)
+    for (var attractor : attractors)
+    {
+      double currentDistance = attractor.getDistance();
+      if (attractor.checkAngle(controlInput) && currentDistance < distance)
       {
-        if (attractors.get(i).checkAngle(controlInput) && attractors.get(i).getDistance() < distance)
-        {
-          distance = attractors.get(i).getDistance();
-          index = i;
-        }
+        distance = currentDistance;
+        closest = attractor;
       }
+    }
 
-    return attractors.get(index).process(controlInput);
+    return closest.process(controlInput);
   }
   
   /**

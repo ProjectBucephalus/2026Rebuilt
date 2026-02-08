@@ -1,15 +1,12 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.util.controlTransmutation.restrictor;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
-import frc.robot.util.controlTransmutation.Restrictor;
 
-/** Add your docs here. */
-public class Line extends Restrictor
+/** 
+ * @author 5985
+ */
+public class LineRegion extends Restrictor
 {
   private Translation2d pointA;
   private Translation2d pointB;    
@@ -26,7 +23,7 @@ public class Line extends Restrictor
   private double dotXY;
   
 
-  public Line(Translation2d pointA, Translation2d pointB)
+  public LineRegion(Translation2d pointA, Translation2d pointB)
   {
     this.pointA = pointA;
     this.pointB = pointB;

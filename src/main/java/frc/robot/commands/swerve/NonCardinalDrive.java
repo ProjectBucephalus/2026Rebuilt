@@ -1,0 +1,114 @@
+package frc.robot.commands.swerve;
+
+import java.util.Optional;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.SwerveConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.util.Conversions;
+import frc.robot.util.PBDash;
+
+/** 
+ * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned 
+ * @author 5985
+ */
+public class NonCardinalDrive extends SwerveCommandBase 
+{
+  private final PIDController thetaController = new PIDController(0.02, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
+
+  protected DoubleSupplier rotationSup;
+  protected double rotationVal;
+  protected DoubleSupplier brakeSup;
+  private final double tolerance;
+  private final Supplier<Rotation2d> robotRotationSup;
+
+  protected final SwerveRequest.FieldCentric driveRequest = new SwerveRequest
+    .FieldCentric() 
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+    .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+
+  /**
+   * Creates a basic Manual drive command
+   * @param s_Swerve Drivebase subsystem
+   * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
+   * @param rotationSup Rotation input from joystick, [-1..1]
+   * @param brakeSup Brake axis input for rotation, [0..1]
+   * @param robotRotationSup Supplier for current robot rotation
+   * @param tolerance Minimum allowed angle away from cardinal, degrees
+   */
+  public NonCardinalDrive
+  (
+    CommandSwerveDrivetrain s_Swerve, 
+    Supplier<Translation2d> joystickSupplier, 
+    DoubleSupplier rotationSup, 
+    DoubleSupplier brakeSup, 
+    Supplier<Rotation2d> robotRotationSup,
+    double tolerance
+  ) 
+  {
+    super(s_Swerve, joystickSupplier);
+    this.rotationSup = rotationSup;
+    this.brakeSup = brakeSup;
+    this.tolerance = tolerance;
+    this.robotRotationSup = robotRotationSup;
+  }
+
+  @Override
+  public void execute()
+  {
+    motionXY = joystickSupplier.get();
+
+    /* Get and process Rotation input */
+    rotationVal = rotationSup.getAsDouble();
+
+    double robotRotation = robotRotationSup.get().getDegrees();
+
+    // Rotation stick not being actively controlled
+    if (Math.abs(rotationVal) <= deadband) 
+    {
+      // Wrap the robot's rotation to [0..90) (effectively, clockwise degrees past previous cardinal) 
+      double wrappedRotation = Conversions.mod(robotRotation, 90);
+
+      // If we're less than tolerance past the previous cardinal, rotate to be tolerance past it
+      if (wrappedRotation < tolerance)
+      {
+        double error = tolerance - wrappedRotation;
+        double targetRotation = robotRotation + error;
+        rotationVal = thetaController.calculate(robotRotation, targetRotation);
+      }
+      // If we're less than tolerance before the next cardinal, rotate to be tolerance before it
+      else if (wrappedRotation > 90 - tolerance)
+      {
+        double error = wrappedRotation - (90 - tolerance);
+        double targetRotation = robotRotation - error;
+        rotationVal = thetaController.calculate(robotRotation, targetRotation);
+      }
+      // If not close to cardinal, don't change rotation
+      else
+        rotationVal = 0;
+    }
+    else
+      {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
+
+    if (motionXY.getX() != 0 || motionXY.getY() != 0)
+      {PBDash.STATE_DRIVE.put("Manual");}
+
+    s_Swerve.setControl
+    (
+      driveRequest
+      .withVelocityX(motionXY.getX() * SwerveConstants.maxSpeed)
+      .withVelocityY(motionXY.getY() * SwerveConstants.maxSpeed)
+      .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
+    );
+  }
+}

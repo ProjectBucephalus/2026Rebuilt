@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.constants.IDConstants;
-import frc.robot.constants.Constants.LEDConstants;
+//import frc.robot.constants.Constants.LEDConstants;
 import frc.robot.util.LEDs.Sections.LEDSection;
 
 import java.util.ArrayList;
@@ -22,9 +22,19 @@ public class LEDS extends SubsystemBase
     public LEDS()
     {
         LEDStrip = new AddressableLED(IDConstants.LEDPWDPort);
-        LEDBuffer = new AddressableLEDBuffer(LEDConstants.LEDStripLen);
-        LEDStrip.setLength(LEDConstants.LEDStripLen);
+//        LEDBuffer = new AddressableLEDBuffer(LEDConstants.LEDStripLen);
+//        LEDStrip.setLength(LEDConstants.LEDStripLen);
         LEDStrip.start();
+    }
+
+    public void registerSection(LEDSection newSection)
+    {
+        sectionList.add(newSection);
+    }
+
+    public void removeSection(int index)
+    {
+        sectionList.remove(index);
     }
 
     //TODO: register section method and remove section method (names?)
@@ -36,7 +46,10 @@ public class LEDS extends SubsystemBase
         sectionList.sort(Comparator.comparing(LEDSection::getPriority));
         for (LEDSection section : sectionList)
         {
-            LEDBuffer = section.render(LEDBuffer);
+            if (section.getPriority() > 0)
+            {
+                LEDBuffer = section.render(LEDBuffer);
+            }
         }
         LEDStrip.setData(LEDBuffer);
     }

@@ -1,22 +1,20 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.util.controlTransmutation.restrictor;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.util.controlTransmutation.Restrictor;
+
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
-/** Add your docs here. */
-public class Box extends Restrictor 
+/** 
+ * @author 5985
+ */
+public class BoxRegion extends Restrictor 
 {
   private double Xa;
   private double Ya;
   private double Xb;
   private double Yb;
 
-  public Box(double Xa, double Ya, double Xb, double Yb, double radius, double buffer)
+  public BoxRegion(double Xa, double Ya, double Xb, double Yb, double radius, double buffer)
   {
     this.Xa = Math.min(Xa, Xb);
     this.Ya = Math.min(Ya, Yb);
@@ -31,7 +29,7 @@ public class Box extends Restrictor
     checkRadius = (Math.hypot(Xb - Xa, Yb - Ya)/2) + radius + buffer;
   }
 
-  public Box(double Xa, double Ya, double Xb, double Yb)
+  public BoxRegion(double Xa, double Ya, double Xb, double Yb)
   {
     this(Xa, Ya, Xb, Yb, minRadius, minBuffer);
   }

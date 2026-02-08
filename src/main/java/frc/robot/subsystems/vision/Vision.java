@@ -1,156 +1,124 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems.vision;
 
-import java.util.ArrayList;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.PBDash;
+import static frc.robot.constants.Constants.VisionConstants.*;
 
-import frc.robot.Robot;
-import frc.robot.util.SD;
-import static frc.robot.constants.Constants.Vision.*;
-
+/** 
+ * Computer-vision localisation master-system to manage multiple photon or limelight cameras 
+ * @author 5985
+ */
 public class Vision extends SubsystemBase 
 {
-  public enum TagPOI {ALL, HUB, TOWER, OUTPOST, TRENCH}
-  
   private final PoseEstimateConsumer estimateConsumer;
-  private final Supplier<Pair<Double, Double>> rotationDataSup;
+  private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
+  /** Timestamp of last good pose estimate, seconds, -1 on initialisation */
+  double lastGoodPose = -1; 
+  /** Time since last good pose estimate, seconds */
+  double timeSince = 0; 
+  /** True only while there is a recent valid pose estimate */
+  boolean havePoseFromVision = false;
 
-  private int pipelineIndex = (int)SD.LL_EXPOSURE.defaultValue();
+  private int pipelineIndex = PBDash.LL_EXPOSURE.defaultVal();
 
-  private ArrayList<Double> rotationBuf = new ArrayList<Double>();
-  private boolean rotationKnown = false;
-  private boolean lastCycleRotationKnown = false;
-
-  /** Creates a new Vision. */
-  public Vision(PoseEstimateConsumer estimateConsumer, Supplier<Pair<Double, Double>> rotationDataSup, Limelight... lls) 
+  /**
+   * Creates a vision master-system to manage the provided cameras
+   * @param estimateConsumer Link into drivebase to update localisation
+   * @param rpsSup Supplier for robot rate of rotation, radians per second
+   * @param lls List of limelight or photon cameras
+   */
+  public Vision(PoseEstimateConsumer estimateConsumer, Supplier<Double> rpsSup, Limelight... lls) 
   {
     this.estimateConsumer = estimateConsumer;
-    this.rotationDataSup = rotationDataSup;
+    this.rpsSup = rpsSup;
     this.lls = lls;
-    setActivePOI(TagPOI.ALL);
   }
 
-  public void setActivePOI(TagPOI activePOI) 
-  {
-    var validIDs = switch (activePOI) 
-    {
-      case ALL -> allIDs;
-      case HUB -> hubIDs;
-      case TOWER -> towerIDs;
-      case OUTPOST -> outpostIDs;
-      case TRENCH -> trenchIDs;
-    };
-
-    for (var ll : lls) ll.updateValidIDs(validIDs);
-  }
-
+  /** Increments all camera pipelines in range [0..7] */
   public void incrementPipeline() 
   {
     pipelineIndex = MathUtil.clamp(pipelineIndex + 1, 0, 7);
     for (var ll : lls) {ll.updatePipeline(pipelineIndex);}
-    SD.LL_EXPOSURE.put((double)pipelineIndex);
+    PBDash.LL_EXPOSURE.put(pipelineIndex);
   }
 
+  /** Decrements all camera pipelines in range [0..7] */
   public void decrementPipeline()
   {
     pipelineIndex = MathUtil.clamp(pipelineIndex - 1, 0, 7);
     for (var ll : lls) {ll.updatePipeline(pipelineIndex);}
-    SD.LL_EXPOSURE.put((double)pipelineIndex);
+    PBDash.LL_EXPOSURE.put(pipelineIndex);
   }
-
-  public void resetRotation() {rotationKnown = false;}
 
   @Override
   public void periodic() 
   {
-    if (SD.LL_TOGGLE.get()) 
+    if (PBDash.LL_TOGGLE.get()) 
     {
       for (var ll : lls)
       {
-        var rotationData = rotationDataSup.get();
-        double heading = rotationData.getFirst();
-        double omegaRps = rotationData.getSecond();
+        ll.update();
 
-        var mt2 = ll.getMT2(heading);
-        
-        boolean useUpdate = !(mt2 == null || mt2.tagCount == 0 || omegaRps > 2.0);
-        
-        if (useUpdate) 
+        // Pose estimate returns Optional, so may or may not be present
+        var maybeEst = ll.getPhotonEst();
+
+        if (maybeEst.isPresent()) 
         {
-          double stdDevFactor = Math.pow(mt2.avgTagDist, 2.0) / mt2.tagCount;
-
-          double linearStdDev = linearStdDevBaseline * stdDevFactor;
-          double rotStdDev = rotStdDevBaseline * stdDevFactor;
-
-          estimateConsumer.accept(mt2.pose, Utils.fpgaToCurrentTime(mt2.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
-        }
-      }
-    }
-
-    if (!rotationKnown) 
-    {
-      lastCycleRotationKnown = false;
-
-      for (var ll : lls) 
-      {
-        ll.getLimelightRotation().ifPresent
-        (
-          rotationReading ->
+          var est = maybeEst.get(); 
+          // Reject update if it contains no tags, or if the robot is rotating too fast
+          boolean useUpdate = (est.targetsUsed.size() != 0 && Math.abs(rpsSup.get()) < 2.0);
+          
+          if (useUpdate) 
           {
-            rotationBuf.add(0, rotationReading.getDegrees());
-    
-            if (rotationBuf.size() > mt1CyclesNeeded)
-              {rotationBuf.remove(mt1CyclesNeeded);}
-      
-            if (rotationBuf.size() == mt1CyclesNeeded)
-            {
-              double lowest = rotationBuf.get(0).doubleValue();
-              double highest = rotationBuf.get(0).doubleValue();
-              
-              for(var reading : rotationBuf)
-              {
-                lowest = Math.min(lowest, reading.doubleValue());
-                highest = Math.max(highest, reading.doubleValue());
-              }
-              
-              if (highest - lowest < 1)
-              {
-                rotationKnown = true;
-                Robot.setYaw((highest + lowest) / 2);
-              }
-            }
-          }
-        );
-      }
+            double avgTagDist = 
+              est.targetsUsed
+                 .stream()
+                 .collect(Collectors.averagingDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm()));
 
-      if (!lastCycleRotationKnown) 
-      {
-        if (rotationKnown) 
+            // The more tags seen, the more trustworthy the estimate is
+            double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
+
+            double linearStdDev = linearStdDevBaseline * stdDevFactor;
+            double rotStdDev = rotStdDevBaseline * stdDevFactor;
+
+            // If the camera is mounted on a turret, apply additional offset processing
+            var poseOut = 
+              ll.isOnTurret() 
+              ? est.estimatedPose.toPose2d().transformBy(ll.getTurretToRobot())
+              : est.estimatedPose.toPose2d();
+            
+            // Update time since last good pose estimate
+            lastGoodPose = Timer.getTimestamp();
+            timeSince = 0;
+            havePoseFromVision = true;
+
+            // Send pose estimate to consumer
+            estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+          }
+        } else 
         {
-          rotationBuf.clear();
-          lastCycleRotationKnown = true;
-          //RobotContainer.s_Swerve.resetPose(new Pose2d(RobotContainer.swerveState.Pose.getTranslation(), new Rotation2d(Math.toRadians(RobotContainer.s_Swerve.getPigeon2().getYaw().getValueAsDouble()))));
+          // If no valid pose is found, update time since last pose
+          timeSince = Timer.getTimestamp() - lastGoodPose;
+          if (lastGoodPose == -1 || timeSince >= visionFrequencyThreshold) 
+          {
+            havePoseFromVision = false;
+          }
         }
       }
     }
-
-    SmartDashboard.putBoolean("Rot Known", rotationKnown);
   }
 
   @FunctionalInterface
