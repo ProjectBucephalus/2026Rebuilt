@@ -37,6 +37,7 @@ public class PolygonRestrictor extends Restrictor
     // Initialising instance variables
     this.centre = new Translation2d(x, y);
     this.checkRadius = radius + buffer;
+    this.polygonLines = new LineRestrictor[sides];
 
     // The start of the first line/end of the last line
     var initalPoint = new Translation2d(x, y + radius).rotateAround(centre, Rotation2d.fromDegrees(theta));

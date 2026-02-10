@@ -5,6 +5,7 @@ import frc.robot.util.Conversions;
 
 /** 
  * A line shaped restrictor <p>
+ * Defined between two points </p>
  * Due to having no area, has no active zone. Used purely as a distance check
  * @author 5985
  */

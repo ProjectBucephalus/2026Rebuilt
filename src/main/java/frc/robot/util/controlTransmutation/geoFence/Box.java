@@ -6,7 +6,7 @@ import frc.robot.util.Conversions;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /**
- * Box type GeoFence object </p>
+ * A rectangle shaped {@link GeoFence} </p>
  * A cardinal rectangular region defined by two corners
  * @author 5985
  */
@@ -17,6 +17,15 @@ public class Box extends GeoFence
   private double Xb;
   private double Yb;
 
+  /**
+   * Rectangle shaped GeoFence
+   * @param xA X-coordinate of the first point
+   * @param yA Y-coordinate of the first point
+   * @param xB X-coordinate of the second point
+   * @param yB Y-coordinate of the second point
+   * @param radius Extra radius of geofence zone around the box (produces a rounded rectangle shape)
+   * @param buffer Buffer around the object over which the speed is reduced
+   */
   public Box(double Xa, double Ya, double Xb, double Yb, double radius, double buffer)
   {
     this.Xa = Math.min(Xa, Xb);
@@ -32,6 +41,13 @@ public class Box extends GeoFence
     checkRadius = (Math.hypot(Xb - Xa, Yb - Ya)/2) + radius + buffer;
   }
 
+  /**
+   * Rectangle shaped GeoFence with minimum radius and buffer
+   * @param xA X-coordinate of the first point
+   * @param yA Y-coordinate of the first point
+   * @param xB X-coordinate of the second point
+   * @param yB Y-coordinate of the second point
+   */
   public Box(double Xa, double Ya, double Xb, double Yb)
   {
     this(Xa, Ya, Xb, Yb, minRadius, minBuffer);
@@ -44,20 +60,25 @@ public class Box extends GeoFence
 
     if (robotPos.getX() < Xa)
     {
-      if (robotPos.getY() < Ya)
+      if (robotPos.getY() < Ya) // SW Corner
         {distance = Math.hypot(Xa - robotPos.getX(), Ya - robotPos.getY());}
-      else if (robotPos.getY() > Yb)
+      else if (robotPos.getY() > Yb) // NW Corner
         {distance = Math.hypot(Xa - robotPos.getX(), robotPos.getY() - Yb);}
+      else // W Cardinal
+        {distance = Xa - robotPos.getX();}
     }
     else if (robotPos.getX() > Xb)
     {
-      if (robotPos.getY() < Ya)
+      if (robotPos.getY() < Ya) // SE Corner
         {distance = Math.hypot(robotPos.getX() - Xb, Ya - robotPos.getY());}
-      else if (robotPos.getY() > Yb)
+      else if (robotPos.getY() > Yb) // NE Corner
         {distance = Math.hypot(robotPos.getX() - Xb, robotPos.getY() - Yb);}
+      else // E Cardinal
+        {distance = robotPos.getX() - Xb;}
     }
     else
     {
+      // Inside, S Cardinal, or N Cardinal
       distance = Math.max
       (
         Math.max
@@ -73,6 +94,7 @@ public class Box extends GeoFence
       );
     }
 
+    // Account for radii
     return distance - (radius + robotRadius);
   }
 
