@@ -87,14 +87,14 @@ public class Robot extends TimedRobot
       ShooterConstants.TurretConstants.portPotOffset,
       true // TODO confirm
     );
-  /*private final Shooter s_StbdShooter = new Shooter
+  private final Shooter s_StbdShooter = new Shooter
     (
       () -> swerveState,
       ShooterConstants.stbdShooterOffset,
       IDConstants.stbdShooterIDs,
       ShooterConstants.TurretConstants.stbdPotOffset,
       false // TODO confirm
-    );*/
+    );
   private final Vision s_Vision = new Vision
   (
     (poseEst, timestmp, stdDevs) -> 
@@ -273,19 +273,17 @@ public class Robot extends TimedRobot
   public void testInit() 
   {
     CommandScheduler.getInstance().cancelAll();
-    PBDash.putDouble("Test Azimuth", 0);
-    PBDash.putDouble("Test Altitude", 0);
-    PBDash.putDouble("Test Flyspeed", 0);
+
   }
 
   @Override
   public void testPeriodic()
   {
+    s_StbdShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
     s_PortShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
-    //if (driver.leftBumper().getAsBoolean())
-    {
-      s_PortShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
-    }
-
+    
+    s_StbdShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
+    s_PortShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
+    
   }
 }
