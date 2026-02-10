@@ -133,10 +133,10 @@ public class FieldConstants
     public static final double bumpXa = hubCentreOffset + bumpDepth/2;
     public static final double bumpXb = hubCentreOffset - bumpDepth/2;
 
-    public static final BoxRegion bumpSB = new BoxRegion(fieldCentre.getX() - bumpXa, bumpYa, fieldCentre.getX() - bumpXb, hubYa);
-    public static final BoxRegion bumpNB = new BoxRegion(fieldCentre.getX() - bumpXa, hubYb,  fieldCentre.getX() - bumpXb, bumpYb);
-    public static final BoxRegion bumpSR = new BoxRegion(fieldCentre.getX() + bumpXa, bumpYa, fieldCentre.getX() + bumpXb, hubYa);
-    public static final BoxRegion bumpNR = new BoxRegion(fieldCentre.getX() + bumpXa, hubYb,  fieldCentre.getX() + bumpXb, bumpYb);
+    public static final BoxRestrictor bumpSB = new BoxRestrictor(fieldCentre.getX() - bumpXa, bumpYa, fieldCentre.getX() - bumpXb, hubYa);
+    public static final BoxRestrictor bumpNB = new BoxRestrictor(fieldCentre.getX() - bumpXa, hubYb,  fieldCentre.getX() - bumpXb, bumpYb);
+    public static final BoxRestrictor bumpSR = new BoxRestrictor(fieldCentre.getX() + bumpXa, bumpYa, fieldCentre.getX() + bumpXb, hubYa);
+    public static final BoxRestrictor bumpNR = new BoxRestrictor(fieldCentre.getX() + bumpXa, hubYb,  fieldCentre.getX() + bumpXb, bumpYb);
 
     static 
     {
@@ -206,8 +206,8 @@ public class FieldConstants
     public static final Box depotBlueFence = new Box(0, fieldWidth - depotSpacing, depotDepth, fieldWidth - (depotSpacing + depotWidth), 0.1, 0.25);
     public static final Box depotRedFence  = new Box(fieldLength, depotSpacing, fieldLength - depotDepth, depotSpacing + depotWidth, 0.1, 0.25);
     
-    public static final BoxRegion depotBlueZone = new BoxRegion(0, fieldWidth - depotSpacing, depotDepth, fieldWidth - (depotSpacing + depotWidth));
-    public static final BoxRegion depotRedZone  = new BoxRegion(fieldLength, depotSpacing, fieldLength - depotDepth, depotSpacing + depotWidth);
+    public static final BoxRestrictor depotBlueZone = new BoxRestrictor(0, fieldWidth - depotSpacing, depotDepth, fieldWidth - (depotSpacing + depotWidth));
+    public static final BoxRestrictor depotRedZone  = new BoxRestrictor(fieldLength, depotSpacing, fieldLength - depotDepth, depotSpacing + depotWidth);
 
     // Set up Attractors and Conditions for GeoFence objects
     public static void configureAttractors(BiPredicate<TargetPosition, DriveState> checkTargetAndState)

@@ -1,8 +1,12 @@
 package frc.robot.util.controlTransmutation.geoFence;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -11,16 +15,14 @@ import frc.robot.util.Conversions;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /**
- * Polygon type GeoFence object </p>
- * A rotated regular polygon built from a series of Line objects </p>
+ * A polygon shaped {@link GeoFence} <p>
+ * A rotated regular polygon built from a series of {@link Line Lines}
  * with handling to only process the nearest line
  * @author 5985
  */
 public class Polygon extends GeoFence
 {
-  List<Line> edgeLines;
-  List<Translation2d> edgeReference;
-  int sides;
+  private Line[] edgeLines;
 
   /**
     * Define regular polygon object
@@ -31,54 +33,50 @@ public class Polygon extends GeoFence
     * @param theta angle of the object: 0 = "corner at North", degrees Anticlockwise
     * @param sides number of polygon sides, integer [3..12]
     */
-  public Polygon(double X, double Y, double radius, double buffer, double theta, int sides)
+  public Polygon(double x, double y, double radius, double buffer, double theta, int sides)
   {
-    edgeLines = new ArrayList<Line>();
-    edgeReference = new ArrayList<Translation2d>();
-
-    centre = new Translation2d(X,Y);
-
     // Constraining inputs
-    radius = Math.max(Math.abs(radius), minRadius);
+    radius = Math.max(radius, minRadius);
     buffer = Math.max(buffer, minBuffer);
     sides = Conversions.clamp(sides, 3, 12);
+
+    // Initialising instance variables
+    this.centre = new Translation2d(x, y);
+    this.checkRadius = radius + buffer;
+    this.edgeLines = new Line[sides];
+
+    // The start of the first line/end of the last line
+    var initalPoint = new Translation2d(x, y + radius).rotateAround(centre, Rotation2d.fromDegrees(theta));
+
+    // Line endpoints are equidistant around a circle
+    var pointAngle = Rotation2d.fromDegrees(360/(sides * 2));
+
+    // Starting with the initial point, each subsequent point is equal to the previous point rotated by the angle
+    // Extra point between each line terminator point for the line midpoint
+    var polygonPoints = Stream
+      .iterate(initalPoint, prev -> prev.rotateAround(centre, pointAngle))
+      .limit(sides * 2 + 1)
+      .toList();
     
-    // Array of all points to construct the polygon lines and references
-    // The start of the first line and end of the last line are separate enteries to simplify construction
-    Translation2d[] polygonPoints = new Translation2d[2*sides+1];
-
-    polygonPoints[0] = new Translation2d(X,Y + radius).rotateAround(centre, Rotation2d.fromDegrees(theta));
-
-    // Line endpoints and reference points are equidistant around a circle
-    Rotation2d rotationBetweenPoints = Rotation2d.fromDegrees(360/(2*sides));
-    for (int i = 1; i < polygonPoints.length; i++)
-      {polygonPoints[i] = polygonPoints[i-1].rotateAround(centre, rotationBetweenPoints);}
-
     for (int i = 0; i < sides; i++)
     {
-      edgeLines.add(i, new Line
+      edgeLines[i] = new Line
       (
-        polygonPoints[2*i].getX(),
-        polygonPoints[2*i].getY(),
-        polygonPoints[2*i+2].getX(),
-        polygonPoints[2*i+2].getY(),
+        polygonPoints.get(2 * i),
+        polygonPoints.get(2 * i + 2),
         0,
         buffer
-      ));
-
-      edgeReference.add(i, polygonPoints[2*i+1]);
+      );
     }
-
+      
     /* 
-      * Convert the circumscribed radius (centre-corner) to the inscribed radius (centre-edge)
-      * and expand the buffer to account for the difference
-      * 
-      * These values are used to process the polygon as a point if the robot crosses the lines
-      */ 
-    this.radius = rotationBetweenPoints.getCos() * radius;
+    * Convert the circumscribed radius (centre-corner) to the inscribed radius (centre-edge)
+    * and expand the buffer to account for the difference
+    * 
+    * These values are used to process the polygon as a point if the robot crosses the lines
+    */ 
+    this.radius = pointAngle.getCos() * radius;
     this.buffer = buffer + (radius - this.radius);
-
-    checkRadius = radius + buffer;
   }
 
   @Override
@@ -105,74 +103,49 @@ public class Polygon extends GeoFence
   public boolean checkAttractors() 
     {return nearestLine().checkAttractors();}
 
+  /** Processes the attractors of the 3 closest lines in increasing distance order, returning the first that changes the input */
   @Override
   public Translation2d processAttractors(Translation2d controlInput) 
   {
     int nearestIndex = nearestLineIndex();
 
-    Translation2d controlOutput = edgeLines.get(nearestIndex).processAttractors(controlInput);
+    Translation2d controlOutput = edgeLines[nearestIndex].processAttractors(controlInput);
     if (!controlOutput.equals(controlInput)) {return controlOutput;}
 
-    controlOutput = edgeLines.get(Conversions.wrap(nearestIndex - 1, 0, edgeLines.size() - 1)).processAttractors(controlInput);
+    controlOutput = edgeLines[Conversions.wrap(nearestIndex - 1, 0, edgeLines.length - 1)].processAttractors(controlInput);
     if (!controlOutput.equals(controlInput)) {return controlOutput;}
 
-    controlOutput = edgeLines.get(Conversions.wrap(nearestIndex + 1, 0, edgeLines.size() - 1)).processAttractors(controlInput);
+    controlOutput = edgeLines[Conversions.wrap(nearestIndex + 1, 0, edgeLines.length - 1)].processAttractors(controlInput);
     if (!controlOutput.equals(controlInput)) {return controlOutput;}
 
     return controlInput;
   }
 
+  /** @return The nearest line of the polygon */
   private Line nearestLine()
   {
-    int index = 0;
-    double minDistance = edgeLines.get(0).getCentre().getDistance(robotPos);
-    double checkDistance;
-
-    for (int i = 1; i < edgeLines.size(); i++)
-    {
-      checkDistance = edgeLines.get(i).getCentre().getDistance(robotPos);
-      if (checkDistance < minDistance)
-      {
-        index = i;
-        minDistance = checkDistance;
-      }
-    }
-
-    return edgeLines.get(index);
+    return Arrays
+      .stream(edgeLines)
+      .min(Comparator.comparingDouble(line -> line.getCentre().getDistance(robotPos)))
+      .get();
   }
 
+  /** @return The index of the nearest line of the polygon */
   private int nearestLineIndex()
   {
-    int index = 0;
-    double minDistance = edgeLines.get(0).getCentre().getDistance(robotPos);
-    double checkDistance;
-
-    for (int i = 1; i < edgeLines.size(); i++)
-    {
-      checkDistance = edgeLines.get(i).getCentre().getDistance(robotPos);
-      if (checkDistance < minDistance)
-      {
-        index = i;
-        minDistance = checkDistance;
-      }
-    }
-
-    return index;
+    return IntStream.range(0, edgeLines.length)
+      .boxed()
+      .min(Comparator.comparingDouble(idx -> edgeLines[idx].getCentre().getDistance(robotPos)))
+      .get();
   }
 
   /**
    * Gets the list of midpoints of the lines of the polygon, followed by the centre of the polygon
    * @return List of Translation2ds, metres
    */
-  public ArrayList<Translation2d> getMidPoints()
+  public List<Translation2d> getMidPoints()
   {
-    ArrayList<Translation2d> midPoints = new ArrayList<Translation2d>();
-
-    for (var edge : edgeLines)
-      midPoints.add(edge.getCentre());
-
-    midPoints.add(centre);
-    return midPoints;
+    return Arrays.stream(edgeLines).map(line -> line.getCentre()).collect(Collectors.toList());
   }
 
   /**

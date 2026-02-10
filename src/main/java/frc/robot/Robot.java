@@ -193,7 +193,7 @@ public class Robot extends TimedRobot
       .withInputCurve(driverInputCurve)
       .withDeadband(driverDeadband);
 
-    GeoFencing.fieldGeoFence.setActiveCondition(() -> PBDash.FENCE_TOGGLE.get() && PBDash.LL_TOGGLE.get());
+    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.getPoseFromVision() && PBDash.FENCE_TOGGLE.get() && PBDash.LL_TOGGLE.get());
   }
 
   /** Sets primary control bindings */
@@ -211,6 +211,55 @@ public class Robot extends TimedRobot
       )
     );
 
+    bumpNB.asTrigger()
+      .or(bumpSB.asTrigger())
+      .or(bumpNR.asTrigger())
+      .or(bumpSR.asTrigger())
+      .whileTrue
+      (
+        new NonCardinalDrive
+        (
+          s_Swerve, 
+          driverStick::stickOutput, 
+          () -> -driver.getRightX(), 
+          driver::getRightTriggerAxis, 
+          () -> swerveState.Pose.getRotation(), 
+          bumpRotationTolerance
+        )
+      );
+
+    /* Setting Drive States */
+    driver.povLeft().onTrue(runOnce(() -> currentTarget = TargetPosition.Left));
+    driver.povRight().onTrue(runOnce(() -> currentTarget = TargetPosition.Right));
+    driver.povUp().onTrue(runOnce(() -> currentTarget = TargetPosition.Centre));
+    driver.povDown().onTrue(runOnce(() -> currentTarget = TargetPosition.None));
+    
+    driver.x().and(s_Vision::getPoseFromVision).onTrue
+    (
+      new PathFollowDrive
+      (
+        s_Swerve, 
+        () -> this.swerveState,
+        Pathfinding.testPath
+      )
+    );
+
+    /* Heading Locking */
+    new Trigger(() -> currentDriveState == DriveState.None)
+      .whileTrue
+      (
+        new ManualDrive
+        (
+          s_Swerve, 
+          driverStick::stickOutput,
+          () -> -driver.getRightX(),
+          driver::getRightTriggerAxis
+        )
+      );
+    
+    /* Other */
+    new Trigger(PBDash.LL_EXPOSURE_UP::button).onTrue(runOnce(s_Vision::incrementPipeline));
+    new Trigger(PBDash.LL_EXPOSURE_DOWN::button).onTrue(runOnce(s_Vision::decrementPipeline));
   }
 
   /** Sets trigger conditions to activate controller rumbles */

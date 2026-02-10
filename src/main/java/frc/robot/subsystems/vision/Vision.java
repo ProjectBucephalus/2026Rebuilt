@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,8 @@ public class Vision extends SubsystemBase
   /** Time since last good pose estimate, seconds */
   double timeSince = 0; 
   /** True only while there is a recent valid pose estimate */
-  boolean havePoseFromVision = false;
+  boolean haveLocalisation = false;
+  boolean usingVision = true;
 
   private int pipelineIndex = PBDash.LL_EXPOSURE.defaultVal();
 
@@ -63,6 +65,20 @@ public class Vision extends SubsystemBase
     PBDash.LL_EXPOSURE.put(pipelineIndex);
   }
 
+  public boolean getPoseFromVision()
+  {
+    return haveLocalisation;
+  }
+
+  public void setPose(Pose2d pose)
+  {
+    lastGoodPose = Timer.getTimestamp();
+    timeSince = 0;
+    haveLocalisation = true;
+
+    estimateConsumer.accept(pose, Utils.getCurrentTimeSeconds(), VecBuilder.fill(0, 0, 1000));
+  }
+
   @Override
   public void periodic() 
   {
@@ -70,6 +86,7 @@ public class Vision extends SubsystemBase
     {
       for (var ll : lls)
       {
+        usingVision = true;
         ll.update();
 
         // Pose estimate returns Optional, so may or may not be present
@@ -103,21 +120,27 @@ public class Vision extends SubsystemBase
             // Update time since last good pose estimate
             lastGoodPose = Timer.getTimestamp();
             timeSince = 0;
-            havePoseFromVision = true;
+            haveLocalisation = true;
 
             // Send pose estimate to consumer
             estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
           }
-        } else 
-        {
-          // If no valid pose is found, update time since last pose
-          timeSince = Timer.getTimestamp() - lastGoodPose;
-          if (lastGoodPose == -1 || timeSince >= visionFrequencyThreshold) 
-          {
-            havePoseFromVision = false;
-          }
-        }
+        } 
       }
+    } else 
+    {
+      if (usingVision)
+      {
+        usingVision = false;
+        haveLocalisation = false;
+        lastGoodPose = -1;
+      }
+    }
+    // If no valid pose is found, update time since last pose
+    timeSince = Timer.getTimestamp() - lastGoodPose;
+    if (lastGoodPose == -1 || timeSince >= visionFrequencyThreshold) 
+    {
+      haveLocalisation = false; 
     }
   }
 
