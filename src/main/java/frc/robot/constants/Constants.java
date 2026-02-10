@@ -97,6 +97,10 @@ public final class Constants
     public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg);
     /** 2D offset from robot centre to starboard-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
     public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
+    /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
+    public static final double targetPointOffset = 0.08;
+    /** Scalar to convert robot speed and target distance to target offset for leading shots */
+    public static final double leadFactor = 0.1;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants

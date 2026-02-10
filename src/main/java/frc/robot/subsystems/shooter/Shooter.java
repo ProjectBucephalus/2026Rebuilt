@@ -2,13 +2,18 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.ShooterConstants.HoodConstants;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
+import frc.robot.constants.IDConstants.ShooterIDs;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
+import frc.robot.util.FieldUtils;
+import frc.robot.util.PBDash;
 
 import java.util.function.Supplier;
 
@@ -25,6 +30,7 @@ public class Shooter extends SubsystemBase
   private final Hood hood;
   
   private final Transform2d shooterOffset;
+  private final Translation2d baseTargetOffset;
 
   private final Supplier<SwerveDriveState> swerveStateSup;
   private SwerveDriveState swerveState;
@@ -42,26 +48,26 @@ public class Shooter extends SubsystemBase
    * @param azimuthIO AIO-ID of azimuth potentiometer
    * @param azimuthOffset Potentiometer reading for centre of rotation
    * @param hoodPWM PWM-ID of hood altitude servo
+   * @param hoodIO AIO-ID of hood feedback sensor
+   * @param invertedHood Inverts the range and direction of motion of the hood servo
    */
   public Shooter
   (
     Supplier<SwerveDriveState> swerveStateSup,
     Transform2d robotToShooter,
-    int flywheelLeaderCAN, 
-    int flywheelFollowerCAN, 
-    int turretCAN,
-    int azimuthIO,
+    ShooterIDs idBlock,
     double azimuthOffset,
-    int hoodPWM,
     boolean invertedHood
   ) 
   {
     this.swerveStateSup = swerveStateSup;
     this.shooterOffset = robotToShooter;
 
-    flywheels = new Flywheels(flywheelLeaderCAN, flywheelFollowerCAN);
-    turret = new Turret(turretCAN, azimuthIO, azimuthOffset);
-    hood = new Hood(hoodPWM, invertedHood);
+    baseTargetOffset = new Translation2d(0, Math.copySign(ShooterConstants.targetPointOffset, robotToShooter.getY()));
+
+    flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
+    turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, this::getTarget);
+    hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, this::getTarget);
   }
 
   /**
@@ -88,6 +94,9 @@ public class Shooter extends SubsystemBase
   public Rotation2d getAzimuth()
     {return new Rotation2d(turret.getAzimuth() - shooterOffset.getRotation().getDegrees());}
 
+  /** @return Current Target object for the Shooter system */
+  public Target getTarget() {return target;}
+
   /**
    * Trigger factory for whether we are in a valid state to be shooting. This requires that:
    * <ul>
@@ -103,10 +112,10 @@ public class Shooter extends SubsystemBase
   {
     return new Trigger
       (() -> {
-        return Conversions.nearRotation(turret.getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance)
+        return turret.atAzimuth()
                 && hood.atAltitude()
                 && flywheels.atSpeed()
-                && (turret.getSpeed() + (Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond)/360)) < TurretConstants.maxRPS;
+                && turret.safeToShoot(swerveState.Speeds);
       });
   }
 
@@ -116,7 +125,28 @@ public class Shooter extends SubsystemBase
     swerveState = swerveStateSup.get();
     var shooterPose = swerveState.Pose.plus(shooterOffset);
 
-    turret.update(shooterPose, target, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
-    hood.update(shooterPose, target);
+    // TODO: Test the extent to which leading shots is needed, and remove distance calculation from here or Hood as appropriate
+    // Find distance to current target for calculating leading shots
+    double distance = switch (target.state) 
+    {
+      case Manual -> 0;
+      case Point -> target.point.minus(shooterPose.getTranslation()).getNorm();
+      // aim at our alliance's hub
+      case Hub -> FieldUtils.getAllianceHubCentre().minus(shooterPose.getTranslation()).getNorm();
+    };
+
+    // Calculate target offset to avoid balls from each shooter colliding before reaching target
+    // and accounting for robot motion
+    target.offset = 
+      baseTargetOffset
+        .rotateBy(swerveState.Pose.getRotation().unaryMinus())
+        .plus
+        (
+          new Translation2d(swerveState.Speeds.vxMetersPerSecond, swerveState.Speeds.vyMetersPerSecond)
+          .times(distance * ShooterConstants.leadFactor) // distance * leadFactor
+        );
+
+    turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
+    hood.update(shooterPose);
   }
 }
