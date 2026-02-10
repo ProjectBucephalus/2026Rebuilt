@@ -37,7 +37,7 @@ public class TargetStationDrive extends HeadingLockedDrive
   protected void updateTargetHeading()
   {
     targetHeading = redAlliance ^ (robotPose.getY() >= 4.026) ? 
-      new Rotation2d(Units.degreesToRadians(-55)) : // Left side if blue, right side if red
-      new Rotation2d(Units.degreesToRadians(55)); // Right side if blue, left side if red
+      Rotation2d.fromDegrees(-55) : // Left side if blue, right side if red
+      Rotation2d.fromDegrees(55); // Right side if blue, left side if red
   }
 }

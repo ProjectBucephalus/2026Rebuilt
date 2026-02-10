@@ -1,17 +1,22 @@
 package frc.robot.util.controlTransmutation.geoFence;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
 import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.FieldObject;
 
 /** 
+ * TODO
  * @author 5985
  */
 public abstract class GeoFence extends FieldObject
 {
   // Inherits from FieldObject: T2D centre, double radius, double buffer, double checkRadius
+
+  // A list of object-relative attractors to check
   protected ArrayList<Attractor> attractors = new ArrayList<Attractor>();
 
   /**
@@ -26,20 +31,22 @@ public abstract class GeoFence extends FieldObject
     return this;
   }
 
+  /** Applies any contained attractors and then applies the geofencing */
   @Override
   public Translation2d process(Translation2d controlInput)
   {
     if (activeSupplier.getAsBoolean())
     {
-      Translation2d controlOutput;
       if (checkAttractors())
       {
-        controlOutput = processAttractors(controlInput);
+        var controlOutput = processAttractors(controlInput);
+        // If the attractors have not had any affect, we want to continue to the geofence checks rather than returning
         if (!controlOutput.equals(controlInput))
-          {return controlOutput;}
+          return controlOutput;
       }
+
       if (checkPosition())
-        {return dampMotion(controlInput);}
+        return dampMotion(controlInput);
     }
     
     return controlInput;
@@ -65,24 +72,15 @@ public abstract class GeoFence extends FieldObject
    */
   public Translation2d processAttractors(Translation2d controlInput)
   {
-    double distance = 100;
-    var closest = attractors.get(0);
-
-    for (var attractor : attractors)
-    {
-      double currentDistance = attractor.getDistance();
-      if (attractor.checkAngle(controlInput) && currentDistance < distance)
-      {
-        distance = currentDistance;
-        closest = attractor;
-      }
-    }
-
-    return closest.process(controlInput);
+    return attractors
+      .stream()
+      .min(Comparator.comparingDouble(line -> line.getCentre().getDistance(robotPos)))
+      .get()
+      .process(controlInput);
   }
   
   /**
-   * Modifies the input to prevent the robot from entering the object
+   * Modifies the input to prevent the robot from entering the object, while allowing a robot that is inside of it to escape
    * @param motionXY XY control input, field-relative, [-1..1],[-1..1]
    * @return XY control output, field-relative, [-1..1],[-1..1]
    */

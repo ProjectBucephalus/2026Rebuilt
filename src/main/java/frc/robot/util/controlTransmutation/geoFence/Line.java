@@ -10,7 +10,7 @@ import frc.robot.util.controlTransmutation.Attractor;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /**
- * Line type GeoFence object </p>
+ * A line shaped {@link GeoFence} </p>
  * Defined between two points </p>
  * Note: causes edge-case behaviours when meeting other objects at acute angles
  * @author 5985
@@ -29,33 +29,46 @@ public class Line extends GeoFence
   private double normY;
   private double normXY;
 
-  public Line(double Xa, double Ya, double Xb, double Yb, double radius, double buffer)
+  /**
+   * Line shaped GeoFence
+   * @param pointA The first point TODO ordering
+   * @param pointB The second point
+   * @param radius Extra radius of geofence zone around the line (produces a capsule shape)
+   * @param buffer Buffer around the object over which the speed is reduced
+   */
+  public Line(Translation2d pointA, Translation2d pointB, double radius, double buffer)
   {
     this.radius = radius;
     this.buffer = buffer;
-    
-    pointA = new Translation2d(Xa, Ya);
-    pointB = new Translation2d(Xb, Yb);
-    centre = new Translation2d((Xa+Xb)/2, (Ya+Yb)/2);
+    this.pointA = pointA;
+    this.pointB = pointB;
 
-    dXab = Xb - Xa;
-    dYab = Yb - Ya;
+    // Centre is halfway along the line
+    centre = new Translation2d((pointA.getX() + pointB.getX()) / 2, (pointA.getY() + pointB.getY()) / 2);
+
+    dXab = pointB.getX() - pointA.getX();
+    dYab = pointB.getY() - pointA.getY();
     length = Math.hypot(dXab, dYab);
     
     normX = dXab / length;
     normY = dYab / length;
-    normXY = ((Xa * Yb) - (Xb * Ya)) / length;
+    normXY = ((pointA.getX() * pointB.getY()) - (pointB.getX() * pointA.getY())) / length;
     
     dotX = normX / length;
     dotY = normY / length;
-    dotXY = Xa*dotX + Ya*dotY;
+    dotXY = (pointA.getX() * dotX) + (pointA.getY() * dotY);
 
     checkRadius = (Math.sqrt(length)/2) + radius + buffer;
   }
 
-  public Line(double Xa, double Ya, double Xb, double Yb)
+  /**
+   * Line shaped GeoFence with minimum radius and buffer
+   * @param pointA The first point TODO ordering
+   * @param pointB The second point
+   */
+  public Line(Translation2d pointA, Translation2d pointB)
   {
-    this(Xa, Ya, Xb, Yb, minRadius, minBuffer);
+    this(pointA, pointB, minRadius, minBuffer);
   }
 
   @Override

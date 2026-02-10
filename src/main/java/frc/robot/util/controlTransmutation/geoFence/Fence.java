@@ -6,8 +6,8 @@ import frc.robot.util.Conversions;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /**
- * Fence type GeoFence object </p>
- * The outer wall that the robot must stay within </p>
+ * A wall shaped {@link GeoFence} </p>
+ * The outer wall that the robot must stay within <p>
  * A cardinal rectangular region defined by two corners
  * @author 5985
  */
@@ -18,6 +18,15 @@ public class Fence extends GeoFence
   private double Xb;
   private double Yb;
 
+  /**
+   * Wall shaped GeoFence
+   * @param xA X-coordinate of the first point
+   * @param yA Y-coordinate of the first point
+   * @param xB X-coordinate of the second point
+   * @param yB Y-coordinate of the second point
+   * @param radius Extra radius of geofence zone on the inner walls of the fence
+   * @param buffer Buffer within the walls over which the speed is reduced
+   */
   public Fence(double Xa, double Ya, double Xb, double Yb, double radius, double buffer)
   {
     this.Xa = Math.min(Xa, Xb);
@@ -33,6 +42,13 @@ public class Fence extends GeoFence
     checkRadius = radius + buffer;
   }
 
+  /**
+   * Wall shaped GeoFence with minimum radius and buffer
+   * @param xA X-coordinate of the first point
+   * @param yA Y-coordinate of the first point
+   * @param xB X-coordinate of the second point
+   * @param yB Y-coordinate of the second point
+   */
   public Fence(double Xa, double Ya, double Xb, double Yb)
   {
     this(Xa, Ya, Xb, Yb, minRadius, minBuffer);
@@ -75,30 +91,29 @@ public class Fence extends GeoFence
     
     double motionX = motionXY.getX();
     double motionY = motionXY.getY();
-    double distanceToEdgeX;
-    double distanceToEdgeY;
     
     if (motionX > 0)
     {   
-      distanceToEdgeX = (Xb - radius) - (robotPos.getX() + robotRadius); 
+      double distanceToEdgeX = (Xb - radius) - (robotPos.getX() + robotRadius); 
       motionX = Math.min(motionX, (Conversions.clamp(distanceToEdgeX, 0, buffer)) / buffer);
     }
     else if (motionX < 0)
     {   
-      distanceToEdgeX = (robotPos.getX() - robotRadius) - (Xa + radius);
+      double distanceToEdgeX = (robotPos.getX() - robotRadius) - (Xa + radius);
       motionX = Math.max(motionX, (-Conversions.clamp(distanceToEdgeX, 0, buffer)) / buffer);
     }
 
     if (motionY > 0)
     {   
-      distanceToEdgeY = (Yb - radius) - (robotPos.getY() + robotRadius);
+      double distanceToEdgeY = (Yb - radius) - (robotPos.getY() + robotRadius);
       motionY = Math.min(motionY, (Conversions.clamp(distanceToEdgeY, 0, buffer)) / buffer);
     }
     else if (motionY < 0)
     {   
-      distanceToEdgeY = (robotPos.getY() - robotRadius) - (Ya + radius);
+      double distanceToEdgeY = (robotPos.getY() - robotRadius) - (Ya + radius);
       motionY = Math.max(motionY, (-Conversions.clamp(distanceToEdgeY, 0, buffer)) / buffer);
     }
+    
     return new Translation2d(motionX, motionY);
   }
 }

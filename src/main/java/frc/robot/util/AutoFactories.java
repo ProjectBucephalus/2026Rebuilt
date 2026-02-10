@@ -7,7 +7,6 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -52,7 +51,7 @@ public class AutoFactories
 
           Rotation2d rotationTarget = 
             splitCommand.contains(";") ? 
-            new Rotation2d(Units.degreesToRadians(Double.parseDouble(splitCommand.substring(splitCommand.indexOf(";"))))) : 
+            Rotation2d.fromDegrees(Double.parseDouble(splitCommand.substring(splitCommand.indexOf(";")))) : 
             swerveStateSup.get().Pose.getRotation().plus(Rotation2d.k180deg);
           
           commandList.addCommands(s_Swerve.poseDriveCommand(new AlliancePose2dSup(posTarget, rotationTarget), swerveStateSup));
