@@ -30,8 +30,9 @@ public class Line extends GeoFence
   private double normXY;
 
   /**
-   * Line shaped GeoFence
-   * @param pointA The first point TODO ordering
+   * Line shaped GeoFence <p>
+   * When looking along the line from point A to B, right is positive distance, left is negative distance
+   * @param pointA The first point
    * @param pointB The second point
    * @param radius Extra radius of geofence zone around the line (produces a capsule shape)
    * @param buffer Buffer around the object over which the speed is reduced
@@ -62,8 +63,9 @@ public class Line extends GeoFence
   }
 
   /**
-   * Line shaped GeoFence with minimum radius and buffer
-   * @param pointA The first point TODO ordering
+   * Line shaped GeoFence with minimum radius and buffer <p>
+   * When looking along the line from point A to B, right is positive distance, left is negative distance
+   * @param pointA The first point
    * @param pointB The second point
    */
   public Line(Translation2d pointA, Translation2d pointB)

@@ -9,7 +9,9 @@ import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.FieldObject;
 
 /** 
- * TODO
+ * Derived from video-game collision-detection, GeoFence objects combine field-relative driving and localisation
+ * to make the robot respect virtual barriers as physical, smoothly reducing and shifting inputs
+ * to stop at the defined edge, or glide around corners.
  * @author 5985
  */
 public abstract class GeoFence extends FieldObject

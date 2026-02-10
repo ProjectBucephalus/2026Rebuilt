@@ -28,8 +28,9 @@ public class LineRestrictor extends Restrictor
   private double dotXY;
 
   /**
-   * Line shaped restrictor
-   * @param pointA The first point TODO ordering
+   * Line shaped restrictor <p>
+   * When looking along the line from point A to B, right is positive distance, left is negative distance
+   * @param pointA The first point
    * @param pointB The second point
    */
   public LineRestrictor(Translation2d pointA, Translation2d pointB)
