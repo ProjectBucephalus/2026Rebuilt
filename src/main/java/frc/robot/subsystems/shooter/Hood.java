@@ -40,16 +40,6 @@ public class Hood
   }
 
   /**
-   * Calculate the distance from the shooter to the target
-   * 
-   * @param shooterPose field-relative shooter pose
-   * @param targetPoint Translation2d of the target
-   * @return the distance from shooter to the target, metres
-   */ 
-  private double calculateTargetDist(Pose2d shooterPose, Translation2d targetPoint)
-    {return targetPoint.minus(shooterPose.getTranslation()).getNorm();}
-
-  /**
    * Checks if the hood is at the current target altitude <p>
    * NOTE: Current system has no position feedback, so this is an estimation only
    * @return True if altitude is within tollerance
@@ -74,8 +64,8 @@ public class Hood
     target.altitude = switch (target.state) 
     {
       case Manual -> target.altitude;
-      case Point -> Interpolation.shooterAltitudeLow.get(calculateTargetDist(shooterPose, target.point.plus(target.offset)));
-      case Hub -> Interpolation.shooterAltitudeHub.get(calculateTargetDist(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset)));
+      case Point -> Interpolation.shooterAltitudeLow.get(target.distance);
+      case Hub -> Interpolation.shooterAltitudeHub.get(target.distance);
     };
 
     // Limit the target altitude to within the hood's range of motion

@@ -36,6 +36,8 @@ public class Target
   public Translation2d point;
   /** Offset from target point, used for leading shots while moving and separating ball-streams from multiple shooters */
   public Translation2d offset;
+  /** Distance from shooter to target, used for hood angle and flywheel speed */
+  public double distance;
 
   public Target(TargetState state, double altitude, double azimuth, Translation2d point) 
   {

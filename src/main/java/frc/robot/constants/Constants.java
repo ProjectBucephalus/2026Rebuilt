@@ -291,6 +291,20 @@ public final class Constants
       put(0.0, 0.0);
       put(0.25, 0.25);
     }};
+
+    /** Distance to Speed conversion for shooting into the elevated Hub */
+    public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
+
+    /** Distance to Speed conversion for shooting to a point on the field */
+    public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.25, 0.25);
+    }};
   }
 
   /** Tuning data for feeder */
