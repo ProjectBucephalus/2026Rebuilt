@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -190,11 +192,13 @@ public final class Constants
       /** Maximum absolute rotation rate of the turret in field-space to be considered safe to shoot, rps */
       public static final double maxRPS = 1;
       
-      public static final TalonFXConfiguration turretConfig = new TalonFXConfiguration();
+      public static final TalonFXSConfiguration turretConfig = new TalonFXSConfiguration();
       static 
       {
-        turretConfig.Feedback.SensorToMechanismRatio = azimuthGearRatio * planetaryRatio;
+        turretConfig.ExternalFeedback.SensorToMechanismRatio = azimuthGearRatio * planetaryRatio;
 
+        turretConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
+        
         turretConfig.Slot0.kS = 0.0;
         turretConfig.Slot0.kV = 0.0;
         turretConfig.Slot0.kA = 0.0;

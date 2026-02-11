@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,7 +27,7 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
  */
 public class Turret
 {
-  private final TalonFX m_Turret;
+  private final TalonFXS m_Turret;
   private final AnalogPotentiometer io_Azimuth;
 
   private final Supplier<Target> targetSup;
@@ -42,7 +43,7 @@ public class Turret
    */
   public Turret(int motorID, int potID, double potOffset, Supplier<Target> targetSup) 
   {
-    m_Turret = new TalonFX(motorID);
+    m_Turret = new TalonFXS(motorID);
     io_Azimuth = new AnalogPotentiometer(potID, TurretConstants.potRange, potOffset);
 
     this.targetSup = targetSup;
@@ -90,7 +91,12 @@ public class Turret
   {
     // If the turret is not moving, pull the value from the pot, convert to mechanism angle, and send to motor
     if (Math.abs(m_Turret.getVelocity().getValueAsDouble()) < 0.1) // TODO Put this in constants
-      m_Turret.setPosition((io_Azimuth.get() * azimuthGearRatio) / 360.0);
+      m_Turret.setPosition((io_Azimuth.get() / azimuthGearRatio) / 360.0);
+  }
+
+  public double getRawAz()
+  {
+    return (io_Azimuth.get() / azimuthGearRatio);
   }
 
   /**

@@ -179,5 +179,6 @@ public class Shooter extends SubsystemBase
     PBDash.putDouble(ntId + " Turret Az", turret.getAzimuth());
     PBDash.putDouble(ntId + " Flywheel Speed", flywheels.getSpeed());
     PBDash.putDouble(ntId + " Flywheel Temp", flywheels.getTemp());
+    PBDash.putDouble(ntId + " Turret Pot", turret.getRawAz());
   }
 }
