@@ -163,7 +163,7 @@ public final class Constants
     public static final class TurretConstants
     {
       /** Maximum rotation either side of centre before reaching mechanical/cable limits, degrees */
-      public static final double maxTurretAzimuth = 270;
+      public static final double maxTurretAzimuth = 180;
       /** Angle range at end-of-travel to stop shooting and prepare to unwind, degrees */
       public static final double limitBufferZone = 10;
       /** Position to hold when idle, degrees */
@@ -180,7 +180,7 @@ public final class Constants
       private static final double planetaryRatio = 12;
       private static final double driveGear = 20;
       private static final double ringGear = 90;
-      public static final double azimuthGearRatio = ringGear / driveGear;
+      public static final double azimuthGearRatio = -ringGear / driveGear;
 
       /** Allowed variation in turret azimuth when targeting, degrees */
       public static final double azimuthTolerance = 3;
@@ -196,12 +196,12 @@ public final class Constants
         turretConfig.Slot0.kS = 0.0;
         turretConfig.Slot0.kV = 0.0;
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 10.0;
+        turretConfig.Slot0.kP = 1.0;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 
-        turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
+        turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
       }
     }
   }
