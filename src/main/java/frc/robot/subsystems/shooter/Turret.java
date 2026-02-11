@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
-import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
@@ -145,7 +144,5 @@ public class Turret
     };
 
     m_Turret.setControl(request.withPosition(target.azimuth / 360));
-
-    PBDash.putDouble("Turret Az",getAzimuth());
   }   
 }

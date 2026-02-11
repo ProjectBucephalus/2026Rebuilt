@@ -90,24 +90,17 @@ public class Vision extends SubsystemBase
         ll.update();
 
         // Pose estimate returns Optional, so may or may not be present
-        var maybeEst = ll.getPhotonEst();
-
-        if (maybeEst.isPresent()) 
-        {
-          var est = maybeEst.get(); 
-          // Reject update if it contains no tags, or if the robot is rotating too fast
-          boolean useUpdate = (est.targetsUsed.size() != 0 && Math.abs(rpsSup.get()) < 2.0);
-          
-          if (useUpdate) 
+        ll.getPhotonEst().ifPresent(est -> {
+          // Reject update if it contains no tags, or if the robot is rotating too fast         
+          if (est.targetsUsed.size() != 0 && Math.abs(rpsSup.get()) < 2.0) 
           {
             double avgTagDist = 
               est.targetsUsed
                  .stream()
                  .collect(Collectors.averagingDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm()));
 
-            // The more tags seen, the more trustworthy the estimate is
+            // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
             double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-
             double linearStdDev = linearStdDevBaseline * stdDevFactor;
             double rotStdDev = rotStdDevBaseline * stdDevFactor;
 
@@ -125,9 +118,10 @@ public class Vision extends SubsystemBase
             // Send pose estimate to consumer
             estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
           }
-        } 
+        });
       }
-    } else 
+    } 
+    else 
     {
       if (usingVision)
       {
@@ -136,12 +130,11 @@ public class Vision extends SubsystemBase
         lastGoodPose = -1;
       }
     }
+
     // If no valid pose is found, update time since last pose
     timeSince = Timer.getTimestamp() - lastGoodPose;
     if (lastGoodPose == -1 || timeSince >= visionFrequencyThreshold) 
-    {
       haveLocalisation = false; 
-    }
   }
 
   @FunctionalInterface

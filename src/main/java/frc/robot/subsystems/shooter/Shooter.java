@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,7 +11,6 @@ import frc.robot.constants.Constants.ShooterConstants.HoodConstants;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.constants.IDConstants.ShooterIDs;
 import frc.robot.subsystems.shooter.Target.TargetState;
-import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 
@@ -32,6 +30,8 @@ public class Shooter extends SubsystemBase
   
   private final Transform2d shooterOffset;
   private final Translation2d baseTargetOffset;
+
+  private final String ntId;
 
   private final Supplier<SwerveDriveState> swerveStateSup;
   private SwerveDriveState swerveState;
@@ -65,6 +65,7 @@ public class Shooter extends SubsystemBase
     this.shooterOffset = robotToShooter;
 
     baseTargetOffset = new Translation2d(0, Math.copySign(ShooterConstants.targetPointOffset, robotToShooter.getY()));
+    ntId = idBlock.ntID();
 
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, this::getTarget);
@@ -108,8 +109,8 @@ public class Shooter extends SubsystemBase
   {flywheels.setVoltage(speed);}
 
   /** @return Current robot-relative azimuth of the turret, degrees */
-  public Rotation2d getAzimuth()
-    {return new Rotation2d(turret.getAzimuth() - shooterOffset.getRotation().getDegrees());}
+  public double getAzimuth()
+    {return turret.getAzimuth() - shooterOffset.getRotation().getDegrees();}
 
   /** @return Current Target object for the Shooter system */
   public Target getTarget() {return target;}
@@ -174,5 +175,9 @@ public class Shooter extends SubsystemBase
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update(shooterPose);
     flywheels.update();
+
+    PBDash.putDouble(ntId + "Turret Az", turret.getAzimuth());
+    PBDash.putDouble(ntId + "Flywheel Speed", flywheels.getSpeed());
+    PBDash.putDouble(ntId + "Flywheel Temp", flywheels.getTemp());
   }
 }

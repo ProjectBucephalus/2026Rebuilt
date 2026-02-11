@@ -9,7 +9,6 @@ import edu.wpi.first.math.MathUtil;
 
 import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.*;
 import frc.robot.constants.Constants.ShooterConstants;
-import frc.robot.util.PBDash;
 
 /**
  * Interface class for a shooter flywheel. <p>
@@ -55,14 +54,18 @@ public class Flywheels
    */
   public boolean atSpeed() 
   {
-    double currentSpeed = m_Leader.getVelocity().getValueAsDouble();
-    return MathUtil.isNear(request.Velocity, currentSpeed, flySpeedTolerance);
+    return MathUtil.isNear(request.Velocity, getSpeed(), flySpeedTolerance);
   }
+
+  public double getSpeed() 
+    {return m_Leader.getVelocity().getValueAsDouble();}
+
+  public double getTemp() 
+    {return m_Leader.getAncillaryDeviceTemp().getValueAsDouble();}
 
   public void update()
   {
-    PBDash.putDouble("Flywheel Speed",m_Leader.getVelocity().getValueAsDouble());
-    PBDash.putDouble("Flywheel Temp",m_Leader.getAncillaryDeviceTemp().getValueAsDouble());
+
   }
 
   public void setVoltage(double voltage)
