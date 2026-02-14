@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
@@ -76,6 +77,7 @@ public class Robot extends TimedRobot
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
+  private final CANBus canBus = new CANBus();
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
@@ -102,9 +104,9 @@ public class Robot extends TimedRobot
       s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
       s_Swerve.addVisionMeasurement(poseEst, timestmp);
     },
-    () -> swerveState.Speeds.omegaRadiansPerSecond,
-    new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
-    new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
+    () -> swerveState.Speeds.omegaRadiansPerSecond//,
+    //new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
+    //new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
   );
 
   private final LinearExtension s_Climber = new LinearExtension
@@ -289,6 +291,7 @@ public class Robot extends TimedRobot
   {
     updateSwerveState();
     CommandScheduler.getInstance().run();
+    PBDash.CAN_LOAD.put((double)canBus.getStatus().BusUtilization);
   }
 
   @Override
@@ -322,6 +325,7 @@ public class Robot extends TimedRobot
   public void testInit() 
   {
     CommandScheduler.getInstance().cancelAll();
+    PBDash.putDouble("Test Feeder", 0.0);
 
   }
 
@@ -334,5 +338,6 @@ public class Robot extends TimedRobot
     s_StbdShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
     s_PortShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
     
+    s_Feeder.setSpeed(PBDash.getDouble("Test Feeder"));
   }
 }

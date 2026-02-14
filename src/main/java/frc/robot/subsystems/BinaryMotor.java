@@ -40,6 +40,9 @@ public class BinaryMotor extends SubsystemBase
     return this;
   }
 
+  public void setSpeed(double speed) 
+    {m_Inner.set(speed);}
+
   /**
    * Construct a command that runs the motor at the default speed
    * 
