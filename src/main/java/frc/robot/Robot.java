@@ -102,9 +102,9 @@ public class Robot extends TimedRobot
       s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
       s_Swerve.addVisionMeasurement(poseEst, timestmp);
     },
-    () -> swerveState.Speeds.omegaRadiansPerSecond,
-    new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
-    new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
+    () -> swerveState.Speeds.omegaRadiansPerSecond//,
+    //new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
+    //new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
   );
 
   private final LinearExtension s_Climber = new LinearExtension
@@ -322,6 +322,7 @@ public class Robot extends TimedRobot
   public void testInit() 
   {
     CommandScheduler.getInstance().cancelAll();
+    PBDash.putDouble("Test Feeder", 0.0);
 
   }
 
@@ -334,5 +335,6 @@ public class Robot extends TimedRobot
     s_StbdShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
     s_PortShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
     
+    s_Feeder.setSpeed(PBDash.getDouble("Test Feeder"));
   }
 }
