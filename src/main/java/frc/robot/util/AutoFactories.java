@@ -54,7 +54,7 @@ public class AutoFactories
             Rotation2d.fromDegrees(Double.parseDouble(splitCommand.substring(splitCommand.indexOf(";")))) : 
             swerveStateSup.get().Pose.getRotation().plus(Rotation2d.k180deg);
           
-          commandList.addCommands(s_Swerve.poseDriveCommand(new AlliancePose2dSup(posTarget, rotationTarget), swerveStateSup));
+          commandList.addCommands(s_Swerve.poseDriveCommand(new AlliancePose2d(posTarget, rotationTarget), swerveStateSup));
         }
 
         // w - Wait for duration

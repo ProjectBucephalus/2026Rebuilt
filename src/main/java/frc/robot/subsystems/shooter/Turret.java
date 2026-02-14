@@ -32,7 +32,6 @@ public class Turret
   private final AnalogPotentiometer io_Azimuth;
 
   private final Supplier<Target> targetSup;
-  private int cyclesSinceCalibrated = 50;
   private double lastCalibration = 0;
   private double potLastCycle = 0;
 

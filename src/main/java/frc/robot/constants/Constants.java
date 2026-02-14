@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import frc.robot.util.AllianceTranslation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -50,6 +51,14 @@ public final class Constants
     public static final double lineupTolerance = 0.05;
     /** Rotation lineup tolerance, degrees */
     public static final double angleLineupTolerance = 3;
+
+    /** Attractor minimum angle tolerance, degrees */
+    public static final double minAngleTolerance = 20;
+    /** Attractor maximum angle tolerance, degrees */
+    public static final double maxAngleTolerance = 60;
+
+    public static final AllianceTranslation2d leftFerryTarget = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 1.5);
+    public static final AllianceTranslation2d rightFerryTarget = new AllianceTranslation2d(1.5, 1.5);
   }
 
   /** Geometry and tuning data for drivebase */
@@ -72,7 +81,6 @@ public final class Constants
     /** Wheel-centre to Robot-centre distance to Aft wheels, metres */
     public static final double wheelAftX = (-drivebaseLength/2) - drivebaseOffset;
 
-
     public static final double initialHeading = 0;
 
     /* Drive PID Values */
@@ -90,6 +98,15 @@ public final class Constants
     public static final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     /** Mechanical maximum robot rotation rate, Radians per Second */
     public static final double maxAngularVelocity = 4;
+
+    /** Radius from robot centre in metres where geofence is triggered for slow movements */
+    public static final double robotRadiusInscribed = 0.42;
+    /** Radius from robot centre in metres where geofence is triggered for fast movements */
+    public static final double robotRadiusCircumscribed = 0.6;
+    /** Radius enclosing robot when extended in metres where geofence is triggered for most movement */
+    public static final double robotRadiusExpanded = 0.66;
+    /** Speed threshold at which the robot changes between radii, m/s */
+    public static final double robotSpeedThreshold = 1.5;
   }
 
   /** Geometry and tuning data for shooter systems */
