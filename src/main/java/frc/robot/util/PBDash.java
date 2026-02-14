@@ -78,39 +78,51 @@ public class PBDash
 
   /**
    * Gets an int from the table {@value IDConstants#dashTableName} <p>
-   * If a value with the given name is not present in the table, or it has a different type, {@code 0} will be returned as a default
+   * If a value with the given name is not present in the table, {@code 0} will be pushed to network and returned
    * 
    * @param name name of the value to get
    */
   public static int getInt(String name)
-    {return (int)entry(name).getInteger(0);}
+  {
+    if(!entry(name).exists()) putInt(name, 0);
+    return (int)entry(name).getInteger(0);
+  }
 
   /**
    * Gets a double from the table {@value IDConstants#dashTableName} <p>
-   * If a value with the given name is not present in the table, or it has a different type, {@code 0} will be returned as a default
+   * If a value with the given name is not present in the table, {@code 0.0} will be pushed to network and returned
    * 
    * @param name name of the value to get
    */
   public static double getDouble(String name)
-    {return entry(name).getDouble(0);}
+  {
+    if(!entry(name).exists()) putDouble(name, 0);
+    return entry(name).getDouble(0);
+  }
 
   /**
    * Gets a boolean from the table {@value IDConstants#dashTableName} <p>
-   * If a value with the given name is not present in the table, or it has a different type, {@code false} will be returned as a default
+   * If a value with the given name is not present in the table, {@code false} will be pushed to network and returned
    * 
    * @param name name of the value to get
    */
   public static boolean getBool(String name)
-    {return entry(name).getBoolean(false);}
+  {
+    if(!entry(name).exists()) putBool(name, false);
+    return entry(name).getBoolean(false);
+  }
 
   /**
    * Gets a String from the table {@value IDConstants#dashTableName} <p>
-   * If a value with the given name is not present in the table, or it has a different type, an empty string will be returned as a default
+   * If a value with the given name is not present in the table, an empty string will be pushed to network and returned
    * 
    * @param name name of the value to get
    */
   public static String getString(String name)
-    {return entry(name).getString("");}
+  {
+    if(!entry(name).exists()) putString(name, "");
+    return entry(name).getString("");
+  }
 
   /** Internal helper to make some lines shorter */
   private static final NetworkTableEntry entry(String name)
