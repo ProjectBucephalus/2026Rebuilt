@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -28,10 +27,9 @@ import frc.robot.constants.*;
 import static frc.robot.constants.Constants.*;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
-import static frc.robot.constants.IDConstants.*;
-
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.generic.*;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.*;
 import frc.robot.util.AutoFactories;
@@ -65,14 +63,8 @@ import frc.robot.util.libs.Telemetry;
 @Logged
 public class Robot extends TimedRobot 
 {
-  /* Enums */
-  public enum TargetPosition {Left, Right, Centre, None} // TODO Unused
-  public enum DriveState {None, Hub, Tower} // Depending on how we're doing climb lineup, we can probably remove both of these
-  
   /* State */
   private SwerveDriveState swerveState;
-  private TargetPosition currentTarget = TargetPosition.None;
-  private DriveState currentDriveState = DriveState.None;
   private Command autoCommand;
 
   /* Telemetry and SD */
@@ -108,7 +100,6 @@ public class Robot extends TimedRobot
     //new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
     //new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
   );
-
   private final LinearExtension s_Climber = new LinearExtension
   (
     IDConstants.climberCAN, 
@@ -125,10 +116,9 @@ public class Robot extends TimedRobot
     IDConstants.extensionCAN, 
     IDConstants.extensionLimitDIO
   );
-  private final BinaryMotor s_Feeder = new BinaryMotor
+  private final VelocityMotor s_Feeder = new VelocityMotor
   (
     IDConstants.feederCAN,
-    FeederConstants.feederSpeed,
     FeederConstants.feederConfig
   );
   
@@ -179,7 +169,6 @@ public class Robot extends TimedRobot
   private void initInputTransmute()
   {
     FieldUtils.activateAllianceFencing();
-    FieldConstants.GeoFencing.configureAttractors((testTarget, testState) -> currentTarget == testTarget && currentDriveState == testState);
     FieldObject.setRobotRadiusSup
       (() -> 
         Math.hypot(swerveState.Speeds.vxMetersPerSecond, swerveState.Speeds.vyMetersPerSecond) >= robotSpeedThreshold ? 
@@ -213,6 +202,17 @@ public class Robot extends TimedRobot
       )
     );
 
+    s_PortShooter.shootReadyTrigger()
+      .and(s_StbdShooter.shootReadyTrigger())
+      .whileTrue
+      (
+        s_Feeder.runEnd
+        (
+          () -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())),
+          () -> s_Feeder.setSpeed(0)
+        )
+      );
+
     bumpNB.asTrigger()
       .or(bumpSB.asTrigger())
       .or(bumpNR.asTrigger())
@@ -229,12 +229,6 @@ public class Robot extends TimedRobot
           bumpRotationTolerance
         )
       );
-
-    /* Setting Drive States */
-    driver.povLeft().onTrue(runOnce(() -> currentTarget = TargetPosition.Left));
-    driver.povRight().onTrue(runOnce(() -> currentTarget = TargetPosition.Right));
-    driver.povUp().onTrue(runOnce(() -> currentTarget = TargetPosition.Centre));
-    driver.povDown().onTrue(runOnce(() -> currentTarget = TargetPosition.None));
     
     driver.x().and(s_Vision::getPoseFromVision).onTrue
     (
@@ -245,23 +239,6 @@ public class Robot extends TimedRobot
         Pathfinding.testPath
       )
     );
-
-    /* Heading Locking */
-    new Trigger(() -> currentDriveState == DriveState.None)
-      .whileTrue
-      (
-        new ManualDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          () -> -driver.getRightX(),
-          driver::getRightTriggerAxis
-        )
-      );
-    
-    /* Other */
-    new Trigger(PBDash.LL_EXPOSURE_UP::button).onTrue(runOnce(s_Vision::incrementPipeline));
-    new Trigger(PBDash.LL_EXPOSURE_DOWN::button).onTrue(runOnce(s_Vision::decrementPipeline));
   }
 
   /** Sets trigger conditions to activate controller rumbles */

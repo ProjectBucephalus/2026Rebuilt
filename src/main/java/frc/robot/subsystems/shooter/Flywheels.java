@@ -57,6 +57,7 @@ public class Flywheels
     return MathUtil.isNear(request.Velocity, getSpeed(), flySpeedTolerance);
   }
 
+  /** @return Current speed of the flywheels (RPS of the main flywheel) */
   public double getSpeed() 
     {return m_Leader.getVelocity().getValueAsDouble();}
 

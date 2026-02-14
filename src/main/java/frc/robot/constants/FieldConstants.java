@@ -8,8 +8,6 @@ import java.util.function.BiPredicate;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.Robot.DriveState;
-import frc.robot.Robot.TargetPosition;
 import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.ObjectList;
 import frc.robot.util.controlTransmutation.geoFence.*;
@@ -208,12 +206,6 @@ public class FieldConstants
     
     public static final BoxRestrictor depotBlueZone = new BoxRestrictor(0, fieldWidth - depotSpacing, depotDepth, fieldWidth - (depotSpacing + depotWidth));
     public static final BoxRestrictor depotRedZone  = new BoxRestrictor(fieldLength, depotSpacing, fieldLength - depotDepth, depotSpacing + depotWidth);
-
-    // Set up Attractors and Conditions for GeoFence objects
-    public static void configureAttractors(BiPredicate<TargetPosition, DriveState> checkTargetAndState)
-    {
-
-    }
 
     public static final ObjectList fieldStaticGeoFence = new ObjectList
     (

@@ -104,13 +104,18 @@ public class Shooter extends SubsystemBase
     {return runOnce(() -> flywheels.setSpeed(speed));}
 
   public void setFlySpeed(double speed)
-  {flywheels.setSpeed(speed);}
+    {flywheels.setSpeed(speed);}
+
   public void setFlyVoltage(double speed)
-  {flywheels.setVoltage(speed);}
+    {flywheels.setVoltage(speed);}
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
     {return turret.getAzimuth() - shooterOffset.getRotation().getDegrees();}
+
+  /** @return Current speed of the flywheels (RPS of the main flywheel) */
+  public double getSpeed()
+    {return flywheels.getSpeed();}
 
   /** @return Current Target object for the Shooter system */
   public Target getTarget() {return target;}

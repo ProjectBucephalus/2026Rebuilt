@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.generic;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -40,6 +40,11 @@ public class BinaryMotor extends SubsystemBase
     return this;
   }
 
+  /**
+   * Sets the speed of the motor to an arbitrary value <p>
+   * 
+   * @param speed the duty-cycle speed to run at [-1..1]
+   */
   public void setSpeed(double speed) 
     {m_Inner.set(speed);}
 
@@ -60,7 +65,7 @@ public class BinaryMotor extends SubsystemBase
     {return runOnce(() -> m_Inner.set(0));}
 
   /**
-   * Construct a command that sets the speed for the motor to an arbitrary value <p>
+   * Construct a command that sets the speed of the motor to an arbitrary value <p>
    * NOTE: The provided value is only evaluated when the command is created
    * 
    * @param speed the duty-cycle speed to run at [-1..1]
