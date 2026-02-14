@@ -75,6 +75,10 @@ public class Vision extends SubsystemBase
     return haveLocalisation || Robot.isSimulation();
   }
 
+  /**
+   * Accepts a given robot pose as if it were a valid localisation estimate
+   * @param pose Robot pose in field space, ignores rotation
+   */
   public void setPose(Pose2d pose)
   {
     lastGoodPose = Timer.getTimestamp();
