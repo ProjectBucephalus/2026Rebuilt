@@ -12,6 +12,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -32,6 +33,7 @@ public class Turret
 
   private final Supplier<Target> targetSup;
   private int cyclesSinceCalibrated = 50;
+  private double lastCalibration = 0;
   private double potLastCycle = 0;
 
   private final MotionMagicVoltage request = new MotionMagicVoltage(0);
@@ -91,21 +93,18 @@ public class Turret
    */
   public void calibrate()
   {
-    // If the turret is not moving, pull the value from the pot, convert to mechanism angle, and send to motor
+    // If the turret is not moving fast and has moved since last calibration,
+    // pull the value from the pot, convert to mechanism angle, and send to motor
     if 
     (
-      Math.abs(m_Turret.getVelocity().getValueAsDouble()) < 0.1
-      && cyclesSinceCalibrated >= 20
-      && io_Azimuth.get() / azimuthGearRatio >= -300
-      && io_Azimuth.get() / azimuthGearRatio <= 300
-    ) // TODO Put this in constants
+      Math.abs(m_Turret.getVelocity().getValueAsDouble()) < calibrationSpeedLimit // Only calibrate when turret is moving slowly
+      && !MathUtil.isNear(io_Azimuth.get(), lastCalibration, calibrationAngleLimit) // Only calibrate after moving ~10 degrees
+      && io_Azimuth.get() >= -potSafeLimit // Discard extreme values that occur when sensor is disconnected
+      && io_Azimuth.get() <=  potSafeLimit
+    )
     {
       m_Turret.setPosition((io_Azimuth.get() + potLastCycle) / (2 * azimuthGearRatio  * 360.0));
-      cyclesSinceCalibrated = 0; // 
-    }
-    else
-    {
-      cyclesSinceCalibrated++;
+      lastCalibration = io_Azimuth.get();
     }
 
     potLastCycle = io_Azimuth.get();

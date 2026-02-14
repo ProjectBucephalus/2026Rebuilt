@@ -191,6 +191,13 @@ public final class Constants
 
       /** Maximum absolute rotation rate of the turret in field-space to be considered safe to shoot, rps */
       public static final double maxRPS = 1;
+
+      /** Maximum expected value from potentiometer, beyond which indicates error, sensor degrees */
+      public static final double potSafeLimit = 280 * azimuthGearRatio;
+      /** Minimum change in azimuth before recalibrating, sensor degrees */
+      public static final double calibrationAngleLimit = 5 * azimuthGearRatio;
+      /** Maximum robot-relative rotation rate to calibrate turret, rotations per second */
+      public static final double calibrationSpeedLimit = 0.1;
       
       public static final TalonFXSConfiguration turretConfig = new TalonFXSConfiguration();
       static 
