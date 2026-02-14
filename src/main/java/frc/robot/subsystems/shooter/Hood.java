@@ -71,11 +71,8 @@ public class Hood
     // Limit the target altitude to within the hood's range of motion
     target.altitude = Conversions.clamp(target.altitude, 0, hoodRange);
 
-    // Offset the target altitude by the hood's home angle (theoretical 0 becomes home angle, theoretical max becomes max + home angle)
-    target.altitude += homeAngle;
-
     // Convert hood target in degrees to servo position from [0..1]
-    double servoTarget = (target.altitude * hoodRatio) / servoRange;
+    double servoTarget = ((target.altitude + homeAngle) * hoodRatio) / servoRange;
 
     // Invert the target position if needed
     if (inverted) servoTarget = 1 - servoTarget;
