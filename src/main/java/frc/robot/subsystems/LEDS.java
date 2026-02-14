@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.constants.IDConstants;
-//import frc.robot.constants.Constants.LEDConstants;
+import frc.robot.constants.Constants.LEDConstants;
 import frc.robot.util.LEDs.Sections.LEDSection;
 
 import java.util.ArrayList;
@@ -16,14 +16,13 @@ public class LEDS extends SubsystemBase
 {
     AddressableLED LEDStrip;
     AddressableLEDBuffer LEDBuffer;
-    final LEDPattern patternBlack = LEDPattern.solid(Color.kBlack); //Useful to wipe the buffer before each render pass
     ArrayList<LEDSection> sectionList = new ArrayList<LEDSection>();
 
     public LEDS()
     {
         LEDStrip = new AddressableLED(IDConstants.LEDPWDPort);
-//        LEDBuffer = new AddressableLEDBuffer(LEDConstants.LEDStripLen);
-//        LEDStrip.setLength(LEDConstants.LEDStripLen);
+        LEDBuffer = new AddressableLEDBuffer(LEDConstants.LEDStripLen);
+        LEDStrip.setLength(LEDConstants.LEDStripLen);
         LEDStrip.start();
     }
 
@@ -37,12 +36,17 @@ public class LEDS extends SubsystemBase
         sectionList.remove(index);
     }
 
-    //TODO: register section method and remove section method (names?)
+    public void removeSection(String name)
+    {
+        sectionList.removeIf(a -> a.getName() == name);
+    }
+
+    //TODO: list section method and remove section by name method (section names?) 
 
     @Override
     public void periodic()
     {
-        patternBlack.applyTo(LEDBuffer);
+        LEDPattern.solid(Color.kBlack).applyTo(LEDBuffer);
         sectionList.sort(Comparator.comparing(LEDSection::getPriority));
         for (LEDSection section : sectionList)
         {

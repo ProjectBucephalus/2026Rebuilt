@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.util.Color;
 public class LEDPatternObject
 {
 
-    private Color colour;
+    public Color colour;
 
     public LEDPatternObject (Color colour)
     {

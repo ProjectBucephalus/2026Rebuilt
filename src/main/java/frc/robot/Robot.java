@@ -4,7 +4,8 @@
 
 package frc.robot;
 
-import edu.wpi.first.epilogue.Epilogue;
+
+//import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -167,7 +168,7 @@ public class Robot extends TimedRobot
       DriverStation.startDataLog(DataLogManager.getLog());
     }
 
-    Epilogue.bind(this);
+    //Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
   }
@@ -303,6 +304,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
+    FieldUtils.startAuto(System.currentTimeMillis());
     FieldUtils.updateAlliance();
     autoCommand = AutoFactories.getCommandList(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
@@ -312,6 +314,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit() 
   {
+    FieldUtils.startTele(System.currentTimeMillis());
     if (autoCommand != null) autoCommand.cancel();
     FieldUtils.updateAlliance();
     initInputTransmute();

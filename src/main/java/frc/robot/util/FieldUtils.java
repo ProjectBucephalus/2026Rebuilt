@@ -17,6 +17,13 @@ public class FieldUtils
   private static boolean redAlliance;
   static {updateAlliance();}
 
+  // timer function variables
+  private static double autoStart = 0;            //variable to save system time at start of auto
+  private static double teleStart = 0;            //variable to save system time at start of teleop
+  private static double MAX_GAME_TIME = 150000;   //match length in millis
+  private static double AUTO_TIME = 15000;        //Auto length in millis
+  private static double TELE_TIME = 135000;       //Teleop length in millis
+
   /**
    * Checks whether we are on the red alliance <p>
    * If the alliance value is unavailable for some reason, it will always return false (i.e. blue alliance)
@@ -173,5 +180,98 @@ public class FieldUtils
     boolean redAlliance = isRedAlliance();
     GeoFencing.fieldRedGeoFence.setActiveCondition(() -> redAlliance);
     GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> !redAlliance);
+  }
+
+
+  /**
+   * Timer Functions
+   */
+
+  public static void startAuto (double currentTime)
+  {
+    autoStart = currentTime;
+  }
+
+  public static void startTele (double currentTime)
+  {
+    teleStart = currentTime;
+  }
+
+  public static double getGameTimeElapsed()
+  {
+    double currentTime = System.currentTimeMillis();
+    if ((currentTime < autoStart) || (currentTime > (autoStart + MAX_GAME_TIME)))
+    {
+      return 0;
+    }
+    else
+    {
+      return currentTime-autoStart;
+    }
+  }
+
+  public static double getGameTimeRemaining()
+  {
+    double currentTime = System.currentTimeMillis();
+    if ((currentTime < autoStart) || (currentTime > (autoStart + MAX_GAME_TIME)))
+    {
+      return 0;
+    }
+    else
+    {
+      return MAX_GAME_TIME - (currentTime - autoStart);
+    }
+  }
+
+  public static double getAutoTimeElapsed()
+  {
+    double currentTime = System.currentTimeMillis();
+    if (currentTime < autoStart)
+    {
+      return 0;
+    }
+    else
+    {
+      return Math.min(currentTime - autoStart, AUTO_TIME);
+    }
+  }
+
+  public static double getAutoTimeRemaining()
+  {
+    double currentTime = System.currentTimeMillis();
+    if ((currentTime < autoStart) || (currentTime > autoStart + AUTO_TIME))
+    {
+      return 0;
+    }
+    else
+    {
+      return AUTO_TIME - (currentTime - autoStart);
+    }
+  }
+
+  public static double getTeleTimeElapsed()
+  {
+    double currentTime = System.currentTimeMillis();
+    if ((currentTime < teleStart) || (currentTime > (teleStart + TELE_TIME)))
+    {
+      return 0;
+    }
+    else
+    {
+      return currentTime - teleStart;
+    }
+  }
+
+  public static double getTeleTimeRemaining()
+  {
+    double currentTime = System.currentTimeMillis();
+    if ((currentTime < teleStart) || (currentTime > (teleStart + TELE_TIME)))
+    {
+      return 0;
+    }
+    else
+    {
+      return TELE_TIME - (currentTime - teleStart);
+    }
   }
 }
