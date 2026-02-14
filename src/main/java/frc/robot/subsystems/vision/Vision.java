@@ -14,6 +14,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.util.PBDash;
 import static frc.robot.constants.Constants.VisionConstants.*;
 
@@ -65,9 +66,13 @@ public class Vision extends SubsystemBase
     PBDash.LL_EXPOSURE.put(pipelineIndex);
   }
 
-  public boolean getPoseFromVision()
+  /** 
+   * @return {@code true} if localisation can be trusted (or simulated)
+   * <li>    {@code false} if running on odometry only
+   */
+  public boolean hasLocalisation()
   {
-    return haveLocalisation;
+    return haveLocalisation || Robot.isSimulation();
   }
 
   public void setPose(Pose2d pose)

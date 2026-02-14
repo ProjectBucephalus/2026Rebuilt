@@ -184,7 +184,7 @@ public class Robot extends TimedRobot
       .withInputCurve(driverInputCurve)
       .withDeadband(driverDeadband);
 
-    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.getPoseFromVision() && PBDash.FENCE_TOGGLE.get() && PBDash.LL_TOGGLE.get());
+    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.FENCE_TOGGLE.get() && PBDash.LL_TOGGLE.get());
   }
 
   /** Sets primary control bindings */
@@ -230,7 +230,7 @@ public class Robot extends TimedRobot
         )
       );
     
-    driver.x().and(s_Vision::getPoseFromVision).onTrue
+    driver.x().and(s_Vision::hasLocalisation).onTrue
     (
       new PathFollowDrive
       (
