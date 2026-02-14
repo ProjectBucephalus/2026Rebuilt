@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 /**
  * Interface class for a turret mechanism to control the azimuth of a shooter. <p>
  * Ensures rotation limits are respected to prevent damage to cables. <p>
- * Uses a TalonFX controlled motor, and a potentiometer for calibration. <p>
+ * Uses a TalonFXS controlled motor, and a potentiometer for calibration. <p>
  * Includes functionality to track a point on the field while the robot is in motion. <p>
  * @author 5985
  */
@@ -31,6 +31,8 @@ public class Turret
   private final AnalogPotentiometer io_Azimuth;
 
   private final Supplier<Target> targetSup;
+  private int cyclesSinceCalibrated = 50;
+  private double potLastCycle = 0;
 
   private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
@@ -90,8 +92,23 @@ public class Turret
   public void calibrate()
   {
     // If the turret is not moving, pull the value from the pot, convert to mechanism angle, and send to motor
-    if (Math.abs(m_Turret.getVelocity().getValueAsDouble()) < 0.1) // TODO Put this in constants
-      m_Turret.setPosition((io_Azimuth.get() / azimuthGearRatio) / 360.0);
+    if 
+    (
+      Math.abs(m_Turret.getVelocity().getValueAsDouble()) < 0.1
+      && cyclesSinceCalibrated >= 20
+      && io_Azimuth.get() / azimuthGearRatio >= -300
+      && io_Azimuth.get() / azimuthGearRatio <= 300
+    ) // TODO Put this in constants
+    {
+      m_Turret.setPosition((io_Azimuth.get() + potLastCycle) / (2 * azimuthGearRatio  * 360.0));
+      cyclesSinceCalibrated = 0; // 
+    }
+    else
+    {
+      cyclesSinceCalibrated++;
+    }
+
+    potLastCycle = io_Azimuth.get();
   }
 
   public double getRawAz()
@@ -115,7 +132,7 @@ public class Turret
 
     double robotDegreesPerCycle = robotDegreesPerSecond / 50;
 
-    return Conversions.normaliseAngle(robotTarget - robotDegreesPerCycle, getAzimuth(), maxTurretAzimuth);
+    return robotTarget - robotDegreesPerCycle;
   }
 
   public boolean safeToShoot(ChassisSpeeds swerveSpeeds)
@@ -149,6 +166,6 @@ public class Turret
       case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
     };
 
-    m_Turret.setControl(request.withPosition(target.azimuth / 360));
+    m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
   }   
 }
