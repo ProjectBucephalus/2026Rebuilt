@@ -63,6 +63,9 @@ public class Flywheels
   public double getTemp() 
     {return m_Leader.getAncillaryDeviceTemp().getValueAsDouble();}
 
+  public double getMotorCurrent()
+    {return m_Leader.getStatorCurrent().getValueAsDouble();}
+
   public void update()
   {
 
