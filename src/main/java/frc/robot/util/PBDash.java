@@ -40,6 +40,8 @@ public class PBDash
   public static final Key<Double>  BOTTOM_SHOOTER_SPEED = new Key<>("Bottom Shooter Speed", 0.0);
   public static final Key<Double>  TOP_SHOOTER_SPEED    = new Key<>("Top Shooter Speed", 0.0);
 
+  public static final Key<Double> CAN_LOAD              = new Key<>("CAN-bus Load", 0.0);
+
   /**
    * Publishes an int to the table {@value IDConstants#dashTableName}
    * 
