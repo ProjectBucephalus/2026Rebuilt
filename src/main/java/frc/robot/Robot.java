@@ -25,12 +25,18 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import frc.robot.commands.swerve.*;
 import frc.robot.constants.*;
 import static frc.robot.constants.Constants.*;
+import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
+
+import java.util.function.Consumer;
+
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.generic.*;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.Target;
+import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
 import frc.robot.util.AutoFactories;
 import frc.robot.util.FieldUtils;
@@ -79,7 +85,7 @@ public class Robot extends TimedRobot
       ShooterConstants.portShooterOffset,
       IDConstants.portShooterIDs,
       ShooterConstants.TurretConstants.portPotOffset,
-      true // TODO confirm
+      true
     );
   private final Shooter s_StbdShooter = new Shooter
     (
@@ -87,7 +93,7 @@ public class Robot extends TimedRobot
       ShooterConstants.stbdShooterOffset,
       IDConstants.stbdShooterIDs,
       ShooterConstants.TurretConstants.stbdPotOffset,
-      false // TODO confirm
+      false
     );
   private final Vision s_Vision = new Vision
   (
@@ -170,11 +176,11 @@ public class Robot extends TimedRobot
   {
     FieldUtils.activateAllianceFencing();
     FieldObject.setRobotRadiusSup
-      (() -> 
-        Math.hypot(swerveState.Speeds.vxMetersPerSecond, swerveState.Speeds.vyMetersPerSecond) >= robotSpeedThreshold ? 
-        robotRadiusCircumscribed : 
-        robotRadiusInscribed
-      );
+    (() -> 
+      Math.hypot(swerveState.Speeds.vxMetersPerSecond, swerveState.Speeds.vyMetersPerSecond) >= SwerveConstants.robotSpeedThreshold ? 
+      SwerveConstants.robotRadiusCircumscribed : 
+      SwerveConstants.robotRadiusInscribed
+    );
     FieldObject.setRobotPosSup(this::getTranslation);
     
     driverStick
@@ -239,6 +245,20 @@ public class Robot extends TimedRobot
         Pathfinding.testPath
       )
     );
+
+    operator.povLeft().onTrue
+    (
+      run(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get()))
+    );
+
+    operator.povRight().onTrue
+    (
+      run(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()))
+    );
+
+    new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()))
+      .onTrue(run(() -> modifyTargets(target -> target.state = TargetState.Hub)))
+      .onFalse(run(() -> modifyTargets(target -> target.state = TargetState.Point)));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
@@ -249,17 +269,28 @@ public class Robot extends TimedRobot
 
   /* UTIL METHODS */
   /* ============ */
-  /** Pull current state from drivebase for external use, to avoid repeated expensive calls */
-  private void updateSwerveState()
+  /**
+   * Perform some modification on the targets of both shooters
+   * 
+   * @param updater The action to perform on the targets
+   */
+  private void modifyTargets(Consumer<Target> updater)
   {
-    swerveState = s_Swerve.getState();
+    updater.accept(s_PortShooter.getTarget());
+    updater.accept(s_StbdShooter.getTarget());
   }
 
+  /** Pull current state from drivebase for external use, to avoid repeated expensive calls */
+  private void updateSwerveState()
+    {swerveState = s_Swerve.getState();}
+
   /** Returns the t2d of the robot centre in field coordinates */
-  public Translation2d getTranslation() {return swerveState.Pose.getTranslation();}
+  public Translation2d getTranslation()
+    {return swerveState.Pose.getTranslation();}
 
   /** Returns the r2d of the robot in field coordinates */
-  public Rotation2d getRotation() {return swerveState.Pose.getRotation();}
+  public Rotation2d getRotation() 
+    {return swerveState.Pose.getRotation();}
   
   /* OPMODE METHODS */
   /* ============ */
@@ -302,8 +333,6 @@ public class Robot extends TimedRobot
   public void testInit() 
   {
     CommandScheduler.getInstance().cancelAll();
-    PBDash.putDouble("Test Feeder", 0.0);
-
   }
 
   @Override
@@ -314,7 +343,5 @@ public class Robot extends TimedRobot
     
     s_StbdShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
     s_PortShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
-    
-    s_Feeder.setSpeed(PBDash.getDouble("Test Feeder"));
   }
 }
