@@ -25,6 +25,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import frc.robot.commands.swerve.*;
 import frc.robot.constants.*;
 import static frc.robot.constants.Constants.*;
+import static frc.robot.constants.IDConstants.*;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
@@ -96,9 +97,9 @@ public class Robot extends TimedRobot
       s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
       s_Swerve.addVisionMeasurement(poseEst, timestmp);
     },
-    () -> swerveState.Speeds.omegaRadiansPerSecond//,
+    () -> swerveState.Speeds.omegaRadiansPerSecond,
     //new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
-    //new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
+    new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
   );
   private final LinearExtension s_Climber = new LinearExtension
   (
