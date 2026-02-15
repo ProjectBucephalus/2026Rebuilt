@@ -194,9 +194,9 @@ public final class Constants
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double portPotOffset = -1800;
+      public static final double portPotOffset = -1801.2;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double stbdPotOffset = -1800;
+      public static final double stbdPotOffset = -1819.2;
 
       private static final double planetaryRatio = 20;
       private static final double driveGear = 15;

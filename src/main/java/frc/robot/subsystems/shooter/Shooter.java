@@ -37,7 +37,7 @@ public class Shooter extends SubsystemBase
   private SwerveDriveState swerveState;
 
   /** Current active target for the shooter */
-  private Target target = new Target(TargetState.Hub);
+  private Target target = new Target(TargetState.Manual);
 
   /**
    * Creates Turreted Shooter master-system, internally creates and manages associated subsystems

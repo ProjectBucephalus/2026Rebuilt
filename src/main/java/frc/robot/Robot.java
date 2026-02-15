@@ -257,9 +257,9 @@ public class Robot extends TimedRobot
       run(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()))
     );
 
-    new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(run(() -> modifyTargets(target -> target.state = TargetState.Hub)))
-      .onFalse(run(() -> modifyTargets(target -> target.state = TargetState.Point)));
+    // new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()))
+    //   .onTrue(run(() -> modifyTargets(target -> target.state = TargetState.Hub)))
+    //   .onFalse(run(() -> modifyTargets(target -> target.state = TargetState.Point)));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
