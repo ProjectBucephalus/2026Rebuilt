@@ -62,6 +62,7 @@ public class Shooter extends SubsystemBase
   ) 
   {
     this.swerveStateSup = swerveStateSup;
+    this.swerveState = swerveStateSup.get();
     this.shooterOffset = robotToShooter;
 
     baseTargetOffset = new Translation2d(0, Math.copySign(ShooterConstants.targetPointOffset, robotToShooter.getY()));

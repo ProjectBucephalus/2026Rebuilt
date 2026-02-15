@@ -71,7 +71,7 @@ import frc.robot.util.libs.Telemetry;
 public class Robot extends TimedRobot 
 {
   /* State */
-  private SwerveDriveState swerveState;
+  private SwerveDriveState swerveState = new SwerveDriveState();
   private Command autoCommand;
 
   /* Telemetry and SD */
@@ -208,7 +208,7 @@ public class Robot extends TimedRobot
         driver::getRightTriggerAxis
       )
     );
-/* 
+
     s_PortShooter.shootReadyTrigger()
       .and(s_StbdShooter.shootReadyTrigger())
       .whileTrue
@@ -218,7 +218,7 @@ public class Robot extends TimedRobot
           () -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())),
           () -> s_Feeder.setSpeed(0)
         )
-      );*/
+      );
 
     bumpNB.asTrigger()
       .or(bumpSB.asTrigger())
