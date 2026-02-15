@@ -1,6 +1,8 @@
 package frc.robot.util;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
@@ -12,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.swerve.PathFollowDrive;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -38,7 +41,7 @@ public class AutoFactories
     {
       switch (splitCommand.charAt(0)) 
       {
-        // g - Go to (g x:y;r)
+        // (g x:y;r) - Go to x, y, r (alliance origin relative)
         case 'g' ->
 				{
           int seperatorIndex = splitCommand.indexOf(":");
@@ -54,7 +57,7 @@ public class AutoFactories
             Rotation2d.fromDegrees(Double.parseDouble(splitCommand.substring(splitCommand.indexOf(";")))) : 
             swerveStateSup.get().Pose.getRotation().plus(Rotation2d.k180deg);
           
-          commandList.addCommands(s_Swerve.poseDriveCommand(new AlliancePose2d(posTarget, rotationTarget), swerveStateSup));
+          commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, new AlliancePose2d(posTarget, rotationTarget).get()));
         }
 
         // w - Wait for duration
