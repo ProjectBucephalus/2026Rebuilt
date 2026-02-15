@@ -138,6 +138,7 @@ public class PBDash
   {
     private T defaultVal;
     private GenericEntry ntEntry;
+    private T lastVal;
 
     /**
      * Construct a new Key
@@ -155,7 +156,10 @@ public class PBDash
     /** @return current value of the entry */
     @SuppressWarnings("unchecked")
     public T get()
-      {return (T)ntEntry.get().getValue();}
+    {
+      lastVal = (T)ntEntry.get().getValue();
+      return lastVal;
+    }
 
     /** @param value value to send to network */
     public void put(T value)
@@ -168,6 +172,16 @@ public class PBDash
     /** @return default value */
     public T defaultVal()
       {return defaultVal;}
+
+    /** @return {@code true} if the entry's value has changed since the last call to this or to {@link Key#get get()} */
+    @SuppressWarnings("unchecked")
+    public boolean hasChanged()
+    {
+      T newVal = (T)ntEntry.get().getValue();
+      boolean result = !lastVal.equals(newVal);
+      lastVal = newVal;
+      return result;
+    }
 
     /**
      * If the entry has changed from the default value, resets the value and returns true. <p>

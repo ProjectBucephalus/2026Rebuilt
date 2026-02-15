@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,6 +32,7 @@ import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import frc.robot.subsystems.*;
@@ -72,7 +74,7 @@ public class Robot extends TimedRobot
 {
   /* State */
   private SwerveDriveState swerveState = new SwerveDriveState();
-  private Command autoCommand;
+  private Optional<Command> autoCommand;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -285,6 +287,9 @@ public class Robot extends TimedRobot
   private void updateSwerveState()
     {swerveState = s_Swerve.getState();}
 
+  private void compileAuto()
+    {autoCommand = Optional.of(AutoFactories.getCommandList(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState));}
+
   /** Returns the t2d of the robot centre in field coordinates */
   public Translation2d getTranslation()
     {return swerveState.Pose.getTranslation();}
@@ -314,18 +319,30 @@ public class Robot extends TimedRobot
   }
 
   @Override
+  public void disabledPeriodic()
+  {
+    FieldUtils.updateAlliance();
+
+    if (PBDash.AUTO_STRING.hasChanged()) 
+      compileAuto();
+  }
+
+  @Override
   public void autonomousInit() 
   {
     FieldUtils.updateAlliance();
-    autoCommand = AutoFactories.getCommandList(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
-    if (autoCommand != null) CommandScheduler.getInstance().schedule(autoCommand);
+    if (autoCommand.isEmpty())
+      compileAuto();
+
+    CommandScheduler.getInstance().schedule(autoCommand.get());
   }
 
   @Override
   public void teleopInit() 
   {
-    if (autoCommand != null) autoCommand.cancel();
+    autoCommand.ifPresent(Command::cancel);
+
     FieldUtils.updateAlliance();
     initInputTransmute();
   }
