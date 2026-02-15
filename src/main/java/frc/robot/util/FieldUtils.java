@@ -187,16 +187,30 @@ public class FieldUtils
    * Timer Functions
    */
 
-  public static void startAuto (double currentTime)
+  /**
+   * Called at the start of auto to mark the beginning of the match
+   *  
+   */
+  public static void startAuto()
   {
-    autoStart = currentTime;
+    autoStart = System.currentTimeMillis();
   }
 
-  public static void startTele (double currentTime)
+  /**
+   * Called at the start of teleop to mark the beginning of the teleop period
+   * 
+   */
+  public static void startTele()
   {
-    teleStart = currentTime;
+    teleStart = System.currentTimeMillis();
   }
 
+  /**
+   * Gets game time elapsed in milliseconds.
+   * 
+   * @return the number of milliseconds since the startAuto() call,
+   * returns zero if startAuto() has not been called or the match is over.
+   */
   public static double getGameTimeElapsed()
   {
     double currentTime = System.currentTimeMillis();
@@ -210,6 +224,12 @@ public class FieldUtils
     }
   }
 
+  /**
+   * Gets the number of milliseconds remaining in the current match.
+   * 
+   * @return the time remaining in the current match, in milliseconds.
+   * Returns zero if startAuto has not been called or the match is over.
+   */
   public static double getGameTimeRemaining()
   {
     double currentTime = System.currentTimeMillis();
@@ -223,6 +243,13 @@ public class FieldUtils
     }
   }
 
+  /**
+   * Gets the time elapsed in the current autonomous period.
+   * NB while in auto should be identical to getGameTimeElapsed()
+   * 
+   * @return time elapsed since the startAuto() call, in milliseconds.
+   * Will return zero if startAuto() has not been called, and 15000 (15 secs) if auto is finished.
+   */
   public static double getAutoTimeElapsed()
   {
     double currentTime = System.currentTimeMillis();
@@ -236,6 +263,12 @@ public class FieldUtils
     }
   }
 
+  /**
+   * Gets the time remaining in the current autonomous period.
+   * 
+   * @return the time remaining in the current auto, in milliseconds.
+   * Will return zero if startAuto() has not been called, or if auto is finished.
+   */
   public static double getAutoTimeRemaining()
   {
     double currentTime = System.currentTimeMillis();
@@ -249,6 +282,12 @@ public class FieldUtils
     }
   }
 
+  /**
+   * Gets the time elapsed during the current teleoperated period.
+   * 
+   * @return the time elapsed since the startTele() call, in milliseconds.
+   * Will return zero if startTele() has not been called, or the match is over.
+   */
   public static double getTeleTimeElapsed()
   {
     double currentTime = System.currentTimeMillis();
@@ -262,6 +301,12 @@ public class FieldUtils
     }
   }
 
+  /**
+   * Gets the time remaining in the current teleoperated period.
+   * 
+   * @return the time remaining in the current teleop, in milliseconds.
+   * Will return zero if startTele() has not been called, or the match is over.
+   */
   public static double getTeleTimeRemaining()
   {
     double currentTime = System.currentTimeMillis();
@@ -273,5 +318,72 @@ public class FieldUtils
     {
       return TELE_TIME - (currentTime - teleStart);
     }
+  }
+
+  /**
+   * Gets game time elapsed in seconds.
+   * 
+   * @return the number of seconds since the startAuto() call,
+   * returns zero if startAuto() has not been called or the match is over.
+   */
+  public static double getGameTimeElapsedSecs()
+  {
+    return getGameTimeElapsed() / 1000;
+  }
+
+  /**
+   * Gets the number of seconds remaining in the current match.
+   * 
+   * @return the time remaining in the current match, in seconds.
+   * Returns zero if startAuto has not been called or the match is over.
+   */
+  public static double getGameTimeRemainingSecs()
+  {
+    return getGameTimeRemaining() / 1000;
+  }
+
+  /**
+   * Gets the time elapsed in the current autonomous period.
+   * NB while in auto should be identical to getGameTimeElapsedSecs()
+   * 
+   * @return time elapsed since the startAuto() call, in seconds.
+   * Will return zero if startAuto() has not been called, and 15 if auto is finished.
+   */
+  public static double getAutoTimeElapsedSecs()
+  {
+    return getAutoTimeElapsed() / 1000;
+  }
+
+  /**
+   * Gets the time remaining in the current autonomous period.
+   * 
+   * @return the time remaining in the current auto, in seconds.
+   * Will return zero if startAuto() has not been called, or if auto is finished.
+   */
+  public static double getAutoTimeRemainingSecs()
+  {
+    return getAutoTimeRemaining() / 1000;
+  }
+
+  /**
+   * Gets the time elapsed during the current teleoperated period.
+   * 
+   * @return the time elapsed since the startTele() call, in seconds.
+   * Will return zero if startTele() has not been called, or the match is over.
+   */
+  public static double getTeleTimeElapsedSecs()
+  {
+    return getTeleTimeElapsed() / 1000;
+  }
+
+  /**
+   * Gets the time remaining in the current teleoperated period.
+   * 
+   * @return the time remaining in the current teleop, in seconds.
+   * Will return zero if startTele() has not been called, or the match is over.
+   */
+  public static double getTeleTimeRemainingSecs()
+  {
+    return getTeleTimeRemaining() / 1000;
   }
 }

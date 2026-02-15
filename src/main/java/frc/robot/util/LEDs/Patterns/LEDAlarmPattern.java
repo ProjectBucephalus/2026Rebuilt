@@ -44,7 +44,7 @@ public class LEDAlarmPattern extends LEDPatternObject{
     public AddressableLEDBuffer Render(AddressableLEDBuffer buffer)
     {
         LEDPattern.solid(Color.kBlack).applyTo(buffer);
-        double curTime = FieldUtils.getGameTimeElapsed();
+        double curTime = FieldUtils.getGameTimeElapsedSecs();
         if ((curTime > aTime) && (curTime < (aTime + aDuration)))
         {
             switch (aStyle) {
@@ -57,6 +57,15 @@ public class LEDAlarmPattern extends LEDPatternObject{
                     {
                         LEDPattern.solid(colour).applyTo(buffer);
                     }
+                    break;
+
+                case 2:
+                    int o = (int)(Math.floor((curTime-aTime)/aFrequency))%2;
+                    for (int c = o; c < buffer.getLength(); c += 2)
+                    {
+                        buffer.setLED(c, colour);
+                    }
+                    break;
             
                 default:
                     break;

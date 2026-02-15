@@ -304,7 +304,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
-    FieldUtils.startAuto(System.currentTimeMillis());
+    FieldUtils.startAuto();
     FieldUtils.updateAlliance();
     autoCommand = AutoFactories.getCommandList(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
@@ -314,7 +314,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit() 
   {
-    FieldUtils.startTele(System.currentTimeMillis());
+    FieldUtils.startTele();
     if (autoCommand != null) autoCommand.cancel();
     FieldUtils.updateAlliance();
     initInputTransmute();
