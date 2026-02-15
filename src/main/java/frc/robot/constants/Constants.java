@@ -302,7 +302,7 @@ public final class Constants
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
     public static final double linearStdDevBaseline = 0.06;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
-    public static final double rotStdDevBaseline = Math.toRadians(8);
+    public static final double rotStdDevBaseline = Math.toRadians(0.5);
   }
 
   /** Interpolation tables for converting measured input to calibrated output */
