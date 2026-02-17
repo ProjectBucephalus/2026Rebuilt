@@ -37,7 +37,7 @@ public class Shooter extends SubsystemBase
   private SwerveDriveState swerveState;
 
   /** Current active target for the shooter */
-  private Target target = new Target(TargetState.Manual);
+  private Target target = new Target(TargetState.Hub);
 
   /**
    * Creates Turreted Shooter master-system, internally creates and manages associated subsystems
@@ -143,6 +143,17 @@ public class Shooter extends SubsystemBase
     });
   }
 
+  private void telemetrise()
+  {
+    PBDash.putDouble(ntId + " Turret Az", turret.getAzimuth());
+    PBDash.putDouble(ntId + " Flywheel Speed", flywheels.getSpeed());
+    PBDash.putDouble(ntId + " Flywheel Temp", flywheels.getTemp());
+    PBDash.putDouble(ntId + " Flywheel Amps", flywheels.getMotorCurrent());
+    PBDash.putDouble(ntId + " Turret Pot", turret.getRawAz()); 
+    PBDash.putDouble(ntId + " Target Azimuth", target.azimuth); 
+    PBDash.putString(ntId + " Target State", target.state.toString());
+  }
+
   @Override
   public void periodic()
   {
@@ -182,11 +193,6 @@ public class Shooter extends SubsystemBase
     hood.update(shooterPose);
     flywheels.update();
 
-    PBDash.putDouble(ntId + " Turret Az", turret.getAzimuth());
-    PBDash.putDouble(ntId + " Flywheel Speed", flywheels.getSpeed());
-    PBDash.putDouble(ntId + " Flywheel Temp", flywheels.getTemp());
-    PBDash.putDouble(ntId + " Flywheel Amps", flywheels.getMotorCurrent());
-    PBDash.putDouble(ntId + " Turret Pot", turret.getRawAz()); 
-    PBDash.putDouble(ntId + " Turret Azimuth", target.azimuth); 
+    telemetrise();
   }
 }

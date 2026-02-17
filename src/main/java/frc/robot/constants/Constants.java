@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -184,13 +185,13 @@ public final class Constants
     public static final class TurretConstants
     {
       /** Maximum rotation either side of centre before reaching mechanical/cable limits, degrees */
-      public static final double maxTurretAzimuth = 180;
+      public static final double maxTurretAzimuth = 240;
       /** Angle range at end-of-travel to stop shooting and prepare to unwind, degrees */
       public static final double limitBufferZone = 10;
       /** Position to hold when idle, degrees */
       public static final double turretIdlePosition = 0;
       /** Target rotation rate when moving, rps */
-      public static final double turretTurnSpeed = 0.2;
+      public static final double turretTurnSpeed = 0.5;
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
@@ -202,6 +203,7 @@ public final class Constants
       private static final double driveGear = 15;
       private static final double ringGear = 90;
       public static final double azimuthGearRatio = ringGear / driveGear;
+      public static final double azimuthPotRatio = -azimuthGearRatio;
 
       /** Allowed variation in turret azimuth when targeting, degrees */
       public static final double azimuthTolerance = 3;
@@ -212,13 +214,14 @@ public final class Constants
       /** Maximum expected value from potentiometer, beyond which indicates error, sensor degrees */
       public static final double potSafeLimit = 280 * azimuthGearRatio;
       /** Minimum change in azimuth before recalibrating, sensor degrees */
-      public static final double calibrationAngleLimit = 5 * azimuthGearRatio;
+      public static final double calibrationAngleLimit = 5 * Math.abs(azimuthGearRatio);
       /** Maximum robot-relative rotation rate to calibrate turret, rotations per second */
-      public static final double calibrationSpeedLimit = 0.1;
+      public static final double calibrationSpeedLimit = 0.02;
       
       public static final TalonFXSConfiguration turretConfig = new TalonFXSConfiguration();
       static 
       {
+        turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         turretConfig.ExternalFeedback.SensorToMechanismRatio = azimuthGearRatio * planetaryRatio;
 
         turretConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
@@ -240,9 +243,9 @@ public final class Constants
   public static final class VisionConstants
   {
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d portLimelightOffset = new Transform3d(0, 0, 0, new Rotation3d(0, -15, 0));
+    public static final Transform3d portLimelightOffset = new Transform3d(0.155, 0, 0.675, new Rotation3d(0, -15, 0));
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d stbdLimelightOffset = new Transform3d(0, 0, 0, new Rotation3d(0, -15, 0));
+    public static final Transform3d stbdLimelightOffset = new Transform3d(0.155, 0, 0.675, new Rotation3d(0, -15, 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
     public static final double visionFrequencyThreshold = 10;
 
@@ -302,7 +305,7 @@ public final class Constants
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
     public static final double linearStdDevBaseline = 0.06;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
-    public static final double rotStdDevBaseline = Math.toRadians(0.5);
+    public static final double rotStdDevBaseline = Math.toRadians(2);
   }
 
   /** Interpolation tables for converting measured input to calibrated output */

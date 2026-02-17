@@ -53,6 +53,8 @@ public class Turret
 
     m_Turret.getConfigurator().apply(turretConfig);
 
+    potLastCycle = io_Azimuth.get();
+
     calibrate();
   }
 
@@ -102,7 +104,7 @@ public class Turret
       && io_Azimuth.get() <=  potSafeLimit
     )
     {
-      m_Turret.setPosition((io_Azimuth.get() + potLastCycle) / (2 * azimuthGearRatio  * 360.0));
+      m_Turret.setPosition((io_Azimuth.get() + potLastCycle) / (2 * azimuthPotRatio  * 360.0));
       lastCalibration = io_Azimuth.get();
     }
 
@@ -111,7 +113,7 @@ public class Turret
 
   public double getRawAz()
   {
-    return (io_Azimuth.get() / azimuthGearRatio);
+    return (io_Azimuth.get() / azimuthPotRatio);
   }
 
   /**
