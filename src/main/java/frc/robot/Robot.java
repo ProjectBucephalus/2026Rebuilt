@@ -80,7 +80,6 @@ public class Robot extends TimedRobot
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
   private final CANBus canBus = new CANBus();
-  private final Field2d field = new Field2d();
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
@@ -175,7 +174,6 @@ public class Robot extends TimedRobot
     Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
-    PBDash.putSendable("Field", field);
   }
 
   /** Set up input modification and fencing systems */
@@ -291,7 +289,7 @@ public class Robot extends TimedRobot
   private void updateSwerveState()
   {
     swerveState = s_Swerve.getState();
-    field.setRobotPose(swerveState.Pose);
+    PBDash.FIELD.setRobotPose(swerveState.Pose);
   }
 
   private void compileAuto()

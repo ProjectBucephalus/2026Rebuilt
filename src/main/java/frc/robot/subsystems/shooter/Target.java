@@ -32,7 +32,7 @@ public class Target
   public double altitude; 
   /** The target azimuth, used for the {@link TargetState#Manual Manual} state, and for storing the last-calculated target in the other two states */
   public double azimuth; 
-  /** The target point, used for the {@link TargetState#Point Manual} state */
+  /** The target point, used for the {@link TargetState#Point Point} state */
   public Translation2d point;
   /** Offset from target point, used for leading shots while moving and separating ball-streams from multiple shooters */
   public Translation2d offset;

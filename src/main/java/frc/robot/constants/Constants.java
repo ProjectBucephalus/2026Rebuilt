@@ -204,6 +204,7 @@ public final class Constants
       private static final double ringGear = 90;
       public static final double azimuthGearRatio = ringGear / driveGear;
       public static final double azimuthPotRatio = -azimuthGearRatio;
+      public static final double azimuthMotorRatio = azimuthGearRatio * planetaryRatio;
 
       /** Allowed variation in turret azimuth when targeting, degrees */
       public static final double azimuthTolerance = 3;
@@ -222,7 +223,7 @@ public final class Constants
       static 
       {
         turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        turretConfig.ExternalFeedback.SensorToMechanismRatio = azimuthGearRatio * planetaryRatio;
+        turretConfig.ExternalFeedback.SensorToMechanismRatio = azimuthMotorRatio;
 
         turretConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
         

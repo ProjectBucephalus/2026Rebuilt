@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -145,13 +147,21 @@ public class Shooter extends SubsystemBase
 
   private void telemetrise()
   {
-    PBDash.putDouble(ntId + " Turret Az", turret.getAzimuth());
+    PBDash.putDouble(ntId + " Turret Azimuth", turret.getAzimuth());
     PBDash.putDouble(ntId + " Flywheel Speed", flywheels.getSpeed());
     PBDash.putDouble(ntId + " Flywheel Temp", flywheels.getTemp());
     PBDash.putDouble(ntId + " Flywheel Amps", flywheels.getMotorCurrent());
-    PBDash.putDouble(ntId + " Turret Pot", turret.getRawAz()); 
+    PBDash.putDouble(ntId + " Turret Pot", turret.getRawAzimuth()); 
     PBDash.putDouble(ntId + " Target Azimuth", target.azimuth); 
     PBDash.putString(ntId + " Target State", target.state.toString());
+
+    var shooterPose = swerveState.Pose
+      .plus(shooterOffset)
+      .plus(new Transform2d(Translation2d.kZero, Rotation2d.fromDegrees(turret.getAzimuth())));
+    PBDash.putFieldPath(ntId + " Pose", shooterPose, shooterPose.transformBy(new Transform2d(0.75, 0, Rotation2d.kZero)));
+
+    var targetPoint = target.state == TargetState.Hub ? FieldUtils.getAllianceHubCentre() : target.point;
+    PBDash.putFieldObject(ntId + "Target", new Pose2d(targetPoint, Rotation2d.kZero));
   }
 
   @Override
@@ -194,5 +204,11 @@ public class Shooter extends SubsystemBase
     flywheels.update();
 
     telemetrise();
+  }
+
+  @Override
+  public void simulationPeriodic() 
+  {
+    turret.updateSim();
   }
 }
