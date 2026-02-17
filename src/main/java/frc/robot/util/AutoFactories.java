@@ -30,6 +30,8 @@ public class AutoFactories
   {
     private static Optional<Instruction> parse(String input)
     {
+      if (input == null || input.length() == 0) return Optional.empty();
+      
       input = input.replaceAll("//s", "").toLowerCase();
       char code = input.charAt(0);
       

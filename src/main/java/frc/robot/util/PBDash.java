@@ -10,7 +10,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
 
@@ -41,6 +42,25 @@ public class PBDash
   public static final Key<Double>  TOP_SHOOTER_SPEED    = new Key<>("Top Shooter Speed", 0.0);
 
   public static final Key<Double> CAN_LOAD              = new Key<>("CAN-bus Load", 0.0);
+
+  /**
+   * Publishes a Sendable to the table {@value IDConstants#dashTableName} <p>
+   * NOTE: Only publish each Sendable once, they will automatically be periodically updated 
+   * 
+   * @param name name to use for the published value
+   * @param value value to publish
+   */
+  public static void putSendable(String name, Sendable data) 
+  {
+    NetworkTable dataTable = table.getSubTable(name);
+
+    SendableBuilderImpl builder = new SendableBuilderImpl();
+    builder.setTable(dataTable);
+    SendableRegistry.publish(data, builder);
+    builder.startListeners();
+
+    dataTable.getEntry(".name").setString(name);
+  }
 
   /**
    * Publishes an int to the table {@value IDConstants#dashTableName}
@@ -178,7 +198,7 @@ public class PBDash
     public boolean hasChanged()
     {
       T newVal = (T)ntEntry.get().getValue();
-      boolean result = !lastVal.equals(newVal);
+      boolean result = (lastVal == null) || (!lastVal.equals(newVal));
       lastVal = newVal;
       return result;
     }
@@ -213,7 +233,7 @@ public class PBDash
    */
   public static void initSwerveDisplay(Supplier<SwerveDriveState> swerveStateSup)
   {
-    SmartDashboard.putData
+    putSendable
     (
       "Swerve Drive", 
       new Sendable() 

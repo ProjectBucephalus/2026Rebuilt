@@ -6,12 +6,13 @@ package frc.robot;
 
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -69,7 +70,7 @@ import frc.robot.util.libs.Telemetry;
  *  </ul>
  * </ul>
  */
-@Logged
+@Logged(strategy = Strategy.OPT_IN)
 public class Robot extends TimedRobot 
 {
   /* State */
@@ -79,6 +80,7 @@ public class Robot extends TimedRobot
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
   private final CANBus canBus = new CANBus();
+  private final Field2d field = new Field2d();
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
@@ -164,7 +166,8 @@ public class Robot extends TimedRobot
   {
     SignalLogger.enableAutoLogging(false);
 
-    if (!isSimulation()) {
+    if (!isSimulation()) 
+    {
       DataLogManager.start("/home/lvuser/logs");
       DriverStation.startDataLog(DataLogManager.getLog());
     }
@@ -172,6 +175,7 @@ public class Robot extends TimedRobot
     Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
+    PBDash.putSendable("Field", field);
   }
 
   /** Set up input modification and fencing systems */
@@ -285,7 +289,10 @@ public class Robot extends TimedRobot
 
   /** Pull current state from drivebase for external use, to avoid repeated expensive calls */
   private void updateSwerveState()
-    {swerveState = s_Swerve.getState();}
+  {
+    swerveState = s_Swerve.getState();
+    field.setRobotPose(swerveState.Pose);
+  }
 
   private void compileAuto()
     {autoCommand = Optional.of(AutoFactories.getCommandList(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState));}
