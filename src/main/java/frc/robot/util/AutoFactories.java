@@ -1,6 +1,8 @@
 package frc.robot.util;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,43 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
  */
 public class AutoFactories 
 {
+  private static record Instruction(char code, int... args) 
+  {
+    private static Optional<Instruction> parse(String input)
+    {
+      if (input == null || input.length() == 0) return Optional.empty();
+      
+      input = input.replaceAll("//s", "").toLowerCase();
+      char code = input.charAt(0);
+      
+      if (input.length() > 1)
+      {
+        String[] inArgs = input.substring(1).split(":");
+        int[] outArgs = new int[inArgs.length];
+
+        for (int i = 0; i < inArgs.length; i++)
+        {
+          try 
+            {outArgs[i] = Integer.parseInt(inArgs[i]);}
+          catch (NumberFormatException e) 
+            {return Optional.empty();}
+        }
+
+        return Optional.of(new Instruction(code, outArgs));
+      } 
+      else 
+        return Optional.of(new Instruction(code));
+    }
+  }
+
+  private static List<Instruction> parseInstructions(String input) 
+  {
+    return Arrays
+      .stream(input.split(","))
+      .<Instruction>mapMulti((instr, insert) -> Instruction.parse(instr).ifPresent(insert))
+      .collect(Collectors.toList());
+  }
+
   /**
    * Splits a string of auto command phrases and gets the path command and robot command associated with each command phrase
    * @param commandInput The string of commands to split, seperated by commas with no spaces (e.g. "a1,rA1,p,cR3")
@@ -31,43 +70,40 @@ public class AutoFactories
    */
   public static Command getCommandList(String commandInput, CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup)
   {
-    // Removes all whitespace characters from the single-String command phrases, ensures it's all lowercase, and then splits it into individual strings, which are stored in an array
-    String[] splitCommands = commandInput.replaceAll("//s", "").toLowerCase().split(",");
+    var instructions = parseInstructions(commandInput);
     // The commands produced to be run
-    SequentialCommandGroup commandList = new SequentialCommandGroup();
+    var commandList = new SequentialCommandGroup();
 
-    // For each command phrase, adds the associated path and then the associated command to the command list
-    for (String splitCommand : splitCommands) 
+    // For each command phrase, adds relevant commands to the list
+    for (var instr : instructions) 
     {
-      switch (splitCommand.charAt(0)) 
+      switch (instr.code) 
       {
-        // (g x:y;r) - Go to x, y, r (alliance origin relative)
+        // g x:y:r - Go to x, y, r (alliance origin relative). r optional
         case 'g' ->
-				{
-          int seperatorIndex = splitCommand.indexOf(":");
-          
-          Translation2d posTarget = new Translation2d
+				{         
+          var posTarget = new Translation2d
           (
-            MathUtil.clamp(Double.parseDouble(splitCommand.substring(1, seperatorIndex)), 0.5, (FieldConstants.fieldCentre.getX()) - 0.5), 
-            MathUtil.clamp(Double.parseDouble(splitCommand.substring(seperatorIndex + 1)), 0.5, FieldConstants.fieldWidth - 0.5)
+            MathUtil.clamp(instr.args[0], 0.5, (FieldConstants.fieldCentre.getX()) - 0.5), 
+            MathUtil.clamp(instr.args[1], 0.5, FieldConstants.fieldWidth - 0.5)
           );
 
-          Rotation2d rotationTarget = 
-            splitCommand.contains(";") ? 
-            Rotation2d.fromDegrees(Double.parseDouble(splitCommand.substring(splitCommand.indexOf(";")))) : 
+          var rotationTarget = 
+            instr.args.length > 2 ? 
+            Rotation2d.fromDegrees(instr.args[2]) : 
             swerveStateSup.get().Pose.getRotation().plus(Rotation2d.k180deg);
           
           commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, new AlliancePose2d(posTarget, rotationTarget).get()));
         }
 
-        // w - Wait for duration
+        // w d - Wait for duration d
         case 'w' -> 
-          commandList.addCommands(Commands.waitSeconds(Double.parseDouble(splitCommand.substring(1))));
+          commandList.addCommands(Commands.waitSeconds(instr.args[0]));
 
-        // t - wait until Time
+        // t d - wait until time d
         case 't' ->
 				{
-          double targetMatchTimeElapsed = Double.parseDouble(splitCommand.substring(1));
+          double targetMatchTimeElapsed = instr.args[0];
           commandList.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - targetMatchTimeElapsed)));
         }
       }

@@ -10,7 +10,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
 
@@ -41,6 +42,25 @@ public class PBDash
   public static final Key<Double>  TOP_SHOOTER_SPEED    = new Key<>("Top Shooter Speed", 0.0);
 
   public static final Key<Double> CAN_LOAD              = new Key<>("CAN-bus Load", 0.0);
+
+  /**
+   * Publishes a Sendable to the table {@value IDConstants#dashTableName} <p>
+   * NOTE: Only publish each Sendable once, they will automatically be periodically updated 
+   * 
+   * @param name name to use for the published value
+   * @param value value to publish
+   */
+  public static void putSendable(String name, Sendable data) 
+  {
+    NetworkTable dataTable = table.getSubTable(name);
+
+    SendableBuilderImpl builder = new SendableBuilderImpl();
+    builder.setTable(dataTable);
+    SendableRegistry.publish(data, builder);
+    builder.startListeners();
+
+    dataTable.getEntry(".name").setString(name);
+  }
 
   /**
    * Publishes an int to the table {@value IDConstants#dashTableName}
@@ -138,6 +158,7 @@ public class PBDash
   {
     private T defaultVal;
     private GenericEntry ntEntry;
+    private T lastVal;
 
     /**
      * Construct a new Key
@@ -155,7 +176,10 @@ public class PBDash
     /** @return current value of the entry */
     @SuppressWarnings("unchecked")
     public T get()
-      {return (T)ntEntry.get().getValue();}
+    {
+      lastVal = (T)ntEntry.get().getValue();
+      return lastVal;
+    }
 
     /** @param value value to send to network */
     public void put(T value)
@@ -168,6 +192,16 @@ public class PBDash
     /** @return default value */
     public T defaultVal()
       {return defaultVal;}
+
+    /** @return {@code true} if the entry's value has changed since the last call to this or to {@link Key#get get()} */
+    @SuppressWarnings("unchecked")
+    public boolean hasChanged()
+    {
+      T newVal = (T)ntEntry.get().getValue();
+      boolean result = (lastVal == null) || (!lastVal.equals(newVal));
+      lastVal = newVal;
+      return result;
+    }
 
     /**
      * If the entry has changed from the default value, resets the value and returns true. <p>
@@ -199,7 +233,7 @@ public class PBDash
    */
   public static void initSwerveDisplay(Supplier<SwerveDriveState> swerveStateSup)
   {
-    SmartDashboard.putData
+    putSendable
     (
       "Swerve Drive", 
       new Sendable() 
