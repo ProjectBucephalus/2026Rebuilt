@@ -29,8 +29,6 @@ public class Vision extends SubsystemBase
   private final Limelight[] lls;
   /** Timestamp of last good pose estimate, seconds, -1 on initialisation */
   double lastGoodPose = -1; 
-  /** Time since last good pose estimate, seconds */
-  double timeSince = 0; 
   /** True only while there is a recent valid pose estimate */
   boolean haveLocalisation = false;
   boolean usingVision = true;
@@ -82,7 +80,6 @@ public class Vision extends SubsystemBase
   public void setPose(Pose2d pose)
   {
     lastGoodPose = Timer.getTimestamp();
-    timeSince = 0;
     haveLocalisation = true;
 
     estimateConsumer.accept(pose, Utils.getCurrentTimeSeconds(), VecBuilder.fill(0, 0, 1000));
@@ -93,11 +90,10 @@ public class Vision extends SubsystemBase
   {
     if (PBDash.LL_TOGGLE.get()) 
     {
+      usingVision = true;
+
       for (var ll : lls)
       {
-        usingVision = true;
-        ll.update();
-
         // Pose estimate returns Optional, so may or may not be present
         ll.getPhotonEst().ifPresent(est -> {
           // Reject update if it contains no tags, or if the robot is rotating too fast         
@@ -105,13 +101,10 @@ public class Vision extends SubsystemBase
           {
             double avgTagDist = 
               est.targetsUsed
-                 .stream()
-                 .collect(Collectors.averagingDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm()));
-
-            // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
-            double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-            double linearStdDev = linearStdDevBaseline * stdDevFactor;
-            double rotStdDev = rotStdDevBaseline * stdDevFactor;
+                .stream()
+                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
+                .average()
+                .getAsDouble();
 
             // If the camera is mounted on a turret, apply additional offset processing
             var poseOut = 
@@ -121,27 +114,29 @@ public class Vision extends SubsystemBase
             
             // Update time since last good pose estimate
             lastGoodPose = Timer.getTimestamp();
-            timeSince = 0;
             haveLocalisation = true;
 
+            // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
+            double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
+            double linearStdDev = linearStdDevBaseline * stdDevFactor;
+            double rotStdDev = rotStdDevBaseline * stdDevFactor;
+            var stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev);
+
             // Send pose estimate to consumer
-            estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+            estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), stdDevs);
           }
         });
       }
     } 
-    else 
+    else if (usingVision)
     {
-      if (usingVision)
-      {
-        usingVision = false;
-        haveLocalisation = false;
-        lastGoodPose = -1;
-      }
+      usingVision = false;
+      haveLocalisation = false;
+      lastGoodPose = -1;
     }
 
-    // If no valid pose is found, update time since last pose
-    timeSince = Timer.getTimestamp() - lastGoodPose;
+    // update time since last pose
+    double timeSince = Timer.getTimestamp() - lastGoodPose;
     if (lastGoodPose == -1 || timeSince >= visionFrequencyThreshold) 
       haveLocalisation = false; 
   }
