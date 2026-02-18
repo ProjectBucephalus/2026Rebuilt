@@ -76,16 +76,6 @@ public class Shooter extends SubsystemBase
   }
 
   /**
-   * Construct a command that sets the target for the Hood and Turret to track <p>
-   * NOTE: The provided target is only evaluated when the command is created
-   * 
-   * @param target the {@link Target} to be set
-   * @return the {@link Command}
-   */
-  public Command setTargetCommand(Target target)
-    {return runOnce(() -> this.target = target);}
-
-  /**
    * Sets the manual position of the turret
    * @param azimuth Turret azimuth, degrees
    * @param altitude Hood altitude, degrees
@@ -108,9 +98,6 @@ public class Shooter extends SubsystemBase
 
   public void setFlySpeed(double speed)
     {flywheels.setSpeed(speed);}
-
-  public void setFlyVoltage(double speed)
-    {flywheels.setVoltage(speed);}
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
@@ -139,8 +126,8 @@ public class Shooter extends SubsystemBase
     return new Trigger
     (() -> 
       turret.readyToShoot(swerveState.Speeds)
-              && hood.atAltitude()
-              && flywheels.atSpeed()
+      && hood.atAltitude()
+      && flywheels.atSpeed()
     );
   }
 
