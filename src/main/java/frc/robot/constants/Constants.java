@@ -315,29 +315,53 @@ public final class Constants
     /** Distance to Altitude conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
     {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
+      put(0.81, 0.0); // min range
+      put(1.5, 0.0); 
+      put(1.6, 0.0); // max range while at 0 degrees hood
+      put(2.5, 5.8);
+      put(3.5, 11.5);
+      put(4.675, 18.0); 
+      put(4.9, 19.0); // max range while staying below lights
+      put(5.6, 19.0); // max range while staying below ceiling
     }};
     
     /** Distance to Altitude conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
     {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
+      put(1.0, 0.0);
+      put(1.8575, 0.0); 
+      put(2.715, 0.0); // max range while at 0 degrees hood + staying below lights
+      put(3.7425, 5.4);
+      put(4.77, 10.2);
+      put(5.7975, 14.9); 
+      put(6.825, 19.0); // max range while staying below lights
+      put(7.535, 19.0); // max range while staying below ceiling
     }};
 
     /** Distance to Speed conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
     {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
+      put(0.81, 23.25); // min range
+      put(1.5, 27.25); 
+      put(1.6, 27.8); // max range while at 0 degrees hood
+      put(2.5, 28.7);
+      put(3.5, 30.15);
+      put(4.675, 32.0);
+      put(4.9, 32.5); // max range while staying below lights
+      put(5.6, 34.3); // max range while staying below ceiling
     }};
 
     /** Distance to Speed conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap()
     {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
+      put(1.0, 16.0);
+      put(1.8575, 22.6); 
+      put(2.715, 27.8); // max range while at 0 degrees hood + staying below lights
+      put(3.7425, 28.6);
+      put(4.77, 29.7);
+      put(5.7975, 31.0);
+      put(6.825, 32.5); // max range while staying below lights
+      put(7.535, 34.3); // max range while staying below ceiling
     }};
   }
 
