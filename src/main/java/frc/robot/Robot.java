@@ -251,7 +251,7 @@ public class Robot extends TimedRobot
     new Trigger(() -> autoMode)
       .and(() -> FieldUtils.inLeftHalf(getTranslation()))
       .onTrue(modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get()))
-      .onTrue(modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()));
+      .onFalse(modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()));
 
     new Trigger(() -> autoMode)
       .and(() -> FieldUtils.inAllianceZone(getTranslation()))
@@ -274,7 +274,7 @@ public class Robot extends TimedRobot
    */
   private Command modifyTargets(Consumer<Target> updater)
   {
-    return run
+    return runOnce
     (() -> {
       updater.accept(s_PortShooter.getTarget());
       updater.accept(s_StbdShooter.getTarget());
