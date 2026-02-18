@@ -163,15 +163,18 @@ public class Turret
     return robotTarget - robotDegreesPerCycle;
   }
 
-  public boolean safeToShoot(ChassisSpeeds swerveSpeeds)
+  private boolean safeToShoot(ChassisSpeeds swerveSpeeds)
   {
     return (getSpeed() + (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < TurretConstants.maxRPS;
   }
 
-  public boolean atAzimuth()
+  private boolean atAzimuth()
   {
     return Conversions.nearRotation(getAzimuth(), targetSup.get().azimuth, TurretConstants.azimuthTolerance);
   }
+
+  public boolean readyToShoot(ChassisSpeeds swerveSpeeds)
+    {return atAzimuth() && safeToShoot(swerveSpeeds);}
 
   /**
    * Intended to be called in {@link Shooter#periodic()} <p>
@@ -180,7 +183,7 @@ public class Turret
    * @param shooterPose the field-relative shooter pose
    * @param robotDegreesPerSecond the current rate of rotation of the drivebase
    */
-  public void update(Pose2d shooterPose, double robotDegreesPerSecond)
+  protected void update(Pose2d shooterPose, double robotDegreesPerSecond)
   {
     calibrate();
     var target = targetSup.get();
@@ -197,7 +200,7 @@ public class Turret
     m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
   }   
   
-  public void updateSim()
+  protected void updateSim()
   {
     var motorSimState = m_Turret.getSimState();
     motorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());

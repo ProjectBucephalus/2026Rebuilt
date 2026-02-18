@@ -137,12 +137,11 @@ public class Shooter extends SubsystemBase
   public Trigger shootReadyTrigger()
   {
     return new Trigger
-    (() -> {
-      return turret.atAzimuth()
+    (() -> 
+      turret.readyToShoot(swerveState.Speeds)
               && hood.atAltitude()
               && flywheels.atSpeed()
-              && turret.safeToShoot(swerveState.Speeds);
-    });
+    );
   }
 
   private void telemetrise()
