@@ -154,11 +154,12 @@ public class Shooter extends SubsystemBase
     PBDash.putDouble(ntId + " Turret Pot", turret.getRawAzimuth()); 
     PBDash.putDouble(ntId + " Target Azimuth", target.azimuth); 
     PBDash.putString(ntId + " Target State", target.state.toString());
+    PBDash.putDouble(ntId + " Target Distance", target.distance);
 
     var shooterPose = swerveState.Pose
       .plus(shooterOffset)
       .plus(new Transform2d(Translation2d.kZero, Rotation2d.fromDegrees(turret.getAzimuth())));
-    PBDash.putFieldPath(ntId + " Pose", shooterPose, shooterPose.transformBy(new Transform2d(0.75, 0, Rotation2d.kZero)));
+    PBDash.putFieldPath(ntId + " Pose", shooterPose, shooterPose.transformBy(new Transform2d(flywheels.getSpeed() / 60, 0, Rotation2d.kZero)));
 
     var targetPoint = target.state == TargetState.Hub ? FieldUtils.getAllianceHubCentre() : target.point;
     PBDash.putFieldObject(ntId + "Target", new Pose2d(targetPoint, Rotation2d.kZero));
@@ -210,5 +211,6 @@ public class Shooter extends SubsystemBase
   public void simulationPeriodic() 
   {
     turret.updateSim();
+    flywheels.updateSim();
   }
 }

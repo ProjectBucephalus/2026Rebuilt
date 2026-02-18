@@ -127,7 +127,7 @@ public final class Constants
     {
       private static final double motorPulley = 24;
       private static final double mainWheelPulley = 18;
-      private static final double mainWheelBeltRatio = mainWheelPulley / motorPulley;
+      public static final double mainWheelBeltRatio = mainWheelPulley / motorPulley;
 
       /*
       * To tune flywheel:
@@ -142,9 +142,9 @@ public final class Constants
         flywheelConfig.Feedback.SensorToMechanismRatio = mainWheelBeltRatio;
 
         flywheelConfig.Slot0.kS = 0.26;
-        flywheelConfig.Slot0.kV = 0.1;
+        flywheelConfig.Slot0.kV = 0.0854;
         flywheelConfig.Slot0.kA = 0.0;
-        flywheelConfig.Slot0.kP = 0.0;
+        flywheelConfig.Slot0.kP = 5.0;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
 
