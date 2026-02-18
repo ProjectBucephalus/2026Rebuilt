@@ -148,7 +148,7 @@ public class Shooter extends SubsystemBase
     PBDash.putFieldPath(ntId + " Pose", shooterPose, shooterPose.transformBy(new Transform2d(flywheels.getSpeed() / 60, 0, Rotation2d.kZero)));
 
     var targetPoint = target.state == TargetState.Hub ? FieldUtils.getAllianceHubCentre() : target.point;
-    PBDash.putFieldObject(ntId + "Target", new Pose2d(targetPoint, Rotation2d.kZero));
+    PBDash.putFieldObject(ntId + "Target", new Pose2d(targetPoint.plus(target.offset), Rotation2d.kZero));
   }
 
   @Override
@@ -156,16 +156,6 @@ public class Shooter extends SubsystemBase
   {
     swerveState = swerveStateSup.get();
     var shooterPose = swerveState.Pose.plus(shooterOffset);
-
-    // TODO: Test the extent to which leading shots is needed, and remove distance calculation from here or Hood as appropriate
-    // Find distance to current target for calculating leading shots
-    target.distance = switch (target.state) 
-    {
-      case Manual -> 0;
-      case Point -> target.point.plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
-      // aim at our alliance's hub
-      case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
-    };
 
     // Calculate target offset to avoid balls from each shooter colliding before reaching target
     // and accounting for robot motion
@@ -177,6 +167,16 @@ public class Shooter extends SubsystemBase
           new Translation2d(swerveState.Speeds.vxMetersPerSecond, swerveState.Speeds.vyMetersPerSecond)
           .times(target.distance * ShooterConstants.leadFactor) // distance * leadFactor
         );
+
+    // TODO: Test the extent to which leading shots is needed, and remove distance calculation from here or Hood as appropriate
+    // Find distance to current target for calculating leading shots
+    target.distance = switch (target.state) 
+    {
+      case Manual -> 0;
+      case Point -> target.point.plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
+      // aim at our alliance's hub
+      case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
+    };
 
     // Update flywheel speed. If in manual mode, don't change it so that any manually-set speed is maintained
     switch (target.state)

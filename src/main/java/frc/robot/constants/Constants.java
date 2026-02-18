@@ -120,7 +120,7 @@ public final class Constants
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.08;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactor = 0.1;
+    public static final double leadFactor = 0.01;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants

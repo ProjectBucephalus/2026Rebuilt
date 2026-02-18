@@ -75,7 +75,8 @@ public class Robot extends TimedRobot
 {
   /* State */
   private SwerveDriveState swerveState = new SwerveDriveState();
-  private Optional<Command> autoCommand;
+  private Optional<Command> autoCommand = Optional.empty();
+  private boolean autoMode = true;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -240,30 +241,22 @@ public class Robot extends TimedRobot
           bumpRotationTolerance
         )
       );
-    
-    driver.x().and(s_Vision::hasLocalisation).onTrue
-    (
-      new PathFollowDrive
-      (
-        s_Swerve, 
-        () -> this.swerveState,
-        Pathfinding.testPath
-      )
-    );
 
     operator.povLeft().onTrue
-    (
-      run(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get()))
-    );
+      (modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get()));
 
     operator.povRight().onTrue
-    (
-      run(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()))
-    );
+      (modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()));
 
-    // new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()))
-    //   .onTrue(run(() -> modifyTargets(target -> target.state = TargetState.Hub)))
-    //   .onFalse(run(() -> modifyTargets(target -> target.state = TargetState.Point)));
+    new Trigger(() -> autoMode)
+      .and(() -> FieldUtils.inLeftHalf(getTranslation()))
+      .onTrue(modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get()))
+      .onTrue(modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()));
+
+    new Trigger(() -> autoMode)
+      .and(() -> FieldUtils.inAllianceZone(getTranslation()))
+      .onTrue(modifyTargets(target -> target.state = TargetState.Hub))
+      .onFalse(modifyTargets(target -> target.state = TargetState.Point));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
@@ -279,10 +272,13 @@ public class Robot extends TimedRobot
    * 
    * @param updater The action to perform on the targets
    */
-  private void modifyTargets(Consumer<Target> updater)
+  private Command modifyTargets(Consumer<Target> updater)
   {
-    updater.accept(s_PortShooter.getTarget());
-    updater.accept(s_StbdShooter.getTarget());
+    return run
+    (() -> {
+      updater.accept(s_PortShooter.getTarget());
+      updater.accept(s_StbdShooter.getTarget());
+    });
   }
 
   /** Pull current state from drivebase for external use, to avoid repeated expensive calls */

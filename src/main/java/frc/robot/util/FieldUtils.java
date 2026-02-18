@@ -187,4 +187,17 @@ public class FieldUtils
     else 
       return pos.getX() < blueStartLine.getX() + robotRadiusInscribed;
   }
+
+  /**
+   * Checks if the provided position is within our alliance zone
+   * 
+   * @param pos Position to check against
+   * @return If the position is within the alliance zone
+   */
+  public static boolean inLeftHalf(Translation2d pos) 
+  {
+    return isRedAlliance() 
+      ? pos.getY() < fieldCentre.getY()
+      : pos.getY() > fieldCentre.getY();
+  }
 }
