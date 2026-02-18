@@ -246,7 +246,7 @@ public final class Constants
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
     public static final Transform3d portLimelightOffset = new Transform3d(0.155, 0, 0.675, new Rotation3d(0, -15, 0));
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d stbdLimelightOffset = new Transform3d(0.155, 0, 0.675, new Rotation3d(0, -15, 0));
+    public static final Transform3d stbdLimelightOffset = new Transform3d(0.155, 0, 0.675, new Rotation3d(0, 15, 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
     public static final double visionFrequencyThreshold = 10;
 
