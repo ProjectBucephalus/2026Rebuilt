@@ -56,7 +56,7 @@ public class Hood
    * 
    * @param shooterPose the field-relative shooter pose
    */
-  public void update(Pose2d shooterPose)
+  protected void update(Pose2d shooterPose)
   {
     var target = targetSup.get();
     // Update the azimuth stored in the target based on the target state

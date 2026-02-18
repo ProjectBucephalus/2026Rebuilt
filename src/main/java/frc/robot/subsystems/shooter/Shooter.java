@@ -76,16 +76,6 @@ public class Shooter extends SubsystemBase
   }
 
   /**
-   * Construct a command that sets the target for the Hood and Turret to track <p>
-   * NOTE: The provided target is only evaluated when the command is created
-   * 
-   * @param target the {@link Target} to be set
-   * @return the {@link Command}
-   */
-  public Command setTargetCommand(Target target)
-    {return runOnce(() -> this.target = target);}
-
-  /**
    * Sets the manual position of the turret
    * @param azimuth Turret azimuth, degrees
    * @param altitude Hood altitude, degrees
@@ -108,9 +98,6 @@ public class Shooter extends SubsystemBase
 
   public void setFlySpeed(double speed)
     {flywheels.setSpeed(speed);}
-
-  public void setFlyVoltage(double speed)
-    {flywheels.setVoltage(speed);}
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
@@ -137,12 +124,11 @@ public class Shooter extends SubsystemBase
   public Trigger shootReadyTrigger()
   {
     return new Trigger
-    (() -> {
-      return turret.atAzimuth()
-              && hood.atAltitude()
-              && flywheels.atSpeed()
-              && turret.safeToShoot(swerveState.Speeds);
-    });
+    (() -> 
+      turret.readyToShoot(swerveState.Speeds)
+      && hood.atAltitude()
+      && flywheels.atSpeed()
+    );
   }
 
   private void telemetrise()
@@ -154,11 +140,12 @@ public class Shooter extends SubsystemBase
     PBDash.putDouble(ntId + " Turret Pot", turret.getRawAzimuth()); 
     PBDash.putDouble(ntId + " Target Azimuth", target.azimuth); 
     PBDash.putString(ntId + " Target State", target.state.toString());
+    PBDash.putDouble(ntId + " Target Distance", target.distance);
 
     var shooterPose = swerveState.Pose
       .plus(shooterOffset)
       .plus(new Transform2d(Translation2d.kZero, Rotation2d.fromDegrees(turret.getAzimuth())));
-    PBDash.putFieldPath(ntId + " Pose", shooterPose, shooterPose.transformBy(new Transform2d(0.75, 0, Rotation2d.kZero)));
+    PBDash.putFieldPath(ntId + " Pose", shooterPose, shooterPose.transformBy(new Transform2d(flywheels.getSpeed() / 60, 0, Rotation2d.kZero)));
 
     var targetPoint = target.state == TargetState.Hub ? FieldUtils.getAllianceHubCentre() : target.point;
     PBDash.putFieldObject(ntId + "Target", new Pose2d(targetPoint, Rotation2d.kZero));
@@ -210,5 +197,6 @@ public class Shooter extends SubsystemBase
   public void simulationPeriodic() 
   {
     turret.updateSim();
+    flywheels.updateSim();
   }
 }
