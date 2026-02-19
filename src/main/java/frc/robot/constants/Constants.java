@@ -114,9 +114,9 @@ public final class Constants
   public static final class ShooterConstants
   {
     /** 2D offset from robot centre to port-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
-    public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.165, Rotation2d.k180deg); // -(0.1635 + SwerveConstants.drivebaseOffset), 0.1815
+    public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg); // -(0.1635 + SwerveConstants.drivebaseOffset), 0.1815
     /** 2D offset from robot centre to starboard-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
-    public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.165, Rotation2d.k180deg);
+    public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.08;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
@@ -304,9 +304,9 @@ public final class Constants
     };
 
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
-    public static final double linearStdDevBaseline = 0.06;
+    public static final double linearStdDevBaseline = 0.1;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
-    public static final double rotStdDevBaseline = Math.toRadians(2);
+    public static final double rotStdDevBaseline = Math.toRadians(3);
   }
 
   /** Interpolation tables for converting measured input to calibrated output */

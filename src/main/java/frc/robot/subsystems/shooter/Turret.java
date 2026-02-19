@@ -102,7 +102,7 @@ public class Turret
   }
 
   public double getRawAzimuth()
-    {return io_Azimuth.get() / TurretConstants.azimuthGearRatio;}
+    {return io_Azimuth.get() / TurretConstants.azimuthPotRatio;}
 
   /**
    * Unwind the turret by driving it one rotation towards zero
