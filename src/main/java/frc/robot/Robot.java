@@ -84,6 +84,7 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
+  @Logged(name = "Port Shooter")
   private final Shooter s_PortShooter = new Shooter
     (
       () -> swerveState,
@@ -92,6 +93,7 @@ public class Robot extends TimedRobot
       ShooterConstants.TurretConstants.portPotOffset,
       true
     );
+  @Logged(name = "Stbd Shooter")
   private final Shooter s_StbdShooter = new Shooter
     (
       () -> swerveState,
@@ -298,6 +300,10 @@ public class Robot extends TimedRobot
   /** Returns the r2d of the robot in field coordinates */
   public Rotation2d getRotation() 
     {return swerveState.Pose.getRotation();}
+
+  @Logged(name = "CAN Load")
+  public float getCanLoad() 
+    {return canBus.getStatus().BusUtilization;}
   
   /* OPMODE METHODS */
   /* ============ */
@@ -306,7 +312,6 @@ public class Robot extends TimedRobot
   {
     updateSwerveState();
     CommandScheduler.getInstance().run();
-    PBDash.CAN_LOAD.put((double)canBus.getStatus().BusUtilization);
   }
 
   @Override

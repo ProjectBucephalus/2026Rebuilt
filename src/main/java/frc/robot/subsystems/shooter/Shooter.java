@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -24,10 +26,14 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
  * Turreted Shooter master-system, internally creates and manages associated subsystems
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class Shooter extends SubsystemBase 
 {  
+  @Logged
   private final Flywheels flywheels; 
+  @Logged
   private final Turret turret;
+  @Logged
   private final Hood hood;
   
   private final Transform2d shooterOffset;
@@ -39,6 +45,7 @@ public class Shooter extends SubsystemBase
   private SwerveDriveState swerveState;
 
   /** Current active target for the shooter */
+  @Logged(name = "Target")
   private Target target = new Target(TargetState.Hub);
 
   /**
@@ -133,15 +140,6 @@ public class Shooter extends SubsystemBase
 
   private void telemetrise()
   {
-    PBDash.putDouble(ntId + " Turret Azimuth", turret.getAzimuth());
-    PBDash.putDouble(ntId + " Flywheel Speed", flywheels.getSpeed());
-    PBDash.putDouble(ntId + " Flywheel Temp", flywheels.getTemp());
-    PBDash.putDouble(ntId + " Flywheel Amps", flywheels.getMotorCurrent());
-    PBDash.putDouble(ntId + " Turret Pot", turret.getRawAzimuth()); 
-    PBDash.putDouble(ntId + " Target Azimuth", target.azimuth); 
-    PBDash.putString(ntId + " Target State", target.state.toString());
-    PBDash.putDouble(ntId + " Target Distance", target.distance);
-
     var shooterPose = swerveState.Pose
       .plus(shooterOffset)
       .plus(new Transform2d(Translation2d.kZero, Rotation2d.fromDegrees(turret.getAzimuth())));

@@ -13,6 +13,8 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.sim.ChassisReference;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -31,6 +33,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
  * Includes functionality to track a point on the field while the robot is in motion. <p>
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class Turret
 {
   private final TalonFXS m_Turret;
@@ -93,6 +96,7 @@ public class Turret
    * 
    * @return the azimuth, in degrees
    */
+  @Logged(name = "Azimuth")
   public double getAzimuth() 
   {
     if (Robot.isSimulation())
@@ -100,7 +104,8 @@ public class Turret
     else 
       return m_Turret.getPosition().getValue().in(Units.Degrees);
   }
-
+  
+  @Logged(name = "Pot")
   public double getRawAzimuth()
     {return io_Azimuth.get() / TurretConstants.azimuthPotRatio;}
 
