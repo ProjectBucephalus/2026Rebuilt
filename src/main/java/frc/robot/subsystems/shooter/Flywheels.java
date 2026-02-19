@@ -5,6 +5,8 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -23,6 +25,7 @@ import frc.robot.constants.Constants.ShooterConstants;
  * Uses MotionMagic to control velocity.
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class Flywheels 
 {
   private final TalonFX m_Leader; 
@@ -72,6 +75,7 @@ public class Flywheels
   }
 
   /** @return Current speed of the flywheels (RPS of the main flywheel) */
+  @Logged(name = "Speed")
   public double getSpeed() 
   {
     if (Robot.isSimulation())
@@ -80,6 +84,7 @@ public class Flywheels
       return m_Leader.getVelocity().getValue().in(Units.RotationsPerSecond);
   }
 
+  @Logged(name = "Temp")
   public double getTemp() 
   {
     if (Robot.isSimulation())
@@ -88,6 +93,7 @@ public class Flywheels
       return m_Leader.getAncillaryDeviceTemp().getValue().in(Units.Celsius);
   }
 
+  @Logged(name = "Current Draw")
   public double getMotorCurrent()
   {
     if (Robot.isSimulation())

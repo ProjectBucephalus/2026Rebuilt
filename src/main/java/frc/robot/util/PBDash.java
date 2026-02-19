@@ -41,16 +41,10 @@ public class PBDash
 
   public static final Key<Boolean> FENCE_TOGGLE         = new Key<>("Enable Fencing", true);
 
-  public static final Key<String>  STATE_HEADING        = new Key<>("Heading State", "");
   public static final Key<String>  STATE_DRIVE          = new Key<>("Drive State", "Disabled");
 
   public static final Key<Double>  RUMBLE_DRIVER        = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
   public static final Key<Double>  RUMBLE_OPERATOR      = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
-
-  public static final Key<Double>  BOTTOM_SHOOTER_SPEED = new Key<>("Bottom Shooter Speed", 0.0);
-  public static final Key<Double>  TOP_SHOOTER_SPEED    = new Key<>("Top Shooter Speed", 0.0);
-
-  public static final Key<Double> CAN_LOAD              = new Key<>("CAN-bus Load", 0.0);
 
   public static void putFieldObject(String name, Pose2d pose)
     {FIELD.getObject(name).setPose(pose);}

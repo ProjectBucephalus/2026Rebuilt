@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -16,6 +18,7 @@ import java.util.function.Supplier;
  * Interface class for a Servo-driven shooter hood to control altitude.
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class Hood 
 {
   private final Servo m_Servo;
