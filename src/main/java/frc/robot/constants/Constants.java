@@ -141,21 +141,21 @@ public final class Constants
       {
         flywheelConfig.Feedback.SensorToMechanismRatio = mainWheelBeltRatio;
 
-        flywheelConfig.Slot0.kS = 0.26;
-        flywheelConfig.Slot0.kV = 0.0854;
+        flywheelConfig.Slot0.kS = 0.22;
+        flywheelConfig.Slot0.kV = 0.0924;
         flywheelConfig.Slot0.kA = 0.0;
-        flywheelConfig.Slot0.kP = 0.5;
+        flywheelConfig.Slot0.kP = 0.08;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
 
         flywheelConfig.MotionMagic.MotionMagicAcceleration = 100.0;
-        flywheelConfig.MotionMagic.MotionMagicJerk = 200.0;
+        flywheelConfig.MotionMagic.MotionMagicJerk = 1000.0;
       }
 
       /** Target flywheel speed when idle, mechanism rps */
       public static final double idleSpeed = 20;
       /** Allowed variation in flywheel speed for shooting, rps */
-      public static final double flySpeedTolerance = 1;
+      public static final double flySpeedTolerance = 1.25;
 
       //simulation
       public static final double kGearRatio = 10.0;
@@ -304,7 +304,7 @@ public final class Constants
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
     public static final double linearStdDevBaseline = 0.1;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
-    public static final double rotStdDevBaseline = Math.toRadians(3);
+    public static final double rotStdDevBaseline = Math.toRadians(10);
   }
 
   /** Interpolation tables for converting measured input to calibrated output */

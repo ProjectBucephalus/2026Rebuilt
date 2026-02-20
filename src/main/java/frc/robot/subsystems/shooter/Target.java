@@ -18,8 +18,7 @@ public class Target
    * <li> Point: Aim at an arbitrary point
    * <li> Hub: Aim at your alliance's hub
    */
-  @Logged
-  public enum TargetState 
+  public static enum TargetState 
   {
     /** Use a fixed, manually-set azimuth and altitude */
     Manual, 

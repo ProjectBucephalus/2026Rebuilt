@@ -345,6 +345,7 @@ public class Robot extends TimedRobot
   public void teleopInit() 
   {
     autoCommand.ifPresent(Command::cancel);
+    modifyTargets(target -> target.state = TargetState.Hub);
 
     FieldUtils.updateAlliance();
     initInputTransmute();
@@ -362,8 +363,5 @@ public class Robot extends TimedRobot
   {
     s_StbdShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
     s_PortShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
-    
-    s_StbdShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
-    s_PortShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
   }
 }
