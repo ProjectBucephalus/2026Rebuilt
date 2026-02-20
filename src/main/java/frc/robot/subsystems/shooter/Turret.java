@@ -96,7 +96,7 @@ public class Turret
    * 
    * @return the azimuth, in degrees
    */
-  @Logged(name = "Azimuth")
+  @Logged(name = "Turret Azimuth Degrees")
   public double getAzimuth() 
   {
     if (Robot.isSimulation())
@@ -105,7 +105,8 @@ public class Turret
       return m_Turret.getPosition().getValue().in(Units.Degrees);
   }
   
-  @Logged(name = "Pot")
+  /** @return turret degrees as reported by potentiometer */
+  @Logged(name = "Potentiometer Degrees")
   public double getRawAzimuth()
     {return io_Azimuth.get() / TurretConstants.azimuthPotRatio;}
 

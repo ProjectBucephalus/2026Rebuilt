@@ -144,18 +144,16 @@ public final class Constants
         flywheelConfig.Slot0.kS = 0.26;
         flywheelConfig.Slot0.kV = 0.0854;
         flywheelConfig.Slot0.kA = 0.0;
-        flywheelConfig.Slot0.kP = 5.0;
+        flywheelConfig.Slot0.kP = 0.5;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
 
         flywheelConfig.MotionMagic.MotionMagicAcceleration = 100.0;
-        flywheelConfig.MotionMagic.MotionMagicJerk = 500.0;
+        flywheelConfig.MotionMagic.MotionMagicJerk = 200.0;
       }
 
       /** Target flywheel speed when idle, mechanism rps */
       public static final double idleSpeed = 20;
-      /** Target flywheel speed for shooting, mechanism rps */
-      public static final double revSpeed = 40;
       /** Allowed variation in flywheel speed for shooting, rps */
       public static final double flySpeedTolerance = 1;
 
@@ -230,7 +228,7 @@ public final class Constants
         turretConfig.Slot0.kS = 0.5;
         turretConfig.Slot0.kV = 6.2;
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 5.0;
+        turretConfig.Slot0.kP = 3.0;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 
@@ -317,7 +315,7 @@ public final class Constants
     {{
       put(0.81, 0.0); // min range
       put(1.5, 0.0); 
-      put(1.6, 0.0); // max range while at 0 degrees hood
+      put(1.6, 0.0); // max range while at 0 degrees hood + staying below lights
       put(2.5, 5.8);
       put(3.5, 11.5);
       put(4.675, 18.0); 
@@ -343,7 +341,7 @@ public final class Constants
     {{
       put(0.81, 23.25); // min range
       put(1.5, 27.25); 
-      put(1.6, 27.8); // max range while at 0 degrees hood
+      put(1.6, 27.8); // max range while at 0 degrees hood + staying below lights
       put(2.5, 28.7);
       put(3.5, 30.15);
       put(4.675, 32.0);

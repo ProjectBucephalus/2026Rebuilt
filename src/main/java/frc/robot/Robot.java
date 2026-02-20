@@ -245,20 +245,20 @@ public class Robot extends TimedRobot
       );
 
     operator.povLeft().onTrue
-      (modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get()));
+      (runOnce(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())));
 
     operator.povRight().onTrue
-      (modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()));
+      (runOnce(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get())));
 
     new Trigger(() -> autoMode)
       .and(() -> FieldUtils.inLeftHalf(getTranslation()))
-      .onTrue(modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get()))
-      .onFalse(modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()));
+      .onTrue(run(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())))
+      .onFalse(run(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get())));
 
     new Trigger(() -> autoMode)
       .and(() -> FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(modifyTargets(target -> target.state = TargetState.Hub))
-      .onFalse(modifyTargets(target -> target.state = TargetState.Point));
+      .onTrue(run(() -> modifyTargets(target -> target.state = TargetState.Hub)))
+      .onFalse(run(() -> modifyTargets(target -> target.state = TargetState.Point)));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
@@ -274,13 +274,10 @@ public class Robot extends TimedRobot
    * 
    * @param updater The action to perform on the targets
    */
-  private Command modifyTargets(Consumer<Target> updater)
+  private void modifyTargets(Consumer<Target> updater)
   {
-    return runOnce
-    (() -> {
-      updater.accept(s_PortShooter.getTarget());
-      updater.accept(s_StbdShooter.getTarget());
-    });
+    updater.accept(s_PortShooter.getTarget());
+    updater.accept(s_StbdShooter.getTarget());
   }
 
   /** Pull current state from drivebase for external use, to avoid repeated expensive calls */
@@ -357,6 +354,7 @@ public class Robot extends TimedRobot
   public void testInit() 
   {
     CommandScheduler.getInstance().cancelAll();
+    modifyTargets(target -> target.state = TargetState.Manual);
   }
 
   @Override

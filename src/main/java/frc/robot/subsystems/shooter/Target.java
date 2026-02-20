@@ -32,29 +32,25 @@ public class Target
   /** The currently active {@link TargetState} */
   public TargetState state; 
   /** The target altitude, used for the {@link TargetState#Manual Manual} state, and for storing the last-calculated target in the other two states */
-  public double altitude; 
+  @Logged(name = "Target Altitude Degrees")
+  public double altitude = 0; 
   /** The target azimuth, used for the {@link TargetState#Manual Manual} state, and for storing the last-calculated target in the other two states */
-  public double azimuth; 
+  @Logged(name = "Target Azimuth Degrees")
+  public double azimuth = 0; 
   /** The target point, used for the {@link TargetState#Point Point} state */
-  public Translation2d point;
+  public Translation2d point = Translation2d.kZero;
   /** Offset from target point, used for leading shots while moving and separating ball-streams from multiple shooters */
-  public Translation2d offset;
+  protected Translation2d offset = Translation2d.kZero;
   /** Distance from shooter to target, used for hood angle and flywheel speed */
-  public double distance;
-
-  public Target(TargetState state, double altitude, double azimuth, Translation2d point) 
-  {
-    this.state = state;
-    this.altitude = altitude;
-    this.azimuth = azimuth;
-    this.point = point;
-    this.offset = Translation2d.kZero;
-  }
+  @Logged(name = "Target Distance Meters")
+  protected double distance = 0;
+  @Logged(name = "Target Speed RevPerSec")
+  protected double speed = 0;
 
   /**
-   * Construct a new {@link Target} with {@link Target#altitude altitude}, {@link Target#azimuth azimuth}, and {@link Target#point point} all zeroed
+   * Construct a new {@link Target} with all values zeroed
    * @param state the initial state
    */
   public Target(TargetState state) 
-    {this(state, 0, 0, Translation2d.kZero);}
+    {this.state = state;}
 }

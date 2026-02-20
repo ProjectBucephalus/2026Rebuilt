@@ -75,7 +75,7 @@ public class Flywheels
   }
 
   /** @return Current speed of the flywheels (RPS of the main flywheel) */
-  @Logged(name = "Speed")
+  @Logged(name = "Speed RevPerSec")
   public double getSpeed() 
   {
     if (Robot.isSimulation())
@@ -84,7 +84,7 @@ public class Flywheels
       return m_Leader.getVelocity().getValue().in(Units.RotationsPerSecond);
   }
 
-  @Logged(name = "Temp")
+  @Logged(name = "Temp Celsius")
   public double getTemp() 
   {
     if (Robot.isSimulation())
@@ -93,7 +93,7 @@ public class Flywheels
       return m_Leader.getAncillaryDeviceTemp().getValue().in(Units.Celsius);
   }
 
-  @Logged(name = "Current Draw")
+  @Logged(name = "Current Draw Amps")
   public double getMotorCurrent()
   {
     if (Robot.isSimulation())
