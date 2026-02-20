@@ -378,6 +378,15 @@ public final class Constants
     static
     {
       feederConfig.Feedback.SensorToMechanismRatio = motorToUpperRatio;
+
+      feederConfig.Slot0.kS = 0.56;
+      feederConfig.Slot0.kV = 0.127;
+      feederConfig.Slot0.kA = 0.0;
+      feederConfig.Slot0.kP = 0.16;
+      feederConfig.Slot0.kI = 0.01;
+      feederConfig.Slot0.kD = 0.0;
+
+      feederConfig.MotionMagic.MotionMagicAcceleration = 100.0;
     }
   }
 

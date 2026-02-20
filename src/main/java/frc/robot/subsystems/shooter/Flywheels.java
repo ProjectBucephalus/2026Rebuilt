@@ -69,6 +69,7 @@ public class Flywheels
    * 
    * @return true if the motor is at speed
    */
+  @Logged
   public boolean atSpeed() 
   {
     return MathUtil.isNear(request.Velocity, getSpeed(), flySpeedTolerance);

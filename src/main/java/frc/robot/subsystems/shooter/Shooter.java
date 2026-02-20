@@ -128,14 +128,13 @@ public class Shooter extends SubsystemBase
    * 
    * @return A {@link Trigger} encoding the above behaviour
    */
-  public Trigger shootReadyTrigger()
+  @Logged
+  public boolean shootReady()
   {
-    return new Trigger
-    (() -> 
+    return 
       turret.readyToShoot(swerveState.Speeds)
       && hood.atAltitude()
-      && flywheels.atSpeed()
-    );
+      && flywheels.atSpeed();
   }
 
   private void telemetrise()

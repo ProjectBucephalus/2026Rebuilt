@@ -216,8 +216,8 @@ public class Robot extends TimedRobot
       )
     );
 
-    s_PortShooter.shootReadyTrigger()
-      .and(s_StbdShooter.shootReadyTrigger())
+    new Trigger(s_PortShooter::shootReady)
+      .and(s_StbdShooter::shootReady)
       .whileTrue
       (
         s_Feeder.runEnd
