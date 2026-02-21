@@ -32,19 +32,20 @@ public class PBDash
   public static final Field2d FIELD = new Field2d();
   static { putSendable("Field", FIELD); }
 
-  public static final Key<String>  AUTO_STRING          = new Key<>("Auto String", "");
+  public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
+  public static final Key<String>  AUTO_ERRS        = new Key<>("AUTO STRING ERRORS", "");
 
-  public static final Key<Integer> LL_EXPOSURE          = new Key<>("Exposure Setting", 0);
-  public static final Key<Boolean> LL_EXPOSURE_UP       = new Key<>("Increase Exposure", false);
-  public static final Key<Boolean> LL_EXPOSURE_DOWN     = new Key<>("Decrease Exposure", false);
-  public static final Key<Boolean> LL_TOGGLE            = new Key<>("Use Limelight", true);
+  public static final Key<Integer> LL_EXPOSURE      = new Key<>("Exposure Setting", 0);
+  public static final Key<Boolean> LL_EXPOSURE_UP   = new Key<>("Increase Exposure", false);
+  public static final Key<Boolean> LL_EXPOSURE_DOWN = new Key<>("Decrease Exposure", false);
+  public static final Key<Boolean> LL_TOGGLE        = new Key<>("Use Limelight", true);
 
-  public static final Key<Boolean> FENCE_TOGGLE         = new Key<>("Enable Fencing", true);
+  public static final Key<Boolean> FENCE_TOGGLE     = new Key<>("Enable Fencing", true);
 
-  public static final Key<String>  STATE_DRIVE          = new Key<>("Drive State", "Disabled");
+  public static final Key<String>  STATE_DRIVE      = new Key<>("Drive State", "Disabled");
 
-  public static final Key<Double>  RUMBLE_DRIVER        = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
-  public static final Key<Double>  RUMBLE_OPERATOR      = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
+  public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
+  public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
 
   public static void putFieldObject(String name, Pose2d pose)
     {FIELD.getObject(name).setPose(pose);}

@@ -1,10 +1,10 @@
 package frc.robot.util;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
@@ -24,7 +24,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
  * Dynamically creates Command list from input string of tags
  * @author 5985
  */
-public class AutoFactories 
+public class AutoBuilder 
 {
   private static record Instruction(char code, int... args) 
   {
@@ -55,12 +55,30 @@ public class AutoFactories
     }
   }
 
-  private static List<Instruction> parseInstructions(String input) 
+  /**
+   * Parses an auto string into a list of instructions, for easier inspection during command generation
+   * Any invalid instructions are skipped
+   * 
+   * @param input The input auto string
+   * @return
+   */
+  private static List<Instruction> parseInstructions(String input, Consumer<String> errHandler) 
   {
-    return Arrays
-      .stream(input.split(","))
-      .<Instruction>mapMulti((instr, insert) -> Instruction.parse(instr).ifPresent(insert))
-      .collect(Collectors.toList());
+    String[] splitInput = input.split(",");
+    var out = new ArrayList<Instruction>(splitInput.length);
+
+    for (var instr : splitInput) 
+    {
+      Instruction
+        .parse(instr)
+        .ifPresentOrElse
+        (
+          out::add, 
+          () -> errHandler.accept(instr)
+        );
+    }
+
+    return out;
   }
 
   /**
@@ -68,14 +86,19 @@ public class AutoFactories
    * @param commandInput The string of commands to split, seperated by commas with no spaces (e.g. "a1,rA1,p,cR3")
    * @return An array of commands, from the input command phrase string, in the same order
    */
-  public static Command getCommandList(String commandInput, CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup)
+  public static Command compileAutoString
+  (
+    String commandInput, 
+    CommandSwerveDrivetrain s_Swerve, 
+    Supplier<SwerveDriveState> swerveStateSup, 
+    Consumer<String> errHandler
+  )
   {
-    var instructions = parseInstructions(commandInput);
-    // The commands produced to be run
+    // The command list to be output
     var commandList = new SequentialCommandGroup();
 
-    // For each command phrase, adds relevant commands to the list
-    for (var instr : instructions) 
+    // For each instruction, adds the corresponding commands to the list
+    for (var instr : parseInstructions(commandInput, errHandler)) 
     {
       switch (instr.code) 
       {
@@ -102,10 +125,7 @@ public class AutoFactories
 
         // t d - wait until time d
         case 't' ->
-				{
-          double targetMatchTimeElapsed = instr.args[0];
-          commandList.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - targetMatchTimeElapsed)));
-        }
+          commandList.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - instr.args[0])));
       }
     }
 

@@ -42,7 +42,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
-import frc.robot.util.AutoFactories;
+import frc.robot.util.AutoBuilder;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 import frc.robot.util.controlTransmutation.*;
@@ -282,9 +282,12 @@ public class Robot extends TimedRobot
     swerveState = s_Swerve.getState();
     PBDash.FIELD.setRobotPose(swerveState.Pose);
   }
+  
+  private void handleAutoErr(String invalidInstr)
+    {PBDash.AUTO_ERRS.put(PBDash.AUTO_ERRS.get() + ", " + invalidInstr);}
 
   private void compileAuto()
-    {autoCommand = Optional.of(AutoFactories.getCommandList(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState));}
+    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState, this::handleAutoErr));}
 
   /** Returns the t2d of the robot centre in field coordinates */
   public Translation2d getTranslation()
