@@ -104,11 +104,7 @@ public class Robot extends TimedRobot
     );
   private final Vision s_Vision = new Vision
   (
-    (poseEst, timestmp, stdDevs) -> 
-    {
-      s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
-      s_Swerve.addVisionMeasurement(poseEst, timestmp);
-    },
+    s_Swerve::addVisionMeasurement,
     () -> swerveState.Speeds.omegaRadiansPerSecond,
     new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
     new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
@@ -301,6 +297,10 @@ public class Robot extends TimedRobot
   @Logged(name = "CAN Load")
   public float getCanLoad() 
     {return canBus.getStatus().BusUtilization;}
+
+  @Logged(name = "Pigeon Degrees")
+  public double getPigeonReading() 
+    {return swerveState.RawHeading.getDegrees();}
   
   /* OPMODE METHODS */
   /* ============ */

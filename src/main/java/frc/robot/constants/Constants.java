@@ -304,7 +304,7 @@ public final class Constants
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
     public static final double linearStdDevBaseline = 0.1;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
-    public static final double rotStdDevBaseline = Math.toRadians(10);
+    public static final double rotStdDevBaseline = Math.toRadians(20);
   }
 
   /** Interpolation tables for converting measured input to calibrated output */
@@ -339,14 +339,14 @@ public final class Constants
     /** Distance to Speed conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
     {{
-      put(0.81, 23.25); // min range
-      put(1.5, 27.25); 
-      put(1.6, 27.8); // max range while at 0 degrees hood + staying below lights
-      put(2.5, 28.7);
-      put(3.5, 30.15);
-      put(4.675, 32.0);
-      put(4.9, 32.5); // max range while staying below lights
-      put(5.6, 34.3); // max range while staying below ceiling
+      put(0.81, 22.75);//23.25); // min range
+      put(1.5, 26.75);//27.25); 
+      put(1.6, 27.3);//27.8); // max range while at 0 degrees hood + staying below lights
+      put(2.5, 28.2);//28.7);
+      put(3.5, 29.65);//30.15);
+      put(4.675, 31.5);//32.0);
+      put(4.9, 32.0);//32.5); // max range while staying below lights
+      put(5.6, 33.8);//34.3); // max range while staying below ceiling
     }};
 
     /** Distance to Speed conversion for shooting to a point on the field */
@@ -369,15 +369,15 @@ public final class Constants
     public static final double feederSpeed = 0.5;
 
     private static final double gearboxRatio = 1;
-    private static final double lowerRollerPulley = 24;
-    private static final double upperRollerPuller = 18;
-    private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
-    private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
+    //private static final double lowerRollerPulley = 24;
+    //private static final double upperRollerPuller = 18;
+    //private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
+    //private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
 
     public static final TalonFXConfiguration feederConfig = new TalonFXConfiguration();
     static
     {
-      feederConfig.Feedback.SensorToMechanismRatio = motorToUpperRatio;
+      feederConfig.Feedback.SensorToMechanismRatio = gearboxRatio;
 
       feederConfig.Slot0.kS = 0.56;
       feederConfig.Slot0.kV = 0.127;
