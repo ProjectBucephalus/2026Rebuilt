@@ -76,7 +76,7 @@ public class Robot extends TimedRobot
   /* State */
   private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
-  private boolean autoMode = true;
+  private boolean autoMode = false;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
