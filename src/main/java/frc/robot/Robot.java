@@ -279,8 +279,8 @@ public class Robot extends TimedRobot
 
     driver.povRight().onTrue(run(() -> autoMode = true));
 
-    driver.povUp().onTrue(s_Hopper.extendCommand());
-    driver.povDown().onTrue(s_Hopper.retractCommand());
+    driver.povUp().onTrue(s_Hopper.manualExtensionCommand(()->0.01));
+    driver.povDown().onTrue(s_Hopper.manualExtensionCommand(()->-0.01));
 
     driver.x()
       .onTrue(s_Hopper.runSpindexerCommand())

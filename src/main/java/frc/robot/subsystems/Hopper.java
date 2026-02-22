@@ -8,6 +8,8 @@ import frc.robot.subsystems.generic.LimitedMotor;
 import static frc.robot.constants.Constants.HopperConstants.*;
 import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.extensionJostleDelay;
 
+import java.util.function.DoubleSupplier;
+
 /**
  * Ball processing master-system with extendable intake, internally creates and manages associated subsystems
  * @author 5985
@@ -78,6 +80,13 @@ public class Hopper extends SubsystemBase
   /** @return Command to extend the extension to max */
   public Command extendCommand()
   {return extension.setTargetCommand(ExtensionConstants.maxRotations);}
+
+  /**
+   * @param  shiftSup Supplier for relative control value, mechanism rotations
+   * @return Command to smoothly control the extension 
+   */
+  public Command manualExtensionCommand(DoubleSupplier shiftSup)
+  {return extension.adjustTargetCommand(shiftSup);}
 
   /** @return Command to continually jostle the extension to agitate gamepieces */
   public Command extensionJostleCommand()
