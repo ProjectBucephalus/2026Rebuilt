@@ -19,20 +19,18 @@ import frc.robot.util.Conversions;
 public class LimitedMotor extends SubsystemBase
 {
   private final TalonFX m_Inner;
-  private final DigitalInput io_Limit;
+
+  private final Limit limit;
+
+  private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
   private final double maxRotations;
   private final double minRotations;
 
-  private final double stallCurrent;
-
   private final boolean slot1Valid;
-  private final boolean useStall;
 
   private boolean homed = false;
   private boolean homeLastCycle = false;
-
-  private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
   /**
    * Creates generic limited motor system
@@ -48,23 +46,18 @@ public class LimitedMotor extends SubsystemBase
     this.maxRotations = maxRotations;
     this.minRotations = minRotations;
     slot1Valid = configs.Slot1.kP != 0;
-    useStall = limitIO == -1;
-    stallCurrent = configs.CustomParams.CustomParam0;
 
     m_Inner = new TalonFX(motorCAN);
-    io_Limit = new DigitalInput(limitIO);
 
     m_Inner.getConfigurator().apply(configs);
 
     m_Inner.setPosition(maxRotations);
-  } 
 
-  public boolean atLimit() 
-  {
-    return useStall 
-      ? m_Inner.getStatorCurrent().getValueAsDouble() >= stallCurrent
-      : io_Limit.get();
-  }
+    if (limitIO == -1)
+      limit = new StallLimit(configs.CustomParams.CustomParam0);
+    else
+      limit = new DIOLimit(limitIO);
+  } 
 
   /** @return Current physical angle, in mechanism rotations */
   public double getAngle()
@@ -103,7 +96,7 @@ public class LimitedMotor extends SubsystemBase
   @Override
   public void periodic() 
   {
-    if (atLimit())
+    if (limit.atLimit())
     {  
       if (!homeLastCycle)
       {
@@ -114,5 +107,32 @@ public class LimitedMotor extends SubsystemBase
     }
     else 
       homeLastCycle = false;
+  }
+
+  private interface Limit 
+    {boolean atLimit();}
+
+  private class DIOLimit implements Limit 
+  {
+    private final DigitalInput io_Limit;
+
+    public DIOLimit(int limitIO)
+      {io_Limit = new DigitalInput(limitIO);}
+
+    @Override
+    public boolean atLimit() 
+      {return io_Limit.get();}
+  }
+
+  private class StallLimit implements Limit 
+  {
+    private final double stallCurrent;
+
+    public StallLimit(double stallCurrent)
+      {this.stallCurrent = stallCurrent;}
+
+    @Override
+    public boolean atLimit() 
+      {return m_Inner.getStatorCurrent().getValueAsDouble() >= stallCurrent;}
   }
 }
