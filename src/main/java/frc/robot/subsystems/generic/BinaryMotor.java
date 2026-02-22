@@ -55,6 +55,14 @@ public class BinaryMotor extends SubsystemBase
    */
   public Command startCommand()
     {return runOnce(() -> m_Inner.set(defaultSpeed));}
+  
+  /**
+   * Construct a command that runs the motor at negative default speed
+   * 
+   * @return the {@link Command}
+   */
+  public Command reverseCommand()
+    {return runOnce(() -> m_Inner.set(-defaultSpeed));}
 
   /**
    * Construct a command that stops the motor (i.e., sets speed to 0) 

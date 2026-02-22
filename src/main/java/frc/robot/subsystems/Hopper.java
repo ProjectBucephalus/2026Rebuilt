@@ -35,6 +35,10 @@ public class Hopper extends SubsystemBase
   /** @return Command to start running intake at default speed */
   public Command runIntakeCommand()
   {return intake.startCommand();}
+  
+  /** @return Command to start running intake at negative default speed */
+  public Command reverseIntakeCommand()
+  {return intake.reverseCommand();}
 
   /** @return Command to stop the intake */
   public Command stopIntakeCommand()
@@ -43,6 +47,10 @@ public class Hopper extends SubsystemBase
   /** @return Command to start running spindexer at default speed */
   public Command runSpindexerCommand()
   {return spindexer.startCommand();}
+  
+  /** @return Command to start running spindexer at negative default speed */
+  public Command reverseSpindexerCommand()
+  {return spindexer.reverseCommand();}
 
   /** @return Command to stop the spindexer */
   public Command stopSpindexerCommand()
