@@ -1,9 +1,12 @@
 package frc.robot.subsystems.generic;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -50,21 +53,39 @@ public class LimitedMotor extends SubsystemBase
     m_Inner.setPosition(maxRotations);
   } 
 
+  /** @return Current physical angle, in mechanism rotations */
+  public double getAngle()
+    {return m_Inner.getPosition().getValue().in(Units.Rotation);}
+
+  /**
+   * Sets the target point for the motor 
+   * @param target mechanism rotations
+   */
+  public void setTarget(double target) 
+  {
+    double clampedRotations = Conversions.clamp(target, minRotations, maxRotations);
+    int slot = !homed && slot1Valid ? 1 : 0;
+    m_Inner.setControl
+      (request.withPosition(clampedRotations).withSlot(slot));
+  }
+
   /**
    * Creates a command to set the target point for the motor <p>
    * NOTE: The provided value is only evaluated when the command is created
-   * @param targetRotations mechanism rotations
+   * @param target mechanism rotations
    * @return the Command
    */
-  public Command setTargetCommand(double targetRotations)
-  {
-    return runOnce(() -> {
-      double clampedRotations = Conversions.clamp(targetRotations, minRotations, maxRotations);
-      int slot = !homed && slot1Valid ? 1 : 0;
-      m_Inner.setControl
-        (request.withPosition(clampedRotations).withSlot(slot));
-    });
-  }
+  public Command setTargetCommand(double target)
+    {return runOnce(() -> setTarget(target));}
+
+  /**
+   * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
+   * Primarily intended for joystick control
+   * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
+   * @return the Command
+   */
+  public Command adjustTargetCommand(DoubleSupplier shiftSup) 
+    {return run(() -> setTarget(getAngle() + shiftSup.getAsDouble()));}
   
   @Override
   public void periodic() 
