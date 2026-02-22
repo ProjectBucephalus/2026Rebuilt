@@ -18,6 +18,8 @@ import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 
+import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.idleSpeed;
+
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
@@ -44,6 +46,8 @@ public class Shooter extends SubsystemBase
   private final Supplier<SwerveDriveState> swerveStateSup;
   private SwerveDriveState swerveState;
 
+  private final Supplier<Boolean> activeSup;
+
   /** Current active target for the shooter */
   @Logged(name = "Target")
   private Target target = new Target(TargetState.Hub);
@@ -60,6 +64,7 @@ public class Shooter extends SubsystemBase
    * @param hoodPWM PWM-ID of hood altitude servo
    * @param hoodIO AIO-ID of hood feedback sensor
    * @param invertedHood Inverts the range and direction of motion of the hood servo
+   * @param activeSup Supplier for when the shooter should be ready to shoot
    */
   public Shooter
   (
@@ -67,12 +72,14 @@ public class Shooter extends SubsystemBase
     Transform2d robotToShooter,
     ShooterIDs idBlock,
     double azimuthOffset,
-    boolean invertedHood
+    boolean invertedHood,
+    Supplier<Boolean> activeSup
   ) 
   {
     this.swerveStateSup = swerveStateSup;
     this.swerveState = swerveStateSup.get();
     this.shooterOffset = robotToShooter;
+    this.activeSup = activeSup;
 
     baseTargetOffset = new Translation2d(0, Math.copySign(ShooterConstants.targetPointOffset, robotToShooter.getY()));
     ntId = idBlock.ntID();
@@ -132,7 +139,8 @@ public class Shooter extends SubsystemBase
   public boolean shootReady()
   {
     return 
-      turret.readyToShoot(swerveState.Speeds)
+      activeSup.get()
+      && turret.readyToShoot(swerveState.Speeds)
       && hood.atAltitude()
       && flywheels.atSpeed();
   }
@@ -182,7 +190,7 @@ public class Shooter extends SubsystemBase
       case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
-    flywheels.setSpeed(target.speed);
+    flywheels.setSpeed(activeSup.get() ? target.speed : idleSpeed);
 
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update(shooterPose);
