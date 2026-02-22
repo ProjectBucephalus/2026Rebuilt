@@ -97,7 +97,7 @@ public class Robot extends TimedRobot
     IDConstants.portShooterIDs,
     ShooterConstants.TurretConstants.portPotOffset,
     true,
-    () -> driver.leftBumper().negate().getAsBoolean()
+    () -> driver.rightBumper().negate().getAsBoolean()
   );
   
   @Logged(name = "Stbd Shooter")
@@ -108,7 +108,7 @@ public class Robot extends TimedRobot
     IDConstants.stbdShooterIDs,
     ShooterConstants.TurretConstants.stbdPotOffset,
     false,
-    () -> driver.leftBumper().negate().getAsBoolean()
+    () -> driver.rightBumper().negate().getAsBoolean()
   );
   
   private final Vision s_Vision = new Vision
@@ -223,6 +223,7 @@ public class Robot extends TimedRobot
     new Trigger(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
       .and(driver.leftTrigger().negate())
+      .and(driver.leftBumper().negate())
       .whileTrue
       (
         s_Feeder.runEnd
@@ -293,9 +294,11 @@ public class Robot extends TimedRobot
       .onFalse(s_Hopper.stopIntakeCommand());
 
     driver.leftTrigger()
-      .onTrue(s_Feeder.setSpeedCommand(-30));
+      .onTrue(s_Feeder.setSpeedCommand(-30))
+      .onFalse(s_Feeder.setSpeedCommand(0));
     driver.leftBumper()
-      .whileTrue(s_Feeder.setSpeedCommand(50));
+      .whileTrue(s_Feeder.setSpeedCommand(50))
+      .onFalse(s_Feeder.setSpeedCommand(0));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
