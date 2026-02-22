@@ -81,6 +81,10 @@ public class Robot extends TimedRobot
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
   private final CANBus canBus = new CANBus();
+
+  /* Controllers */
+  private final CommandXboxController driver = new CommandXboxController(0);
+  private final CommandXboxController operator = new CommandXboxController(1);
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
@@ -92,7 +96,8 @@ public class Robot extends TimedRobot
     ShooterConstants.portShooterOffset,
     IDConstants.portShooterIDs,
     ShooterConstants.TurretConstants.portPotOffset,
-    true
+    true,
+    () -> driver.leftBumper().negate().getAsBoolean()
   );
   
   @Logged(name = "Stbd Shooter")
@@ -102,7 +107,8 @@ public class Robot extends TimedRobot
     ShooterConstants.stbdShooterOffset,
     IDConstants.stbdShooterIDs,
     ShooterConstants.TurretConstants.stbdPotOffset,
-    false
+    false,
+    () -> driver.leftBumper().negate().getAsBoolean()
   );
   
   private final Vision s_Vision = new Vision
@@ -136,10 +142,6 @@ public class Robot extends TimedRobot
     IDConstants.feederCAN,
     FeederConstants.feederConfig
   );
-  
-  /* Controllers */
-  private final CommandXboxController driver = new CommandXboxController(0);
-  private final CommandXboxController operator = new CommandXboxController(1);
 
   /* Rumble */
   private final RumbleRequester io_driverRight   = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
@@ -220,6 +222,7 @@ public class Robot extends TimedRobot
 
     new Trigger(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
+      .and(driver.leftTrigger().negate())
       .whileTrue
       (
         s_Feeder.runEnd
@@ -279,6 +282,20 @@ public class Robot extends TimedRobot
     driver.povUp().onTrue(s_Hopper.extendCommand());
     driver.povDown().onTrue(s_Hopper.retractCommand());
 
+    driver.x()
+      .onTrue(s_Hopper.runSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
+    driver.b()
+      .onTrue(s_Hopper.reverseSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
+    driver.a()
+      .onTrue(s_Hopper.runIntakeCommand())
+      .onFalse(s_Hopper.stopIntakeCommand());
+
+    driver.leftTrigger()
+      .onTrue(s_Feeder.setSpeedCommand(-30));
+    driver.leftBumper()
+      .whileTrue(s_Feeder.setSpeedCommand(50));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
