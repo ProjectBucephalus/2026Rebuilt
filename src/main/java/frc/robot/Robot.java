@@ -84,24 +84,27 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
+  
   @Logged(name = "Port Shooter")
   private final Shooter s_PortShooter = new Shooter
-    (
-      () -> swerveState,
-      ShooterConstants.portShooterOffset,
-      IDConstants.portShooterIDs,
-      ShooterConstants.TurretConstants.portPotOffset,
-      true
-    );
+  (
+    () -> swerveState,
+    ShooterConstants.portShooterOffset,
+    IDConstants.portShooterIDs,
+    ShooterConstants.TurretConstants.portPotOffset,
+    true
+  );
+  
   @Logged(name = "Stbd Shooter")
   private final Shooter s_StbdShooter = new Shooter
-    (
-      () -> swerveState,
-      ShooterConstants.stbdShooterOffset,
-      IDConstants.stbdShooterIDs,
-      ShooterConstants.TurretConstants.stbdPotOffset,
-      false
-    );
+  (
+    () -> swerveState,
+    ShooterConstants.stbdShooterOffset,
+    IDConstants.stbdShooterIDs,
+    ShooterConstants.TurretConstants.stbdPotOffset,
+    false
+  );
+  
   private final Vision s_Vision = new Vision
   (
     s_Swerve::addVisionMeasurement,
@@ -109,6 +112,7 @@ public class Robot extends TimedRobot
     new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
     new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
   );
+  
   private final LinearExtension s_Climber = new LinearExtension
   (
     IDConstants.climberCAN, 
@@ -118,6 +122,7 @@ public class Robot extends TimedRobot
     ClimberConstants.metersPerRotation,
     ClimberConstants.climberConfig
   );
+  
   private final Hopper s_Hopper = new Hopper
   (
     IDConstants.spindexerCAN,
@@ -125,6 +130,7 @@ public class Robot extends TimedRobot
     IDConstants.extensionCAN, 
     IDConstants.extensionLimitDIO
   );
+  
   private final VelocityMotor s_Feeder = new VelocityMotor
   (
     IDConstants.feederCAN,
@@ -255,6 +261,24 @@ public class Robot extends TimedRobot
       .and(() -> FieldUtils.inAllianceZone(getTranslation()))
       .onTrue(run(() -> modifyTargets(target -> target.state = TargetState.Hub)))
       .onFalse(run(() -> modifyTargets(target -> target.state = TargetState.Point)));
+
+    // TODO: For testing and bringup
+
+    driver.povLeft()
+      .onTrue(
+        run(() -> {
+          autoMode = false;
+          modifyTargets(target -> target.state = TargetState.Manual);
+          modifyTargets(target -> target.azimuth = PBDash.getDouble("Test Azimuth"));
+          modifyTargets(target -> target.altitude = PBDash.getDouble("Test Altitude"));
+        })
+      );
+
+    driver.povRight().onTrue(run(() -> autoMode = true));
+
+    driver.povUp().onTrue(s_Hopper.extendCommand());
+    driver.povDown().onTrue(s_Hopper.retractCommand());
+
   }
 
   /** Sets trigger conditions to activate controller rumbles */
