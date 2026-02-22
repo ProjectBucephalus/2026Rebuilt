@@ -20,6 +20,7 @@ import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.idleSpeed;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
@@ -46,7 +47,7 @@ public class Shooter extends SubsystemBase
   private final Supplier<SwerveDriveState> swerveStateSup;
   private SwerveDriveState swerveState;
 
-  private final Supplier<Boolean> activeSup;
+  private final BooleanSupplier activeSup;
 
   /** Current active target for the shooter */
   @Logged(name = "Target")
@@ -73,7 +74,7 @@ public class Shooter extends SubsystemBase
     ShooterIDs idBlock,
     double azimuthOffset,
     boolean invertedHood,
-    Supplier<Boolean> activeSup
+    BooleanSupplier activeSup
   ) 
   {
     this.swerveStateSup = swerveStateSup;
@@ -139,7 +140,7 @@ public class Shooter extends SubsystemBase
   public boolean shootReady()
   {
     return 
-      activeSup.get()
+      activeSup.getAsBoolean()
       && turret.readyToShoot(swerveState.Speeds)
       && hood.atAltitude()
       && flywheels.atSpeed();
@@ -190,7 +191,7 @@ public class Shooter extends SubsystemBase
       case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
-    flywheels.setSpeed(activeSup.get() ? target.speed : idleSpeed);
+    flywheels.setSpeed(activeSup.getAsBoolean() ? target.speed : idleSpeed);
 
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update(shooterPose);

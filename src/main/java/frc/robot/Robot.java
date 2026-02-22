@@ -97,7 +97,7 @@ public class Robot extends TimedRobot
     IDConstants.portShooterIDs,
     ShooterConstants.TurretConstants.portPotOffset,
     true,
-    () -> driver.rightBumper().negate().getAsBoolean()
+    driver.rightBumper().negate()
   );
   
   @Logged(name = "Stbd Shooter")
@@ -108,7 +108,7 @@ public class Robot extends TimedRobot
     IDConstants.stbdShooterIDs,
     ShooterConstants.TurretConstants.stbdPotOffset,
     false,
-    () -> driver.rightBumper().negate().getAsBoolean()
+    driver.rightBumper().negate()
   );
   
   private final Vision s_Vision = new Vision
@@ -134,7 +134,7 @@ public class Robot extends TimedRobot
     IDConstants.spindexerCAN,
     IDConstants.intakeCAN, 
     IDConstants.extensionCAN, 
-    IDConstants.extensionLimitDIO
+    -1 //IDConstants.extensionLimitDIO
   );
   
   private final VelocityMotor s_Feeder = new VelocityMotor

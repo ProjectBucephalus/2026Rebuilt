@@ -464,6 +464,8 @@ public final class Constants
         extensionConfig.Slot1.kP = 0.0;
         extensionConfig.Slot1.kI = 0.0;
         extensionConfig.Slot1.kD = 0.0;
+
+        extensionConfig.CustomParams.CustomParam0 = 10; // Current draw read as "stall" by the limited motor system
       };
     }
   }   

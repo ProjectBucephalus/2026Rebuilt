@@ -24,7 +24,10 @@ public class LimitedMotor extends SubsystemBase
   private final double maxRotations;
   private final double minRotations;
 
+  private final double stallCurrent;
+
   private final boolean slot1Valid;
+  private final boolean useStall;
 
   private boolean homed = false;
   private boolean homeLastCycle = false;
@@ -34,16 +37,19 @@ public class LimitedMotor extends SubsystemBase
   /**
    * Creates generic limited motor system
    * @param motorCAN CAN-ID of underlying motor
-   * @param limitIO DIO-ID of home limit-sensor
+   * @param limitIO DIO-ID of home limit-sensor. Set to {@code -1} to use motor stall instead of limit switch
    * @param minRotations Minimum position in mechanism rotations
    * @param maxRotations Maximum position in mechanism rotations
-   * @param configs Motor configuration object, uses Slot1 if present when not calibrated
+   * @param configs Motor configuration object, uses Slot1 if present when not calibrated <br>
+   *                {@code CustomParam0} is used for the stall current value if using motor stall
    */
   public LimitedMotor(int motorCAN, int limitIO, double minRotations, double maxRotations, TalonFXConfiguration configs)
   {
     this.maxRotations = maxRotations;
     this.minRotations = minRotations;
     slot1Valid = configs.Slot1.kP != 0;
+    useStall = limitIO == -1;
+    stallCurrent = configs.CustomParams.CustomParam0;
 
     m_Inner = new TalonFX(motorCAN);
     io_Limit = new DigitalInput(limitIO);
@@ -52,6 +58,13 @@ public class LimitedMotor extends SubsystemBase
 
     m_Inner.setPosition(maxRotations);
   } 
+
+  public boolean atLimit() 
+  {
+    return useStall 
+      ? m_Inner.getStatorCurrent().getValueAsDouble() >= stallCurrent
+      : io_Limit.get();
+  }
 
   /** @return Current physical angle, in mechanism rotations */
   public double getAngle()
@@ -86,11 +99,11 @@ public class LimitedMotor extends SubsystemBase
    */
   public Command adjustTargetCommand(DoubleSupplier shiftSup) 
     {return run(() -> setTarget(getAngle() + shiftSup.getAsDouble()));}
-  
+
   @Override
   public void periodic() 
   {
-    if (io_Limit.get())
+    if (atLimit())
     {  
       if (!homeLastCycle)
       {
