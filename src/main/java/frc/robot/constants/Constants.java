@@ -70,7 +70,7 @@ public final class Constants
     /** Offset from typical centre of rotation to centre of drivebase, metres Fore/Port */
     public static final Translation2d retractedCentreOffset = new Translation2d(-drivebaseOffset,0);
     /** Centre-centre distance between wheels port-stbd, metres */
-    public static final double drivebaseWidth = 0.485;
+    public static final double drivebaseWidth = 0.56;
     /** Centre-centre distance between wheels fore-aft, metres */
     public static final double drivebaseLength = drivebaseWidth;
     /** Wheel-centre to Robot-centre distance to Port wheels, metres */
