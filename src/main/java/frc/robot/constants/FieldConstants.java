@@ -110,7 +110,7 @@ public class FieldConstants
     // Speed should be limited when traversing
     // Rotation must NOT be square when traversing
     /** Throttle limit when within bump zone */
-    public static final double bumpSpeedLimit = 0.6;
+    public static final double bumpSpeedLimit = 0.4;
     public static final double bumpRotationTolerance = 15;
     public static final double bumpWidth = 1.85;
     public static final double bumpYa = hubYa - bumpWidth;
