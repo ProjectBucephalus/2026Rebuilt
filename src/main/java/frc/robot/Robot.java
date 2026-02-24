@@ -111,6 +111,7 @@ public class Robot extends TimedRobot
     driver.rightBumper().negate()
   );
   
+  @Logged(name = "Vision")
   private final Vision s_Vision = new Vision
   (
     s_Swerve::addVisionMeasurement,
@@ -119,6 +120,7 @@ public class Robot extends TimedRobot
     new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
   );
   
+  @Logged(name = "Climber")
   private final LinearExtension s_Climber = new LinearExtension
   (
     IDConstants.climberCAN, 
@@ -139,6 +141,7 @@ public class Robot extends TimedRobot
     -1 //IDConstants.extensionLimitDIO
   );
   
+  @Logged(name = "Feeder")
   private final VelocityMotor s_Feeder = new VelocityMotor
   (
     IDConstants.feederCAN,
