@@ -398,7 +398,7 @@ public final class Constants
       /** Duration and interval of spindexer pulses when agitating, seconds */
       public static final double spindexerPulseDelay = 0.25;
       /** Default speed of spindexer when running, [-1..1] */
-      public static final double spindexerSpeed = 0.5;
+      public static final double spindexerSpeed = -0.5;
 
       private static final double motorPulley = 24;
       private static final double spindexerPulley = 30;
