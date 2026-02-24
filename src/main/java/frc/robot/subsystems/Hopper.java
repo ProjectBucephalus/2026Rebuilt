@@ -1,23 +1,31 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.HopperConstants.ExtensionConstants;
+import frc.robot.constants.Constants.HopperConstants.IntakeConstants;
+import frc.robot.constants.Constants.HopperConstants.SpindexerConstants;
 import frc.robot.subsystems.generic.BinaryMotor;
 import frc.robot.subsystems.generic.LimitedMotor;
 import static frc.robot.constants.Constants.HopperConstants.*;
 import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.extensionJostleDelay;
 
+import java.security.cert.Extension;
 import java.util.function.DoubleSupplier;
 
 /**
  * Ball processing master-system with extendable intake, internally creates and manages associated subsystems
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class Hopper extends SubsystemBase 
 {
   private BinaryMotor spindexer;
   private BinaryMotor intake;
+  @Logged
   private LimitedMotor extension;
   
   /**
@@ -31,7 +39,7 @@ public class Hopper extends SubsystemBase
   { 
     spindexer = new BinaryMotor(processorCAN, SpindexerConstants.spindexerSpeed, SpindexerConstants.spindexerConfig);
     intake = new BinaryMotor(intakeCAN, IntakeConstants.intakeSpeed, IntakeConstants.intakeConfig);
-    extension = new LimitedMotor(extensionCAN, extensionLimitIO, 0, ExtensionConstants.maxRotations, ExtensionConstants.extensionConfig);
+    extension = new LimitedMotor(extensionCAN, extensionLimitIO, -ExtensionConstants.maxRotations, 0, -ExtensionConstants.maxRotations, ExtensionConstants.extensionConfig);
   }
   
   /** @return Command to start running intake at default speed */

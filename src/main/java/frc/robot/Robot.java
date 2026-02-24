@@ -125,10 +125,12 @@ public class Robot extends TimedRobot
     IDConstants.climberLimitDIO, 
     0, 
     ClimberConstants.maxPosition, 
+    0,
     ClimberConstants.metersPerRotation,
     ClimberConstants.climberConfig
   );
   
+  @Logged(name = "Hopper")
   private final Hopper s_Hopper = new Hopper
   (
     IDConstants.spindexerCAN,
@@ -181,6 +183,8 @@ public class Robot extends TimedRobot
     Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
+
+    PBDash.putSendable("Hopper", s_Hopper);
   }
 
   /** Set up input modification and fencing systems */
@@ -258,19 +262,19 @@ public class Robot extends TimedRobot
 
     new Trigger(() -> autoMode)
       .and(() -> FieldUtils.inLeftHalf(getTranslation()))
-      .onTrue(run(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())))
-      .onFalse(run(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get())));
+      .onTrue(runOnce(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())))
+      .onFalse(runOnce(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get())));
 
     new Trigger(() -> autoMode)
       .and(() -> FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(run(() -> modifyTargets(target -> target.state = TargetState.Hub)))
-      .onFalse(run(() -> modifyTargets(target -> target.state = TargetState.Point)));
+      .onTrue(runOnce(() -> modifyTargets(target -> target.state = TargetState.Hub)))
+      .onFalse(runOnce(() -> modifyTargets(target -> target.state = TargetState.Point)));
 
     // TODO: For testing and bringup
 
     driver.povLeft()
       .onTrue(
-        run(() -> {
+        runOnce(() -> {
           autoMode = false;
           modifyTargets(target -> target.state = TargetState.Manual);
           modifyTargets(target -> target.azimuth = PBDash.getDouble("Test Azimuth"));
@@ -278,10 +282,10 @@ public class Robot extends TimedRobot
         })
       );
 
-    driver.povRight().onTrue(run(() -> autoMode = true));
+    driver.povRight().onTrue(runOnce(() -> autoMode = true));
 
-    driver.povUp().onTrue(s_Hopper.manualExtensionCommand(()->0.01));
-    driver.povDown().onTrue(s_Hopper.manualExtensionCommand(()->-0.01));
+    driver.povUp().whileTrue(s_Hopper.manualExtensionCommand(()->-0.05));
+    driver.povDown().whileTrue(s_Hopper.manualExtensionCommand(()->0.05));
 
     driver.x()
       .onTrue(s_Hopper.runSpindexerCommand())

@@ -23,9 +23,9 @@ public class LinearExtension extends LimitedMotor
    * @param metersPerRotation Meters of extension per mechanism rotation
    * @param configs Motor configuration object, uses Slot1 if present when not calibrated
    */
-  public LinearExtension(int motorCAN, int limitIO, double minPosition, double maxPosition, double metersPerRotation, TalonFXConfiguration configs)
+  public LinearExtension(int motorCAN, int limitIO, double minPosition, double maxPosition, double homePosition, double metersPerRotation, TalonFXConfiguration configs)
   {
-    super(motorCAN, limitIO, minPosition / metersPerRotation, maxPosition / metersPerRotation, configs);
+    super(motorCAN, limitIO, minPosition / metersPerRotation, maxPosition / metersPerRotation, homePosition / metersPerRotation, configs);
     this.metersPerRotation = metersPerRotation;
   } 
 

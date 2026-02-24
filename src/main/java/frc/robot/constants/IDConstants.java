@@ -40,7 +40,7 @@ public final class IDConstants
     17,
     18,
     0,
-    0,
+    1,
     1,
     "Port"
   );
@@ -52,7 +52,7 @@ public final class IDConstants
     21,
     22,
     2,
-    1,
+    3,
     3,
     "Stbd"
   );

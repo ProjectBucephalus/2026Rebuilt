@@ -6,6 +6,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,6 +18,7 @@ import frc.robot.util.Conversions;
  * Generic subclass for a range-limited motor with a binary switch at the home position 
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class LimitedMotor extends SubsystemBase
 {
   private final TalonFX m_Inner;
@@ -26,6 +29,7 @@ public class LimitedMotor extends SubsystemBase
 
   private final double maxRotations;
   private final double minRotations;
+  private final double homeRotations;
 
   private final boolean slot1Valid;
 
@@ -41,10 +45,11 @@ public class LimitedMotor extends SubsystemBase
    * @param configs Motor configuration object, uses Slot1 if present when not calibrated <br>
    *                {@code CustomParam0} is used for the stall current value if using motor stall
    */
-  public LimitedMotor(int motorCAN, int limitIO, double minRotations, double maxRotations, TalonFXConfiguration configs)
+  public LimitedMotor(int motorCAN, int limitIO, double minRotations, double maxRotations, double homeRotations, TalonFXConfiguration configs)
   {
     this.maxRotations = maxRotations;
     this.minRotations = minRotations;
+    this.homeRotations = homeRotations;
     slot1Valid = configs.Slot1.kP != 0;
 
     m_Inner = new TalonFX(motorCAN);
@@ -60,6 +65,7 @@ public class LimitedMotor extends SubsystemBase
   } 
 
   /** @return Current physical angle, in mechanism rotations */
+  @Logged(name = "Angle")
   public double getAngle()
     {return m_Inner.getPosition().getValue().in(Units.Rotation);}
 
@@ -102,7 +108,7 @@ public class LimitedMotor extends SubsystemBase
       {
         homed = true;
         homeLastCycle = true;
-        m_Inner.setPosition(0);
+        m_Inner.setPosition(homeRotations);
       }
     }
     else 
@@ -133,6 +139,6 @@ public class LimitedMotor extends SubsystemBase
 
     @Override
     public boolean atLimit() 
-      {return m_Inner.getStatorCurrent().getValueAsDouble() >= stallCurrent;}
+      {return m_Inner.getTorqueCurrent().getValueAsDouble() >= stallCurrent;}
   }
 }

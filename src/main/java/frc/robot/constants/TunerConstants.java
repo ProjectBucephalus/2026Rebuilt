@@ -24,7 +24,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
  */
 public class TunerConstants 
 {
-  // Both sets of gains need to be tuned to your individual robot.
+  // Both sets of gains need to be tuned to your individual robot. TODO
 
   // The steer motor uses any SwerveModule.SteerRequestType control request with the
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
@@ -54,8 +54,8 @@ public class TunerConstants
   // When not Pro-licensed, FusedCANcoder/SyncCANcoder automatically fall back to RemoteCANcoder
   private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.RemoteCANcoder;
 
-  // The stator current at which the wheels start to slip;
-  // This needs to be tuned to your individual robot
+  // The stator current at which the wheels start to slip; 
+  // This needs to be tuned to your individual robot TODO
   private static final Current kSlipCurrent = Amps.of(55);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
@@ -80,14 +80,14 @@ public class TunerConstants
   public static final CANBus kCANBus = new CANBus("", "./logs/example.hoot");
 
   // Theoretical free speed (m/s) at 12 V applied output;
-  // This needs to be tuned to your individual robot
+  // This needs to be tuned to your individual robot TODO
   public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.73);
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot
   private static final double kCoupleRatio = 3.125;
 
-  private static final double kDriveGearRatio = 5.902777777777778;
+  private static final double kDriveGearRatio = 5.9;
   private static final double kSteerGearRatio = 18.75;
   private static final Distance kWheelRadius = Meter.of(0.050);
 
