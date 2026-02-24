@@ -39,7 +39,7 @@ public class Hopper extends SubsystemBase
   { 
     spindexer = new BinaryMotor(processorCAN, SpindexerConstants.spindexerSpeed, SpindexerConstants.spindexerConfig);
     intake = new BinaryMotor(intakeCAN, IntakeConstants.intakeSpeed, IntakeConstants.intakeConfig);
-    extension = new LimitedMotor(extensionCAN, extensionLimitIO, -ExtensionConstants.maxRotations, 0, -ExtensionConstants.maxRotations, ExtensionConstants.extensionConfig);
+    extension = new LimitedMotor(extensionCAN, extensionLimitIO, ExtensionConstants.minRotations, ExtensionConstants.maxRotations, ExtensionConstants.minRotations, ExtensionConstants.extensionConfig);
   }
   
   /** @return Command to start running intake at default speed */
@@ -83,7 +83,7 @@ public class Hopper extends SubsystemBase
 
   /** @return Command to retract the extension to home */
   public Command retractCommand()
-  {return extension.setTargetCommand(0);}
+  {return extension.setTargetCommand(ExtensionConstants.minRotations);}
 
   /** @return Command to extend the extension to max */
   public Command extendCommand()

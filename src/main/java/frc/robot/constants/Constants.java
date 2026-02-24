@@ -439,7 +439,8 @@ public final class Constants
 
       public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double maxRotations = 120.0 / 360.0; // TODO may change slightly with final design
+      public static final double minRotations = -120.0 / 360.0;
+      public static final double maxRotations = 0.0; // TODO may change slightly with final design
 
       /** Duration and interval of retraction/extension pulses when agitating, seconds */
       public static final double extensionJostleDelay = 0.25;
