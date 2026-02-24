@@ -21,7 +21,7 @@ import frc.robot.util.Conversions;
 @Logged(strategy = Strategy.OPT_IN)
 public class LimitedMotor extends SubsystemBase
 {
-  private final TalonFX m_Inner;
+  private final TalonFX m_Limited;
 
   private final Limit limit;
 
@@ -52,11 +52,11 @@ public class LimitedMotor extends SubsystemBase
     this.homeRotations = homeRotations;
     slot1Valid = configs.Slot1.kP != 0;
 
-    m_Inner = new TalonFX(motorCAN);
+    m_Limited = new TalonFX(motorCAN);
 
-    m_Inner.getConfigurator().apply(configs);
+    m_Limited.getConfigurator().apply(configs);
 
-    m_Inner.setPosition(maxRotations);
+    m_Limited.setPosition(maxRotations);
 
     if (limitIO == -1)
       limit = new StallLimit(configs.CustomParams.CustomParam0);
@@ -67,7 +67,7 @@ public class LimitedMotor extends SubsystemBase
   /** @return Current physical angle, in mechanism rotations */
   @Logged(name = "Angle")
   public double getAngle()
-    {return m_Inner.getPosition().getValue().in(Units.Rotation);}
+    {return m_Limited.getPosition().getValue().in(Units.Rotation);}
 
   /**
    * Sets the target point for the motor 
@@ -76,8 +76,8 @@ public class LimitedMotor extends SubsystemBase
   public void setTarget(double target) 
   {
     double clampedRotations = Conversions.clamp(target, minRotations, maxRotations);
-    int slot = !homed && slot1Valid ? 1 : 0;
-    m_Inner.setControl
+    int slot = (!homed && slot1Valid) ? 1 : 0;
+    m_Limited.setControl
       (request.withPosition(clampedRotations).withSlot(slot));
   }
 
@@ -108,7 +108,7 @@ public class LimitedMotor extends SubsystemBase
       {
         homed = true;
         homeLastCycle = true;
-        m_Inner.setPosition(homeRotations);
+        m_Limited.setPosition(homeRotations);
       }
     }
     else 
@@ -139,6 +139,6 @@ public class LimitedMotor extends SubsystemBase
 
     @Override
     public boolean atLimit() 
-      {return m_Inner.getTorqueCurrent().getValueAsDouble() >= stallCurrent;}
+      {return Math.abs(m_Limited.getTorqueCurrent().getValueAsDouble()) >= stallCurrent;}
   }
 }

@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public class VelocityMotor extends SubsystemBase 
 {
-  private final TalonFX m_Inner;
+  private final TalonFX m_Velocity;
 
   private final MotionMagicVelocityVoltage request = new MotionMagicVelocityVoltage(0);
 
@@ -25,7 +25,7 @@ public class VelocityMotor extends SubsystemBase
    */
   public VelocityMotor(int id, TalonFXConfiguration config) 
   {
-    m_Inner = new TalonFX(id);
+    m_Velocity = new TalonFX(id);
     applyConfig(config);
   }
 
@@ -37,7 +37,7 @@ public class VelocityMotor extends SubsystemBase
    */
   public VelocityMotor applyConfig(TalonFXConfiguration config) 
   {
-    m_Inner.getConfigurator().apply(config);
+    m_Velocity.getConfigurator().apply(config);
     return this;
   }
 
@@ -47,7 +47,7 @@ public class VelocityMotor extends SubsystemBase
    * @param speed the desired speed, in mechanism rotations per second
    */
   public void setSpeed(double speed)
-    {m_Inner.setControl(request.withVelocity(speed));}
+    {m_Velocity.setControl(request.withVelocity(speed));}
 
   /**
    * Construct a command that sets the speed of the motor <p>
@@ -61,11 +61,11 @@ public class VelocityMotor extends SubsystemBase
 
   /** @return Current speed of the motor, in mechanism rotations per second */
   public double getSpeed() 
-    {return m_Inner.getVelocity().getValueAsDouble();}
+    {return m_Velocity.getVelocity().getValueAsDouble();}
 
   public double getTemp() 
-    {return m_Inner.getAncillaryDeviceTemp().getValueAsDouble();}
+    {return m_Velocity.getAncillaryDeviceTemp().getValueAsDouble();}
 
   public double getMotorCurrent()
-    {return m_Inner.getStatorCurrent().getValueAsDouble();}
+    {return m_Velocity.getStatorCurrent().getValueAsDouble();}
 }

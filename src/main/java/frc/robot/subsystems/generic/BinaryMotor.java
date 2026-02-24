@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public class BinaryMotor extends SubsystemBase 
 {
-  private final TalonFX m_Inner;
+  private final TalonFX m_Binary;
   private final double defaultSpeed;
 
   /**
@@ -24,19 +24,19 @@ public class BinaryMotor extends SubsystemBase
   public BinaryMotor(int id, double defaultSpeed) 
   {
     this.defaultSpeed = defaultSpeed;
-    m_Inner = new TalonFX(id);
+    m_Binary = new TalonFX(id);
   }
 
   public BinaryMotor(int id, double defaultSpeed, TalonFXConfiguration config) 
   {
     this.defaultSpeed = defaultSpeed;
-    m_Inner = new TalonFX(id);
+    m_Binary = new TalonFX(id);
     applyConfig(config);
   }
 
   public BinaryMotor applyConfig(TalonFXConfiguration config) 
   {
-    m_Inner.getConfigurator().apply(config);
+    m_Binary.getConfigurator().apply(config);
     return this;
   }
 
@@ -46,7 +46,7 @@ public class BinaryMotor extends SubsystemBase
    * @param speed the duty-cycle speed to run at [-1..1]
    */
   public void setSpeed(double speed) 
-    {m_Inner.set(speed);}
+    {m_Binary.set(speed);}
 
   /**
    * Construct a command that runs the motor at the default speed
@@ -54,7 +54,7 @@ public class BinaryMotor extends SubsystemBase
    * @return the {@link Command}
    */
   public Command startCommand()
-    {return runOnce(() -> m_Inner.set(defaultSpeed));}
+    {return runOnce(() -> m_Binary.set(defaultSpeed));}
   
   /**
    * Construct a command that runs the motor at negative default speed
@@ -62,7 +62,7 @@ public class BinaryMotor extends SubsystemBase
    * @return the {@link Command}
    */
   public Command reverseCommand()
-    {return runOnce(() -> m_Inner.set(-defaultSpeed));}
+    {return runOnce(() -> m_Binary.set(-defaultSpeed));}
 
   /**
    * Construct a command that stops the motor (i.e., sets speed to 0) 
@@ -70,7 +70,7 @@ public class BinaryMotor extends SubsystemBase
    * @return the {@link Command}
    */
   public Command stopCommand()
-    {return runOnce(() -> m_Inner.set(0));}
+    {return runOnce(() -> m_Binary.set(0));}
 
   /**
    * Construct a command that sets the speed of the motor to an arbitrary value <p>
@@ -80,5 +80,5 @@ public class BinaryMotor extends SubsystemBase
    * @return the {@link Command}
    */
   public Command setSpeedCommand(double speed)
-    {return runOnce(() -> m_Inner.set(speed));}
+    {return runOnce(() -> m_Binary.set(speed));}
 }
