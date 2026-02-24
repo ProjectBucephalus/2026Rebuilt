@@ -396,6 +396,7 @@ public class Robot extends TimedRobot
   public void teleopInit() 
   {
     autoCommand.ifPresent(Command::cancel);
+    autoMode = true;
     modifyTargets(target -> target.state = TargetState.Hub);
 
     FieldUtils.updateAlliance();
@@ -406,6 +407,7 @@ public class Robot extends TimedRobot
   public void testInit() 
   {
     CommandScheduler.getInstance().cancelAll();
+    autoMode = false;
     modifyTargets(target -> target.state = TargetState.Manual);
   }
 
