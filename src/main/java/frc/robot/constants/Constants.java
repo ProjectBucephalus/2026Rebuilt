@@ -439,8 +439,8 @@ public final class Constants
 
       public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = -120.0 / 360.0;
-      public static final double maxRotations = 0.0; // TODO may change slightly with final design
+      public static final double minRotations = -0.34;
+      public static final double maxRotations = 0.0;
 
       /** Duration and interval of retraction/extension pulses when agitating, seconds */
       public static final double extensionJostleDelay = 0.25;
@@ -452,15 +452,15 @@ public final class Constants
 
         extensionConfig.Feedback.SensorToMechanismRatio = extensionRatio;
 
-        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.3;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 0;
+        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.6;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.0;
 
         extensionConfig.Slot0.kS = 0.2;
         extensionConfig.Slot0.kG = 0.47;
         extensionConfig.Slot0.kV = 0.0;
         extensionConfig.Slot0.kA = 0.0;
-        extensionConfig.Slot0.kP = 1.0;
-        extensionConfig.Slot0.kI = 0.0;
+        extensionConfig.Slot0.kP = 50.0;
+        extensionConfig.Slot0.kI = 3.0;
         extensionConfig.Slot0.kD = 0.0;
         extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
@@ -472,7 +472,7 @@ public final class Constants
         extensionConfig.Slot1.kD = 0.0;
         extensionConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
 
-        extensionConfig.CustomParams.CustomParam0 = 20; // Current draw read as "stall" by the limited motor system
+        extensionConfig.CustomParams.CustomParam0 = 30; // Current draw read as "stall" by the limited motor system
       };
     }
   }   
