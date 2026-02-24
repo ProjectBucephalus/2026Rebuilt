@@ -104,7 +104,7 @@ public class LimitedMotor extends SubsystemBase
   {
     if (limit.atLimit())
     {  
-      if (!homeLastCycle)
+      if (!homeLastCycle && !homed)
       {
         homed = true;
         homeLastCycle = true;
