@@ -179,15 +179,13 @@ public class Robot extends TimedRobot
 
     if (!isSimulation()) 
     {
-      DataLogManager.start("/home/lvuser/logs");
+      DataLogManager.start();
       DriverStation.startDataLog(DataLogManager.getLog());
     }
 
     Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
-
-    PBDash.putSendable("Hopper", s_Hopper);
   }
 
   /** Set up input modification and fencing systems */

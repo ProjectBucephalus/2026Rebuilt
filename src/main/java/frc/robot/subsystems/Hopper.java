@@ -23,7 +23,9 @@ import java.util.function.DoubleSupplier;
 @Logged(strategy = Strategy.OPT_IN)
 public class Hopper extends SubsystemBase 
 {
+  @Logged
   private BinaryMotor spindexer;
+  @Logged
   private BinaryMotor intake;
   @Logged
   private LimitedMotor extension;

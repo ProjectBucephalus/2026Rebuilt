@@ -43,7 +43,7 @@ public class Target
   /** Distance from shooter to target, used for hood angle and flywheel speed */
   @Logged(name = "Target Distance Meters")
   protected double distance = 0;
-  @Logged(name = "Target Speed RevPerSec")
+  @Logged(name = "Target Speed Rotations per Second")
   protected double speed = 0;
 
   /**
