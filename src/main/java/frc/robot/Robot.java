@@ -17,8 +17,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
@@ -28,7 +30,13 @@ import frc.robot.commands.swerve.*;
 import frc.robot.constants.*;
 import static frc.robot.constants.Constants.*;
 import static frc.robot.constants.IDConstants.*;
+
+import frc.robot.constants.Constants.ClimberConstants;
+import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.FeederConstants;
+import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.SwerveConstants;
+import frc.robot.constants.Constants.VisionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
@@ -163,7 +171,7 @@ public class Robot extends TimedRobot
 
     initLogging();
     initInputTransmute();
-    bindControls();
+    bindSysIdControls();
     bindRumbles();
   }
 
@@ -306,6 +314,23 @@ public class Robot extends TimedRobot
     driver.leftBumper()
       .whileTrue(s_Feeder.setSpeedCommand(50))
       .onFalse(s_Feeder.setSpeedCommand(0));
+  }
+
+  private void bindSysIdControls()
+  {
+    driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+    /*
+    * Joystick Y = quasistatic forward
+    * Joystick A = quasistatic reverse
+    * Joystick B = dynamic forward
+    * Joystick X = dyanmic reverse
+    */
+    driver.y().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    driver.a().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    driver.b().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    driver.x().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
