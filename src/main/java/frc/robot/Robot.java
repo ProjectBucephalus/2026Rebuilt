@@ -174,7 +174,7 @@ public class Robot extends TimedRobot
 
     initLogging();
     initInputTransmute();
-    bindSysIdControls();
+    bindControls();
     bindRumbles();
   }
 
