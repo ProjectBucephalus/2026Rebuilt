@@ -317,8 +317,20 @@ public class Robot extends TimedRobot
       .onFalse(s_Feeder.setSpeedCommand(0));
   }
 
+  /** Mutually exclusive to bindControls */
   private void bindSysIdControls()
   {
+    s_Swerve.setDefaultCommand
+    (
+      new ManualDrive
+      (
+        s_Swerve, 
+        driverStick::stickOutput,
+        () -> -driver.getRightX(),
+        driver::getRightTriggerAxis
+      )
+    );
+
     driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
     driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
 
