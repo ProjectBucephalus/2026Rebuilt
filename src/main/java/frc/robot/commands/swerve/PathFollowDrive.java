@@ -85,6 +85,12 @@ public class PathFollowDrive extends SwerveCommandBase
     waypoints.add(new Pose2d(path.sequence()[path.sequence().length - 1], path.heading()));
   }
 
+  /**
+   * Creates a new PathFollowDrive to pathfind to the given pose
+   * @param s_Swerve        Swervedrive subsystem
+   * @param swerveStateSup  Swerve state supplier from Robot to avoid expensive calls to the swerve system
+   * @param path            Target pose for the command to drive to
+   */
   public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, Pose2d target)
   {
     super(s_Swerve, () -> Translation2d.kZero);

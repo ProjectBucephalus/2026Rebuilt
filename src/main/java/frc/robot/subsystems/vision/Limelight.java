@@ -31,7 +31,9 @@ public class Limelight
   private boolean onTurret = false;
   private DoubleSupplier turretAngleSup;
   private Transform2d robotToTurret;
+  private Transform2d turretToRobot;
   
+
   /**
    * Creates a new static Limelight vision camera
    * @param name Device name as published to network
@@ -45,6 +47,7 @@ public class Limelight
     
     turretAngleSup = () -> 0;
     robotToTurret = Transform2d.kZero;
+    turretToRobot = Transform2d.kZero;
     onTurret = false;
   }
 
@@ -61,6 +64,7 @@ public class Limelight
     this.camera = new PhotonCamera(name);
     this.turretAngleSup = turretAngleSup;
     this.robotToTurret = robotToTurret;
+    turretToRobot = robotToTurret.inverse();
     structureToCamera = turretToCamera;
     photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
     onTurret = true;
@@ -99,9 +103,9 @@ public class Limelight
   
   /** @return Transform to convert FROM ROBOT to Turret, including current azimuth */
   public Transform2d getRobotToTurret()
-    {return new Transform2d(robotToTurret.getTranslation(), robotToTurret.getRotation().minus(getTurretAngle()));}
+    {return new Transform2d(robotToTurret.getTranslation().rotateBy(getTurretAngle()), robotToTurret.getRotation().plus(getTurretAngle()));}
 
   /** @return Transform to convert FROM TURRET to Robot, including current azimuth */
   public Transform2d getTurretToRobot()
-    {return new Transform2d(robotToTurret.getTranslation().unaryMinus(), robotToTurret.getRotation().plus(getTurretAngle()).unaryMinus());}
+    {return new Transform2d(turretToRobot.getTranslation().rotateBy(getTurretAngle().unaryMinus()), turretToRobot.getRotation().minus(getTurretAngle()));}
 }

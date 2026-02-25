@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -113,20 +114,20 @@ public final class Constants
   public static final class ShooterConstants
   {
     /** 2D offset from robot centre to port-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
-    public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg);
+    public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg); // -(0.1635 + SwerveConstants.drivebaseOffset), 0.1815
     /** 2D offset from robot centre to starboard-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
     public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.08;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactor = 0.1;
+    public static final double leadFactor = 0.01;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants
     {
       private static final double motorPulley = 24;
       private static final double mainWheelPulley = 18;
-      private static final double mainWheelBeltRatio = mainWheelPulley / motorPulley;
+      public static final double mainWheelBeltRatio = mainWheelPulley / motorPulley;
 
       /*
       * To tune flywheel:
@@ -140,23 +141,21 @@ public final class Constants
       {
         flywheelConfig.Feedback.SensorToMechanismRatio = mainWheelBeltRatio;
 
-        flywheelConfig.Slot0.kS = 0.26;
-        flywheelConfig.Slot0.kV = 0.1;
+        flywheelConfig.Slot0.kS = 0.22;
+        flywheelConfig.Slot0.kV = 0.0924;
         flywheelConfig.Slot0.kA = 0.0;
-        flywheelConfig.Slot0.kP = 0.0;
+        flywheelConfig.Slot0.kP = 0.08;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
 
         flywheelConfig.MotionMagic.MotionMagicAcceleration = 100.0;
-        flywheelConfig.MotionMagic.MotionMagicJerk = 500.0;
+        flywheelConfig.MotionMagic.MotionMagicJerk = 1000.0;
       }
 
       /** Target flywheel speed when idle, mechanism rps */
       public static final double idleSpeed = 20;
-      /** Target flywheel speed for shooting, mechanism rps */
-      public static final double revSpeed = 40;
       /** Allowed variation in flywheel speed for shooting, rps */
-      public static final double flySpeedTolerance = 1;
+      public static final double flySpeedTolerance = 1.25;
 
       //simulation
       public static final double kGearRatio = 10.0;
@@ -184,24 +183,26 @@ public final class Constants
     public static final class TurretConstants
     {
       /** Maximum rotation either side of centre before reaching mechanical/cable limits, degrees */
-      public static final double maxTurretAzimuth = 180;
+      public static final double maxTurretAzimuth = 240;
       /** Angle range at end-of-travel to stop shooting and prepare to unwind, degrees */
       public static final double limitBufferZone = 10;
       /** Position to hold when idle, degrees */
       public static final double turretIdlePosition = 0;
       /** Target rotation rate when moving, rps */
-      public static final double turretTurnSpeed = 0.2;
+      public static final double turretTurnSpeed = 0.5;
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double portPotOffset = -1800;
+      public static final double portPotOffset = -1801.2;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double stbdPotOffset = -1800;
+      public static final double stbdPotOffset = -1819.2;
 
       private static final double planetaryRatio = 20;
       private static final double driveGear = 15;
       private static final double ringGear = 90;
       public static final double azimuthGearRatio = ringGear / driveGear;
+      public static final double azimuthPotRatio = -azimuthGearRatio;
+      public static final double azimuthMotorRatio = azimuthGearRatio * planetaryRatio;
 
       /** Allowed variation in turret azimuth when targeting, degrees */
       public static final double azimuthTolerance = 3;
@@ -212,21 +213,22 @@ public final class Constants
       /** Maximum expected value from potentiometer, beyond which indicates error, sensor degrees */
       public static final double potSafeLimit = 280 * azimuthGearRatio;
       /** Minimum change in azimuth before recalibrating, sensor degrees */
-      public static final double calibrationAngleLimit = 5 * azimuthGearRatio;
+      public static final double calibrationAngleLimit = 5 * Math.abs(azimuthGearRatio);
       /** Maximum robot-relative rotation rate to calibrate turret, rotations per second */
-      public static final double calibrationSpeedLimit = 0.1;
+      public static final double calibrationSpeedLimit = 0.02;
       
       public static final TalonFXSConfiguration turretConfig = new TalonFXSConfiguration();
       static 
       {
-        turretConfig.ExternalFeedback.SensorToMechanismRatio = azimuthGearRatio * planetaryRatio;
+        turretConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        turretConfig.ExternalFeedback.SensorToMechanismRatio = azimuthMotorRatio;
 
         turretConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
         
         turretConfig.Slot0.kS = 0.5;
         turretConfig.Slot0.kV = 6.2;
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 5.0;
+        turretConfig.Slot0.kP = 3.0;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.0;
 
@@ -240,9 +242,9 @@ public final class Constants
   public static final class VisionConstants
   {
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d portLimelightOffset = new Transform3d(0, 0, 0, new Rotation3d(0, -15, 0));
+    public static final Transform3d portLimelightOffset = new Transform3d(-0.1, 0, -0.675, new Rotation3d(0, -16, 0));
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d stbdLimelightOffset = new Transform3d(0, 0, 0, new Rotation3d(0, -15, 0));
+    public static final Transform3d stbdLimelightOffset = new Transform3d(-0.1, 0, -0.675, new Rotation3d(0, -16, 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
     public static final double visionFrequencyThreshold = 10;
 
@@ -300,9 +302,9 @@ public final class Constants
     };
 
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
-    public static final double linearStdDevBaseline = 0.06;
+    public static final double linearStdDevBaseline = 0.1;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
-    public static final double rotStdDevBaseline = Math.toRadians(8);
+    public static final double rotStdDevBaseline = Math.toRadians(20);
   }
 
   /** Interpolation tables for converting measured input to calibrated output */
@@ -311,29 +313,53 @@ public final class Constants
     /** Distance to Altitude conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
     {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
+      put(0.81, 0.0); // min range
+      put(1.5, 0.0); 
+      put(1.6, 0.0); // max range while at 0 degrees hood + staying below lights
+      put(2.5, 5.8);
+      put(3.5, 11.5);
+      put(4.675, 18.0); 
+      put(4.9, 19.0); // max range while staying below lights
+      put(5.6, 19.0); // max range while staying below ceiling
     }};
     
     /** Distance to Altitude conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
     {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
+      put(1.0, 0.0);
+      put(1.8575, 0.0); 
+      put(2.715, 0.0); // max range while at 0 degrees hood + staying below lights
+      put(3.7425, 5.4);
+      put(4.77, 10.2);
+      put(5.7975, 14.9); 
+      put(6.825, 19.0); // max range while staying below lights
+      put(7.535, 19.0); // max range while staying below ceiling
     }};
 
     /** Distance to Speed conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
     {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
+      put(0.81, 22.75);//23.25); // min range
+      put(1.5, 26.75);//27.25); 
+      put(1.6, 27.3);//27.8); // max range while at 0 degrees hood + staying below lights
+      put(2.5, 28.2);//28.7);
+      put(3.5, 29.65);//30.15);
+      put(4.675, 31.5);//32.0);
+      put(4.9, 32.0);//32.5); // max range while staying below lights
+      put(5.6, 33.8);//34.3); // max range while staying below ceiling
     }};
 
     /** Distance to Speed conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap()
     {{
-      put(0.0, 0.0);
-      put(0.25, 0.25);
+      put(1.0, 16.0);
+      put(1.8575, 22.6); 
+      put(2.715, 27.8); // max range while at 0 degrees hood + staying below lights
+      put(3.7425, 28.6);
+      put(4.77, 29.7);
+      put(5.7975, 31.0);
+      put(6.825, 32.5); // max range while staying below lights
+      put(7.535, 34.3); // max range while staying below ceiling
     }};
   }
 
@@ -343,15 +369,24 @@ public final class Constants
     public static final double feederSpeed = 0.5;
 
     private static final double gearboxRatio = 1;
-    private static final double lowerRollerPulley = 24;
-    private static final double upperRollerPuller = 18;
-    private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
-    private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
+    //private static final double lowerRollerPulley = 24;
+    //private static final double upperRollerPuller = 18;
+    //private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
+    //private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
 
     public static final TalonFXConfiguration feederConfig = new TalonFXConfiguration();
     static
     {
-      feederConfig.Feedback.SensorToMechanismRatio = motorToUpperRatio;
+      feederConfig.Feedback.SensorToMechanismRatio = gearboxRatio;
+
+      feederConfig.Slot0.kS = 0.56;
+      feederConfig.Slot0.kV = 0.127;
+      feederConfig.Slot0.kA = 0.0;
+      feederConfig.Slot0.kP = 0.16;
+      feederConfig.Slot0.kI = 0.01;
+      feederConfig.Slot0.kD = 0.0;
+
+      feederConfig.MotionMagic.MotionMagicAcceleration = 100.0;
     }
   }
 

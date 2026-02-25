@@ -1,5 +1,9 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,10 +26,14 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
  * Turreted Shooter master-system, internally creates and manages associated subsystems
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class Shooter extends SubsystemBase 
 {  
+  @Logged
   private final Flywheels flywheels; 
+  @Logged
   private final Turret turret;
+  @Logged
   private final Hood hood;
   
   private final Transform2d shooterOffset;
@@ -37,6 +45,7 @@ public class Shooter extends SubsystemBase
   private SwerveDriveState swerveState;
 
   /** Current active target for the shooter */
+  @Logged(name = "Target")
   private Target target = new Target(TargetState.Hub);
 
   /**
@@ -74,16 +83,6 @@ public class Shooter extends SubsystemBase
   }
 
   /**
-   * Construct a command that sets the target for the Hood and Turret to track <p>
-   * NOTE: The provided target is only evaluated when the command is created
-   * 
-   * @param target the {@link Target} to be set
-   * @return the {@link Command}
-   */
-  public Command setTargetCommand(Target target)
-    {return runOnce(() -> this.target = target);}
-
-  /**
    * Sets the manual position of the turret
    * @param azimuth Turret azimuth, degrees
    * @param altitude Hood altitude, degrees
@@ -107,9 +106,6 @@ public class Shooter extends SubsystemBase
   public void setFlySpeed(double speed)
     {flywheels.setSpeed(speed);}
 
-  public void setFlyVoltage(double speed)
-    {flywheels.setVoltage(speed);}
-
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
     {return turret.getAzimuth() - shooterOffset.getRotation().getDegrees();}
@@ -132,15 +128,24 @@ public class Shooter extends SubsystemBase
    * 
    * @return A {@link Trigger} encoding the above behaviour
    */
-  public Trigger shootReadyTrigger()
+  @Logged
+  public boolean shootReady()
   {
-    return new Trigger
-    (() -> {
-      return turret.atAzimuth()
-              && hood.atAltitude()
-              && flywheels.atSpeed()
-              && turret.safeToShoot(swerveState.Speeds);
-    });
+    return 
+      turret.readyToShoot(swerveState.Speeds)
+      && hood.atAltitude()
+      && flywheels.atSpeed();
+  }
+
+  private void telemetrise()
+  {
+    var shooterPose = swerveState.Pose
+      .plus(shooterOffset)
+      .plus(new Transform2d(Translation2d.kZero, Rotation2d.fromDegrees(turret.getAzimuth())));
+    PBDash.putFieldPath(ntId + " Pose", shooterPose, shooterPose.transformBy(new Transform2d(flywheels.getSpeed() / 60, 0, Rotation2d.kZero)));
+
+    var targetPoint = target.state == TargetState.Hub ? FieldUtils.getAllianceHubCentre() : target.point;
+    PBDash.putFieldObject(ntId + "Target", new Pose2d(targetPoint.plus(target.offset), Rotation2d.kZero));
   }
 
   @Override
@@ -148,16 +153,6 @@ public class Shooter extends SubsystemBase
   {
     swerveState = swerveStateSup.get();
     var shooterPose = swerveState.Pose.plus(shooterOffset);
-
-    // TODO: Test the extent to which leading shots is needed, and remove distance calculation from here or Hood as appropriate
-    // Find distance to current target for calculating leading shots
-    target.distance = switch (target.state) 
-    {
-      case Manual -> 0;
-      case Point -> target.point.plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
-      // aim at our alliance's hub
-      case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
-    };
 
     // Calculate target offset to avoid balls from each shooter colliding before reaching target
     // and accounting for robot motion
@@ -170,23 +165,36 @@ public class Shooter extends SubsystemBase
           .times(target.distance * ShooterConstants.leadFactor) // distance * leadFactor
         );
 
-    // Update flywheel speed. If in manual mode, don't change it so that any manually-set speed is maintained
-    switch (target.state)
+    // TODO: Test the extent to which leading shots is needed, and remove distance calculation from here or Hood as appropriate
+    // Find distance to current target for calculating leading shots
+    target.distance = switch (target.state) 
     {
-      case Manual -> {}
-      case Point -> flywheels.setSpeed(Interpolation.flywheelSpeedLow.get(target.distance));
-      case Hub -> flywheels.setSpeed(Interpolation.flywheelSpeedHub.get(target.distance));
-    }
+      case Manual -> 0;
+      case Point -> target.point.plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
+      // aim at our alliance's hub
+      case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
+    };
+
+    // Update flywheel speed. If in manual mode, don't change it so that any manually-set speed is maintained
+    target.speed = switch (target.state)
+    {
+      case Manual -> PBDash.getDouble("Test Flyspeed");
+      case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
+      case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
+    };
+    flywheels.setSpeed(target.speed);
 
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update(shooterPose);
     flywheels.update();
 
-    PBDash.putDouble(ntId + " Turret Az", turret.getAzimuth());
-    PBDash.putDouble(ntId + " Flywheel Speed", flywheels.getSpeed());
-    PBDash.putDouble(ntId + " Flywheel Temp", flywheels.getTemp());
-    PBDash.putDouble(ntId + " Flywheel Amps", flywheels.getMotorCurrent());
-    PBDash.putDouble(ntId + " Turret Pot", turret.getRawAz()); 
-    PBDash.putDouble(ntId + " Turret Azimuth", target.azimuth); 
+    telemetrise();
+  }
+
+  @Override
+  public void simulationPeriodic() 
+  {
+    turret.updateSim();
+    flywheels.updateSim();
   }
 }

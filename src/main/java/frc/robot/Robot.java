@@ -6,12 +6,13 @@ package frc.robot;
 
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -41,7 +42,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
-import frc.robot.util.AutoFactories;
+import frc.robot.util.AutoBuilder;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 import frc.robot.util.controlTransmutation.*;
@@ -69,12 +70,13 @@ import frc.robot.util.libs.Telemetry;
  *  </ul>
  * </ul>
  */
-@Logged
+@Logged(strategy = Strategy.OPT_IN)
 public class Robot extends TimedRobot 
 {
   /* State */
   private SwerveDriveState swerveState = new SwerveDriveState();
-  private Optional<Command> autoCommand;
+  private Optional<Command> autoCommand = Optional.empty();
+  private boolean autoMode = true;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -82,6 +84,7 @@ public class Robot extends TimedRobot
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
+  @Logged(name = "Port Shooter")
   private final Shooter s_PortShooter = new Shooter
     (
       () -> swerveState,
@@ -90,6 +93,7 @@ public class Robot extends TimedRobot
       ShooterConstants.TurretConstants.portPotOffset,
       true
     );
+  @Logged(name = "Stbd Shooter")
   private final Shooter s_StbdShooter = new Shooter
     (
       () -> swerveState,
@@ -100,13 +104,9 @@ public class Robot extends TimedRobot
     );
   private final Vision s_Vision = new Vision
   (
-    (poseEst, timestmp, stdDevs) -> 
-    {
-      s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
-      s_Swerve.addVisionMeasurement(poseEst, timestmp);
-    },
+    s_Swerve::addVisionMeasurement,
     () -> swerveState.Speeds.omegaRadiansPerSecond,
-    //new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
+    new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
     new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
   );
   private final LinearExtension s_Climber = new LinearExtension
@@ -164,7 +164,8 @@ public class Robot extends TimedRobot
   {
     SignalLogger.enableAutoLogging(false);
 
-    if (!isSimulation()) {
+    if (!isSimulation()) 
+    {
       DataLogManager.start("/home/lvuser/logs");
       DriverStation.startDataLog(DataLogManager.getLog());
     }
@@ -211,8 +212,8 @@ public class Robot extends TimedRobot
       )
     );
 
-    s_PortShooter.shootReadyTrigger()
-      .and(s_StbdShooter.shootReadyTrigger())
+    new Trigger(s_PortShooter::shootReady)
+      .and(s_StbdShooter::shootReady)
       .whileTrue
       (
         s_Feeder.runEnd
@@ -238,28 +239,20 @@ public class Robot extends TimedRobot
           bumpRotationTolerance
         )
       );
-    
-    driver.x().and(s_Vision::hasLocalisation).onTrue
-    (
-      new PathFollowDrive
-      (
-        s_Swerve, 
-        () -> this.swerveState,
-        Pathfinding.testPath
-      )
-    );
 
     operator.povLeft().onTrue
-    (
-      run(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get()))
-    );
+      (runOnce(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())));
 
     operator.povRight().onTrue
-    (
-      run(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get()))
-    );
+      (runOnce(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get())));
 
-    new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()))
+    new Trigger(() -> autoMode)
+      .and(() -> FieldUtils.inLeftHalf(getTranslation()))
+      .onTrue(run(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())))
+      .onFalse(run(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get())));
+
+    new Trigger(() -> autoMode)
+      .and(() -> FieldUtils.inAllianceZone(getTranslation()))
       .onTrue(run(() -> modifyTargets(target -> target.state = TargetState.Hub)))
       .onFalse(run(() -> modifyTargets(target -> target.state = TargetState.Point)));
   }
@@ -285,10 +278,16 @@ public class Robot extends TimedRobot
 
   /** Pull current state from drivebase for external use, to avoid repeated expensive calls */
   private void updateSwerveState()
-    {swerveState = s_Swerve.getState();}
+  {
+    swerveState = s_Swerve.getState();
+    PBDash.FIELD.setRobotPose(swerveState.Pose);
+  }
+  
+  private void handleAutoErr(String invalidInstr)
+    {PBDash.AUTO_ERRS.put(PBDash.AUTO_ERRS.get() + ", " + invalidInstr);}
 
   private void compileAuto()
-    {autoCommand = Optional.of(AutoFactories.getCommandList(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState));}
+    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState, this::handleAutoErr));}
 
   /** Returns the t2d of the robot centre in field coordinates */
   public Translation2d getTranslation()
@@ -297,6 +296,14 @@ public class Robot extends TimedRobot
   /** Returns the r2d of the robot in field coordinates */
   public Rotation2d getRotation() 
     {return swerveState.Pose.getRotation();}
+
+  @Logged(name = "CAN Load")
+  public float getCanLoad() 
+    {return canBus.getStatus().BusUtilization;}
+
+  @Logged(name = "Pigeon Degrees")
+  public double getPigeonReading() 
+    {return swerveState.RawHeading.getDegrees();}
   
   /* OPMODE METHODS */
   /* ============ */
@@ -305,7 +312,6 @@ public class Robot extends TimedRobot
   {
     updateSwerveState();
     CommandScheduler.getInstance().run();
-    PBDash.CAN_LOAD.put((double)canBus.getStatus().BusUtilization);
   }
 
   @Override
@@ -342,6 +348,7 @@ public class Robot extends TimedRobot
   public void teleopInit() 
   {
     autoCommand.ifPresent(Command::cancel);
+    modifyTargets(target -> target.state = TargetState.Hub);
 
     FieldUtils.updateAlliance();
     initInputTransmute();
@@ -351,6 +358,7 @@ public class Robot extends TimedRobot
   public void testInit() 
   {
     CommandScheduler.getInstance().cancelAll();
+    modifyTargets(target -> target.state = TargetState.Manual);
   }
 
   @Override
@@ -358,8 +366,5 @@ public class Robot extends TimedRobot
   {
     s_StbdShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
     s_PortShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
-    
-    s_StbdShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
-    s_PortShooter.setFlySpeed(PBDash.getDouble("Test Flyspeed"));
   }
 }

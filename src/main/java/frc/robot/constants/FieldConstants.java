@@ -134,8 +134,6 @@ public class FieldConstants
     }
     
     /* Trench Zone */
-    // Rotation MUST be within tollerance when traversing
-    // Climber and turret hoods MUST be stowed when traversing
     public static final double trenchWidth = 1.28;
     /** Depth of region around Trench bar to keep out of */
     public static final double trenchBarrierDepth = 0.8;
@@ -206,6 +204,10 @@ public class FieldConstants
       trenchColNB,
       trenchColSR,
       trenchColNR,
+      trenchSB,
+      trenchNB,
+      trenchSR,
+      trenchNR,
       hubBlue, 
       hubRed
     );
