@@ -65,7 +65,7 @@ public class LimitedMotor extends SubsystemBase
   } 
 
   /** @return Current physical angle, in mechanism rotations */
-  @Logged(name = "Angle")
+  @Logged(name = "Angle Rotations")
   public double getAngle()
     {return m_Limited.getPosition().getValue().in(Units.Rotation);}
 

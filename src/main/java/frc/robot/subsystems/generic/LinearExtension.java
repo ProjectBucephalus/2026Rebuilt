@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** 
@@ -30,6 +31,7 @@ public class LinearExtension extends LimitedMotor
   } 
 
   /** @return Current physical position, in meters */
+  @Logged(name = "Position Meters")
   public double getPosition()
     {return super.getAngle() * metersPerRotation;}
 

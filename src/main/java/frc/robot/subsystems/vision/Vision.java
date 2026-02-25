@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.Utils;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -28,11 +29,14 @@ public class Vision extends SubsystemBase
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
   /** Timestamp of last good pose estimate, seconds, -1 on initialisation */
+  @Logged
   double lastGoodPose = -1; 
-  /** Time since last good pose estimate, seconds */
+  /** Time since last good pose estimate, seconds */ // TODO Remove this or lastGoodPose? don't need same measurement in two perspectives
+  @Logged
   double timeSince = 0; 
   /** True only while there is a recent valid pose estimate */
   boolean haveLocalisation = false;
+  @Logged
   boolean usingVision = true;
 
   private int pipelineIndex = PBDash.LL_EXPOSURE.defaultVal();
@@ -70,6 +74,7 @@ public class Vision extends SubsystemBase
    * @return {@code true} if localisation can be trusted (or simulated)
    * <li>    {@code false} if running on odometry only
    */
+  @Logged
   public boolean hasLocalisation()
   {
     return haveLocalisation || Robot.isSimulation();
