@@ -303,7 +303,7 @@ public final class Constants
     };
 
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
-    public static final double linearStdDevBaseline = 0.1;
+    public static final double linearStdDevBaseline = 0.3;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
     public static final double rotStdDevBaseline = Math.toRadians(20);
   }
@@ -415,7 +415,7 @@ public final class Constants
     public static final class IntakeConstants 
     {
       /** Default speed of intake when running, [-1..1] */
-      public static final double intakeSpeed = 0.5;
+      public static final double intakeSpeed = 0.9;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static
