@@ -367,7 +367,7 @@ public final class Constants
   /** Tuning data for feeder */
   public  static final class FeederConstants 
   {
-    public static final double feederSpeed = 0.5;
+    public static final double feederSpeed = 50;
 
     private static final double gearboxRatio = 1;
     //private static final double lowerRollerPulley = 24;
@@ -387,7 +387,7 @@ public final class Constants
       feederConfig.Slot0.kI = 0.01;
       feederConfig.Slot0.kD = 0.0;
 
-      feederConfig.MotionMagic.MotionMagicAcceleration = 100.0;
+      feederConfig.MotionMagic.MotionMagicAcceleration = 50.0;
     }
   }
 
@@ -403,12 +403,13 @@ public final class Constants
 
       private static final double motorPulley = 24;
       private static final double spindexerPulley = 30;
-      private static final double spindexerBeltRatio = spindexerPulley / motorPulley;
+      private static final double spindexerPlanetaryRatio = 3;
+      private static final double spindexerRatio = (spindexerPulley / motorPulley) * spindexerPlanetaryRatio;
       
       public static final TalonFXConfiguration spindexerConfig = new TalonFXConfiguration();
       static
       {
-        spindexerConfig.Feedback.SensorToMechanismRatio = spindexerBeltRatio;
+        spindexerConfig.Feedback.SensorToMechanismRatio = spindexerRatio;
       }
     }
 
