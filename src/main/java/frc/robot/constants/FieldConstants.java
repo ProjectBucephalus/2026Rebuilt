@@ -68,7 +68,7 @@ public class FieldConstants
     /** Buffer zone around field walls, metres */
     public static final double wallBuffer = 0.5;
     /** Radius around field walls, metres */
-    public static final double wallRadius = 0.05;
+    public static final double wallRadius = 0.2;
     
     /** Radius around hubs, metres */
     public static final double hubRadius = 0.05;
