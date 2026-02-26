@@ -450,6 +450,9 @@ public class Robot extends TimedRobot
     CommandScheduler.getInstance().cancelAll();
     autoMode = false;
     modifyTargets(target -> target.state = TargetState.Manual);
+
+    FieldUtils.updateAlliance();
+    initInputTransmute();
   }
 
   @Override
