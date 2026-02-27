@@ -45,8 +45,12 @@ public class Hopper extends SubsystemBase
   }
   
   /** @return Command to start running intake at default speed */
-  public Command runIntakeCommand()
+  public Command startIntakeCommand()
   {return intake.startCommand();}
+
+  /** @return Command that runs the intake until it is interrupted */
+  public Command runIntakeCommand()
+  {return intake.runCommand();}
   
   /** @return Command to start running intake at negative default speed */
   public Command reverseIntakeCommand()
@@ -119,7 +123,7 @@ public class Hopper extends SubsystemBase
     return
     Commands.parallel
     (
-      runIntakeCommand(),
+      startIntakeCommand(),
       runSpindexerCommand(),
       extendCommand()
     );

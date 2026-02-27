@@ -265,6 +265,10 @@ public class Robot extends TimedRobot
         )
       );
 
+    driver.leftTrigger()
+      .onTrue(s_Hopper.extendCommand())
+      .whileTrue(s_Hopper.runIntakeCommand());
+
     operator.povLeft().onTrue
       (runOnce(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())));
 
@@ -281,42 +285,15 @@ public class Robot extends TimedRobot
       .onTrue(runOnce(() -> modifyTargets(target -> target.state = TargetState.Hub)))
       .onFalse(runOnce(() -> modifyTargets(target -> target.state = TargetState.Point)));
 
-    // TODO: For testing and bringup
-
-    driver.povLeft()
-      .onTrue(
-        runOnce(() -> {
-          autoMode = false;
-          modifyTargets(target -> target.state = TargetState.Manual);
-          modifyTargets(target -> target.azimuth = PBDash.getDouble("Test Azimuth"));
-          modifyTargets(target -> target.altitude = PBDash.getDouble("Test Altitude"));
-        })
-      );
-
-    driver.povRight().onTrue(runOnce(() -> autoMode = true));
-
-    driver.povUp().onTrue(s_Hopper.extendCommand());//.whileTrue(s_Hopper.manualExtensionCommand(()->-0.05));
-    driver.povDown().onTrue(s_Hopper.retractCommand());//.whileTrue(s_Hopper.manualExtensionCommand(()->0.05));
-
-    driver.x()
-      .onTrue(s_Hopper.runSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand());
-    driver.b()
-      .onTrue(s_Hopper.reverseSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand());
-    driver.a()
-      .onTrue(s_Hopper.runIntakeCommand())
-      .onFalse(s_Hopper.stopIntakeCommand());
-    driver.y()
-      .onTrue(s_Hopper.reverseIntakeCommand())
-      .onFalse(s_Hopper.stopIntakeCommand());
-
-    driver.leftTrigger()
-      .onTrue(s_Feeder.setSpeedCommand(-30))
-      .onFalse(s_Feeder.setSpeedCommand(0));
-    driver.leftBumper()
-      .whileTrue(s_Feeder.setSpeedCommand(50))
-      .onFalse(s_Feeder.setSpeedCommand(0));
+    // driver.povLeft()
+    //   .onTrue(
+    //     runOnce(() -> {
+    //       autoMode = false;
+    //       modifyTargets(target -> target.state = TargetState.Manual);
+    //       modifyTargets(target -> target.azimuth = PBDash.getDouble("Test Azimuth"));
+    //       modifyTargets(target -> target.altitude = PBDash.getDouble("Test Altitude"));
+    //     })
+    //   );
   }
 
   /** Mutually exclusive to bindControls */
