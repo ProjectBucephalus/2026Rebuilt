@@ -291,6 +291,11 @@ public class Robot extends TimedRobot
     operator.y()
       .onTrue(runOnce(() -> debugLock = false));
 
+    operator.x()
+      .and(() -> !debugLock)
+      .whileTrue(s_Hopper.extensionJostleCommand())
+      .onFalse(s_Hopper.extendCommand());
+      
     operator.a()
       .and(() -> !debugLock)
       .whileTrue(s_Hopper.runIntakeCommand());
