@@ -26,8 +26,22 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
  */
 public class AutoBuilder 
 {
+  /**
+   * An auto instruction. Used as an intermediate representation between the text string and the final command output
+   */
   private static record Instruction(char code, int... args) 
   {
+    /**
+     * Attempts to create an Instruction, returning Empty if the provided text is invalid
+     * 
+     * @param input The string to be parsed as an Instruction
+     * @return Empty in any of the following cases: <ul>
+     *          <li> The input is null
+     *          <li> The input's length is 0
+     *          <li> Any of the operands in the instruction input cannot be parsed as ints 
+     *          </ul>
+     * <li>    Non-empty containing the instruction parsed from the input otherwise
+     */
     private static Optional<Instruction> parse(String input)
     {
       if (input == null || input.length() == 0) return Optional.empty();
@@ -60,7 +74,8 @@ public class AutoBuilder
    * Any invalid instructions are skipped
    * 
    * @param input The input auto string
-   * @return
+   * @param errHandler A consumer to accept any erroneous instructions, intended for error logging purposes
+   * @return The input parsed into a list of instructions, minus any invalid instructions
    */
   private static List<Instruction> parseInstructions(String input, Consumer<String> errHandler) 
   {
@@ -82,9 +97,15 @@ public class AutoBuilder
   }
 
   /**
-   * Splits a string of auto command phrases and gets the path command and robot command associated with each command phrase
-   * @param commandInput The string of commands to split, seperated by commas with no spaces (e.g. "a1,rA1,p,cR3")
-   * @return An array of commands, from the input command phrase string, in the same order
+   * Compiles an auto string into a sequential command
+   * 
+   * @param commandInput The auto string, comprised of instructions seperated by commas.
+   *                     Each instruction is an opcode character followed by any number of colon-seperated operands. Whitespace is ignored. 
+   *                     For example, {@code g 1:2, w3, g4:5:6}
+   * @param s_Swerve The swerve subsystem, used for instructions involving driving
+   * @param swerveStateSup Swerve state supplier, used for instructions involving driving or the robot's position
+   * @param errHandler A consumer to accept any erroneous instructions, intended for error logging purposes
+   * @return A command that executes the auto string's instructions in sequence
    */
   public static Command compileAutoString
   (
