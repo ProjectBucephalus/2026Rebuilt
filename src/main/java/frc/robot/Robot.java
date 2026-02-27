@@ -273,9 +273,10 @@ public class Robot extends TimedRobot
       .whileTrue(s_Hopper.runIntakeCommand());
       
 
-
-    driver.povUp()
+    driver.leftTrigger()
+      .onTrue(s_Hopper.runIntakeCommand())
       .whileTrue(s_Hopper.extensionJostleCommand())
+      .onFalse(s_Hopper.stopIntakeCommand())
       .onFalse(s_Hopper.extendCommand());
 
     driver.povDown()
