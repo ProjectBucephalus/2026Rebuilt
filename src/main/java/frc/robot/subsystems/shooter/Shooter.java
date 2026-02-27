@@ -21,6 +21,7 @@ import frc.robot.util.PBDash;
 import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.idleSpeed;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
@@ -113,6 +114,12 @@ public class Shooter extends SubsystemBase
   public Command setFlySpeedCommand(double speed)
     {return runOnce(() -> flywheels.setSpeed(speed));}
 
+  public Command adjustDistanceCommand(DoubleSupplier shiftSup)
+    {return run(() -> target.distance += shiftSup.getAsDouble());}
+
+  public Command adjustAzimuthCommand(DoubleSupplier shiftSup)
+    {return run(() -> target.azimuth += shiftSup.getAsDouble());}
+
   public void setFlySpeed(double speed)
     {flywheels.setSpeed(speed);}
 
@@ -176,11 +183,10 @@ public class Shooter extends SubsystemBase
           .times(target.distance * ShooterConstants.leadFactor) // distance * leadFactor
         );
 
-    // TODO: Test the extent to which leading shots is needed, and remove distance calculation from here or Hood as appropriate
     // Find distance to current target for calculating leading shots
     target.distance = switch (target.state) 
     {
-      case Manual -> 0;
+      case Manual -> target.distance;
       case Point -> target.point.plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
       // aim at our alliance's hub
       case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();

@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -307,11 +308,11 @@ public class Robot extends TimedRobot
 
     operator.povDown()
       .and(() -> !debugLock)
-      .onTrue(s_Hopper.manualExtensionCommand(() -> -Constants.ControlConstants.manualExtensionAmmount));
+      .onTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualExtensionAmount));
 
     operator.povUp()
       .and(() -> !debugLock)
-      .onTrue(s_Hopper.manualExtensionCommand(() -> Constants.ControlConstants.manualExtensionAmmount));
+      .onTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualExtensionAmount));
 
     // TODO debug left trigger
 
@@ -332,7 +333,11 @@ public class Robot extends TimedRobot
       modifyTargets(target -> target.state = TargetState.Hub);
     }));
 
-
+    new Trigger(() -> !autoMode)
+      .whileTrue(s_PortShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(operator.getRightY(), ControlConstants.manualShooterDeadband)))
+      .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(operator.getRightY(), ControlConstants.manualShooterDeadband)))
+      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> MathUtil.applyDeadband(operator.getRightX(), ControlConstants.manualShooterDeadband)))
+      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> MathUtil.applyDeadband(operator.getRightX(), ControlConstants.manualShooterDeadband)));
 
     operator.povLeft().onTrue
       (modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()));
