@@ -152,8 +152,8 @@ public class Robot extends TimedRobot
   @Logged(name = "Feeder")
   private final BiMotor s_Feeder = new BiMotor
   (
-    IDConstants.feederPortCAN,
-    IDConstants.feederStbdCAN,
+    IDConstants.portFeederCan,
+    IDConstants.stbdFeederCan,
     FeederConstants.feederConfig,
     false
   );
