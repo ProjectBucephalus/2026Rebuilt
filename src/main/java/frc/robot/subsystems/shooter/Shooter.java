@@ -88,6 +88,8 @@ public class Shooter extends SubsystemBase
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, this::getTarget);
     hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, this::getTarget);
+
+    target.azimuth = turret.getAzimuth();
   }
 
   /**
