@@ -63,7 +63,7 @@ public final class Constants
     public static final AllianceTranslation2d rightFerryTarget = new AllianceTranslation2d(1.5, 1.5);
 
     public static final double manualExtensionAmount = 0.05;
-    public static final double manualShooterDeadband = 0.2;
+    public static final double manualShooterDeadband = 0.5;
   }
 
   /** Geometry and tuning data for drivebase */

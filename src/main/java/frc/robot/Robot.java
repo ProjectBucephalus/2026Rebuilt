@@ -345,15 +345,15 @@ public class Robot extends TimedRobot
     operator.povRight().onTrue
       (modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
 
-    new Trigger(() -> autoMode)
-      .and(() -> FieldUtils.inLeftHalf(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()))
-      .onFalse(modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
+    // new Trigger(() -> autoMode)
+    //   .and(() -> FieldUtils.inLeftHalf(getTranslation()))
+    //   .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()))
+    //   .onFalse(modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
 
-    new Trigger(() -> autoMode)
-      .and(() -> FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub))
-      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Point));
+    // new Trigger(() -> autoMode)
+    //   .and(() -> FieldUtils.inAllianceZone(getTranslation()))
+    //   .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub))
+    //   .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Point));
 
     // driver.povLeft()
     //   .onTrue(
