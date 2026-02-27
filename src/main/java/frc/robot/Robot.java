@@ -85,6 +85,7 @@ public class Robot extends TimedRobot
   private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
   private boolean autoMode = false;
+  private boolean nudging = true;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -237,7 +238,7 @@ public class Robot extends TimedRobot
 
     new Trigger(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
-      .and(driver.leftTrigger().negate())
+      .and(driver.rightBumper().negate())
       .and(driver.leftBumper().negate())
       .whileTrue
       (
@@ -252,6 +253,7 @@ public class Robot extends TimedRobot
       .or(bumpSB.asTrigger())
       .or(bumpNR.asTrigger())
       .or(bumpSR.asTrigger())
+      .and(() -> nudging)
       .whileTrue
       (
         new NonCardinalDrive
@@ -269,21 +271,36 @@ public class Robot extends TimedRobot
       .onTrue(s_Hopper.extendCommand())
       .whileTrue(s_Hopper.runIntakeCommand());
 
+    driver.povUp()
+      .whileTrue(s_Hopper.extensionJostleCommand())
+      .onFalse(s_Hopper.extendCommand());
+
+    driver.povDown()
+      .onTrue(s_Hopper.retractCommand());
+
+    driver.back()
+      .onTrue(runOnce(() -> nudging = false));
+
+    driver.start()
+      .onTrue(runOnce(() -> nudging = true));
+
     operator.povLeft().onTrue
-      (runOnce(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())));
+      (modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()));
 
     operator.povRight().onTrue
-      (runOnce(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get())));
+      (modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
+
+
 
     new Trigger(() -> autoMode)
       .and(() -> FieldUtils.inLeftHalf(getTranslation()))
-      .onTrue(runOnce(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())))
-      .onFalse(runOnce(() -> modifyTargets(target -> target.point = ControlConstants.rightFerryTarget.get())));
+      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()))
+      .onFalse(modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
 
     new Trigger(() -> autoMode)
       .and(() -> FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(runOnce(() -> modifyTargets(target -> target.state = TargetState.Hub)))
-      .onFalse(runOnce(() -> modifyTargets(target -> target.state = TargetState.Point)));
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub))
+      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Point));
 
     // driver.povLeft()
     //   .onTrue(
@@ -342,6 +359,16 @@ public class Robot extends TimedRobot
   {
     updater.accept(s_PortShooter.getTarget());
     updater.accept(s_StbdShooter.getTarget());
+  }
+
+  /**
+   * Perform some modification on the targets of both shooters
+   * 
+   * @param updater The action to perform on the targets
+   */
+  private Command modifyTargetsCommand(Consumer<Target> updater)
+  {
+    return runOnce(() -> modifyTargets(updater));
   }
 
   /** Pull current state from drivebase for external use, to avoid repeated expensive calls */

@@ -44,7 +44,7 @@ public class Target
   @Logged(name = "Target Distance Meters")
   protected double distance = 0;
   @Logged(name = "Target Speed Rotations per Second")
-  protected double speed = 0;
+  public double speed = 0;
 
   /**
    * Construct a new {@link Target} with all values zeroed
