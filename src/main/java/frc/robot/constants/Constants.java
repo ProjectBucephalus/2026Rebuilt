@@ -88,7 +88,7 @@ public final class Constants
     /* Drive PID Values */
     public static final double driveKP = 2.5;
     public static final double driveKI = 0.0;
-    public static final double driveKD = 0.12;
+    public static final double driveKD = 0.2;
 
     /* Rotation Control PID Values */
     public static final double rotationKP = 6;
@@ -444,7 +444,7 @@ public final class Constants
       public static final double maxRotations = 0.0;
 
       /** Duration and interval of retraction/extension pulses when agitating, seconds */
-      public static final double extensionJostleDelay = 0.35;
+      public static final double extensionJostleDelay = 0.25;
 
       public static final TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
       static

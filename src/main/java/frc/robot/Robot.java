@@ -298,6 +298,18 @@ public class Robot extends TimedRobot
     driver.povUp().onTrue(s_Hopper.extendCommand());//.whileTrue(s_Hopper.manualExtensionCommand(()->-0.05));
     driver.povDown().onTrue(s_Hopper.retractCommand());//.whileTrue(s_Hopper.manualExtensionCommand(()->0.05));
 
+    driver.x()
+      .onTrue(s_Hopper.runSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
+    driver.b()
+      .onTrue(s_Hopper.reverseSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
+    driver.a()
+      .onTrue(s_Hopper.runIntakeCommand())
+      .onFalse(s_Hopper.stopIntakeCommand());
+    driver.y()
+      .onTrue(s_Hopper.reverseIntakeCommand())
+      .onFalse(s_Hopper.stopIntakeCommand());
 
     driver.leftTrigger()
       .onTrue(s_Hopper.runIntakeCommand())
