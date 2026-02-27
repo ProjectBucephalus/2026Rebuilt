@@ -5,6 +5,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -14,32 +15,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public class VelocityMotor extends SubsystemBase 
 {
-  private final TalonFX m_Velocity;
+  protected final TalonFX m_Velocity;
 
-  private final MotionMagicVelocityVoltage request = new MotionMagicVelocityVoltage(0);
+  protected final MotionMagicVelocityVoltage request = new MotionMagicVelocityVoltage(0);
 
   /**
-   * Creates a wrapper around a TalonFX to provides simple binary control (on or off)
+   * Creates a wrapper around a TalonFX to provide velocity control
    * 
-   * @param defaultSpeed the duty-cycle speed to run at when on [-1..1]
    * @param id the id of the motor
+   * @param config the config to apply to the wrapped motor
    */
   public VelocityMotor(int id, TalonFXConfiguration config) 
   {
     m_Velocity = new TalonFX(id);
-    applyConfig(config);
-  }
-
-  /**
-   * Applies a new configuration object to the motor
-   * 
-   * @param config the configuration to apply
-   * @return this subsystem, for easier chaining
-   */
-  public VelocityMotor applyConfig(TalonFXConfiguration config) 
-  {
     m_Velocity.getConfigurator().apply(config);
-    return this;
   }
 
   /**
@@ -63,13 +52,13 @@ public class VelocityMotor extends SubsystemBase
   /** @return Current speed of the motor, in mechanism rotations per second */
   @Logged(name = "Speed Rotations per Second")
   public double getSpeed() 
-    {return m_Velocity.getVelocity().getValueAsDouble();}
+    {return m_Velocity.getVelocity().getValue().in(Units.RotationsPerSecond);}
 
   @Logged(name = "Temp Celsius")
   public double getTemp() 
-    {return m_Velocity.getAncillaryDeviceTemp().getValueAsDouble();}
+    {return m_Velocity.getAncillaryDeviceTemp().getValue().in(Units.Celsius);}
 
   @Logged(name = "Current Amps")
   public double getMotorCurrent()
-    {return m_Velocity.getStatorCurrent().getValueAsDouble();}
+    {return m_Velocity.getStatorCurrent().getValue().in(Units.Amps);}
 }

@@ -150,10 +150,12 @@ public class Robot extends TimedRobot
   );
   
   @Logged(name = "Feeder")
-  private final VelocityMotor s_Feeder = new VelocityMotor
+  private final BiMotor s_Feeder = new BiMotor
   (
-    IDConstants.feederCAN,
-    FeederConstants.feederConfig
+    IDConstants.feederPortCAN,
+    IDConstants.feederStbdCAN,
+    FeederConstants.feederConfig,
+    false
   );
 
   /* Rumble */

@@ -57,8 +57,9 @@ public final class IDConstants
     "Stbd"
   );
 
-  /* Feeder, [24] */
-  public static final int feederCAN = 24;
+  /* Feeder, [24..25] */
+  public static final int feederPortCAN = 24;
+  public static final int feederStbdCAN = 25;
 
   /* Processor, [28..30] */
   public static final int spindexerCAN = 28;
