@@ -321,7 +321,16 @@ public class Robot extends TimedRobot
 
     // TODO debug right bumper 
 
-    // operator.rightStick() TODO
+    operator.rightStick().onTrue(runOnce
+    (() -> {
+      autoMode = false;
+      modifyTargets(target -> target.state = TargetState.Manual);
+    }));
+    operator.leftStick().onTrue(runOnce
+    (() -> {
+      autoMode = true;
+      modifyTargets(target -> target.state = TargetState.Hub);
+    }));
 
 
 
@@ -482,8 +491,8 @@ public class Robot extends TimedRobot
   public void teleopInit() 
   {
     autoCommand.ifPresent(Command::cancel);
-    autoMode = true;
-    modifyTargets(target -> target.state = TargetState.Hub);
+    autoMode = false;
+    modifyTargets(target -> target.state = TargetState.Manual);
 
     FieldUtils.updateAlliance();
     initInputTransmute();
