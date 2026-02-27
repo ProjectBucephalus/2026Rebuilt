@@ -108,7 +108,7 @@ public class Hopper extends SubsystemBase
     return 
     Commands.sequence
     (
-      retractCommand(),
+      extension.setTargetCommand(-0.2),
       Commands.waitSeconds(extensionJostleDelay),
       extendCommand(), 
       Commands.waitSeconds(extensionJostleDelay)

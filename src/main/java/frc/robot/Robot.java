@@ -219,7 +219,7 @@ public class Robot extends TimedRobot
       .withInputCurve(driverInputCurve)
       .withDeadband(driverDeadband);
 
-    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.FENCE_TOGGLE.get() && PBDash.LL_TOGGLE.get());
+    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.FENCE_TOGGLE.get());
   }
 
   /** Sets primary control bindings */
@@ -240,7 +240,6 @@ public class Robot extends TimedRobot
     new Trigger(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
       .and(driver.rightBumper().negate())
-      .and(driver.leftBumper().negate())
       .whileTrue
       (
         s_Feeder.runEnd
@@ -254,7 +253,7 @@ public class Robot extends TimedRobot
       .or(bumpSB.asTrigger())
       .or(bumpNR.asTrigger())
       .or(bumpSR.asTrigger())
-      .and(() -> nudging)
+      .and(() -> nudging && s_Vision.hasLocalisation() && PBDash.FENCE_TOGGLE.get())
       .whileTrue
       (
         new NonCardinalDrive
@@ -273,7 +272,7 @@ public class Robot extends TimedRobot
       .whileTrue(s_Hopper.runIntakeCommand());
       
 
-    driver.leftTrigger()
+    driver.povUp()
       .onTrue(s_Hopper.runIntakeCommand())
       .whileTrue(s_Hopper.extensionJostleCommand())
       .onFalse(s_Hopper.stopIntakeCommand())
