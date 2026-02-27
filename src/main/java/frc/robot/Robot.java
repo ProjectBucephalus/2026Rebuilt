@@ -85,6 +85,7 @@ public class Robot extends TimedRobot
   private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
   private boolean autoMode = false;
+  private boolean debugLock = true;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -268,6 +269,43 @@ public class Robot extends TimedRobot
     driver.leftTrigger()
       .onTrue(s_Hopper.extendCommand())
       .whileTrue(s_Hopper.runIntakeCommand());
+      
+
+    operator.y()
+      .onTrue(runOnce(() -> debugLock = false));
+      
+
+    operator.a()
+      .and(() -> !debugLock)
+      .whileTrue(s_Hopper.runIntakeCommand());
+
+    operator.b()
+      .and(() -> !debugLock)
+      .onTrue(s_Hopper.reverseIntakeCommand())
+      .onFalse(s_Hopper.stopIntakeCommand());
+
+    operator.povDown()
+      .and(() -> !debugLock)
+      .onTrue(s_Hopper.manualExtensionCommand(() -> -Constants.ControlConstants.manualExtensionAmmount));
+
+    operator.povUp()
+      .and(() -> !debugLock)
+      .onTrue(s_Hopper.manualExtensionCommand(() -> Constants.ControlConstants.manualExtensionAmmount));
+
+    // TODO debug left trigger
+
+    //TODO debug left bumper 
+
+    // TODO debug right trigger
+
+    // TODO debug right bumper 
+
+    // operator.rightStick() TODO
+
+    
+
+
+      
 
     operator.povLeft().onTrue
       (runOnce(() -> modifyTargets(target -> target.point = ControlConstants.leftFerryTarget.get())));

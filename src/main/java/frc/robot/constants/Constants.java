@@ -61,6 +61,9 @@ public final class Constants
 
     public static final AllianceTranslation2d leftFerryTarget = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 1.5);
     public static final AllianceTranslation2d rightFerryTarget = new AllianceTranslation2d(1.5, 1.5);
+
+
+    public static final double manualExtensionAmmount = 0.05;
   }
 
   /** Geometry and tuning data for drivebase */
