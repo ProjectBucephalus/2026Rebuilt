@@ -86,6 +86,7 @@ public class Robot extends TimedRobot
   private Optional<Command> autoCommand = Optional.empty();
   private boolean autoMode = false;
   private boolean nudging = true;
+  private boolean debugLock = true;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -270,6 +271,8 @@ public class Robot extends TimedRobot
     driver.leftTrigger()
       .onTrue(s_Hopper.extendCommand())
       .whileTrue(s_Hopper.runIntakeCommand());
+      
+
 
     driver.povUp()
       .whileTrue(s_Hopper.extensionJostleCommand())
@@ -284,13 +287,44 @@ public class Robot extends TimedRobot
     driver.start()
       .onTrue(runOnce(() -> nudging = true));
 
+
+    operator.y()
+      .onTrue(runOnce(() -> debugLock = false));
+
+    operator.a()
+      .and(() -> !debugLock)
+      .whileTrue(s_Hopper.runIntakeCommand());
+
+    operator.b()
+      .and(() -> !debugLock)
+      .onTrue(s_Hopper.reverseIntakeCommand())
+      .onFalse(s_Hopper.stopIntakeCommand());
+
+    operator.povDown()
+      .and(() -> !debugLock)
+      .onTrue(s_Hopper.manualExtensionCommand(() -> -Constants.ControlConstants.manualExtensionAmmount));
+
+    operator.povUp()
+      .and(() -> !debugLock)
+      .onTrue(s_Hopper.manualExtensionCommand(() -> Constants.ControlConstants.manualExtensionAmmount));
+
+    // TODO debug left trigger
+
+    //TODO debug left bumper 
+
+    // TODO debug right trigger
+
+    // TODO debug right bumper 
+
+    // operator.rightStick() TODO
+
+
+
     operator.povLeft().onTrue
       (modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()));
 
     operator.povRight().onTrue
       (modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
-
-
 
     new Trigger(() -> autoMode)
       .and(() -> FieldUtils.inLeftHalf(getTranslation()))
