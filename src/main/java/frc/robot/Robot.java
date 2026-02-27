@@ -237,7 +237,7 @@ public class Robot extends TimedRobot
 
     new Trigger(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
-      .and(driver.leftTrigger().negate())
+      //.and(driver.leftTrigger().negate())
       .and(driver.leftBumper().negate())
       .whileTrue
       (
@@ -298,25 +298,12 @@ public class Robot extends TimedRobot
     driver.povUp().onTrue(s_Hopper.extendCommand());//.whileTrue(s_Hopper.manualExtensionCommand(()->-0.05));
     driver.povDown().onTrue(s_Hopper.retractCommand());//.whileTrue(s_Hopper.manualExtensionCommand(()->0.05));
 
-    driver.x()
-      .onTrue(s_Hopper.runSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand());
-    driver.b()
-      .onTrue(s_Hopper.reverseSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand());
-    driver.a()
-      .onTrue(s_Hopper.runIntakeCommand())
-      .onFalse(s_Hopper.stopIntakeCommand());
-    driver.y()
-      .onTrue(s_Hopper.reverseIntakeCommand())
-      .onFalse(s_Hopper.stopIntakeCommand());
 
     driver.leftTrigger()
-      .onTrue(s_Feeder.setSpeedCommand(-30))
-      .onFalse(s_Feeder.setSpeedCommand(0));
-    driver.leftBumper()
-      .whileTrue(s_Feeder.setSpeedCommand(50))
-      .onFalse(s_Feeder.setSpeedCommand(0));
+      .onTrue(s_Hopper.runIntakeCommand())
+      .whileTrue(s_Hopper.extensionJostleCommand())
+      .onFalse(s_Hopper.stopIntakeCommand())
+      .onFalse(s_Hopper.extendCommand());
   }
 
   /** Mutually exclusive to bindControls */

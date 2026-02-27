@@ -105,7 +105,6 @@ public class Hopper extends SubsystemBase
     Commands.sequence
     (
       retractCommand(),
-      //Waits for 0.25 seconds
       Commands.waitSeconds(extensionJostleDelay),
       extendCommand(), 
       Commands.waitSeconds(extensionJostleDelay)

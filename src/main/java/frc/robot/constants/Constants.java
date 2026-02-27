@@ -119,9 +119,9 @@ public final class Constants
     /** 2D offset from robot centre to starboard-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
     public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
-    public static final double targetPointOffset = 0.08;
+    public static final double targetPointOffset = 0.12;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactor = 0.01;
+    public static final double leadFactor = 0.25;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants
@@ -149,7 +149,7 @@ public final class Constants
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
 
-        flywheelConfig.MotionMagic.MotionMagicAcceleration = 100.0;
+        flywheelConfig.MotionMagic.MotionMagicAcceleration = 150.0;
         flywheelConfig.MotionMagic.MotionMagicJerk = 1000.0;
       }
 
@@ -316,9 +316,9 @@ public final class Constants
     {{
       put(0.81, 0.0); // min range
       put(1.5, 0.0); 
-      put(1.8, 0.0); // max range while at 0 degrees hood + staying below lights
-      put(2.7, 5.8);
-      put(3.7, 11.5);
+      put(1.8, 1.0); // max range while at 0 degrees hood + staying below lights
+      put(2.7, 7.3);
+      put(3.7, 13.7);
       put(4.875, 18.0); 
       put(5.1, 19.0); // max range while staying below lights
       put(5.8, 19.0); // max range while staying below ceiling
@@ -340,14 +340,14 @@ public final class Constants
     /** Distance to Speed conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
     {{
-      put(1.01, 22.75);//23.25); // min range
-      put(1.7, 26.75);//27.25); 
-      put(1.8, 27.3);//27.8); // max range while at 0 degrees hood + staying below lights
-      put(2.7, 28.2);//28.7);
-      put(3.7, 29.65);//30.15);
-      put(4.875, 31.5);//32.0);
-      put(5.1, 32.0);//32.5); // max range while staying below lights
-      put(5.8, 33.8);//34.3); // max range while staying below ceiling
+      put(1.01, 23.75); // min range
+      put(1.7, 27.75); 
+      put(1.8, 28.3); // max range while at 0 degrees hood + staying below lights
+      put(2.7, 29.2);
+      put(3.7, 30.65);
+      put(4.875, 32.5);
+      put(5.1, 33.0); // max range while staying below lights
+      put(5.8, 34.8); // max range while staying below ceiling
     }};
 
     /** Distance to Speed conversion for shooting to a point on the field */
@@ -416,7 +416,7 @@ public final class Constants
     public static final class IntakeConstants 
     {
       /** Default speed of intake when running, [-1..1] */
-      public static final double intakeSpeed = 0.9;
+      public static final double intakeSpeed = 0.65;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static
@@ -440,11 +440,11 @@ public final class Constants
 
       public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = -0.34;
+      public static final double minRotations = -0.35;
       public static final double maxRotations = 0.0;
 
       /** Duration and interval of retraction/extension pulses when agitating, seconds */
-      public static final double extensionJostleDelay = 0.25;
+      public static final double extensionJostleDelay = 0.35;
 
       public static final TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
       static
