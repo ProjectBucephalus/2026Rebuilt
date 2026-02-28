@@ -88,6 +88,7 @@ public class Robot extends TimedRobot
   private boolean autoMode = false;
   private boolean nudging = true;
   private boolean debugLock = true;
+  private final Trigger autoModeTrigger = new Trigger(() -> autoMode);
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -316,7 +317,7 @@ public class Robot extends TimedRobot
 
     // TODO debug left trigger
 
-    //TODO debug left bumper 
+    // TODO debug left bumper 
 
     // TODO debug right trigger
 
@@ -327,11 +328,7 @@ public class Robot extends TimedRobot
       autoMode = false;
       modifyTargets(target -> target.state = TargetState.Manual);
     }));
-    operator.leftStick().onTrue(runOnce
-    (() -> {
-      autoMode = true;
-      modifyTargets(target -> target.state = TargetState.Hub);
-    }));
+    operator.leftStick().onTrue(runOnce(() -> autoMode = true));
 
     new Trigger(() -> !autoMode)
       .whileTrue(s_PortShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(operator.getRightY(), ControlConstants.manualShooterDeadband)))
@@ -350,20 +347,16 @@ public class Robot extends TimedRobot
     //   .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()))
     //   .onFalse(modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
 
-    // new Trigger(() -> autoMode)
-    //   .and(() -> FieldUtils.inAllianceZone(getTranslation()))
-    //   .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub))
-    //   .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Point));
+    autoModeTrigger
+      .and(() -> !FieldUtils.inAllianceZone(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Manual));
 
-    // driver.povLeft()
-    //   .onTrue(
-    //     runOnce(() -> {
-    //       autoMode = false;
-    //       modifyTargets(target -> target.state = TargetState.Manual);
-    //       modifyTargets(target -> target.azimuth = PBDash.getDouble("Test Azimuth"));
-    //       modifyTargets(target -> target.altitude = PBDash.getDouble("Test Altitude"));
-    //     })
-    //   );
+    autoModeTrigger
+      .and(() -> FieldUtils.inAllianceZone(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub));
+
+    autoModeTrigger
+      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual));
   }
 
   /** Mutually exclusive to bindControls */
@@ -497,7 +490,6 @@ public class Robot extends TimedRobot
   {
     autoCommand.ifPresent(Command::cancel);
     autoMode = false;
-    modifyTargets(target -> target.state = TargetState.Manual);
 
     FieldUtils.updateAlliance();
     initInputTransmute();
@@ -508,7 +500,6 @@ public class Robot extends TimedRobot
   {
     CommandScheduler.getInstance().cancelAll();
     autoMode = false;
-    modifyTargets(target -> target.state = TargetState.Manual);
 
     FieldUtils.updateAlliance();
     initInputTransmute();
