@@ -199,7 +199,10 @@ public class Shooter extends SubsystemBase
       case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
-    flywheels.setSpeed(activeSup.getAsBoolean() ? target.speed : idleSpeed);
+
+    boolean active = target.state == TargetState.Manual ? !activeSup.getAsBoolean() : activeSup.getAsBoolean();
+
+    flywheels.setSpeed(active ? target.speed : idleSpeed);
 
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update(shooterPose);

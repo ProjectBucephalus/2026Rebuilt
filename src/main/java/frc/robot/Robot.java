@@ -241,7 +241,6 @@ public class Robot extends TimedRobot
 
     new Trigger(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
-      .and(driver.rightBumper().negate())
       .whileTrue
       (
         s_Feeder.runEnd
@@ -353,14 +352,17 @@ public class Robot extends TimedRobot
     operator.povRight().onTrue
       (modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
 
-    // new Trigger(() -> autoMode)
-    //   .and(() -> FieldUtils.inLeftHalf(getTranslation()))
-    //   .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()))
-    //   .onFalse(modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
+    autoModeTrigger
+      .and(() -> FieldUtils.inLeftHalf(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()));
+
+    autoModeTrigger
+      .and(() -> !FieldUtils.inLeftHalf(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
 
     autoModeTrigger
       .and(() -> !FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Manual));
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point));
 
     autoModeTrigger
       .and(() -> FieldUtils.inAllianceZone(getTranslation()))
