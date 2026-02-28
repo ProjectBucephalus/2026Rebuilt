@@ -318,6 +318,14 @@ public class Robot extends TimedRobot
       .and(() -> !debugLock)
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualExtensionAmount));
 
+    operator.leftBumper()
+      .onTrue(s_Hopper.reverseSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
+
+    operator.leftTrigger()
+      .onTrue(s_Hopper.runSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
+
     // TODO debug left trigger
 
     // TODO debug left bumper 
