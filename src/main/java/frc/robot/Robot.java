@@ -273,6 +273,9 @@ public class Robot extends TimedRobot
       .onTrue(s_Hopper.extendCommand())
       .whileTrue(s_Hopper.runIntakeCommand().onlyIf(s_Hopper::extended));
       
+    driver.leftBumper()
+      .onTrue(s_Hopper.runSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
 
     driver.povUp()
       .onTrue(s_Hopper.runIntakeCommand())
