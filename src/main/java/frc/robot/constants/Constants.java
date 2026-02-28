@@ -187,7 +187,7 @@ public final class Constants
     public static final class TurretConstants
     {
       /** Maximum rotation either side of centre before reaching mechanical/cable limits, degrees */
-      public static final double maxTurretAzimuth = 240;
+      public static final double maxTurretAzimuth = 100;
       /** Angle range at end-of-travel to stop shooting and prepare to unwind, degrees */
       public static final double limitBufferZone = 10;
       /** Position to hold when idle, degrees */
@@ -308,7 +308,7 @@ public final class Constants
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
     public static final double linearStdDevBaseline = 0.3;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
-    public static final double rotStdDevBaseline = Math.toRadians(20);
+    public static final double rotStdDevBaseline = Math.toRadians(30);
   }
 
   /** Interpolation tables for converting measured input to calibrated output */
