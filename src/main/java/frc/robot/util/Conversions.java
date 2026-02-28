@@ -218,7 +218,7 @@ public class Conversions
   {
     // Ensure allowed range of motion is greater than a rotation
     if (maxAngle < 180)
-      {return currentAngle;}
+      {return clamp(currentAngle, -maxAngle, maxAngle);}
 
     // Wrap both input angles to be strictly relative within a rotation
     double newAngleWrapped = Conversions.mod(newAngle, 360);
