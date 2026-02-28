@@ -147,20 +147,13 @@ public class Robot extends TimedRobot
   @Logged(name = "Hopper")
   private final Hopper s_Hopper = new Hopper
   (
-    IDConstants.spindexerCAN,
     IDConstants.intakeCAN, 
     IDConstants.extensionCAN, 
     -1 //IDConstants.extensionLimitDIO
   );
-  
-  @Logged(name = "Feeder")
-  private final BiMotor s_Feeder = new BiMotor
-  (
-    IDConstants.portFeederCan,
-    IDConstants.stbdFeederCan,
-    FeederConstants.feederConfig,
-    false
-  );
+
+  @Logged(name = "Indexer")
+  private final Indexer s_Indexer = new Indexer();
 
   /* Rumble */
   private final RumbleRequester io_driverRight   = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
@@ -241,14 +234,7 @@ public class Robot extends TimedRobot
 
     new Trigger(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
-      .whileTrue
-      (
-        s_Feeder.runEnd
-        (
-          () -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())),
-          () -> s_Feeder.setSpeed(0)
-        )
-      );
+      .whileTrue(s_Indexer.runCommand());
 
     bumpNB.asTrigger()
       .or(bumpSB.asTrigger())
@@ -273,8 +259,7 @@ public class Robot extends TimedRobot
       .whileTrue(s_Hopper.runIntakeCommand().onlyIf(s_Hopper::extended));
       
     driver.leftBumper()
-      .onTrue(s_Hopper.runSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand());
+      .whileTrue(s_Indexer.runCommand());
 
     driver.povUp()
       .onTrue(s_Hopper.runIntakeCommand())
