@@ -446,6 +446,8 @@ public final class Constants
       public static final double minRotations = -0.35;
       public static final double maxRotations = 0.0;
 
+      public static final double extendedTolerance = 0.05;
+
       /** Duration and interval of retraction/extension pulses when agitating, seconds */
       public static final double extensionJostleDelay = 0.25;
 

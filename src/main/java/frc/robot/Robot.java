@@ -271,7 +271,7 @@ public class Robot extends TimedRobot
 
     driver.leftTrigger()
       .onTrue(s_Hopper.extendCommand())
-      .whileTrue(s_Hopper.runIntakeCommand());
+      .whileTrue(s_Hopper.runIntakeCommand().onlyIf(s_Hopper::extended));
       
 
     driver.povUp()
@@ -309,11 +309,11 @@ public class Robot extends TimedRobot
 
     operator.povDown()
       .and(() -> !debugLock)
-      .onTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualExtensionAmount));
+      .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualExtensionAmount));
 
     operator.povUp()
       .and(() -> !debugLock)
-      .onTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualExtensionAmount));
+      .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualExtensionAmount));
 
     // TODO debug left trigger
 
@@ -323,12 +323,12 @@ public class Robot extends TimedRobot
 
     // TODO debug right bumper 
 
-    operator.rightStick().onTrue(runOnce
-    (() -> {
-      autoMode = false;
-      modifyTargets(target -> target.state = TargetState.Manual);
-    }));
-    operator.leftStick().onTrue(runOnce(() -> autoMode = true));
+    operator.rightStick()
+      .and(() -> !debugLock)
+      .onTrue(runOnce(() -> autoMode = false));
+    operator.leftStick()
+      .and(() -> !debugLock)
+      .onTrue(runOnce(() -> autoMode = true));
 
     new Trigger(() -> !autoMode)
       .whileTrue(s_PortShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(operator.getRightY(), ControlConstants.manualShooterDeadband)))

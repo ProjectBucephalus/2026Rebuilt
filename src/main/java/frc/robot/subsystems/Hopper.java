@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -100,7 +101,10 @@ public class Hopper extends SubsystemBase
    * @return Command to smoothly control the extension 
    */
   public Command manualExtensionCommand(DoubleSupplier shiftSup)
-  {return extension.adjustTargetCommand(shiftSup);}
+    {return extension.adjustTargetCommand(shiftSup);}
+
+  public boolean extended() 
+    {return MathUtil.isNear(ExtensionConstants.maxRotations, extension.getAngle(), ExtensionConstants.extendedTolerance);}
 
   /** @return Command to continually jostle the extension to agitate gamepieces */
   public Command extensionJostleCommand()
