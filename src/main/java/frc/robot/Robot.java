@@ -7,33 +7,52 @@ package frc.robot;
 
 //import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import frc.robot.commands.swerve.*;
 import frc.robot.constants.*;
 import static frc.robot.constants.Constants.*;
-import frc.robot.constants.FieldConstants.GeoFencing;
-
 import static frc.robot.constants.IDConstants.*;
 
+import frc.robot.constants.Constants.ClimberConstants;
+import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.FeederConstants;
+import frc.robot.constants.Constants.ShooterConstants;
+import frc.robot.constants.Constants.SwerveConstants;
+import frc.robot.constants.Constants.VisionConstants;
+import frc.robot.constants.FieldConstants.GeoFencing;
+
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.generic.*;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.Target;
+import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
-import frc.robot.util.AutoFactories;
+import frc.robot.util.AutoBuilder;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 import frc.robot.util.controlTransmutation.*;
@@ -61,78 +80,88 @@ import frc.robot.util.libs.Telemetry;
  *  </ul>
  * </ul>
  */
-@Logged
+@Logged(strategy = Strategy.OPT_IN)
 public class Robot extends TimedRobot 
 {
-  /* Enums */
-  public enum TargetPosition {Left, Right, Centre, None} // TODO Unused
-  public enum DriveState {None, Hub, Tower} // Depending on how we're doing climb lineup, we can probably remove both of these
-  
   /* State */
-  private SwerveDriveState swerveState;
-  private TargetPosition currentTarget = TargetPosition.None;
-  private DriveState currentDriveState = DriveState.None;
-  private Command autoCommand;
+  private SwerveDriveState swerveState = new SwerveDriveState();
+  private Optional<Command> autoCommand = Optional.empty();
+  private boolean autoMode = false;
+  private boolean nudging = true;
+  private boolean debugLock = true;
+  private final Trigger autoModeTrigger = new Trigger(() -> autoMode);
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
+  private final CANBus canBus = new CANBus();
+
+  /* Controllers */
+  private final CommandXboxController driver = new CommandXboxController(0);
+  private final CommandXboxController operator = new CommandXboxController(1);
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
+  
+  @Logged(name = "Port Shooter")
   private final Shooter s_PortShooter = new Shooter
-    (
-      () -> swerveState,
-      ShooterConstants.portShooterOffset,
-      IDConstants.portShooterIDs,
-      ShooterConstants.TurretConstants.portPotOffset,
-      false // TODO confirm
-    );
+  (
+    () -> swerveState,
+    ShooterConstants.portShooterOffset,
+    IDConstants.portShooterIDs,
+    ShooterConstants.TurretConstants.portPotOffset,
+    true,
+    driver.rightBumper().negate()
+  );
+  
+  @Logged(name = "Stbd Shooter")
   private final Shooter s_StbdShooter = new Shooter
-    (
-      () -> swerveState,
-      ShooterConstants.stbdShooterOffset,
-      IDConstants.stbdShooterIDs,
-      ShooterConstants.TurretConstants.stbdPotOffset,
-      true // TODO confirm
-    );
+  (
+    () -> swerveState,
+    ShooterConstants.stbdShooterOffset,
+    IDConstants.stbdShooterIDs,
+    ShooterConstants.TurretConstants.stbdPotOffset,
+    false,
+    driver.rightBumper().negate()
+  );
+  
+  @Logged(name = "Vision")
   private final Vision s_Vision = new Vision
   (
-    (poseEst, timestmp, stdDevs) -> 
-    {
-      s_Swerve.setVisionMeasurementStdDevs(stdDevs); 
-      s_Swerve.addVisionMeasurement(poseEst, timestmp);
-    },
+    s_Swerve::addVisionMeasurement,
     () -> swerveState.Speeds.omegaRadiansPerSecond,
     new Limelight(portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuth, ShooterConstants.portShooterOffset), 
     new Limelight(stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuth, ShooterConstants.stbdShooterOffset)
   );
-
+  
+  @Logged(name = "Climber")
   private final LinearExtension s_Climber = new LinearExtension
   (
     IDConstants.climberCAN, 
     IDConstants.climberLimitDIO, 
     0, 
     ClimberConstants.maxPosition, 
+    0,
     ClimberConstants.metersPerRotation,
     ClimberConstants.climberConfig
   );
+  
+  @Logged(name = "Hopper")
   private final Hopper s_Hopper = new Hopper
   (
     IDConstants.spindexerCAN,
     IDConstants.intakeCAN, 
     IDConstants.extensionCAN, 
-    IDConstants.extensionLimitDIO
-  );
-  private final BinaryMotor s_Feeder = new BinaryMotor
-  (
-    IDConstants.feederCAN,
-    FeederConstants.feederSpeed,
-    FeederConstants.feederConfig
+    -1 //IDConstants.extensionLimitDIO
   );
   
-  /* Controllers */
-  private final CommandXboxController driver = new CommandXboxController(0);
-  private final CommandXboxController operator = new CommandXboxController(1);
+  @Logged(name = "Feeder")
+  private final BiMotor s_Feeder = new BiMotor
+  (
+    IDConstants.portFeederCan,
+    IDConstants.stbdFeederCan,
+    FeederConstants.feederConfig,
+    false
+  );
 
   /* Rumble */
   private final RumbleRequester io_driverRight   = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
@@ -163,8 +192,9 @@ public class Robot extends TimedRobot
   {
     SignalLogger.enableAutoLogging(false);
 
-    if (!isSimulation()) {
-      DataLogManager.start("/home/lvuser/logs");
+    if (!isSimulation()) 
+    {
+      DataLogManager.start();
       DriverStation.startDataLog(DataLogManager.getLog());
     }
 
@@ -177,13 +207,12 @@ public class Robot extends TimedRobot
   private void initInputTransmute()
   {
     FieldUtils.activateAllianceFencing();
-    FieldConstants.GeoFencing.configureAttractors((testTarget, testState) -> currentTarget == testTarget && currentDriveState == testState);
     FieldObject.setRobotRadiusSup
-      (() -> 
-        Math.hypot(swerveState.Speeds.vxMetersPerSecond, swerveState.Speeds.vyMetersPerSecond) >= robotSpeedThreshold ? 
-        robotRadiusCircumscribed : 
-        robotRadiusInscribed
-      );
+    (() -> 
+      Math.hypot(swerveState.Speeds.vxMetersPerSecond, swerveState.Speeds.vyMetersPerSecond) >= SwerveConstants.robotSpeedThreshold ? 
+      SwerveConstants.robotRadiusCircumscribed : 
+      SwerveConstants.robotRadiusInscribed
+    );
     FieldObject.setRobotPosSup(this::getTranslation);
     
     driverStick
@@ -193,7 +222,7 @@ public class Robot extends TimedRobot
       .withInputCurve(driverInputCurve)
       .withDeadband(driverDeadband);
 
-    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.getPoseFromVision() && PBDash.FENCE_TOGGLE.get() && PBDash.LL_TOGGLE.get());
+    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.FENCE_TOGGLE.get());
   }
 
   /** Sets primary control bindings */
@@ -211,10 +240,22 @@ public class Robot extends TimedRobot
       )
     );
 
+    new Trigger(s_PortShooter::shootReady)
+      .and(s_StbdShooter::shootReady)
+      .whileTrue
+      (
+        s_Feeder.runEnd
+        (
+          () -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())),
+          () -> s_Feeder.setSpeed(0)
+        )
+      );
+
     bumpNB.asTrigger()
       .or(bumpSB.asTrigger())
       .or(bumpNR.asTrigger())
       .or(bumpSR.asTrigger())
+      .and(() -> nudging && s_Vision.hasLocalisation() && PBDash.FENCE_TOGGLE.get())
       .whileTrue
       (
         new NonCardinalDrive
@@ -228,59 +269,196 @@ public class Robot extends TimedRobot
         )
       );
 
-    /* Setting Drive States */
-    driver.povLeft().onTrue(runOnce(() -> currentTarget = TargetPosition.Left));
-    driver.povRight().onTrue(runOnce(() -> currentTarget = TargetPosition.Right));
-    driver.povUp().onTrue(runOnce(() -> currentTarget = TargetPosition.Centre));
-    driver.povDown().onTrue(runOnce(() -> currentTarget = TargetPosition.None));
-    
-    driver.x().and(s_Vision::getPoseFromVision).onTrue
+    driver.leftTrigger()
+      .onTrue(s_Hopper.extendCommand())
+      .whileTrue(s_Hopper.runIntakeCommand().onlyIf(s_Hopper::extended));
+      
+    driver.leftBumper()
+      .onTrue(s_Hopper.runSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
+
+    driver.povUp()
+      .onTrue(s_Hopper.runIntakeCommand())
+      .whileTrue(s_Hopper.extensionJostleCommand())
+      .onFalse(s_Hopper.stopIntakeCommand())
+      .onFalse(s_Hopper.extendCommand());
+
+    driver.povDown()
+      .onTrue(s_Hopper.retractCommand());
+
+    driver.back()
+      .onTrue(runOnce(() -> nudging = false));
+
+    driver.start()
+      .onTrue(runOnce(() -> nudging = true));
+
+
+    operator.y()
+      .onTrue(runOnce(() -> debugLock = false));
+
+    operator.x()
+      .and(() -> !debugLock)
+      .whileTrue(s_Hopper.extensionJostleCommand())
+      .onFalse(s_Hopper.extendCommand());
+      
+    operator.a()
+      .and(() -> !debugLock)
+      .whileTrue(s_Hopper.runIntakeCommand());
+
+    operator.b()
+      .and(() -> !debugLock)
+      .onTrue(s_Hopper.reverseIntakeCommand())
+      .onFalse(s_Hopper.stopIntakeCommand());
+
+    operator.povDown()
+      .and(() -> !debugLock)
+      .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualExtensionAmount));
+
+    operator.povUp()
+      .and(() -> !debugLock)
+      .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualExtensionAmount));
+
+    operator.leftBumper()
+      .onTrue(s_Hopper.reverseSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
+
+    operator.leftTrigger()
+      .onTrue(s_Hopper.runSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
+
+    // TODO debug left trigger
+
+    // TODO debug left bumper 
+
+    // TODO debug right trigger
+
+    // TODO debug right bumper 
+
+    operator.rightStick()
+      .and(() -> !debugLock)
+      .onTrue(runOnce(() -> autoMode = false));
+    operator.leftStick()
+      .and(() -> !debugLock)
+      .onTrue(runOnce(() -> autoMode = true));
+
+    new Trigger(() -> !autoMode)
+      .whileTrue(s_PortShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(operator.getRightY(), ControlConstants.manualShooterDeadband)))
+      .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(operator.getRightY(), ControlConstants.manualShooterDeadband)))
+      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> MathUtil.applyDeadband(operator.getRightX(), ControlConstants.manualShooterDeadband)))
+      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> MathUtil.applyDeadband(operator.getRightX(), ControlConstants.manualShooterDeadband)));
+
+    operator.povLeft().onTrue
+      (modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()));
+
+    operator.povRight().onTrue
+      (modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
+
+    autoModeTrigger
+      .and(() -> FieldUtils.inLeftHalf(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()));
+
+    autoModeTrigger
+      .and(() -> !FieldUtils.inLeftHalf(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
+
+    autoModeTrigger
+      .and(() -> !FieldUtils.inAllianceZone(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point));
+
+    autoModeTrigger
+      .and(() -> FieldUtils.inAllianceZone(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub));
+
+    autoModeTrigger
+      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual));
+  }
+
+  /** Mutually exclusive to bindControls */
+  private void bindSysIdControls()
+  {
+    s_Swerve.setDefaultCommand
     (
-      new PathFollowDrive
+      new ManualDrive
       (
         s_Swerve, 
-        () -> this.swerveState,
-        Pathfinding.testPath
+        driverStick::stickOutput,
+        () -> -driver.getRightX(),
+        driver::getRightTriggerAxis
       )
     );
 
-    /* Heading Locking */
-    new Trigger(() -> currentDriveState == DriveState.None)
-      .whileTrue
-      (
-        new ManualDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          () -> -driver.getRightX(),
-          driver::getRightTriggerAxis
-        )
-      );
-    
-    /* Other */
-    new Trigger(PBDash.LL_EXPOSURE_UP::button).onTrue(runOnce(s_Vision::incrementPipeline));
-    new Trigger(PBDash.LL_EXPOSURE_DOWN::button).onTrue(runOnce(s_Vision::decrementPipeline));
+    driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+    /*
+    * Joystick Y = quasistatic forward
+    * Joystick A = quasistatic reverse
+    * Joystick B = dynamic forward
+    * Joystick X = dyanmic reverse
+    */
+    driver.y().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    driver.a().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    driver.b().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    driver.x().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
   private void bindRumbles()
   {
-    io_operatorRight.addRumbleTrigger("ScoreReady", new Trigger(() -> false)); // EXAMPLE
+
   }
 
   /* UTIL METHODS */
   /* ============ */
+  /**
+   * Perform some modification on the targets of both shooters
+   * 
+   * @param updater The action to perform on the targets
+   */
+  private void modifyTargets(Consumer<Target> updater)
+  {
+    updater.accept(s_PortShooter.getTarget());
+    updater.accept(s_StbdShooter.getTarget());
+  }
+
+  /**
+   * Perform some modification on the targets of both shooters
+   * 
+   * @param updater The action to perform on the targets
+   */
+  private Command modifyTargetsCommand(Consumer<Target> updater)
+  {
+    return runOnce(() -> modifyTargets(updater));
+  }
+
   /** Pull current state from drivebase for external use, to avoid repeated expensive calls */
   private void updateSwerveState()
   {
     swerveState = s_Swerve.getState();
+    PBDash.FIELD.setRobotPose(swerveState.Pose);
   }
+  
+  private void handleAutoErr(String invalidInstr)
+    {PBDash.AUTO_ERRS.put(PBDash.AUTO_ERRS.get() + ", " + invalidInstr);}
+
+  private void compileAuto()
+    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState, this::handleAutoErr));}
 
   /** Returns the t2d of the robot centre in field coordinates */
-  public Translation2d getTranslation() {return swerveState.Pose.getTranslation();}
+  public Translation2d getTranslation()
+    {return swerveState.Pose.getTranslation();}
 
   /** Returns the r2d of the robot in field coordinates */
-  public Rotation2d getRotation() {return swerveState.Pose.getRotation();}
+  public Rotation2d getRotation() 
+    {return swerveState.Pose.getRotation();}
+
+  @Logged(name = "CAN Load")
+  public float getCanLoad() 
+    {return canBus.getStatus().BusUtilization;}
+
+  @Logged(name = "Pigeon Degrees")
+  public double getPigeonReading() 
+    {return swerveState.RawHeading.getDegrees();}
   
   /* OPMODE METHODS */
   /* ============ */
@@ -302,13 +480,24 @@ public class Robot extends TimedRobot
   }
 
   @Override
+  public void disabledPeriodic()
+  {
+    FieldUtils.updateAlliance();
+
+    if (PBDash.AUTO_STRING.hasChanged()) 
+      compileAuto();
+  }
+
+  @Override
   public void autonomousInit() 
   {
     FieldUtils.startAuto();
     FieldUtils.updateAlliance();
-    autoCommand = AutoFactories.getCommandList(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState);
 
-    if (autoCommand != null) CommandScheduler.getInstance().schedule(autoCommand);
+    if (autoCommand.isEmpty())
+      compileAuto();
+
+    CommandScheduler.getInstance().schedule(autoCommand.get());
   }
 
   @Override
@@ -316,10 +505,27 @@ public class Robot extends TimedRobot
   {
     FieldUtils.startTele();
     if (autoCommand != null) autoCommand.cancel();
+    autoCommand.ifPresent(Command::cancel);
+    autoMode = false;
+
     FieldUtils.updateAlliance();
     initInputTransmute();
   }
 
   @Override
-  public void testInit() {CommandScheduler.getInstance().cancelAll();}
+  public void testInit() 
+  {
+    CommandScheduler.getInstance().cancelAll();
+    autoMode = false;
+
+    FieldUtils.updateAlliance();
+    initInputTransmute();
+  }
+
+  @Override
+  public void testPeriodic()
+  {
+    s_StbdShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
+    s_PortShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
+  }
 }

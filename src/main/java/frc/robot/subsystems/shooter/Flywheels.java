@@ -5,9 +5,18 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.*;
+
+import frc.robot.Robot;
 import frc.robot.constants.Constants.ShooterConstants;
 
 /**
@@ -16,10 +25,18 @@ import frc.robot.constants.Constants.ShooterConstants;
  * Uses MotionMagic to control velocity.
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class Flywheels 
 {
   private final TalonFX m_Leader; 
   private final TalonFX m_Follower;
+
+  private final DCMotorSim motorSim = new DCMotorSim
+  (
+    LinearSystemId.createDCMotorSystem
+      (DCMotor.getKrakenX60(2), 0.04, mainWheelBeltRatio),
+    DCMotor.getKrakenX60(2)
+  );
 
   private final MotionMagicVelocityVoltage request = new MotionMagicVelocityVoltage(0);
 
@@ -34,6 +51,7 @@ public class Flywheels
     m_Follower = new TalonFX(followerCAN);
 
     m_Leader.getConfigurator().apply(flywheelConfig);
+    m_Follower.getConfigurator().apply(flywheelConfig);
 
     m_Follower.setControl(new Follower(leaderCAN, MotorAlignmentValue.Opposed));
   }
@@ -51,9 +69,66 @@ public class Flywheels
    * 
    * @return true if the motor is at speed
    */
+  @Logged
   public boolean atSpeed() 
   {
-    double currentSpeed = m_Leader.getVelocity().getValueAsDouble();
-    return MathUtil.isNear(request.Velocity, currentSpeed, flySpeedTolerance);
+    return MathUtil.isNear(request.Velocity, getSpeed(), flySpeedTolerance);
+  }
+
+  /** @return Current speed of the flywheels (RPS of the main flywheel) */
+  @Logged(name = "Speed RevPerSec")
+  public double getSpeed() 
+  {
+    if (Robot.isSimulation())
+      return motorSim.getAngularVelocity().in(Units.RotationsPerSecond);
+    else 
+      return m_Leader.getVelocity().getValue().in(Units.RotationsPerSecond);
+  }
+
+  @Logged(name = "Temp Celsius")
+  public double getTemp() 
+  {
+    if (Robot.isSimulation())
+      return -1; 
+    else 
+      return m_Leader.getAncillaryDeviceTemp().getValue().in(Units.Celsius);
+  }
+
+  @Logged(name = "Current Draw Amps")
+  public double getMotorCurrent()
+  {
+    if (Robot.isSimulation())
+      return motorSim.getCurrentDrawAmps();
+    else 
+      return m_Leader.getStatorCurrent().getValue().in(Units.Amps);
+  }
+
+  public void update()
+  {
+
+  }
+
+  protected void updateSim()
+  {
+    var leaderSimState = m_Leader.getSimState();
+    var followerSimState = m_Leader.getSimState();
+    leaderSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
+    followerSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+    // get the average voltage of the motors
+    var motorVoltage = (leaderSimState.getMotorVoltage() + followerSimState.getMotorVoltage()) / 2;
+
+    // use the motor voltage to calculate new position and velocity
+    // using WPILib's DCMotorSim class for physics simulation
+    motorSim.setInputVoltage(motorVoltage);
+    motorSim.update(0.020); // assume 20 ms loop time
+
+    // apply the new rotor position and velocity to the TalonFX;
+    // note that this is rotor position/velocity (before gear ratio), but
+    // DCMotorSim returns mechanism position/velocity (after gear ratio)
+    leaderSimState.setRawRotorPosition(motorSim.getAngularPosition().times(mainWheelBeltRatio));
+    leaderSimState.setRotorVelocity(motorSim.getAngularVelocity().times(mainWheelBeltRatio));
+    followerSimState.setRawRotorPosition(motorSim.getAngularPosition().times(mainWheelBeltRatio));
+    followerSimState.setRotorVelocity(motorSim.getAngularVelocity().times(mainWheelBeltRatio));
   }
 }

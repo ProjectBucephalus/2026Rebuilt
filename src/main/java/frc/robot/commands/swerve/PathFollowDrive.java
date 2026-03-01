@@ -1,17 +1,21 @@
 package frc.robot.commands.swerve;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Pathfinding.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
+import static frc.robot.constants.Constants.SwerveConstants.*;
 
 /** 
  * A drive command for following pre-planned paths 
@@ -21,6 +25,11 @@ public class PathFollowDrive extends SwerveCommandBase
 {
   private final Supplier<SwerveDriveState> swerveStateSup;
   private final SwerveRequest.ApplyRobotSpeeds driveRequest = new SwerveRequest.ApplyRobotSpeeds();    
+
+  private final PIDController xController = new PIDController(driveKP, driveKI, driveKD);
+  private final PIDController yController = new PIDController(driveKP, driveKI, driveKD);
+  private final PIDController thetaController = new PIDController(rotationKP, rotationKI, rotationKD);
+  {thetaController.enableContinuousInput(-Math.PI, Math.PI);} // Init block- runs when constructed, regardless of constructor used
 
   private final ArrayList<Pose2d> waypoints;
   private final ArrayList<Double> radiusPerSegment;
@@ -40,7 +49,7 @@ public class PathFollowDrive extends SwerveCommandBase
     this.swerveStateSup = swerveStateSup;
 
     this.waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
-    this.radiusPerSegment = new ArrayList<>(path.sequence().length - 1);
+    this.radiusPerSegment = new ArrayList<>(path.sequence().length);
 
     for (int i = 0; i < path.sequence().length - 1; i++) 
     {
@@ -62,7 +71,7 @@ public class PathFollowDrive extends SwerveCommandBase
       // Add current waypoint and projected midpoints to path list
       waypoints.addAll
       (
-        Arrays.asList
+        List.of
         (
           new Pose2d(current, path.heading()), 
           new Pose2d(waypoint1, path.heading()), 
@@ -74,6 +83,24 @@ public class PathFollowDrive extends SwerveCommandBase
     // Final waypoint does not trigger until the robot arives at it
     radiusPerSegment.add(0.0);
     waypoints.add(new Pose2d(path.sequence()[path.sequence().length - 1], path.heading()));
+  }
+
+  /**
+   * Creates a new PathFollowDrive to pathfind to the given pose
+   * @param s_Swerve        Swervedrive subsystem
+   * @param swerveStateSup  Swerve state supplier from Robot to avoid expensive calls to the swerve system
+   * @param path            Target pose for the command to drive to
+   */
+  public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, Pose2d target)
+  {
+    super(s_Swerve, () -> Translation2d.kZero);
+    this.swerveStateSup = swerveStateSup;
+
+    this.waypoints = new ArrayList<>();
+    this.radiusPerSegment = new ArrayList<>();
+
+    waypoints.add(target);
+    radiusPerSegment.add(0.0);
   }
 
   @Override
@@ -90,16 +117,9 @@ public class PathFollowDrive extends SwerveCommandBase
 
     // If the robot is close to the path, follow one point ahead to give smoother cornering
     final var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
-    
     final var targetPose = waypoints.get(targetIndex);
     
-    s_Swerve.setControl
-    (
-      driveRequest.withSpeeds
-      (
-        s_Swerve.calculateDrivePID(targetPose, robotPose)
-      )
-    );
+    s_Swerve.setControl(driveRequest.withSpeeds(calculateDrivePID(targetPose, robotPose)));
         
     // Switch to next waypoint when within the given distance of the current one
     final var currentSegment = Math.floorDiv(currentWaypoint, 3);
@@ -107,7 +127,7 @@ public class PathFollowDrive extends SwerveCommandBase
 
     if (Conversions.nearTranslation(robotPose.getTranslation(), targetPose.getTranslation(), targetDist)) 
     {
-      currentWaypoint = Math.min(++currentWaypoint, waypoints.size());
+      currentWaypoint = Math.min(currentWaypoint + 1, waypoints.size());
       onPath = true;
     }
   }
@@ -117,5 +137,52 @@ public class PathFollowDrive extends SwerveCommandBase
   {
     // Finish when robot is at the final waypoint
     return Conversions.atPose(robotPose, waypoints.get(waypoints.size()-1));
+  }
+
+  /**
+   * Calculates the required drive input to drive to a pose using a PID control loop, accounting for geofencing
+   * 
+   * @param target Current target pose to drive towards
+   * @param pose Current robot pose
+   * @return Chassis speeds, m/s, m/s, rad/s
+   */
+  public ChassisSpeeds calculateDrivePID(Pose2d target, Pose2d pose)
+  {
+    final var robotPos = pose.getTranslation();
+    final var targetPos = target.getTranslation();
+
+    double speedX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
+    double speedY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
+    double throttleX;
+    double throttleY;
+    
+    if(Math.abs(speedX) > Math.abs(speedY))
+    {
+      double ratio = (speedX==0 || speedY==0) ? 0 : speedY/speedX;
+      throttleX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
+      throttleY = throttleX*ratio;
+    }
+    else
+    {
+      double ratio = (speedX==0 || speedY==0) ? 0 : speedX/speedY;
+      throttleY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
+      throttleX = throttleY*ratio;
+    }
+    final double speedTheta = 
+      Math.min(thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), maxAngularVelocity);
+    final var throttleXY = new Translation2d(throttleX, throttleY);
+
+    FieldConstants.GeoFencing.fieldGeoFence.process(throttleXY);
+
+    return ChassisSpeeds.fromFieldRelativeSpeeds
+    (
+      new ChassisSpeeds
+      (
+        throttleXY.getX() * maxSpeed,
+        throttleXY.getY() * maxSpeed,
+        speedTheta
+      ),
+      pose.getRotation()
+    );
   }
 }

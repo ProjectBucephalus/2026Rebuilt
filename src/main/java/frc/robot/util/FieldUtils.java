@@ -5,8 +5,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.constants.FieldConstants;
+import static frc.robot.constants.FieldConstants.*;
 import frc.robot.constants.FieldConstants.GeoFencing;
+import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
 
 /** 
  * Field or FMS related utilities 
@@ -43,7 +44,7 @@ public class FieldUtils
    * @return the centre point of your alliance's hub
    */
   public static Translation2d getAllianceHubCentre() 
-    {return isRedAlliance() ? FieldConstants.redHubCentre : FieldConstants.blueHubCentre;}
+    {return isRedAlliance() ? redHubCentre : blueHubCentre;}
 
   /**
    * @return which driver station we are being controlled from (1, 2, or 3), or 0 if the value is unavailable
@@ -79,7 +80,7 @@ public class FieldUtils
   {
     Rotation2d rot = pose.getRotation();
     // reflect the pose over center line, flip both the X and the rotation
-    return new Pose2d(FieldConstants.fieldLength - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
+    return new Pose2d(fieldLength - pose.getX(), pose.getY(), new Rotation2d(-rot.getCos(), rot.getSin()));
   }
 
   /**
@@ -93,7 +94,7 @@ public class FieldUtils
     // flip pose when red
     if (isRedAlliance()) 
       // reflect the pose around center point, flip both the X and Y position and rotation
-      return pose.rotateAround(FieldConstants.fieldCentre, Rotation2d.k180deg);
+      return pose.rotateAround(fieldCentre, Rotation2d.k180deg);
     else 
       // Blue or we don't know; return the original pose
       return pose;
@@ -108,7 +109,7 @@ public class FieldUtils
   public static Pose2d rotatePose(Pose2d pose) 
   {
     // reflect the pose around center point, flip both the X and Y position and rotation
-    return pose.rotateAround(FieldConstants.fieldCentre, Rotation2d.k180deg);
+    return pose.rotateAround(fieldCentre, Rotation2d.k180deg);
   }
 
   /**
@@ -137,7 +138,7 @@ public class FieldUtils
   public static Translation2d flipTranslation(Translation2d translation) 
   {
     // reflect the translation around center point, flip both the X and Y position
-    return translation.rotateAround(FieldConstants.fieldCentre, Rotation2d.k180deg);
+    return translation.rotateAround(fieldCentre, Rotation2d.k180deg);
   }
 
   /**
@@ -166,9 +167,8 @@ public class FieldUtils
   public static Translation2d rotateTranslation(Translation2d translation) 
   {
     // reflect the translation around center point, flip both the X and Y position
-    return translation.rotateAround(FieldConstants.fieldCentre, Rotation2d.k180deg);
+    return translation.rotateAround(fieldCentre, Rotation2d.k180deg);
   }
-
 
   /**
    * Activates the relevant geofences for our alliance
@@ -177,9 +177,35 @@ public class FieldUtils
    */
   public static void activateAllianceFencing() 
   {
-    boolean redAlliance = isRedAlliance();
-    GeoFencing.fieldRedGeoFence.setActiveCondition(() -> redAlliance);
-    GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> !redAlliance);
+    GeoFencing.fieldRedGeoFence.setActiveCondition(() -> isRedAlliance());
+    GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> !isRedAlliance());
+  }
+
+  /**
+   * Checks if the provided position is within our alliance zone
+   * 
+   * @param pos Position to check against
+   * @return If the position is within the alliance zone
+   */
+  public static boolean inAllianceZone(Translation2d pos) 
+  {
+    if (isRedAlliance()) 
+      return pos.getX() > redStartLine.getX() - robotRadiusInscribed;
+    else 
+      return pos.getX() < blueStartLine.getX() + robotRadiusInscribed;
+  }
+
+  /**
+   * Checks if the provided position is within our alliance zone
+   * 
+   * @param pos Position to check against
+   * @return If the position is within the alliance zone
+   */
+  public static boolean inLeftHalf(Translation2d pos) 
+  {
+    return isRedAlliance() 
+      ? pos.getY() < fieldCentre.getY()
+      : pos.getY() > fieldCentre.getY();
   }
 
 

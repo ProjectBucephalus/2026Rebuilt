@@ -1,16 +1,23 @@
 package frc.robot.util;
 
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
 
@@ -22,23 +29,67 @@ public class PBDash
 {
   private static final NetworkTable table = NetworkTableInstance.getDefault().getTable(IDConstants.dashTableName);
 
-  public static final Key<String>  AUTO_STRING          = new Key<>("Auto String", "");
+  public static final Field2d FIELD = new Field2d();
+  static { putSendable("Field", FIELD); }
 
-  public static final Key<Integer> LL_EXPOSURE          = new Key<>("Exposure Setting", 0);
-  public static final Key<Boolean> LL_EXPOSURE_UP       = new Key<>("Increase Exposure", false);
-  public static final Key<Boolean> LL_EXPOSURE_DOWN     = new Key<>("Decrease Exposure", false);
-  public static final Key<Boolean> LL_TOGGLE            = new Key<>("Use Limelight", true);
+  public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
+  public static final Key<String>  AUTO_ERRS        = new Key<>("AUTO STRING ERRORS", "");
 
-  public static final Key<Boolean> FENCE_TOGGLE         = new Key<>("Enable Fencing", true);
+  public static final Key<Integer> LL_EXPOSURE      = new Key<>("Exposure Setting", 0);
+  public static final Key<Boolean> LL_EXPOSURE_UP   = new Key<>("Increase Exposure", false);
+  public static final Key<Boolean> LL_EXPOSURE_DOWN = new Key<>("Decrease Exposure", false);
+  public static final Key<Boolean> LL_TOGGLE        = new Key<>("Use Limelight", true);
 
-  public static final Key<String>  STATE_HEADING        = new Key<>("Heading State", "");
-  public static final Key<String>  STATE_DRIVE          = new Key<>("Drive State", "Disabled");
+  public static final Key<Boolean> FENCE_TOGGLE     = new Key<>("Enable Fencing", true);
 
-  public static final Key<Double>  RUMBLE_DRIVER        = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
-  public static final Key<Double>  RUMBLE_OPERATOR      = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
+  public static final Key<String>  STATE_DRIVE      = new Key<>("Drive State", "Disabled");
 
-  public static final Key<Double>  BOTTOM_SHOOTER_SPEED = new Key<>("Bottom Shooter Speed", 0.0);
-  public static final Key<Double>  TOP_SHOOTER_SPEED    = new Key<>("Top Shooter Speed", 0.0);
+  public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
+  public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
+
+  public static void putFieldObject(String name, Pose2d pose)
+    {FIELD.getObject(name).setPose(pose);}
+
+  public static void putFieldObject(String name, Pose2d... poses)
+    {FIELD.getObject(name).setPoses(poses);}
+
+  public static void putFieldObject(String name, Translation2d point)
+    {FIELD.getObject(name).setPose(new Pose2d(point, Rotation2d.kZero));}
+
+  public static void putFieldPath(String name, Pose2d start, Pose2d end)
+  {
+    // Elastic only displays a trajectory for objects with 8+ poses, so we generate a bunch of intermediate poses to force it
+
+    double length = start.getTranslation().getDistance(end.getTranslation());
+
+    double sectionLength = length / 8;
+    var poses = IntStream
+      .range(0, 9)
+      .boxed()
+      .map(section -> start.interpolate(end, sectionLength * section))
+      .collect(Collectors.toList());
+
+    FIELD.getObject(name).setPoses(poses);
+  }
+
+  /**
+   * Publishes a Sendable to the table {@value IDConstants#dashTableName} <p>
+   * NOTE: Only publish each Sendable once, they will automatically be periodically updated 
+   * 
+   * @param name name to use for the published value
+   * @param value value to publish
+   */
+  public static void putSendable(String name, Sendable data) 
+  {
+    NetworkTable dataTable = table.getSubTable(name);
+
+    SendableBuilderImpl builder = new SendableBuilderImpl();
+    builder.setTable(dataTable);
+    SendableRegistry.publish(data, builder);
+    builder.startListeners();
+
+    dataTable.getEntry(".name").setString(name);
+  }
 
   /**
    * Publishes an int to the table {@value IDConstants#dashTableName}
@@ -136,6 +187,7 @@ public class PBDash
   {
     private T defaultVal;
     private GenericEntry ntEntry;
+    private T lastVal;
 
     /**
      * Construct a new Key
@@ -153,7 +205,10 @@ public class PBDash
     /** @return current value of the entry */
     @SuppressWarnings("unchecked")
     public T get()
-      {return (T)ntEntry.get().getValue();}
+    {
+      lastVal = (T)ntEntry.get().getValue();
+      return lastVal;
+    }
 
     /** @param value value to send to network */
     public void put(T value)
@@ -166,6 +221,16 @@ public class PBDash
     /** @return default value */
     public T defaultVal()
       {return defaultVal;}
+
+    /** @return {@code true} if the entry's value has changed since the last call to this or to {@link Key#get get()} */
+    @SuppressWarnings("unchecked")
+    public boolean hasChanged()
+    {
+      T newVal = (T)ntEntry.get().getValue();
+      boolean result = (lastVal == null) || (!lastVal.equals(newVal));
+      lastVal = newVal;
+      return result;
+    }
 
     /**
      * If the entry has changed from the default value, resets the value and returns true. <p>
@@ -197,7 +262,7 @@ public class PBDash
    */
   public static void initSwerveDisplay(Supplier<SwerveDriveState> swerveStateSup)
   {
-    SmartDashboard.putData
+    putSendable
     (
       "Swerve Drive", 
       new Sendable() 

@@ -38,6 +38,7 @@ public final class IDConstants
   public static final String foreLimelightName = "limelight-port";
   public static final String aftLimelightName = "limelight-stbd";
   public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int azimuthAIO, int altitudePWM, int altitudeAIO){}
+  public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int azimuthAIO, int altitudePWM, int altitudeAIO, String ntID){}
 
   /* Port Turret, [16..18], PWM/AIO [0] */
   public static final ShooterIDs portShooterIDs = new ShooterIDs
@@ -46,8 +47,9 @@ public final class IDConstants
     17,
     18,
     0,
-    0,
-    1
+    1,
+    1,
+    "Port"
   );
 
   /* Stbd Turret, [20..22], PWM/AIO [1] */
@@ -57,12 +59,14 @@ public final class IDConstants
     21,
     22,
     2,
-    1,
-    3
+    3,
+    3,
+    "Stbd"
   );
 
-  /* Feeder, [24] */
-  public static final int feederCAN = 24;
+  /* Feeder, [24..25] */
+  public static final int portFeederCan = 24;
+  public static final int stbdFeederCan = 25;
 
   /* Processor, [28..30] */
   public static final int spindexerCAN = 28;

@@ -1,19 +1,15 @@
 package frc.robot.constants;
 
-import static frc.robot.constants.FieldConstants.GeoFencing.robotRadiusExpanded;
-import static frc.robot.constants.FieldConstants.GeoFencing.robotRadiusInscribed;
-
 import java.util.function.BiPredicate;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.Robot.DriveState;
-import frc.robot.Robot.TargetPosition;
 import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.ObjectList;
 import frc.robot.util.controlTransmutation.geoFence.*;
 import frc.robot.util.controlTransmutation.restrictor.*;
+import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
 
 /**
  * Geometry data for "Rebuilt" field
@@ -72,16 +68,7 @@ public class FieldConstants
     /** Buffer zone around field walls, metres */
     public static final double wallBuffer = 0.5;
     /** Radius around field walls, metres */
-    public static final double wallRadius = 0.05;
-
-    /** Radius from robot centre in metres where geofence is triggered for slow movements */
-    public static final double robotRadiusInscribed = 0.42;
-    /** Radius from robot centre in metres where geofence is triggered for fast movements */
-    public static final double robotRadiusCircumscribed = 0.6;
-    /** Radius enclosing robot when extended in metres where geofence is triggered for most movement */
-    public static final double robotRadiusExpanded = 0.66;
-    /** Speed threshold at which the robot changes between radii, m/s */
-    public static final double robotSpeedThreshold = 1.5;
+    public static final double wallRadius = 0.2;
     
     /** Radius around hubs, metres */
     public static final double hubRadius = 0.05;
@@ -123,8 +110,8 @@ public class FieldConstants
     // Speed should be limited when traversing
     // Rotation must NOT be square when traversing
     /** Throttle limit when within bump zone */
-    public static final double bumpSpeedLimit = 0.6;
-    public static final double bumpRotationTolerance = 15;
+    public static final double bumpSpeedLimit = 0.4;
+    public static final double bumpRotationTolerance = 30;
     public static final double bumpWidth = 1.85;
     public static final double bumpYa = hubYa - bumpWidth;
     public static final double bumpYb = hubYb + bumpWidth;
@@ -147,8 +134,6 @@ public class FieldConstants
     }
     
     /* Trench Zone */
-    // Rotation MUST be within tollerance when traversing
-    // Climber and turret hoods MUST be stowed when traversing
     public static final double trenchWidth = 1.28;
     /** Depth of region around Trench bar to keep out of */
     public static final double trenchBarrierDepth = 0.8;
@@ -209,12 +194,6 @@ public class FieldConstants
     public static final BoxRestrictor depotBlueZone = new BoxRestrictor(0, fieldWidth - depotSpacing, depotDepth, fieldWidth - (depotSpacing + depotWidth));
     public static final BoxRestrictor depotRedZone  = new BoxRestrictor(fieldLength, depotSpacing, fieldLength - depotDepth, depotSpacing + depotWidth);
 
-    // Set up Attractors and Conditions for GeoFence objects
-    public static void configureAttractors(BiPredicate<TargetPosition, DriveState> checkTargetAndState)
-    {
-
-    }
-
     public static final ObjectList fieldStaticGeoFence = new ObjectList
     (
       bumpSB,
@@ -225,6 +204,10 @@ public class FieldConstants
       trenchColNB,
       trenchColSR,
       trenchColNR,
+      trenchSB,
+      trenchNB,
+      trenchSR,
+      trenchNR,
       hubBlue, 
       hubRed
     );
@@ -256,14 +239,6 @@ public class FieldConstants
 
     /** Minimum speed limit within a restrictor */
     public static final double minLocalSpeedLimit = 0.05;
-  }
-
-  public static final class AutoDrive 
-  {
-    /** Attractor minimum angle tolerance, degrees */
-    public static final double minAngleTolerance = 20;
-    /** Attractor maximum angle tolerance, degrees */
-    public static final double maxAngleTolerance = 60;
   }
 }
 

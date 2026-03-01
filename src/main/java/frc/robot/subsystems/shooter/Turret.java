@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import frc.robot.Robot;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
@@ -9,29 +10,48 @@ import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.sim.ChassisReference;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 /**
  * Interface class for a turret mechanism to control the azimuth of a shooter. <p>
  * Ensures rotation limits are respected to prevent damage to cables. <p>
- * Uses a TalonFX controlled motor, and a potentiometer for calibration. <p>
+ * Uses a TalonFXS controlled motor, and a potentiometer for calibration. <p>
  * Includes functionality to track a point on the field while the robot is in motion. <p>
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class Turret
 {
-  private final TalonFX m_Turret;
+  private final TalonFXS m_Turret;
   private final AnalogPotentiometer io_Azimuth;
+
+  private final DCMotorSim motorSim = new DCMotorSim
+  (
+    LinearSystemId.createDCMotorSystem
+      (DCMotor.getNeo550(1), 0.5, azimuthMotorRatio),
+    DCMotor.getNeo550(1)
+  );
+
+  private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
   private final Supplier<Target> targetSup;
 
-  private final MotionMagicVoltage request = new MotionMagicVoltage(0);
+  private double lastCalibration = 0;
+  private double potLastCycle = 0;
 
   /**
    * Creates a turret controller, to be managed by {@link Shooter} master-system
@@ -42,12 +62,18 @@ public class Turret
    */
   public Turret(int motorID, int potID, double potOffset, Supplier<Target> targetSup) 
   {
-    m_Turret = new TalonFX(motorID);
-    io_Azimuth = new AnalogPotentiometer(potID, TurretConstants.potRange, potOffset);
+    m_Turret = new TalonFXS(motorID);
+    io_Azimuth = new AnalogPotentiometer(potID, potRange, potOffset);
 
     this.targetSup = targetSup;
 
     m_Turret.getConfigurator().apply(turretConfig);
+
+    var simState = m_Turret.getSimState();
+    simState.MotorOrientation = ChassisReference.Clockwise_Positive;
+    simState.ExtSensorOrientation = ChassisReference.CounterClockwise_Positive;
+
+    potLastCycle = io_Azimuth.get();
 
     calibrate();
   }
@@ -58,15 +84,31 @@ public class Turret
    * @return the speed, in rotations per second
    */
   public double getSpeed()
-    {return m_Turret.getVelocity().getValueAsDouble();}
+  {
+    if (Robot.isSimulation())
+      return motorSim.getAngularVelocity().in(Units.RotationsPerSecond);
+    else 
+      return m_Turret.getVelocity().getValue().in(Units.RotationsPerSecond);
+  }
 
   /** 
    * Get the current azimuth (rotational position) of the Turret
    * 
    * @return the azimuth, in degrees
    */
+  @Logged(name = "Turret Azimuth Degrees")
   public double getAzimuth() 
-    {return m_Turret.getPosition().getValue().in(Units.Degrees);}
+  {
+    if (Robot.isSimulation())
+      return motorSim.getAngularPosition().in(Units.Degrees);
+    else 
+      return m_Turret.getPosition().getValue().in(Units.Degrees);
+  }
+  
+  /** @return turret degrees as reported by potentiometer */
+  @Logged(name = "Potentiometer Degrees")
+  public double getRawAzimuth()
+    {return io_Azimuth.get() / TurretConstants.azimuthPotRatio;}
 
   /**
    * Unwind the turret by driving it one rotation towards zero
@@ -88,9 +130,24 @@ public class Turret
    */
   public void calibrate()
   {
-    // If the turret is not moving, pull the value from the pot, convert to mechanism angle, and send to motor
-    if (Math.abs(m_Turret.getVelocity().getValueAsDouble()) < 0.1) // TODO Put this in constants
-      m_Turret.setPosition((io_Azimuth.get() * azimuthGearRatio) / 360.0);
+    double rawAzimuth = io_Azimuth.get();
+
+    // If the turret is not moving fast and has moved since last calibration,
+    // pull the value from the pot, convert to mechanism angle, and send to motor
+    if 
+    (
+      Robot.isReal() 
+      && Math.abs(getSpeed()) < calibrationSpeedLimit // Only calibrate when turret is moving slowly
+      && !MathUtil.isNear(rawAzimuth, lastCalibration, calibrationAngleLimit) // Only calibrate after moving ~10 degrees
+      && rawAzimuth >= -potSafeLimit // Discard extreme values that occur when sensor is disconnected
+      && rawAzimuth <=  potSafeLimit
+    )
+    {
+      m_Turret.setPosition((rawAzimuth + potLastCycle) / (2 * azimuthPotRatio  * 360.0));
+      lastCalibration = rawAzimuth;
+    }
+
+    potLastCycle = rawAzimuth;
   }
 
   /**
@@ -109,18 +166,21 @@ public class Turret
 
     double robotDegreesPerCycle = robotDegreesPerSecond / 50;
 
-    return Conversions.normaliseAngle(robotTarget - robotDegreesPerCycle, getAzimuth(), maxTurretAzimuth);
+    return robotTarget - robotDegreesPerCycle;
   }
 
-  public boolean safeToShoot(ChassisSpeeds swerveSpeeds)
+  private boolean safeToShoot(ChassisSpeeds swerveSpeeds)
   {
     return (getSpeed() + (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < TurretConstants.maxRPS;
   }
 
-  public boolean atAzimuth()
+  private boolean atAzimuth()
   {
     return Conversions.nearRotation(getAzimuth(), targetSup.get().azimuth, TurretConstants.azimuthTolerance);
   }
+
+  public boolean readyToShoot(ChassisSpeeds swerveSpeeds)
+    {return atAzimuth() && safeToShoot(swerveSpeeds);}
 
   /**
    * Intended to be called in {@link Shooter#periodic()} <p>
@@ -129,8 +189,9 @@ public class Turret
    * @param shooterPose the field-relative shooter pose
    * @param robotDegreesPerSecond the current rate of rotation of the drivebase
    */
-  public void update(Pose2d shooterPose, double robotDegreesPerSecond)
+  protected void update(Pose2d shooterPose, double robotDegreesPerSecond)
   {
+    calibrate();
     var target = targetSup.get();
     // Update the azimuth stored in the target based on the target state
     // Ensures that changing to manual mode doesn't cause sudden motion
@@ -142,6 +203,26 @@ public class Turret
       case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
     };
 
-    m_Turret.setControl(request.withPosition(target.azimuth / 360));
+    m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
   }   
+  
+  protected void updateSim()
+  {
+    var motorSimState = m_Turret.getSimState();
+    motorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+    // get the motor voltage of the TalonFX
+    var motorVoltage = motorSimState.getMotorVoltageMeasure();
+
+    // use the motor voltage to calculate new position and velocity
+    // using WPILib's DCMotorSim class for physics simulation
+    motorSim.setInputVoltage(motorVoltage.in(Units.Volts));
+    motorSim.update(0.020); // assume 20 ms loop time
+
+    // apply the new rotor position and velocity to the TalonFX;
+    // note that this is rotor position/velocity (before gear ratio), but
+    // DCMotorSim returns mechanism position/velocity (after gear ratio)
+    motorSimState.setRawRotorPosition(motorSim.getAngularPosition().times(azimuthMotorRatio));
+    motorSimState.setRotorVelocity(motorSim.getAngularVelocity().times(azimuthMotorRatio));
+  }
 }

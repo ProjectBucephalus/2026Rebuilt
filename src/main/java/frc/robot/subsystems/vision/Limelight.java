@@ -3,7 +3,7 @@ package frc.robot.subsystems.vision;
 import static frc.robot.constants.Constants.VisionConstants.trenchIDs;
 
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -13,12 +13,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.util.PBDash;
 
 /** 
  * Wrapper class to interface with Limelight camera running Photonvision 
@@ -32,8 +28,9 @@ public class Limelight
   private final PhotonPoseEstimator photonEstimator;
   private PhotonPipelineResult result;
   private boolean onTurret = false;
-  private Supplier<Rotation2d> turretAngleSup;
+  private DoubleSupplier turretAngleSup;
   private Transform2d robotToTurret;
+  private Transform2d turretToRobot;
   
 
   /**
@@ -47,8 +44,9 @@ public class Limelight
       structureToCamera = robotToCamera;
       photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
       
-      turretAngleSup = () -> Rotation2d.kZero;
+      turretAngleSup = () -> 0;
       robotToTurret = Transform2d.kZero;
+      turretToRobot = Transform2d.kZero;
       onTurret = false;
     }
 
@@ -60,11 +58,12 @@ public class Limelight
   * @param turretAngleSup Supplier for the current robot-relative azimuth of the turret, degrees
   * @param robotToTurret Transform2d from robot-centre to turret-centre
   */
-  public Limelight(String name, Transform3d turretToCamera, Supplier<Rotation2d> turretAngleSup, Transform2d robotToTurret) 
+  public Limelight(String name, Transform3d turretToCamera, DoubleSupplier turretAngleSup, Transform2d robotToTurret) 
   {
     this.camera = new PhotonCamera(name);
     this.turretAngleSup = turretAngleSup;
     this.robotToTurret = robotToTurret;
+    turretToRobot = robotToTurret.inverse();
     structureToCamera = turretToCamera;
     photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
     onTurret = true;
@@ -120,15 +119,15 @@ public class Limelight
   {return onTurret;}
 
   public Rotation2d getTurretAngle()
-  {return turretAngleSup.get();}
+  {return Rotation2d.fromDegrees(turretAngleSup.getAsDouble());}
   
   /** @return Transform to convert FROM ROBOT to Turret, including current azimuth */
   public Transform2d getRobotToTurret()
-  {return new Transform2d(robotToTurret.getTranslation(), robotToTurret.getRotation().minus(turretAngleSup.get()));}
+  {return new Transform2d(robotToTurret.getTranslation().rotateBy(getTurretAngle()), robotToTurret.getRotation().plus(getTurretAngle()));}
 
   /** @return Transform to convert FROM TURRET to Robot, including current azimuth */
   public Transform2d getTurretToRobot()
-  {return new Transform2d(robotToTurret.getTranslation().unaryMinus(), robotToTurret.getRotation().plus(turretAngleSup.get()).unaryMinus());}
+  {return new Transform2d(turretToRobot.getTranslation().rotateBy(getTurretAngle().unaryMinus()), turretToRobot.getRotation().minus(getTurretAngle()));}
 
   /** 
    * Intended to be called in {@link Vision#periodic()} <p>

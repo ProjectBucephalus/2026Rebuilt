@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.Utils;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -14,6 +15,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.util.PBDash;
 import static frc.robot.constants.Constants.VisionConstants.*;
 
@@ -27,11 +29,14 @@ public class Vision extends SubsystemBase
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
   /** Timestamp of last good pose estimate, seconds, -1 on initialisation */
+  @Logged
   double lastGoodPose = -1; 
-  /** Time since last good pose estimate, seconds */
+  /** Time since last good pose estimate, seconds */ // TODO Remove this or lastGoodPose? don't need same measurement in two perspectives
+  @Logged
   double timeSince = 0; 
   /** True only while there is a recent valid pose estimate */
   boolean haveLocalisation = false;
+  @Logged
   boolean usingVision = true;
 
   private int pipelineIndex = PBDash.LL_EXPOSURE.defaultVal();
@@ -65,11 +70,20 @@ public class Vision extends SubsystemBase
     PBDash.LL_EXPOSURE.put(pipelineIndex);
   }
 
-  public boolean getPoseFromVision()
+  /** 
+   * @return {@code true} if localisation can be trusted (or simulated)
+   * <li>    {@code false} if running on odometry only
+   */
+  @Logged
+  public boolean hasLocalisation()
   {
-    return haveLocalisation;
+    return haveLocalisation || Robot.isSimulation();
   }
 
+  /**
+   * Accepts a given robot pose as if it were a valid localisation estimate
+   * @param pose Robot pose in field space, ignores rotation
+   */
   public void setPose(Pose2d pose)
   {
     lastGoodPose = Timer.getTimestamp();
@@ -90,24 +104,17 @@ public class Vision extends SubsystemBase
         ll.update();
 
         // Pose estimate returns Optional, so may or may not be present
-        var maybeEst = ll.getPhotonEst();
-
-        if (maybeEst.isPresent()) 
-        {
-          var est = maybeEst.get(); 
-          // Reject update if it contains no tags, or if the robot is rotating too fast
-          boolean useUpdate = (est.targetsUsed.size() != 0 && Math.abs(rpsSup.get()) < 2.0);
-          
-          if (useUpdate) 
+        ll.getPhotonEst().ifPresent(est -> {
+          // Reject update if it contains no tags, or if the robot is rotating too fast         
+          if (est.targetsUsed.size() != 0 && Math.abs(rpsSup.get()) < 2.0) 
           {
             double avgTagDist = 
               est.targetsUsed
                  .stream()
                  .collect(Collectors.averagingDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm()));
 
-            // The more tags seen, the more trustworthy the estimate is
+            // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
             double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-
             double linearStdDev = linearStdDevBaseline * stdDevFactor;
             double rotStdDev = rotStdDevBaseline * stdDevFactor;
 
@@ -125,9 +132,10 @@ public class Vision extends SubsystemBase
             // Send pose estimate to consumer
             estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
           }
-        } 
+        });
       }
-    } else 
+    } 
+    else 
     {
       if (usingVision)
       {
@@ -136,12 +144,11 @@ public class Vision extends SubsystemBase
         lastGoodPose = -1;
       }
     }
+
     // If no valid pose is found, update time since last pose
     timeSince = Timer.getTimestamp() - lastGoodPose;
     if (lastGoodPose == -1 || timeSince >= visionFrequencyThreshold) 
-    {
       haveLocalisation = false; 
-    }
   }
 
   @FunctionalInterface

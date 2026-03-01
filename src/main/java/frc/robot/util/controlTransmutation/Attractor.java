@@ -4,7 +4,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
 
-import static frc.robot.constants.FieldConstants.AutoDrive.*;
+import static frc.robot.constants.Constants.ControlConstants.minAngleTolerance;
+import static frc.robot.constants.Constants.ControlConstants.maxAngleTolerance;
 
 /** 
  * Guides the robot towards a point along a given heading 
