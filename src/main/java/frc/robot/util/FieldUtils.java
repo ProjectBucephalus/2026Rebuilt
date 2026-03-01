@@ -21,9 +21,9 @@ public class FieldUtils
   // timer function variables
   private static double autoStart = 0;            //variable to save system time at start of auto
   private static double teleStart = 0;            //variable to save system time at start of teleop
-  private static double MAX_GAME_TIME = 150000;   //match length in millis
-  private static double AUTO_TIME = 15000;        //Auto length in millis
-  private static double TELE_TIME = 135000;       //Teleop length in millis
+  private static double MAX_GAME_TIME = 165;   //match length in millis
+  private static double AUTO_TIME = 15;        //Auto length in millis
+  private static double TELE_TIME = 150;       //Teleop length in millis
 
   /**
    * Checks whether we are on the red alliance <p>
@@ -212,14 +212,23 @@ public class FieldUtils
   /**
    * Timer Functions
    */
+  
+   /**
+    * internal wrapper for system time to return in seconds instead of millis 
+    * @return current system time in seconds.
+    */
+  public static double currentTime()
+  {
+    return (double)System.currentTimeMillis()/1000;
+  }
 
   /**
    * Called at the start of auto to mark the beginning of the match
    *  
-   */
+   */ 
   public static void startAuto()
   {
-    autoStart = System.currentTimeMillis();
+    autoStart = currentTime();
   }
 
   /**
@@ -228,122 +237,7 @@ public class FieldUtils
    */
   public static void startTele()
   {
-    teleStart = System.currentTimeMillis();
-  }
-
-  /**
-   * Gets game time elapsed in milliseconds.
-   * 
-   * @return the number of milliseconds since the startAuto() call,
-   * returns zero if startAuto() has not been called or the match is over.
-   */
-  public static double getGameTimeElapsed()
-  {
-    double currentTime = System.currentTimeMillis();
-    if ((currentTime < autoStart) || (currentTime > (autoStart + MAX_GAME_TIME)))
-    {
-      return 0;
-    }
-    else
-    {
-      return currentTime-autoStart;
-    }
-  }
-
-  /**
-   * Gets the number of milliseconds remaining in the current match.
-   * 
-   * @return the time remaining in the current match, in milliseconds.
-   * Returns zero if startAuto has not been called or the match is over.
-   */
-  public static double getGameTimeRemaining()
-  {
-    double currentTime = System.currentTimeMillis();
-    if ((currentTime < autoStart) || (currentTime > (autoStart + MAX_GAME_TIME)))
-    {
-      return 0;
-    }
-    else
-    {
-      return MAX_GAME_TIME - (currentTime - autoStart);
-    }
-  }
-
-  /**
-   * Gets the time elapsed in the current autonomous period.
-   * NB while in auto should be identical to getGameTimeElapsed()
-   * 
-   * @return time elapsed since the startAuto() call, in milliseconds.
-   * Will return zero if startAuto() has not been called, and 15000 (15 secs) if auto is finished.
-   */
-  public static double getAutoTimeElapsed()
-  {
-    double currentTime = System.currentTimeMillis();
-    if (currentTime < autoStart)
-    {
-      return 0;
-    }
-    else
-    {
-      return Math.min(currentTime - autoStart, AUTO_TIME);
-    }
-  }
-
-  /**
-   * Gets the time remaining in the current autonomous period.
-   * 
-   * @return the time remaining in the current auto, in milliseconds.
-   * Will return zero if startAuto() has not been called, or if auto is finished.
-   */
-  public static double getAutoTimeRemaining()
-  {
-    double currentTime = System.currentTimeMillis();
-    if ((currentTime < autoStart) || (currentTime > autoStart + AUTO_TIME))
-    {
-      return 0;
-    }
-    else
-    {
-      return AUTO_TIME - (currentTime - autoStart);
-    }
-  }
-
-  /**
-   * Gets the time elapsed during the current teleoperated period.
-   * 
-   * @return the time elapsed since the startTele() call, in milliseconds.
-   * Will return zero if startTele() has not been called, or the match is over.
-   */
-  public static double getTeleTimeElapsed()
-  {
-    double currentTime = System.currentTimeMillis();
-    if ((currentTime < teleStart) || (currentTime > (teleStart + TELE_TIME)))
-    {
-      return 0;
-    }
-    else
-    {
-      return currentTime - teleStart;
-    }
-  }
-
-  /**
-   * Gets the time remaining in the current teleoperated period.
-   * 
-   * @return the time remaining in the current teleop, in milliseconds.
-   * Will return zero if startTele() has not been called, or the match is over.
-   */
-  public static double getTeleTimeRemaining()
-  {
-    double currentTime = System.currentTimeMillis();
-    if ((currentTime < teleStart) || (currentTime > (teleStart + TELE_TIME)))
-    {
-      return 0;
-    }
-    else
-    {
-      return TELE_TIME - (currentTime - teleStart);
-    }
+    teleStart = currentTime();
   }
 
   /**
@@ -352,9 +246,17 @@ public class FieldUtils
    * @return the number of seconds since the startAuto() call,
    * returns zero if startAuto() has not been called or the match is over.
    */
-  public static double getGameTimeElapsedSecs()
+  public static double getGameTimeElapsed()
   {
-    return getGameTimeElapsed() / 1000;
+    double timeNow = currentTime();
+    if ((timeNow < autoStart) || (timeNow > (autoStart + MAX_GAME_TIME)))
+    {
+      return 0;
+    }
+    else
+    {
+      return timeNow-autoStart;
+    }
   }
 
   /**
@@ -363,21 +265,37 @@ public class FieldUtils
    * @return the time remaining in the current match, in seconds.
    * Returns zero if startAuto has not been called or the match is over.
    */
-  public static double getGameTimeRemainingSecs()
+  public static double getGameTimeRemaining()
   {
-    return getGameTimeRemaining() / 1000;
+    double timeNow = currentTime();
+    if ((timeNow < autoStart) || (timeNow > (autoStart + MAX_GAME_TIME)))
+    {
+      return 0;
+    }
+    else
+    {
+      return MAX_GAME_TIME - (timeNow - autoStart);
+    }
   }
 
   /**
    * Gets the time elapsed in the current autonomous period.
-   * NB while in auto should be identical to getGameTimeElapsedSecs()
+   * NB while in auto should be identical to getGameTimeElapsed()
    * 
    * @return time elapsed since the startAuto() call, in seconds.
    * Will return zero if startAuto() has not been called, and 15 if auto is finished.
    */
-  public static double getAutoTimeElapsedSecs()
+  public static double getAutoTimeElapsed()
   {
-    return getAutoTimeElapsed() / 1000;
+    double timeNow = currentTime();
+    if (timeNow < autoStart)
+    {
+      return 0;
+    }
+    else
+    {
+      return Math.min(timeNow - autoStart, AUTO_TIME);
+    }
   }
 
   /**
@@ -386,9 +304,17 @@ public class FieldUtils
    * @return the time remaining in the current auto, in seconds.
    * Will return zero if startAuto() has not been called, or if auto is finished.
    */
-  public static double getAutoTimeRemainingSecs()
+  public static double getAutoTimeRemaining()
   {
-    return getAutoTimeRemaining() / 1000;
+    double timeNow = currentTime();
+    if ((timeNow < autoStart) || (timeNow > autoStart + AUTO_TIME))
+    {
+      return 0;
+    }
+    else
+    {
+      return AUTO_TIME - (timeNow - autoStart);
+    }
   }
 
   /**
@@ -397,9 +323,17 @@ public class FieldUtils
    * @return the time elapsed since the startTele() call, in seconds.
    * Will return zero if startTele() has not been called, or the match is over.
    */
-  public static double getTeleTimeElapsedSecs()
+  public static double getTeleTimeElapsed()
   {
-    return getTeleTimeElapsed() / 1000;
+    double timeNow = currentTime();
+    if ((timeNow < teleStart) || (timeNow > (teleStart + TELE_TIME)))
+    {
+      return 0;
+    }
+    else
+    {
+      return timeNow - teleStart;
+    }
   }
 
   /**
@@ -408,8 +342,17 @@ public class FieldUtils
    * @return the time remaining in the current teleop, in seconds.
    * Will return zero if startTele() has not been called, or the match is over.
    */
-  public static double getTeleTimeRemainingSecs()
+  public static double getTeleTimeRemaining()
   {
-    return getTeleTimeRemaining() / 1000;
+    double timeNow = currentTime();
+    if ((timeNow < teleStart) || (timeNow > (teleStart + TELE_TIME)))
+    {
+      return 0;
+    }
+    else
+    {
+      return TELE_TIME - (timeNow - teleStart);
+    }
   }
+  
 }
