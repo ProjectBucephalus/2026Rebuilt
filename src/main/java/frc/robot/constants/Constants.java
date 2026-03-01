@@ -343,6 +343,9 @@ public final class Constants
     /** Distance to Speed conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
     {{
+      put(0.0, 0.0);
+      put(0.8, 0.0);
+      put(0.81, 23.75); // below min range
       put(1.01, 23.75); // min range
       put(1.7, 27.75); 
       put(1.8, 28.3); // max range while at 0 degrees hood + staying below lights
@@ -356,6 +359,8 @@ public final class Constants
     /** Distance to Speed conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap()
     {{
+      put(0.0, 0.0);
+      put(1.0, 0.0);
       put(1.2, 16.0);
       put(2.0575, 22.6); 
       put(2.915, 27.8); // max range while at 0 degrees hood + staying below lights
@@ -419,7 +424,7 @@ public final class Constants
     public static final class IntakeConstants 
     {
       /** Default speed of intake when running, [-1..1] */
-      public static final double intakeSpeed = 1.0;
+      public static final double intakeSpeed = 0.65;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static
@@ -443,8 +448,9 @@ public final class Constants
 
       public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = -0.35;
+      public static final double minRotations = -0.332;
       public static final double maxRotations = 0.0;
+      public static final double homeRotations = 0.03;
 
       public static final double extendedTolerance = 0.05;
 
@@ -459,13 +465,13 @@ public final class Constants
         extensionConfig.Feedback.SensorToMechanismRatio = extensionRatio;
 
         extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.6;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.0;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.5;
 
         extensionConfig.Slot0.kS = 0.2;
         extensionConfig.Slot0.kG = 0.47;
         extensionConfig.Slot0.kV = 0.0;
         extensionConfig.Slot0.kA = 0.0;
-        extensionConfig.Slot0.kP = 50.0;
+        extensionConfig.Slot0.kP = 60.0;
         extensionConfig.Slot0.kI = 3.0;
         extensionConfig.Slot0.kD = 0.0;
         extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
@@ -478,7 +484,7 @@ public final class Constants
         extensionConfig.Slot1.kD = 0.0;
         extensionConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
 
-        extensionConfig.CustomParams.CustomParam0 = 30; // Current draw read as "stall" by the limited motor system
+        extensionConfig.CustomParams.CustomParam0 = 90; // Current draw read as "stall" by the limited motor system
       };
     }
   }   

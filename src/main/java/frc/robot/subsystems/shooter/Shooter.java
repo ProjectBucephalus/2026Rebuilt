@@ -200,7 +200,7 @@ public class Shooter extends SubsystemBase
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
 
-    boolean active = target.state == TargetState.Manual ? !activeSup.getAsBoolean() : activeSup.getAsBoolean();
+    boolean active = activeSup.getAsBoolean();
 
     flywheels.setSpeed(active ? target.speed : idleSpeed);
 

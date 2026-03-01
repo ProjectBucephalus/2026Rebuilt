@@ -42,6 +42,7 @@ public class LimitedMotor extends SubsystemBase
    * @param limitIO DIO-ID of home limit-sensor. Set to {@code -1} to use motor stall instead of limit switch
    * @param minRotations Minimum position in mechanism rotations
    * @param maxRotations Maximum position in mechanism rotations
+   * @param homeRotations Sensor trigger position in mechanism rotations
    * @param configs Motor configuration object, uses Slot1 if present when not calibrated <br>
    *                {@code CustomParam0} is used for the stall current value if using motor stall
    */
@@ -56,7 +57,7 @@ public class LimitedMotor extends SubsystemBase
 
     m_Limited.getConfigurator().apply(configs);
 
-    m_Limited.setPosition(maxRotations);
+    m_Limited.setPosition(minRotations);
 
     if (limitIO == -1)
       limit = new StallLimit(configs.CustomParams.CustomParam0);

@@ -109,7 +109,7 @@ public class Robot extends TimedRobot
     IDConstants.portShooterIDs,
     ShooterConstants.TurretConstants.portPotOffset,
     true,
-    driver.rightBumper().negate()
+    driver.rightBumper().negate().or(autoModeTrigger.negate().and(driver.leftBumper()))
   );
   
   @Logged(name = "Stbd Shooter")
@@ -120,7 +120,7 @@ public class Robot extends TimedRobot
     IDConstants.stbdShooterIDs,
     ShooterConstants.TurretConstants.stbdPotOffset,
     false,
-    driver.rightBumper().negate()
+    driver.rightBumper().negate().or(autoModeTrigger.negate().and(driver.leftBumper()))
   );
   
   @Logged(name = "Vision")
@@ -237,16 +237,24 @@ public class Robot extends TimedRobot
       )
     );
 
-    driver.leftBumper()
-      .or(new Trigger(s_PortShooter::shootReady)
-        .and(s_StbdShooter::shootReady))
-      .onTrue(s_Hopper.runSpindexerCommand())
+    driver.x().onTrue(new HeadingLockedDrive(s_Swerve, driverStick::stickOutput, Rotation2d.kCCW_90deg, Rotation2d.kZero, () -> swerveState.Pose));
+    driver.b().onTrue(new HeadingLockedDrive(s_Swerve, driverStick::stickOutput, Rotation2d.kCW_90deg, Rotation2d.kZero, () -> swerveState.Pose));
+
+    Trigger shootReadyTrigger = new Trigger(s_PortShooter::shootReady)
+        .and(s_StbdShooter::shootReady);
+
+    driver.leftBumper().or(shootReadyTrigger)
       .whileTrue
       (
-        s_Feeder.run(() -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())))
-      )
-      .onFalse(runOnce(() -> s_Feeder.setSpeed(0))
-        .andThen(s_Hopper.stopSpindexerCommand()));
+        s_Feeder.runEnd(
+          () -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())),
+          () -> s_Feeder.setSpeed(0)
+          )
+      );
+
+    driver.leftBumper().or(shootReadyTrigger)
+      .onTrue(s_Hopper.runSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
 
     driver.leftBumper().whileTrue(s_PortShooter.setFlySpeedCommand(30));
 
@@ -466,6 +474,7 @@ public class Robot extends TimedRobot
   {
     updateSwerveState();
     CommandScheduler.getInstance().run();
+    PBDash.putBool("Shooter Active", autoModeTrigger.negate().and(driver.leftBumper()).getAsBoolean());
   }
 
   @Override
