@@ -241,14 +241,12 @@ public class Robot extends TimedRobot
 
     new Trigger(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
+      .onTrue(s_Hopper.runSpindexerCommand())
       .whileTrue
       (
-        s_Feeder.runEnd
-        (
-          () -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())),
-          () -> s_Feeder.setSpeed(0)
-        )
-      );
+        s_Feeder.run(() -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())))
+      )
+      .onFalse(runOnce(() -> s_Feeder.setSpeed(0)).alongWith(s_Hopper.stopSpindexerCommand()));
 
     bumpNB.asTrigger()
       .or(bumpSB.asTrigger())
@@ -272,9 +270,9 @@ public class Robot extends TimedRobot
       .onTrue(s_Hopper.extendCommand())
       .whileTrue(s_Hopper.runIntakeCommand().onlyIf(s_Hopper::extended));
       
-    driver.leftBumper()
+/*    driver.leftBumper()
       .onTrue(s_Hopper.runSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand());
+      .onFalse(s_Hopper.stopSpindexerCommand()); */
 
     driver.povUp()
       .onTrue(s_Hopper.runIntakeCommand())
@@ -318,12 +316,12 @@ public class Robot extends TimedRobot
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualExtensionAmount));
 
     operator.leftBumper()
-      .onTrue(s_Hopper.reverseSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand());
+      .onTrue(s_Hopper.reverseSpindexerCommand().alongWith(s_Feeder.run((() -> s_Feeder.setSpeed(-20)))))
+      .onFalse(s_Hopper.stopSpindexerCommand().alongWith(s_Feeder.run((() -> s_Feeder.setSpeed(0)))));
 
-    operator.leftTrigger()
+/*    operator.leftTrigger()
       .onTrue(s_Hopper.runSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand());
+      .onFalse(s_Hopper.stopSpindexerCommand()); */
 
     // TODO debug left trigger
 
