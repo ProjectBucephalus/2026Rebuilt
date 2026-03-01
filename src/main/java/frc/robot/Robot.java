@@ -504,7 +504,6 @@ public class Robot extends TimedRobot
   public void teleopInit() 
   {
     FieldUtils.startTele();
-    if (autoCommand != null) autoCommand.cancel();
     autoCommand.ifPresent(Command::cancel);
     autoMode = false;
 
