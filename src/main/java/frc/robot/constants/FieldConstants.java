@@ -66,9 +66,9 @@ public class FieldConstants
     public static final double fieldWest = 0;
 
     /** Buffer zone around field walls, metres */
-    public static final double wallBuffer = 0.5;
+    public static final double wallBuffer = 1.5;
     /** Radius around field walls, metres */
-    public static final double wallRadius = 0.2;
+    public static final double wallRadius = 0.3;
     
     /** Radius around hubs, metres */
     public static final double hubRadius = 0.05;
@@ -116,7 +116,7 @@ public class FieldConstants
     public static final double bumpYa = hubYa - bumpWidth;
     public static final double bumpYb = hubYb + bumpWidth;
 
-    public static final double bumpDepth = 1.13;
+    public static final double bumpDepth = 1.0;
     public static final double bumpXa = hubCentreOffset + bumpDepth/2;
     public static final double bumpXb = hubCentreOffset - bumpDepth/2;
 

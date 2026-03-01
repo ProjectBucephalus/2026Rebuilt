@@ -195,7 +195,7 @@ public class Shooter extends SubsystemBase
     // Update flywheel speed. If in manual mode, don't change it so that any manually-set speed is maintained
     target.speed = switch (target.state)
     {
-      case Manual -> target.speed;
+      case Manual -> Interpolation.flywheelSpeedHub.get(target.distance);
       case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };

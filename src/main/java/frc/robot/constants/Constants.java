@@ -419,7 +419,7 @@ public final class Constants
     public static final class IntakeConstants 
     {
       /** Default speed of intake when running, [-1..1] */
-      public static final double intakeSpeed = 0.65;
+      public static final double intakeSpeed = 1.0;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static

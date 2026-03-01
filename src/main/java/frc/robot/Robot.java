@@ -208,9 +208,7 @@ public class Robot extends TimedRobot
     FieldUtils.activateAllianceFencing();
     FieldObject.setRobotRadiusSup
     (() -> 
-      Math.hypot(swerveState.Speeds.vxMetersPerSecond, swerveState.Speeds.vyMetersPerSecond) >= SwerveConstants.robotSpeedThreshold ? 
-      SwerveConstants.robotRadiusCircumscribed : 
-      SwerveConstants.robotRadiusInscribed
+      SwerveConstants.robotRadiusExpanded
     );
     FieldObject.setRobotPosSup(this::getTranslation);
     
@@ -239,14 +237,18 @@ public class Robot extends TimedRobot
       )
     );
 
-    new Trigger(s_PortShooter::shootReady)
-      .and(s_StbdShooter::shootReady)
+    driver.leftBumper()
+      .or(new Trigger(s_PortShooter::shootReady)
+        .and(s_StbdShooter::shootReady))
       .onTrue(s_Hopper.runSpindexerCommand())
       .whileTrue
       (
         s_Feeder.run(() -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())))
       )
-      .onFalse(runOnce(() -> s_Feeder.setSpeed(0)).alongWith(s_Hopper.stopSpindexerCommand()));
+      .onFalse(runOnce(() -> s_Feeder.setSpeed(0))
+        .andThen(s_Hopper.stopSpindexerCommand()));
+
+    driver.leftBumper().whileTrue(s_PortShooter.setFlySpeedCommand(30));
 
     bumpNB.asTrigger()
       .or(bumpSB.asTrigger())
