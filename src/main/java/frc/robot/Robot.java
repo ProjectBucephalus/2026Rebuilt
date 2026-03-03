@@ -234,7 +234,14 @@ public class Robot extends TimedRobot
 
     new Trigger(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
-      .whileTrue(s_Indexer.runCommand());
+      .whileTrue
+      (
+        s_Feeder.runEnd
+        (
+          () -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())),
+          () -> s_Feeder.setSpeed(0)
+        )
+      );
 
     bumpNB.asTrigger()
       .or(bumpSB.asTrigger())
@@ -259,7 +266,8 @@ public class Robot extends TimedRobot
       .whileTrue(s_Hopper.runIntakeCommand().onlyIf(s_Hopper::extended));
       
     driver.leftBumper()
-      .whileTrue(s_Indexer.runCommand());
+      .onTrue(s_Hopper.runSpindexerCommand())
+      .onFalse(s_Hopper.stopSpindexerCommand());
 
     driver.povUp()
       .onTrue(s_Hopper.runIntakeCommand())
