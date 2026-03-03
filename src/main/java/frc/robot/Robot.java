@@ -147,20 +147,13 @@ public class Robot extends TimedRobot
   @Logged(name = "Hopper")
   private final Hopper s_Hopper = new Hopper
   (
-    IDConstants.spindexerCAN,
     IDConstants.intakeCAN, 
     IDConstants.extensionCAN, 
     -1 //IDConstants.extensionLimitDIO
   );
-  
-  @Logged(name = "Feeder")
-  private final BiMotor s_Feeder = new BiMotor
-  (
-    IDConstants.portFeederCan,
-    IDConstants.stbdFeederCan,
-    FeederConstants.feederConfig,
-    false
-  );
+
+  @Logged(name = "Indexer")
+  private final Indexer s_Indexer = new Indexer();
 
   /* Rumble */
   private final RumbleRequester io_driverRight   = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
