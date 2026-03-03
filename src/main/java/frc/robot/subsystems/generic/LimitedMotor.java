@@ -83,6 +83,15 @@ public class LimitedMotor extends SubsystemBase
   }
 
   /**
+   * Sets the target point for the motor, ignoring limits
+   * @param target mechanism rotations
+   */
+  public void forceSetTarget(double target)
+  {
+    m_Limited.setControl(request.withPosition(target).withSlot(0));
+  }
+
+  /**
    * Creates a command to set the target point for the motor <p>
    * NOTE: The provided value is only evaluated when the command is created
    * @param target mechanism rotations
@@ -98,7 +107,7 @@ public class LimitedMotor extends SubsystemBase
    * @return the Command
    */
   public Command adjustTargetCommand(DoubleSupplier shiftSup) 
-    {return run(() -> setTarget(getAngle() + shiftSup.getAsDouble()));}
+    {return run(() -> forceSetTarget(getAngle() + shiftSup.getAsDouble()));}
 
   @Override
   public void periodic() 

@@ -30,9 +30,6 @@ public class Target
 
   /** The currently active {@link TargetState} */
   public TargetState state; 
-  /** The target altitude, used for the {@link TargetState#Manual Manual} state, and for storing the last-calculated target in the other two states */
-  @Logged(name = "Target Altitude Degrees")
-  public double altitude = 0; 
   /** The target azimuth, used for the {@link TargetState#Manual Manual} state, and for storing the last-calculated target in the other two states */
   @Logged(name = "Target Azimuth Degrees")
   public double azimuth = 0; 

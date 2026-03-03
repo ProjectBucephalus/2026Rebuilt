@@ -48,8 +48,6 @@ public class Shooter extends SubsystemBase
   private final Supplier<SwerveDriveState> swerveStateSup;
   private SwerveDriveState swerveState;
 
-  private final BooleanSupplier activeSup;
-
   /** Current active target for the shooter */
   @Logged(name = "Target")
   private Target target = new Target(TargetState.Manual);
@@ -74,34 +72,21 @@ public class Shooter extends SubsystemBase
     Transform2d robotToShooter,
     ShooterIDs idBlock,
     double azimuthOffset,
-    boolean invertedHood,
-    BooleanSupplier activeSup
+    boolean invertedHood
   ) 
   {
     this.swerveStateSup = swerveStateSup;
     this.swerveState = swerveStateSup.get();
     this.shooterOffset = robotToShooter;
-    this.activeSup = activeSup;
 
     baseTargetOffset = new Translation2d(0, Math.copySign(ShooterConstants.targetPointOffset, robotToShooter.getY()));
     ntId = idBlock.ntID();
 
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, this::getTarget);
-    hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, this::getTarget);
+    hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, target);
 
     target.azimuth = turret.getAzimuth();
-  }
-
-  /**
-   * Sets the manual position of the turret
-   * @param azimuth Turret azimuth, degrees
-   * @param altitude Hood altitude, degrees
-   */
-  public void setManual(double azimuth, double altitude)
-  {
-    target.azimuth = azimuth;
-    target.altitude = altitude;
   }
 
   /**
@@ -149,11 +134,24 @@ public class Shooter extends SubsystemBase
   public boolean shootReady()
   {
     return 
-      activeSup.getAsBoolean()
-      && turret.readyToShoot(swerveState.Speeds)
+      turret.readyToShoot(swerveState.Speeds)
       && hood.atAltitude()
       && flywheels.atSpeed();
   }
+
+  public void revFlywheels() 
+  {
+    double speed = switch (target.state)
+    {
+      case Manual -> Interpolation.flywheelSpeedHub.get(target.distance);
+      case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
+      case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
+    };
+    flywheels.setSpeed(speed);
+  }
+
+  public void idleFlywheels()
+    {flywheels.setSpeed(idleSpeed);}
 
   private void telemetrise()
   {
@@ -192,21 +190,8 @@ public class Shooter extends SubsystemBase
       case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
     };
 
-    // Update flywheel speed. If in manual mode, don't change it so that any manually-set speed is maintained
-    target.speed = switch (target.state)
-    {
-      case Manual -> Interpolation.flywheelSpeedHub.get(target.distance);
-      case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
-      case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
-    };
-
-    boolean active = activeSup.getAsBoolean();
-
-    flywheels.setSpeed(active ? target.speed : idleSpeed);
-
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
-    hood.update(shooterPose);
-    flywheels.update();
+    hood.update();
 
     telemetrise();
   }

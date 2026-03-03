@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static frc.robot.constants.FieldConstants.*;
+
+import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
 
@@ -188,16 +190,12 @@ public class FieldUtils
       return pos.getX() < blueStartLine.getX() + robotRadiusInscribed;
   }
 
-  /**
-   * Checks if the provided position is within our alliance zone
-   * 
-   * @param pos Position to check against
-   * @return If the position is within the alliance zone
-   */
-  public static boolean inLeftHalf(Translation2d pos) 
+  public static Translation2d getClosestPassPoint(Translation2d pos)
   {
-    return isRedAlliance() 
+    boolean inLeftHalf = isRedAlliance() 
       ? pos.getY() < fieldCentre.getY()
       : pos.getY() > fieldCentre.getY();
+
+    return inLeftHalf ? ControlConstants.leftFerryTarget.get() : ControlConstants.rightFerryTarget.get();
   }
 }

@@ -85,10 +85,13 @@ public class Robot extends TimedRobot
   /* State */
   private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
-  private boolean autoMode = false;
+
   private boolean nudging = true;
   private boolean debugLock = true;
-  private final Trigger autoModeTrigger = new Trigger(() -> autoMode);
+
+  private boolean autoAim = true;
+  private boolean autoPass = false;
+  private boolean autoShoot = true;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -96,7 +99,7 @@ public class Robot extends TimedRobot
 
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(0);
-  private final CommandXboxController operator = new CommandXboxController(1);
+  private final CommandXboxController debug = new CommandXboxController(1);
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
@@ -108,8 +111,7 @@ public class Robot extends TimedRobot
     ShooterConstants.portShooterOffset,
     IDConstants.portShooterIDs,
     ShooterConstants.TurretConstants.portPotOffset,
-    true,
-    driver.rightBumper().negate().or(autoModeTrigger.negate().and(driver.leftBumper()))
+    true
   );
   
   @Logged(name = "Stbd Shooter")
@@ -119,8 +121,7 @@ public class Robot extends TimedRobot
     ShooterConstants.stbdShooterOffset,
     IDConstants.stbdShooterIDs,
     ShooterConstants.TurretConstants.stbdPotOffset,
-    false,
-    driver.rightBumper().negate().or(autoModeTrigger.negate().and(driver.leftBumper()))
+    false
   );
   
   @Logged(name = "Vision")
@@ -158,8 +159,8 @@ public class Robot extends TimedRobot
   /* Rumble */
   private final RumbleRequester io_driverRight   = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
   private final RumbleRequester io_driverLeft    = new RumbleRequester(driver, RumbleType.kLeftRumble, PBDash.RUMBLE_DRIVER::get);
-  private final RumbleRequester io_operatorRight  = new RumbleRequester(operator, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
-  private final RumbleRequester io_operatorLeft   = new RumbleRequester(operator, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
+  private final RumbleRequester io_operatorRight  = new RumbleRequester(debug, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
+  private final RumbleRequester io_operatorLeft   = new RumbleRequester(debug, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
@@ -218,38 +219,57 @@ public class Robot extends TimedRobot
   /** Sets primary control bindings */
   private void bindControls()
   {
-    /* Default Commands */
-    s_Swerve.setDefaultCommand
-    (
-      new ManualDrive
-      (
-        s_Swerve, 
-        driverStick::stickOutput,
-        () -> -driver.getRightX(),
-        driver::getRightTriggerAxis
-      )
-    );
+    // -------------STATE--------------- //
+    final var autoAimTrigger = new Trigger(() -> autoAim);
 
-    driver.x().onTrue(new HeadingLockedDrive(s_Swerve, driverStick::stickOutput, Rotation2d.kCCW_90deg, Rotation2d.kZero, () -> swerveState.Pose));
-    driver.b().onTrue(new HeadingLockedDrive(s_Swerve, driverStick::stickOutput, Rotation2d.kCW_90deg, Rotation2d.kZero, () -> swerveState.Pose));
+    /* Targetting States */
+    autoAimTrigger
+      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual));
+    autoAimTrigger
+      .and(() -> !FieldUtils.inAllianceZone(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point));
+    autoAimTrigger
+      .and(() -> FieldUtils.inAllianceZone(getTranslation()))
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub));
 
-    Trigger shootReadyTrigger = new Trigger(s_PortShooter::shootReady)
-        .and(s_StbdShooter::shootReady);
+    /* Pass Point */
+    autoAimTrigger.and(() -> autoPass)
+      .whileTrue(modifyTargetsCommand(target -> target.point = FieldUtils.getClosestPassPoint(getTranslation())));
+    debug.povLeft()
+      .onTrue(runOnce(() -> autoPass = false))
+      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get())); 
+    debug.povRight()
+      .onTrue(runOnce(() -> autoPass = false))
+      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
 
-    driver.leftBumper().or(shootReadyTrigger)
-      .whileTrue
-      (
-        s_Feeder.runEnd(
-          () -> s_Feeder.setSpeed(Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())),
-          () -> s_Feeder.setSpeed(0)
-          )
-      );
+    /* Revving/Idleing as Appropriate */
+    autoAimTrigger
+      .and(() -> autoShoot)
+      .and(driver.rightBumper().negate())
+      .onTrue(forBothShootersCommand(Shooter::revFlywheels))
+      .onFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
-    driver.leftBumper().or(shootReadyTrigger)
-      .onTrue(s_Hopper.runSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand());
+    /* Manual Control */
+    debug.rightStick()
+      .and(() -> !debugLock)
+      .onTrue(runOnce(() -> autoAim = false));
+    autoAimTrigger.negate()
+      .whileTrue(s_PortShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband)))
+      .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband)))
+      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)))
+      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)));
 
-    driver.leftBumper().whileTrue(s_PortShooter.setFlySpeedCommand(30));
+    /* Shooting when Ready */
+    new Trigger(s_PortShooter::shootReady)
+      .and(s_StbdShooter::shootReady)
+      .whileTrue(s_Indexer.runCommand(() -> Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));
+
+    //driver.leftBumper -> manual shoot -> ensure flywheels at least idle speed, then run indexers
+
+    // debug.leftTrigger -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
+    // debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
+    // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
+    // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
 
     bumpNB.asTrigger()
       .or(bumpSB.asTrigger())
@@ -268,109 +288,122 @@ public class Robot extends TimedRobot
           bumpRotationTolerance
         )
       );
+    
+    // if (nudging && in trench zone)
+    //   {nudge to nearest 180 degrees}
+
+    // -------------DRIVER-------------- //
+    
+    s_Swerve.setDefaultCommand
+    (
+      new ManualDrive
+      (
+        s_Swerve, 
+        driverStick::stickOutput,
+        () -> -driver.getRightX(),
+        driver::getRightTriggerAxis
+      )
+    );
 
     driver.leftTrigger()
-      .onTrue(s_Hopper.extendCommand())
+      .onTrue(s_Hopper.extendCommand());
+    driver.leftTrigger()
       .whileTrue(s_Hopper.runIntakeCommand().onlyIf(s_Hopper::extended));
-      
-/*    driver.leftBumper()
-      .onTrue(s_Hopper.runSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand()); */
+
+    //driver.b -> ?? bump rotation lock ??
+    //driver.y -> trench rotation lock -> rotate on press, heading straight towards other zone
+    //driver.x -> tower rotation lock -> based on selected clime location, enable attractor
+    //driver.a -> outpost rotation lock -> face in or right, whichever is closer on press
 
     driver.povUp()
-      .onTrue(s_Hopper.runIntakeCommand())
-      .whileTrue(s_Hopper.extensionJostleCommand())
-      .onFalse(s_Hopper.stopIntakeCommand())
+      .or(debug.x().and(() -> !debugLock))
+      .whileTrue(parallel(s_Hopper.extensionJostleCommand(), s_Hopper.runIntakeCommand()))
       .onFalse(s_Hopper.extendCommand());
 
-    driver.povDown()
-      .onTrue(s_Hopper.retractCommand());
+    driver.povDown().onTrue(s_Hopper.retractCommand());
 
-    driver.back()
-      .onTrue(runOnce(() -> nudging = false));
+    driver.back().onTrue(runOnce(() -> nudging = false));
+    driver.start().onTrue(runOnce(() -> nudging = true));
 
-    driver.start()
-      .onTrue(runOnce(() -> nudging = true));
+    // -------------DEBUG--------------- //
 
-
-    operator.y()
-      .onTrue(runOnce(() -> debugLock = false));
-
-    operator.x()
-      .and(() -> !debugLock)
-      .whileTrue(s_Hopper.extensionJostleCommand())
-      .onFalse(s_Hopper.extendCommand());
+    debug.y().onTrue(runOnce(() -> debugLock = false));
+    //debug.y.whileTrue -> if held for 2 seconds, lock controller
       
-    operator.a()
+    debug.a()
       .and(() -> !debugLock)
       .whileTrue(s_Hopper.runIntakeCommand());
 
-    operator.b()
+    debug.b()
       .and(() -> !debugLock)
       .onTrue(s_Hopper.reverseIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
 
-    operator.povDown()
-      .and(() -> !debugLock)
-      .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualExtensionAmount));
-
-    operator.povUp()
+    debug.povUp()
       .and(() -> !debugLock)
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualExtensionAmount));
-
-    operator.leftBumper()
-      .onTrue(s_Hopper.reverseSpindexerCommand().alongWith(s_Feeder.run((() -> s_Feeder.setSpeed(-20)))))
-      .onFalse(s_Hopper.stopSpindexerCommand().alongWith(s_Feeder.run((() -> s_Feeder.setSpeed(0)))));
-
-/*    operator.leftTrigger()
-      .onTrue(s_Hopper.runSpindexerCommand())
-      .onFalse(s_Hopper.stopSpindexerCommand()); */
-
-    // TODO debug left trigger
-
-    // TODO debug left bumper 
-
-    // TODO debug right trigger
-
-    // TODO debug right bumper 
-
-    operator.rightStick()
+    debug.povDown()
       .and(() -> !debugLock)
-      .onTrue(runOnce(() -> autoMode = false));
-    operator.leftStick()
-      .and(() -> !debugLock)
-      .onTrue(runOnce(() -> autoMode = true));
+      .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualExtensionAmount));
+    
+    // debug.back -> climber retract
+    // debug.start -> climber deploy
+    // debug.leftY -> manual climber control
 
-    new Trigger(() -> !autoMode)
-      .whileTrue(s_PortShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(operator.getRightY(), ControlConstants.manualShooterDeadband)))
-      .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(operator.getRightY(), ControlConstants.manualShooterDeadband)))
-      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> MathUtil.applyDeadband(operator.getRightX(), ControlConstants.manualShooterDeadband)))
-      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> MathUtil.applyDeadband(operator.getRightX(), ControlConstants.manualShooterDeadband)));
+    // -------------CASE---------------- //
 
-    operator.povLeft().onTrue
-      (modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()));
+    // All switch bindings should be `onTrue` and `onFalse`, to allow other systems to overide them
 
-    operator.povRight().onTrue
-      (modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
+    // enable/disable fencing switch
+    // enable/disable vision switch
 
-    autoModeTrigger
-      .and(() -> FieldUtils.inLeftHalf(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.leftFerryTarget.get()));
+    // auto-aim-switch
+    // auto-pass switch
+    // auto-shoot switch
 
-    autoModeTrigger
-      .and(() -> !FieldUtils.inLeftHalf(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.point = ControlConstants.rightFerryTarget.get()));
+    // activate climb, (double buttons must both be pressed?)
 
-    autoModeTrigger
-      .and(() -> !FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point));
+    // -------------BTN-PAD------------- //
 
-    autoModeTrigger
-      .and(() -> FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub));
+    //   A B C D E F G H  M
+    // 1 [][][][][][][][] ()
+    // 2 [][][][][][][][] ()
+    // 3 [][][][][][][][] ()
+    // 4 [][][][][][][][] ()
+    // 5 [][][][][][][][] ()
+    // 6 [][][][][][][][] ()
+    // 7 [][][][][][][][] ()
+    // 8 [][][][][][][][] ()
 
-    autoModeTrigger
-      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual));
+    // A4-H8 -> Alliance Zone map
+    // M1 -> Full auto targeting, reset target -> map sets pass point
+    // M2 -> Position Mode -> map sets robot position
+
+    // A1 -> manual intake extend
+    // A2 -> agitate intake
+    // A3 -> manual intake retract
+
+    // B1 -> run intake
+    // B3 -> reverse intake
+
+    // Climb Targets:
+    // C2 -> mid-left
+    // D1 -> out-left
+    // D3 -> in-left
+    // E1 -> out-right
+    // E3 -> in-right
+    // F2 -> mid-right
+
+    // D2 -> full retract climber
+    // E2 -> full extend climber
+
+    // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
+    // G2 -> port shooter idle, run indexer, return to previous state on release
+    // G3 -> port shooter idle, reverse indexer, return to previous state on release
+    // H1 -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
+    // H2 -> stbd shooter idle, run indexer, return to previous state on release 
+    // H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
+
   }
 
   /** Mutually exclusive to bindControls */
@@ -420,6 +453,20 @@ public class Robot extends TimedRobot
     updater.accept(s_PortShooter.getTarget());
     updater.accept(s_StbdShooter.getTarget());
   }
+  
+  private void forBothShooters(Consumer<Shooter> action)
+  {
+    action.accept(s_PortShooter);
+    action.accept(s_StbdShooter);
+  }
+
+  private Command forBothShootersCommand(Consumer<Shooter> action)
+  {
+    return run(() -> {
+      action.accept(s_PortShooter);
+      action.accept(s_StbdShooter);
+    });
+  }
 
   /**
    * Perform some modification on the targets of both shooters
@@ -467,7 +514,6 @@ public class Robot extends TimedRobot
   {
     updateSwerveState();
     CommandScheduler.getInstance().run();
-    PBDash.putBool("Shooter Active", autoModeTrigger.negate().and(driver.leftBumper()).getAsBoolean());
   }
 
   @Override
@@ -504,7 +550,6 @@ public class Robot extends TimedRobot
   public void teleopInit() 
   {
     autoCommand.ifPresent(Command::cancel);
-    autoMode = false;
 
     FieldUtils.updateAlliance();
     initInputTransmute();
@@ -514,7 +559,6 @@ public class Robot extends TimedRobot
   public void testInit() 
   {
     CommandScheduler.getInstance().cancelAll();
-    autoMode = false;
 
     FieldUtils.updateAlliance();
     initInputTransmute();
@@ -523,7 +567,6 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    s_StbdShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
-    s_PortShooter.setManual(PBDash.getDouble("Test Azimuth"), PBDash.getDouble("Test Altitude"));
+
   }
 }
