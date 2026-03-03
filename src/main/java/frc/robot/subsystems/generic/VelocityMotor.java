@@ -1,5 +1,7 @@
 package frc.robot.subsystems.generic;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -41,13 +43,15 @@ public class VelocityMotor extends SubsystemBase
 
   /**
    * Construct a command that sets the speed of the motor <p>
-   * NOTE: The provided value is only evaluated when the command is created
    * 
-   * @param speed the desired speed, in mechanism rotations per second
+   * @param speedSup A supplier providing the desired speed, in mechanism rotations per second
    * @return the {@link Command}
    */
-  public Command setSpeedCommand(double speed)
-    {return runOnce(() -> setSpeed(speed));}
+  public Command setSpeedCommand(DoubleSupplier speedSup)
+    {return runOnce(() -> setSpeed(speedSup.getAsDouble()));}
+
+  public Command runCommand(DoubleSupplier speedSup)
+    {return runEnd(() -> setSpeed(speedSup.getAsDouble()), () -> setSpeed(0));}
 
   /** @return Current speed of the motor, in mechanism rotations per second */
   @Logged(name = "Speed Rotations per Second")
