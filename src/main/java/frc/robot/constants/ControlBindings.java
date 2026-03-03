@@ -7,7 +7,7 @@ public class ControlBindings
 
   // -------------STATE--------------- //
 
-  auto-aim / auto-pass / auto-shoot
+  [auto-aim / auto-pass / auto-shoot]
   if (auto-aim)
   {
     automatically aim at hub when in alliance zone
@@ -35,6 +35,13 @@ public class ControlBindings
     flywheels idle, manual aim
     when told to shoot, rev based on manual distance and shoot when ready
   }
+
+  [nudging]
+  if (nudging && in bump zone)
+    {nudge to nearest 30 degrees away from cardinal}
+  
+  if (nudging && in trench zone)
+    {nudge to nearest 180 degrees}
 
   // -------------DRIVER-------------- //
   
@@ -73,10 +80,10 @@ public class ControlBindings
 
   debug.povUp/Down -> intake manual position, should ignore calibration
   
-  debug.leftTrigger -> run ?left/port? flywheel and indexer, return to previous state on release // ?? what speed ??
-  debug.leftBumper -> ?left/port? shooter idle, reverse indexer, return to previous state on release
-  debug.rightTrigger -> run ?right/stbd? flywheel and indexer, return to previous state on release // ?? what speed ??
-  debug.rightBumper -> ?lright/stbd? shooter idle, reverse indexer, return to previous state on release 
+  debug.leftTrigger -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
+  debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
+  debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
+  debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
 
   debug.rightStick -> manual shooter aim mode
   debug.rightXY -> shooter aim control
@@ -85,9 +92,59 @@ public class ControlBindings
   debug.start -> climber deploy
   debug.leftY -> manual climber control
 
-  // --------------------------------- //
+  // -------------CASE---------------- //
 
+  // All switch bindings should be `onTrue` and `onFalse`, to allow other systems to overide them
 
+  enable/disable fencing switch
+  enable/disable vision switch
+
+  auto-aim-switch
+  auto-pass switch
+  auto-shoot switch
+
+  activate climb, (double buttons must both be pressed?)
+
+  // -------------BTN-PAD------------- //
+
+     A B C D E F G H  M
+  1 [][][][][][][][] ()
+  2 [][][][][][][][] ()
+  3 [][][][][][][][] ()
+  4 [][][][][][][][] ()
+  5 [][][][][][][][] ()
+  6 [][][][][][][][] ()
+  7 [][][][][][][][] ()
+  8 [][][][][][][][] ()
+
+  A4-H8 -> Alliance Zone map
+  M1 -> Full auto targeting, reset target -> map sets pass point
+  M2 -> Position Mode -> map sets robot position
+
+  A1 -> manual intake extend
+  A2 -> agitate intake
+  A3 -> manual intake retract
+
+  B1 -> run intake
+  B3 -> reverse intake
+
+  Climb Targets:
+  C2 -> mid-left
+  D1 -> out-left
+  D3 -> in-left
+  E1 -> out-right
+  E3 -> in-right
+  F2 -> mid-right
+
+  D2 -> full retract climber
+  E2 -> full extend climber
+
+  G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
+  G2 -> port shooter idle, run indexer, return to previous state on release
+  G3 -> port shooter idle, reverse indexer, return to previous state on release
+  H1 -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
+  H2 -> stbd shooter idle, run indexer, return to previous state on release 
+  H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
 
   */
 }
