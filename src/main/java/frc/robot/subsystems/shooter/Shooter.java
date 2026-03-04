@@ -97,16 +97,22 @@ public class Shooter extends SubsystemBase
    * @return the {@link Command}
    */
   public Command setFlySpeedCommand(double speed)
-    {return runOnce(() -> flywheels.setSpeed(speed));}
+    {return runOnce(() -> target.speed = speed);}
 
   public Command adjustDistanceCommand(DoubleSupplier shiftSup)
-    {return run(() -> target.distance += shiftSup.getAsDouble());}
+  {
+    return run(() -> 
+    {
+      target.distance += shiftSup.getAsDouble();
+      target.speed = Interpolation.flywheelSpeedHub.get(target.distance);
+    });
+  }
 
   public Command adjustAzimuthCommand(DoubleSupplier shiftSup)
     {return run(() -> target.azimuth += shiftSup.getAsDouble());}
 
   public void setFlySpeed(double speed)
-    {flywheels.setSpeed(speed);}
+    {target.speed = speed;}
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
@@ -134,24 +140,28 @@ public class Shooter extends SubsystemBase
   public boolean shootReady()
   {
     return 
-      turret.readyToShoot(swerveState.Speeds)
+      target.flywheelsActive
+      && turret.readyToShoot(swerveState.Speeds)
       && hood.atAltitude()
       && flywheels.atSpeed();
   }
 
-  public void revFlywheels() 
+  /**
+   * Brings flywheels up to at least idle speed
+   * @return {@code true} when flywheels are at speed
+   */
+  public boolean makeShootSafe()
   {
-    double speed = switch (target.state)
-    {
-      case Manual -> Interpolation.flywheelSpeedHub.get(target.distance);
-      case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
-      case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
-    };
-    flywheels.setSpeed(speed);
+    if (target.speed < idleSpeed)
+      {target.speed = idleSpeed;}
+
+    return flywheels.atSpeed();
   }
 
-  public void idleFlywheels()
-    {flywheels.setSpeed(idleSpeed);}
+  /** Sets the flywheels to rev up to target speed */
+  public void revFlywheels() {target.flywheelsActive = true;}
+  /** Sets the flywheels to idle speed */
+  public void idleFlywheels() {target.flywheelsActive = false;}
 
   private void telemetrise()
   {
@@ -190,8 +200,20 @@ public class Shooter extends SubsystemBase
       case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
     };
 
+    target.speed = switch (target.state)
+    {
+      case Manual -> target.speed;
+      case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
+      case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
+    };
+    if (target.flywheelsActive)
+      flywheels.setSpeed(target.speed);
+    else
+      flywheels.setSpeed(idleSpeed);
+
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update();
+    
 
     telemetrise();
   }

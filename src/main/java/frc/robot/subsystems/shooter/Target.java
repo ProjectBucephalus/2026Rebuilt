@@ -42,6 +42,8 @@ public class Target
   protected double distance = 0;
   @Logged(name = "Target Speed Rotations per Second")
   public double speed = 0;
+  /** Flywheels will maintain speed while {@code true}, will idle when {@code false} */
+  public boolean flywheelsActive = false;
 
   /**
    * Construct a new {@link Target} with all values zeroed
