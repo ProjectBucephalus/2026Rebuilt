@@ -112,7 +112,7 @@ public class LimitedMotor extends SubsystemBase
    * @return the Command
    */
   public Command adjustTargetCommand(DoubleSupplier shiftSup) 
-    {return run(() -> forceSetTarget(getAngle() + shiftSup.getAsDouble()));}
+    {return run(() -> {if (shiftSup.getAsDouble() != 0) forceSetTarget(getAngle() + shiftSup.getAsDouble());});}
 
   @Override
   public void periodic() 
