@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -321,7 +322,11 @@ public class Robot extends TimedRobot
     /* Revving/Idleing as Appropriate */
     Trigger shooterActiveTrigger = driver.rightBumper().negate();
     shooterActiveTrigger
-      .whileFalse(forBothShootersCommand(Shooter::idleFlywheels));
+      .whileFalse
+      (
+        forBothShootersCommand(Shooter::idleFlywheels)
+        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+      );
 
     autoAimTrigger
       .and(() -> autoRev)
