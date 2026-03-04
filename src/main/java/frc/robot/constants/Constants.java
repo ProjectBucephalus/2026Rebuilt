@@ -62,7 +62,8 @@ public final class Constants
     public static final AllianceTranslation2d leftFerryTarget = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 1.5);
     public static final AllianceTranslation2d rightFerryTarget = new AllianceTranslation2d(1.5, 1.5);
 
-    public static final double manualExtensionAmount = 0.05;
+    public static final double manualIntakeExtensionAmount = 0.05;
+    public static final double manualClimberExtensionScale = 0.05;
     public static final double manualShooterDeadband = 0.5;
   }
 
@@ -376,6 +377,7 @@ public final class Constants
   public  static final class FeederConstants 
   {
     public static final double feederSpeed = 50;
+    public static final double feederReverseSpeed = -25;
 
     private static final double gearboxRatio = 1;
     //private static final double lowerRollerPulley = 24;
