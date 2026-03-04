@@ -1,13 +1,11 @@
 package frc.robot.subsystems.vision;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -39,8 +37,6 @@ public class Vision extends SubsystemBase
   @Logged
   boolean usingVision = true;
 
-  private int pipelineIndex = PBDash.LL_EXPOSURE.defaultVal();
-
   /**
    * Creates a vision master-system to manage the provided cameras
    * @param estimateConsumer Link into drivebase to update localisation
@@ -52,22 +48,6 @@ public class Vision extends SubsystemBase
     this.estimateConsumer = estimateConsumer;
     this.rpsSup = rpsSup;
     this.lls = lls;
-  }
-
-  /** Increments all camera pipelines in range [0..7] */
-  public void incrementPipeline() 
-  {
-    pipelineIndex = MathUtil.clamp(pipelineIndex + 1, 0, 7);
-    for (var ll : lls) {ll.updatePipeline(pipelineIndex);}
-    PBDash.LL_EXPOSURE.put(pipelineIndex);
-  }
-
-  /** Decrements all camera pipelines in range [0..7] */
-  public void decrementPipeline()
-  {
-    pipelineIndex = MathUtil.clamp(pipelineIndex - 1, 0, 7);
-    for (var ll : lls) {ll.updatePipeline(pipelineIndex);}
-    PBDash.LL_EXPOSURE.put(pipelineIndex);
   }
 
   /** 
