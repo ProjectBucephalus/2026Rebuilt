@@ -42,7 +42,7 @@ public class PBDash
   public static final Key<Boolean> IO_FENCE         = new Key<>("Enable Fencing", true);
   public static final Key<Boolean> IO_AUTO_AIM      = new Key<>("Auto Aim", true);
   public static final Key<Boolean> IO_AUTO_PASS     = new Key<>("Auto Pass", true);
-  public static final Key<Boolean> IO_AUTO_SHOOT    = new Key<>("Auto Shoot", true);
+  public static final Key<Boolean> IO_AUTO_REV      = new Key<>("Auto Rev", true);
 
   // State displays
   public static final Key<String>  STATE_DRIVE      = new Key<>("Drive State", "Disabled");

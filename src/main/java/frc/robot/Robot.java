@@ -95,7 +95,7 @@ public class Robot extends TimedRobot
 
   private boolean autoAim = true;
   private boolean autoPass = false;
-  private boolean autoShoot = true;
+  private boolean autoRev = true;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -287,10 +287,10 @@ public class Robot extends TimedRobot
     switchboard.button(0/*autoPassSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())));
     
-    PBDash.IO_AUTO_SHOOT.asSwitch()
-      .onChange(runOnce(() -> autoShoot = PBDash.IO_AUTO_SHOOT.get()));
-    switchboard.button(0/*autoShootSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_SHOOT.put(switchboard.button(0/*autoShootSwitchID*/).getAsBoolean())));
+    PBDash.IO_AUTO_REV.asSwitch()
+      .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()));
+    switchboard.button(0/*autoRevSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())));
 
     switchboard.button(0/*fencingSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())));
@@ -324,14 +324,13 @@ public class Robot extends TimedRobot
       .whileFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
     autoAimTrigger
-      .and(() -> autoShoot)
+      .and(() -> autoRev)
       .and(shooterActiveTrigger)
       .onTrue(forBothShootersCommand(Shooter::revFlywheels))
       .onFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
     /* Shooting when Ready */
     shooterActiveTrigger
-      .and(() -> autoShoot)
       .and(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
       .whileTrue(s_Indexer.runCommand(() -> Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));
