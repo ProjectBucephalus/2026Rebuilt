@@ -82,6 +82,11 @@ public class LimitedMotor extends SubsystemBase
       (request.withPosition(clampedRotations).withSlot(slot));
   }
 
+  /** Sets the target to the maximum limit */
+  public Command deployCommand() {return setTargetCommand(maxRotations);}
+  /** Sets the target to the minimum limit */
+  public Command retractCommand() {return setTargetCommand(minRotations);}
+
   /**
    * Sets the target point for the motor, ignoring limits
    * @param target mechanism rotations
