@@ -1,9 +1,11 @@
 package frc.robot.util;
 
+import static edu.wpi.first.wpilibj2.command.Commands.run;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import static edu.wpi.first.wpilibj2.command.Commands.waitSeconds;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -17,7 +19,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class LockableXboxController extends CommandXboxController
 {
-  private static final double lockTime = 2;
+  private static final double lockTime = 1.5;
+  private static final double rumbleTime = 0.2;
 
   private final XboxController io_hid;
 
@@ -34,12 +37,29 @@ public class LockableXboxController extends CommandXboxController
   {
     super(port);
     io_hid = new XboxController(port);
-    new Trigger(() -> io_hid.getRawButtonPressed(lockButton.value))
-      .onTrue(runOnce(() -> unlocked = true));
+    new Trigger(() -> io_hid.getRawButtonPressed(lockButton.value) && !unlocked)
+      .onTrue
+      (
+        run(() -> io_hid.setRumble(RumbleType.kBothRumble, 1.0))
+          .withTimeout(rumbleTime)
+          .andThen(runOnce
+          (() -> {
+            unlocked = true;
+            io_hid.setRumble(RumbleType.kBothRumble, 0.0);
+          }))
+        .ignoringDisable(true)
+      );
 
-    new Trigger(() -> io_hid.getRawButtonPressed(lockButton.value))
-      .whileTrue(waitSeconds(lockTime)
-      .andThen(runOnce(() -> unlocked = false)));
+    new Trigger(() -> io_hid.getRawButton(lockButton.value))
+      .whileTrue(waitSeconds(lockTime - rumbleTime)
+      .andThen(run(() -> io_hid.setRumble(RumbleType.kBothRumble, 1.0))
+        .withTimeout(rumbleTime))
+      .andThen(runOnce(
+        () -> {
+          unlocked = false;
+          io_hid.setRumble(RumbleType.kBothRumble, 0.0);
+        }))
+      .ignoringDisable(true));
   }
 
   @Override public Trigger a() {return isUnlocked.and(super.a());}
