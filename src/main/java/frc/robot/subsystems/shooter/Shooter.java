@@ -105,6 +105,7 @@ public class Shooter extends SubsystemBase
     {
       target.distance += shiftSup.getAsDouble();
       target.speed = Interpolation.flywheelSpeedHub.get(target.distance);
+      target.altitude = Interpolation.shooterAltitudeHub.get(target.distance);
     });
   }
 
@@ -198,6 +199,13 @@ public class Shooter extends SubsystemBase
       case Point -> target.point.plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
       // aim at our alliance's hub
       case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
+    };
+
+    target.altitude = switch (target.state)
+    {
+      case Manual -> target.altitude;
+      case Point -> Interpolation.shooterAltitudeLow.get(target.distance);
+      case Hub -> Interpolation.shooterAltitudeHub.get(target.distance);
     };
 
     target.speed = switch (target.state)
