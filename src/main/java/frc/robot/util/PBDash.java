@@ -52,6 +52,11 @@ public class PBDash
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
   public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
 
+  // Testing values
+  public static final Key<Double>  TEST_FLYSPEED    = new Key<>("Test Flyspeed", 0.0);
+  public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
+  public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
+
   public static void putFieldObject(String name, Pose2d pose)
     {FIELD.getObject(name).setPose(pose);}
 
