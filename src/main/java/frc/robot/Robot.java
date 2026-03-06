@@ -60,6 +60,7 @@ import frc.robot.util.FieldUtils;
 import frc.robot.util.Launchpad;
 import frc.robot.util.LockableXboxController;
 import frc.robot.util.PBDash;
+import frc.robot.util.Launchpad.PadColour;
 import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
 
@@ -181,6 +182,11 @@ public class Robot extends TimedRobot
 
   public Robot() 
   {
+    // for (int i = 0; i < 64; i++) {
+    //   int _i = i;
+    //   buttonPad.getBtn(i).onTrue(runOnce(() -> buttonPad.setColour(PadColour.FULL_RED, _i)));
+    // } 
+
     updateSwerveState();
 
     initLogging();

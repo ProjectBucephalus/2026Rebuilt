@@ -3,6 +3,7 @@ package frc.robot.util;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** 
@@ -10,10 +11,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * Requires <a href="https://github.com/ProjectBucephalus/Launchpad-VJoy/releases/tag/main">an external program</a> to be run on the driverstation to convert between MIDI, HID, and NetworkTables
  * @author 5985
  */
-public class Launchpad extends GenericHID
+public class Launchpad
 {
+  private final Trigger no = new Trigger(() -> false);
+
   private final String tableName = "LaunchPadColours";
   private final IntegerPublisher[] publishers = new IntegerPublisher[72];
+
+  private final CommandGenericHID controllerOne;
+  private final CommandGenericHID controllerTwo;
 
   /** 
    * Each button has a Red and Green LED with 4 levels, giving a set of 16 available colours
@@ -51,7 +57,8 @@ public class Launchpad extends GenericHID
   public Launchpad(int port) 
   {
     // Creates generic HID
-    super(port);
+    controllerOne = new CommandGenericHID(port);
+    controllerTwo = new CommandGenericHID(port + 1);
 
     // Accesses network tables and creates a table to send colour data over
     var ntInstance = NetworkTableInstance.getDefault();
@@ -70,31 +77,17 @@ public class Launchpad extends GenericHID
 
   /**
    * Creates a trigger linked to a button on the Launchpad controller
-   * @param btn Button index, [0..63] normal reading order of the square buttons:
-   * <ul>
-   * <li> [0..15] (the top two rows) are a mutually exclusive set, pressing a second button releases the first, etc.
-   * <li> [16..24] (third row) are a mutually exclusive set
-   * <li> [24..31] (fourth row) are a mutually exclusive set
-   * <li> [32..63] (bottom half) are all individually addressable
-   * </ul>
+   * @param btn Button index, [0..63] normal reading order of the square buttons
    * @return Trigger linked to button
    */
   public Trigger getBtn(int btn) 
   {
     if (btn < 0 || btn >= 64)
-      return new Trigger(() -> false);
-
-    if (btn < 16) 
-      return new Trigger(() -> super.getPOV(1) == btn);
-        
-    if (btn < 24) 
-      return new Trigger(() -> super.getPOV(2) == btn - 16);
-        
-    if (btn < 32)
-      return new Trigger(() -> super.getPOV(3) == btn - 24);
-        
-    //if (btn >= 32)  
-      return new Trigger(() -> super.getRawButton(btn - 32));
+      return no;
+    else if (btn < 32) 
+      return controllerOne.button(btn);
+    else
+      return controllerTwo.button(btn - 32);
   }
 
   /**
@@ -107,9 +100,9 @@ public class Launchpad extends GenericHID
   public Trigger getModeBtn(int modeBtn) 
   {
     if (modeBtn < 0 || modeBtn > 7)
-      return new Trigger(() -> false);        
-    
-    return new Trigger(() -> super.getPOV(0) == modeBtn);
+      return no;        
+    else
+      return controllerOne.pov(modeBtn);
   }
 
   /**
