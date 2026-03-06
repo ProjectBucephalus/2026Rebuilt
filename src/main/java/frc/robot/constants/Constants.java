@@ -40,7 +40,7 @@ public final class Constants
   {
     public static final double stickDeadband = 0.15;
     /** Normal maximum robot speed, relative to maximum uncapped speed */
-    public static final double maxThrottle = 0.35;
+    public static final double maxThrottle = 0.7;
     /** Minimum robot speed when braking, relative to maximum uncapped speed */
     public static final double minThrottle = 0.2;
     /** Normal maximum rotational robot speed, relative to maximum uncapped rotational speed */
@@ -432,12 +432,17 @@ public final class Constants
     public static final class IntakeConstants 
     {
       /** Default speed of intake when running, [-1..1] */
-      public static final double intakeSpeed = 0.35;
+      public static final double intakeSpeed = 65;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static
       {
         intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
+
+        intakeConfig.Slot0.kS = 0.56;
+        intakeConfig.Slot0.kV = 0.2;
+
+        intakeConfig.MotionMagic.MotionMagicAcceleration = 50.0;
       }
     }
 

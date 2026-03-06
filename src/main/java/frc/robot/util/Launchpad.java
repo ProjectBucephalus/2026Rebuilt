@@ -82,12 +82,14 @@ public class Launchpad
    */
   public Trigger getBtn(int btn) 
   {
-    if (btn < 0 || btn >= 64)
+    if (btn < 0 || btn >= 72)
       return no;
     else if (btn < 32) 
-      return controllerOne.button(btn);
-    else
-      return controllerTwo.button(btn - 32);
+      return controllerOne.button(btn + 1);
+    else if (btn < 64)
+      return controllerTwo.button(btn - 31);
+    else 
+      return getModeBtn(btn - 64);
   }
 
   /**

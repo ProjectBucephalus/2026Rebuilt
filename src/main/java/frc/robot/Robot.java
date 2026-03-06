@@ -307,23 +307,23 @@ public class Robot extends TimedRobot
 
     PBDash.IO_AUTO_AIM.asSwitch()
       .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()));
-    switchboard.button(0/*autoAimSwitchID*/)
+    switchboard.button(1/*autoAimSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())));
     debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)));
 
     PBDash.IO_AUTO_PASS.asSwitch()
       .onChange(runOnce(() -> autoPass = PBDash.IO_AUTO_PASS.get()));
-    switchboard.button(0/*autoPassSwitchID*/)
+    switchboard.button(1/*autoPassSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())));
     
     PBDash.IO_AUTO_REV.asSwitch()
       .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()));
-    switchboard.button(0/*autoRevSwitchID*/)
+    switchboard.button(1/*autoRevSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())));
 
-    switchboard.button(0/*fencingSwitchID*/)
+    switchboard.button(1/*fencingSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())));
-    switchboard.button(0/*visionSwitchID*/)
+    switchboard.button(1/*visionSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())));
 
     driver.back().onTrue(runOnce(() -> nudging = false));
