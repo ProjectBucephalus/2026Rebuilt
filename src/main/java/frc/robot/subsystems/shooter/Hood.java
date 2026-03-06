@@ -23,9 +23,6 @@ public class Hood
   private final boolean inverted;
   private final Target target;
 
-  @Logged(name = "Target Altitude")
-  private double altitude;
-
   /**
    * Creates a Servo driven shooter hood, to be managed by {@link Shooter} master-system
    * @param servoID PWM-ID of hood altitude servo
@@ -60,13 +57,8 @@ public class Hood
    */
   protected void update()
   {
-    var interpTable = 
-      target.state == TargetState.Point ? 
-      Interpolation.shooterAltitudeLow : 
-      Interpolation.shooterAltitudeHub;
-
     // Limit the target altitude to within the hood's range of motion
-    altitude = Conversions.clamp(interpTable.get(target.distance), 0, hoodRange);
+    double altitude = Conversions.clamp(target.altitude, 0, hoodRange);
 
     // Convert hood target in degrees to servo position from [0..1]
     double servoTarget = ((altitude + homeAngle) * hoodRatio) / servoRange;

@@ -130,8 +130,8 @@ public final class Constants
     /** Tuning data for flywheels */
     public static final class FlywheelConstants
     {
-      private static final double motorPulley = 24;
-      private static final double mainWheelPulley = 18;
+      private static final double motorPulley = 18;
+      private static final double mainWheelPulley = 24;
       public static final double mainWheelBeltRatio = mainWheelPulley / motorPulley;
 
       /*
@@ -146,8 +146,8 @@ public final class Constants
       {
         flywheelConfig.Feedback.SensorToMechanismRatio = mainWheelBeltRatio;
 
-        flywheelConfig.Slot0.kS = 0.22;
-        flywheelConfig.Slot0.kV = 0.0924;
+        flywheelConfig.Slot0.kS = 0.21;
+        flywheelConfig.Slot0.kV = 0.1613;
         flywheelConfig.Slot0.kA = 0.0;
         flywheelConfig.Slot0.kP = 0.08;
         flywheelConfig.Slot0.kI = 0.0;
@@ -419,7 +419,13 @@ public final class Constants
       public static final TalonFXConfiguration spindexerConfig = new TalonFXConfiguration();
       static
       {
+        spindexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         spindexerConfig.Feedback.SensorToMechanismRatio = spindexerRatio;
+
+        spindexerConfig.Slot0.kS = 0.56;
+        spindexerConfig.Slot0.kV = 0.127;
+
+        spindexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
       }
     }
 

@@ -376,7 +376,7 @@ public class Robot extends TimedRobot
         run(() ->
         {
           if (s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
-            s_Indexer.runCommand(() -> Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()));
+            s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()));
         })
       );
 
@@ -384,7 +384,7 @@ public class Robot extends TimedRobot
     debug.leftTrigger()
       .and(shooterActiveTrigger)
       .and(debug.leftBumper().negate())
-      .whileTrue(runOnce(() -> s_PortShooter.revFlywheels()));
+      .whileTrue(s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));//runOnce(() -> s_PortShooter.revFlywheels()));
     // debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
     debug.leftBumper()
       .whileTrue(run(() -> 
@@ -396,7 +396,7 @@ public class Robot extends TimedRobot
     debug.rightTrigger()
       .and(shooterActiveTrigger)
       .and(debug.rightBumper().negate())
-      .whileTrue(runOnce(() -> s_StbdShooter.revFlywheels()));
+      .whileTrue(s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));//run(() -> s_StbdShooter.revFlywheels()));
     // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
     debug.rightBumper()
       .whileTrue(run(() -> 
@@ -648,7 +648,13 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    PBDash.putDouble("Swerve Speed", swerveState.Speeds.vyMetersPerSecond);
-    
+    s_PortShooter.getTarget().speed = PBDash.TEST_FLYSPEED.get();
+    s_PortShooter.getTarget().azimuth = PBDash.TEST_AZIMUTH.get();
+    s_PortShooter.getTarget().altitude = PBDash.TEST_ALTITUDE.get();
+    s_PortShooter.getTarget().flywheelsActive = true;
+    s_StbdShooter.getTarget().speed = PBDash.TEST_FLYSPEED.get();
+    s_StbdShooter.getTarget().azimuth = PBDash.TEST_AZIMUTH.get();
+    s_StbdShooter.getTarget().altitude = PBDash.TEST_ALTITUDE.get();
+    s_StbdShooter.getTarget().flywheelsActive = true;
   }
 }
