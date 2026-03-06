@@ -52,6 +52,8 @@ public class PBDash
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
   public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
 
+  public static final Key<Double>  TEST_INTAKE_SPEED= new Key<>("Test Intake Speed", Constants.HopperConstants.IntakeConstants.intakeSpeed);
+
   public static void putFieldObject(String name, Pose2d pose)
     {FIELD.getObject(name).setPose(pose);}
 

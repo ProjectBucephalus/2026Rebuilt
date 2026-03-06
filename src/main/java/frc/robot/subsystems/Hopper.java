@@ -11,6 +11,8 @@ import frc.robot.constants.Constants.HopperConstants.IntakeConstants;
 import frc.robot.constants.Constants.HopperConstants.SpindexerConstants;
 import frc.robot.subsystems.generic.BinaryMotor;
 import frc.robot.subsystems.generic.LimitedMotor;
+import frc.robot.util.PBDash;
+
 import static frc.robot.constants.Constants.HopperConstants.*;
 import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.extensionJostleDelay;
 
@@ -91,5 +93,8 @@ public class Hopper extends SubsystemBase
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() 
+  {
+    PBDash.putDouble("Intake Speed", intake.getSpeed());
+  }
 }

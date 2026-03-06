@@ -268,6 +268,28 @@ public class Robot extends TimedRobot
     // TODO: if (nudging && in trench zone) {nudge to nearest 180 degrees}
 
     //driver.b -> ?? bump rotation lock ??
+    driver.b()
+      .toggleOnTrue(
+        new HeadingLockedDrive
+        (
+          s_Swerve, 
+          driverStick::stickOutput,
+          Rotation2d.kCCW_90deg,
+          Rotation2d.kZero,
+          () -> swerveState.Pose
+        )
+      );
+    driver.x()
+      .toggleOnTrue(
+        new HeadingLockedDrive
+        (
+          s_Swerve, 
+          driverStick::stickOutput,
+          Rotation2d.kCW_90deg,
+          Rotation2d.kZero,
+          () -> swerveState.Pose
+        )
+      );
     //driver.y -> trench rotation lock -> rotate on press, heading straight towards other zone
     //driver.x -> tower rotation lock -> based on selected clime location, enable attractor
     //driver.a -> outpost rotation lock -> face in or right, whichever is closer on press
@@ -392,9 +414,9 @@ public class Robot extends TimedRobot
 
     debug.b().negate()
       .and(debug.a()
-        .or(driver.leftTrigger().and(s_Hopper::extended))
-      )
+          .or(driver.leftTrigger().and(s_Hopper::extended)))
       .whileTrue(s_Hopper.runIntakeCommand());
+      //.onFalse(s_Hopper.stopIntakeCommand());
 
     driver.povUp()
       .or(debug.x())
@@ -620,6 +642,7 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-
+    PBDash.putDouble("Swerve Speed", swerveState.Speeds.vyMetersPerSecond);
+    
   }
 }
