@@ -182,10 +182,10 @@ public class Robot extends TimedRobot
 
   public Robot() 
   {
-    for (int i = 0; i < 64; i++) {
-      int _i = i;
-      buttonPad.getBtn(i).onTrue(runOnce(() -> buttonPad.setColour(PadColour.FULL_RED, _i)));
-    } 
+    // for (int i = 0; i < 64; i++) {
+    //   int _i = i;
+    //   buttonPad.getBtn(i).onTrue(runOnce(() -> buttonPad.setColour(PadColour.FULL_RED, _i)));
+    // } 
 
     updateSwerveState();
 

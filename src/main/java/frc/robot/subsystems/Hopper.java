@@ -11,6 +11,8 @@ import frc.robot.constants.Constants.HopperConstants.IntakeConstants;
 import frc.robot.constants.Constants.HopperConstants.SpindexerConstants;
 import frc.robot.subsystems.generic.BinaryMotor;
 import frc.robot.subsystems.generic.LimitedMotor;
+import frc.robot.subsystems.generic.VelocityMotor;
+
 import static frc.robot.constants.Constants.HopperConstants.*;
 import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.extensionJostleDelay;
 
@@ -25,7 +27,7 @@ import java.util.function.DoubleSupplier;
 public class Hopper extends SubsystemBase 
 {
   @Logged
-  private final BinaryMotor intake;
+  private final VelocityMotor intake;
   @Logged
   private final LimitedMotor extension;
   
@@ -38,25 +40,25 @@ public class Hopper extends SubsystemBase
    */
   public Hopper(int intakeCAN, int extensionCAN, int extensionLimitIO)
   { 
-    intake = new BinaryMotor(intakeCAN, IntakeConstants.intakeSpeed, IntakeConstants.intakeConfig);
+    intake = new VelocityMotor(intakeCAN, IntakeConstants.intakeConfig);
     extension = new LimitedMotor(extensionCAN, extensionLimitIO, ExtensionConstants.minRotations, ExtensionConstants.maxRotations, ExtensionConstants.homeRotations, ExtensionConstants.extensionConfig);
   }
   
   /** @return Command to start running intake at default speed */
   public Command startIntakeCommand()
-  {return intake.startCommand();}
+  {return intake.setSpeedCommand(() -> IntakeConstants.intakeSpeed);}
 
   /** @return Command that runs the intake until it is interrupted */
   public Command runIntakeCommand()
-  {return intake.runCommand();}
+  {return intake.runCommand(() -> IntakeConstants.intakeSpeed);}
   
   /** @return Command to start running intake at negative default speed */
   public Command reverseIntakeCommand()
-  {return intake.reverseCommand();}
+  {return intake.setSpeedCommand(() -> -IntakeConstants.intakeSpeed);}
 
   /** @return Command to stop the intake */
   public Command stopIntakeCommand()
-  {return intake.stopCommand();}
+  {return intake.setSpeedCommand(() -> 0);}
 
   /** @return Command to retract the extension to home */
   public Command retractCommand()
