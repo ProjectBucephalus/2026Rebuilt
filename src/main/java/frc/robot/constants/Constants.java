@@ -178,7 +178,7 @@ public final class Constants
       public static final double hoodRange = 19;
 
       public static final double portHomeAngle = 0;
-      public static final double stbdHomeAngle = 18;
+      public static final double stbdHomeAngle = 26;
 
       public static final double servoGear = 20;
       public static final double hoodGear = 193;
