@@ -199,11 +199,6 @@ public class Robot extends TimedRobot
 
   public Robot() 
   {
-    for (int i = 0; i < 72; i++) {
-      int _i = i;
-      buttonPad.getBtn(i).onFalse(runOnce(() -> buttonPad.setColour(PadColour.FULL_RED, _i)).ignoringDisable(true));
-    } 
-
     updateSwerveState();
 
     initLogging();
