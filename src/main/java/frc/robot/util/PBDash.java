@@ -36,6 +36,8 @@ public class PBDash
   // Auto-builder strings
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
   public static final Key<String>  AUTO_ERRS        = new Key<>("AUTO STRING ERRORS", "");
+
+  public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", true);
   
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);

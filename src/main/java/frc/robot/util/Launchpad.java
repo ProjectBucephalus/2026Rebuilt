@@ -2,7 +2,6 @@ package frc.robot.util;
 
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -57,8 +56,21 @@ public class Launchpad
   public Launchpad(int port) 
   {
     // Creates generic HID
-    controllerOne = new CommandGenericHID(port);
-    controllerTwo = new CommandGenericHID(port + 1);
+    CommandGenericHID tempA = new CommandGenericHID(port);
+    CommandGenericHID tempB = new CommandGenericHID(port + 1);
+
+    if (tempA.getHID().getPOVCount() == 2 && tempB.getHID().getPOVCount() == 3) 
+    {
+      controllerOne = tempA;
+      controllerTwo = tempB;
+    }
+    else 
+    {
+      controllerOne = tempB;
+      controllerTwo = tempA;
+      if (!(tempA.getHID().getPOVCount() == 3 && tempB.getHID().getPOVCount() == 2))
+        PBDash.LAUNCHPAD_GOOD.put(false);
+    }
 
     // Accesses network tables and creates a table to send colour data over
     var ntInstance = NetworkTableInstance.getDefault();
