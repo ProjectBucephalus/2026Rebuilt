@@ -181,6 +181,15 @@ public class Shooter extends SubsystemBase
     swerveState = swerveStateSup.get();
     var shooterPose = swerveState.Pose.plus(shooterOffset);
 
+    // Find distance to current target for calculating leading shots
+    double distance = switch (target.state) 
+    {
+      case Manual -> target.distance;
+      case Point -> target.point.minus(shooterPose.getTranslation()).getNorm();
+      // aim at our alliance's hub
+      case Hub -> FieldUtils.getAllianceHubCentre().minus(shooterPose.getTranslation()).getNorm();
+    };
+
     // Calculate target offset to avoid balls from each shooter colliding before reaching target
     // and accounting for robot motion
     target.offset = 
@@ -189,7 +198,7 @@ public class Shooter extends SubsystemBase
         .plus
         (
           new Translation2d(swerveState.Speeds.vxMetersPerSecond, swerveState.Speeds.vyMetersPerSecond)
-          .times(target.distance * ShooterConstants.leadFactor) // distance * leadFactor
+          .times(distance * ShooterConstants.leadFactor) // distance * leadFactor
         );
 
     // Find distance to current target for calculating leading shots

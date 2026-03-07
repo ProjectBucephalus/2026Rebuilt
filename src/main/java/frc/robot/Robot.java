@@ -112,9 +112,9 @@ public class Robot extends TimedRobot
 
   private boolean nudging = true;
 
-  private boolean autoAim = true;
+  private boolean autoAim = false;
   private boolean autoPass = false;
-  private boolean autoRev = true;
+  private boolean autoRev = false;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -676,6 +676,8 @@ public class Robot extends TimedRobot
   {
     FieldUtils.updateAlliance();
 
+    autoAim = true;
+    autoRev = true;
     if (autoCommand.isEmpty())
       compileAuto();
 
@@ -688,6 +690,8 @@ public class Robot extends TimedRobot
     autoCommand.ifPresent(Command::cancel);
 
     FieldUtils.updateAlliance();
+    autoAim = true;
+    autoRev = true;
     initInputTransmute();
   }
 
