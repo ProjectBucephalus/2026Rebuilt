@@ -464,7 +464,7 @@ public final class Constants
 
       public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = -0.332;
+      public static final double minRotations = -0.146;//-0.332;
       public static final double maxRotations = 0.0;
       public static final double homeRotations = 0.03;
 
