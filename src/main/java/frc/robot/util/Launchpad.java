@@ -154,6 +154,71 @@ public class Launchpad
       publishers[btn].accept(colour.value);
   }
 
+  /**
+   * Pushes a full list of colour values to be dsiplayed, starting from 0
+   * <p> intended for full display refresh
+   * @param display List of Colour values
+   */
+  public void setDisplayGrid(DisplayGrid display)
+  {
+    for (int i = 0; i < display.grid.length; i++)
+      {publishers[i].accept(display.grid[i].value);}
+  }
+
+  
+  public record DisplayGrid(PadColour... grid){}
+
+  /**
+   * Converts integer array to PadColour array, for easier setting
+   * @param grid up to 8x8 Colour reference grid:
+   * <li> 0 -> Off
+   * <li> 1,4,7 -> Red
+   * <li> 2,5,8 -> Amber
+   * <li> 3,6,9 -> Green
+   * @return
+   */
+  public static DisplayGrid generateDisplayGrid(int... grid)
+  {
+    PadColour[] processingGrid = new PadColour[grid.length];
+    for (int i = 0; i < grid.length; i++)
+    switch (grid[i]) 
+    {
+      case 1:
+        processingGrid[i] = PadColour.DIM_RED;
+        break;
+      case 4:
+        processingGrid[i] = PadColour.MEDIUM_RED;
+        break;
+      case 7:
+        processingGrid[i] = PadColour.FULL_RED;
+        break;
+      case 2:
+        processingGrid[i] = PadColour.DIM_AMBER;
+        break;
+      case 5:
+        processingGrid[i] = PadColour.MEDIUM_AMBER;
+        break;
+      case 8:
+        processingGrid[i] = PadColour.FULL_AMBER;
+        break;
+      case 3:
+        processingGrid[i] = PadColour.DIM_GREEN;
+        break;
+      case 6:
+        processingGrid[i] = PadColour.MEDIUM_GREEN;
+        break;
+      case 9:
+        processingGrid[i] = PadColour.FULL_GREEN;
+        break;
+      case 0:
+      default:
+        processingGrid[i] = PadColour.OFF;
+        break;
+    }
+
+    return new DisplayGrid(processingGrid);
+  }
+
   //   A B C D E F G H  M
   // 1 [][][][][][][][] ()
   // 2 [][][][][][][][] ()
