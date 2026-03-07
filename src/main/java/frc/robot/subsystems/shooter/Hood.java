@@ -21,6 +21,7 @@ public class Hood
   private final Servo m_Servo;
   private final AnalogInput io_Altitude;
   private final boolean inverted;
+  private final double homeAngle;
   private final Target target;
 
   /**
@@ -30,12 +31,13 @@ public class Hood
    * @param inverted Inverts the range and direction of motion of the servo
    * @param targetSup Supplier for current Target object
    */
-  public Hood(int servoID, int feedbackID, boolean inverted, Target target)
+  public Hood(int servoID, int feedbackID, boolean inverted, double homeAngle, Target target)
   {
     m_Servo = new Servo(servoID);
     io_Altitude = new AnalogInput(feedbackID);
     this.inverted = inverted;
     this.target = target;
+    this.homeAngle = homeAngle;
   }
 
   /**
@@ -61,7 +63,7 @@ public class Hood
     double altitude = Conversions.clamp(target.altitude, 0, hoodRange);
 
     // Convert hood target in degrees to servo position from [0..1]
-    double servoTarget = ((altitude + homeAngle) * hoodRatio) / servoRange;
+    double servoTarget = ((altitude * hoodRatio) + homeAngle) / servoRange;
 
     // Invert the target position if needed
     if (inverted) servoTarget = 1 - servoTarget;

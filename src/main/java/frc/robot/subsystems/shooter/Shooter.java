@@ -73,7 +73,8 @@ public class Shooter extends SubsystemBase
     Transform2d robotToShooter,
     ShooterIDs idBlock,
     double azimuthOffset,
-    boolean invertedHood
+    boolean invertedHood,
+    double hoodHomeAngle
   ) 
   {
     this.swerveStateSup = swerveStateSup;
@@ -85,7 +86,7 @@ public class Shooter extends SubsystemBase
 
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, this::getTarget);
-    hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, target);
+    hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, hoodHomeAngle, target);
 
     target.azimuth = turret.getAzimuth();
   }

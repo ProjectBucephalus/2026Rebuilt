@@ -136,7 +136,8 @@ public class Robot extends TimedRobot
     ShooterConstants.portShooterOffset,
     IDConstants.portShooterIDs,
     ShooterConstants.TurretConstants.portPotOffset,
-    true
+    true,
+    ShooterConstants.HoodConstants.portHomeAngle
   );
   
   @Logged(name = "Stbd Shooter")
@@ -146,7 +147,8 @@ public class Robot extends TimedRobot
     ShooterConstants.stbdShooterOffset,
     IDConstants.stbdShooterIDs,
     ShooterConstants.TurretConstants.stbdPotOffset,
-    false
+    false,
+    ShooterConstants.HoodConstants.stbdHomeAngle
   );
   
   @Logged(name = "Vision")
@@ -708,11 +710,11 @@ public class Robot extends TimedRobot
   public void testPeriodic()
   {
     s_PortShooter.getTarget().speed = PBDash.TEST_FLYSPEED.get();
-    s_PortShooter.getTarget().azimuth = PBDash.TEST_AZIMUTH.get();
+    //s_PortShooter.getTarget().azimuth = PBDash.TEST_AZIMUTH.get();
     s_PortShooter.getTarget().altitude = PBDash.TEST_ALTITUDE.get();
     s_PortShooter.getTarget().flywheelsActive = true;
     s_StbdShooter.getTarget().speed = PBDash.TEST_FLYSPEED.get();
-    s_StbdShooter.getTarget().azimuth = PBDash.TEST_AZIMUTH.get();
+    //s_StbdShooter.getTarget().azimuth = PBDash.TEST_AZIMUTH.get();
     s_StbdShooter.getTarget().altitude = PBDash.TEST_ALTITUDE.get();
     s_StbdShooter.getTarget().flywheelsActive = true;
   }
