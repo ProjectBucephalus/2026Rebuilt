@@ -90,6 +90,23 @@ import frc.robot.util.libs.Telemetry;
 public class Robot extends TimedRobot 
 {
   /* State */
+  private static enum ButtonPadState
+  {
+    PassPointSelection,
+    LocalisationOveride,
+    AutoDisplay,
+    OverrideControls
+  }
+  private static enum ClimbPosition
+  {
+    OutLeft, OutRight,
+    MidLeft, MidRight,
+    InLeft, InRight
+  }
+
+  private ButtonPadState btnSet = ButtonPadState.PassPointSelection;
+  private ClimbPosition climbPos = ClimbPosition.OutLeft;
+
   private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
 
@@ -349,6 +366,7 @@ public class Robot extends TimedRobot
     
     /* Revving/Idleing as Appropriate */
     Trigger shooterActiveTrigger = driver.rightBumper().negate();
+    
     shooterActiveTrigger
       .whileFalse
       (
@@ -380,28 +398,44 @@ public class Robot extends TimedRobot
         })
       );
 
+    // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
+    // G2 -> port shooter idle, run indexer, return to previous state on release
+    // G3 -> port shooter idle, reverse indexer, return to previous state on release
+    // H1 -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
+    // H2 -> stbd shooter idle, run indexer, return to previous state on release 
+    // H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
+
     // debug.leftTrigger -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
-    debug.leftTrigger()
-      .and(shooterActiveTrigger)
+    shooterActiveTrigger
+      .and(debug.leftTrigger()
+        .or(buttonPad.G1()))
       .and(debug.leftBumper().negate())
-      .whileTrue(s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));//runOnce(() -> s_PortShooter.revFlywheels()));
+      .whileTrue(s_Indexer.runCommand(() -> s_PortShooter.getSpeed()).alongWith(run(() -> s_PortShooter.revFlywheels())));//runOnce(() -> s_PortShooter.revFlywheels()));
     // debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
+    buttonPad.G2()
+        .whileTrue(s_Indexer.runCommand(() -> s_PortShooter.getSpeed()).alongWith(run(() -> s_PortShooter.idleFlywheels())));
     debug.leftBumper()
+      .or(buttonPad.G3())
       .whileTrue(run(() -> 
       {
-        s_PortShooter.revFlywheels();
+        s_PortShooter.idleFlywheels();
         s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed);
       }));
+
     // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
-    debug.rightTrigger()
-      .and(shooterActiveTrigger)
+    shooterActiveTrigger
+      .and(debug.rightTrigger()
+        .or(buttonPad.H1()))
       .and(debug.rightBumper().negate())
-      .whileTrue(s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));//run(() -> s_StbdShooter.revFlywheels()));
+      .whileTrue(s_Indexer.runCommand(() -> s_StbdShooter.getSpeed()).alongWith(run(() -> s_StbdShooter.revFlywheels())));//run(() -> s_StbdShooter.revFlywheels()));
     // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
+    buttonPad.H2()
+        .whileTrue(s_Indexer.runCommand(() -> s_StbdShooter.getSpeed()).alongWith(run(() -> s_StbdShooter.idleFlywheels())));
     debug.rightBumper()
+      .or(buttonPad.H3())
       .whileTrue(run(() -> 
       {
-        s_StbdShooter.revFlywheels();
+        s_StbdShooter.idleFlywheels();
         s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed);
       }));
 
@@ -420,34 +454,52 @@ public class Robot extends TimedRobot
 
     debug.b().negate()
       .and(debug.a()
-          .or(driver.leftTrigger().and(s_Hopper::extended)))
+          .or(driver.leftTrigger().and(s_Hopper::extended))
+          .or(buttonPad.B1())
+        )
       .whileTrue(s_Hopper.runIntakeCommand());
-      //.onFalse(s_Hopper.stopIntakeCommand());
 
     driver.povUp()
       .or(debug.x())
+      .or(buttonPad.A2())
       .whileTrue(parallel(s_Hopper.extensionJostleCommand(), s_Hopper.runIntakeCommand()))
       .onFalse(s_Hopper.extendCommand());
 
     driver.povDown().onTrue(s_Hopper.retractCommand());
 
     debug.b()
+      .or(buttonPad.B3())
       .onTrue(s_Hopper.reverseIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
 
     debug.povUp()
+      .or(buttonPad.A1())
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
     debug.povDown()
+      .or(buttonPad.A3())
       .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
 
     // -------------CLIMBER------------- //
     
-    debug.back().onTrue(s_Climber.retractCommand());
-    debug.start().onTrue(s_Climber.deployCommand());
+    debug.back()
+      .or(buttonPad.D2())
+      .onTrue(s_Climber.retractCommand());
+    debug.start()
+      .or(buttonPad.E2())
+      .onTrue(s_Climber.deployCommand());
+      
     s_Climber.setDefaultCommand(s_Climber.adjustTargetCommand(() -> debug.getLeftY() * ControlConstants.manualClimberExtensionScale));
 
     switchboard.button(0/*climbButtonID1*/).and(switchboard.button(0/*climbButtonID2*/))
         .onTrue(s_Climber.retractCommand());
+
+    buttonPad.C2().onTrue(runOnce(() -> climbPos = ClimbPosition.MidLeft).ignoringDisable(true));
+    buttonPad.D1().onTrue(runOnce(() -> climbPos = ClimbPosition.OutLeft).ignoringDisable(true));
+    buttonPad.D3().onTrue(runOnce(() -> climbPos = ClimbPosition.InLeft).ignoringDisable(true));
+    buttonPad.E1().onTrue(runOnce(() -> climbPos = ClimbPosition.OutRight).ignoringDisable(true));
+    buttonPad.E3().onTrue(runOnce(() -> climbPos = ClimbPosition.InRight).ignoringDisable(true));
+    buttonPad.F2().onTrue(runOnce(() -> climbPos = ClimbPosition.MidRight).ignoringDisable(true));
+
 
     // -------------BTN-PAD------------- //
 
@@ -464,6 +516,14 @@ public class Robot extends TimedRobot
     // A4-H8 -> Alliance Zone map
     // M1 -> Full auto targeting, reset target -> map sets pass point
     // M2 -> Position Mode -> map sets robot position
+
+    Trigger btnSetPass          = new Trigger(() -> btnSet == ButtonPadState.PassPointSelection);
+    Trigger btnSetLocalisation  = new Trigger(() -> btnSet == ButtonPadState.LocalisationOveride);
+    Trigger btnSetAuto          = new Trigger(() -> btnSet == ButtonPadState.AutoDisplay);
+    Trigger btnSetOverride      = new Trigger(() -> btnSet == ButtonPadState.OverrideControls);
+
+    buttonPad.M1().onTrue(runOnce(() -> btnSet = ButtonPadState.PassPointSelection));
+    buttonPad.M2().onTrue(runOnce(() -> btnSet = ButtonPadState.LocalisationOveride));
 
     // A1 -> manual intake extend
     // A2 -> agitate intake
