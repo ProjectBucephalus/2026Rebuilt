@@ -56,21 +56,8 @@ public class Launchpad
   public Launchpad(int port) 
   {
     // Creates generic HID
-    CommandGenericHID tempA = new CommandGenericHID(port);
-    CommandGenericHID tempB = new CommandGenericHID(port + 1);
-
-    if (tempA.getHID().getPOVCount() == 2 && tempB.getHID().getPOVCount() == 3) 
-    {
-      controllerOne = tempA;
-      controllerTwo = tempB;
-    }
-    else 
-    {
-      controllerOne = tempB;
-      controllerTwo = tempA;
-      if (!(tempA.getHID().getPOVCount() == 3 && tempB.getHID().getPOVCount() == 2))
-        PBDash.LAUNCHPAD_GOOD.put(false);
-    }
+    controllerOne = new CommandGenericHID(port);
+    controllerTwo = new CommandGenericHID(port + 1);
 
     // Accesses network tables and creates a table to send colour data over
     var ntInstance = NetworkTableInstance.getDefault();
@@ -85,6 +72,24 @@ public class Launchpad
       publishers[i] = topic.publish();
       publishers[i].accept(PadColour.DIM_AMBER.value);
     }
+  }
+
+  /** 
+   * Flags multiple errors if the virtual controllers are ordered incorrectly in driverstation
+   * @return {@code true} iff both controllers are plugged in correctly
+   */
+  public boolean validate()
+  {
+    if (controllerOne.getHID().getPOVCount() != 2 || controllerTwo.getHID().getPOVCount() != 3)
+    {
+      setColourSpan(PadColour.FULL_RED, 0, 31);
+      setColourSpan(PadColour.FULL_ORANGE, 32, 63);
+      PBDash.LAUNCHPAD_GOOD.put(false);
+      return false;
+    }
+
+    PBDash.LAUNCHPAD_GOOD.put(true);
+    return true;
   }
 
   /**
