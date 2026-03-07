@@ -439,10 +439,12 @@ public final class Constants
       {
         intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
 
-        intakeConfig.Slot0.kS = 0.56;
-        intakeConfig.Slot0.kV = 0.2;
+        intakeConfig.Slot0.kS = 0.265;
+        intakeConfig.Slot0.kV = 0.1;
 
-        intakeConfig.MotionMagic.MotionMagicAcceleration = 50.0;
+        intakeConfig.Slot0.kP = 0.5;
+
+        intakeConfig.MotionMagic.MotionMagicAcceleration = 200.0;
       }
     }
 
