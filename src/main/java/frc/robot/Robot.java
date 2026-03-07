@@ -8,6 +8,7 @@ import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -55,6 +56,8 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
+import frc.robot.util.AlliancePose2d;
+import frc.robot.util.AllianceTranslation2d;
 import frc.robot.util.AutoBuilder;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.Launchpad;
@@ -500,6 +503,8 @@ public class Robot extends TimedRobot
 
     // -------------BTN-PAD------------- //
 
+    buttonPad.setDisplayGrid(ButtonPadConstants.passPointMap);
+
     //   A B C D E F G H  M
     // 1 [][][][][][][][] ()
     // 2 [][][][][][][][] ()
@@ -519,8 +524,26 @@ public class Robot extends TimedRobot
     Trigger btnSetAuto          = new Trigger(() -> btnSet == ButtonPadState.AutoDisplay);
     Trigger btnSetOverride      = new Trigger(() -> btnSet == ButtonPadState.OverrideControls);
 
-    buttonPad.M1().onTrue(runOnce(() -> btnSet = ButtonPadState.PassPointSelection));
-    buttonPad.M2().onTrue(runOnce(() -> btnSet = ButtonPadState.LocalisationOveride));
+    buttonPad.M1().onTrue(runOnce(() -> btnSet = ButtonPadState.PassPointSelection).ignoringDisable(true));
+    buttonPad.M2()
+      .onTrue(runOnce(() -> btnSet = ButtonPadState.LocalisationOveride).ignoringDisable(true))
+      .onFalse(runOnce(() -> btnSet = ButtonPadState.PassPointSelection).ignoringDisable(true));
+
+    btnSetPass.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.passPointMap)).ignoringDisable(true));
+    btnSetLocalisation.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.localisationMap)).ignoringDisable(true));
+
+    for (int x = 0; x <= 3; x++)
+    {
+      for (int y = 0; y <= 7; y++)
+      {
+        double targetX = 3.5 - x;
+        double targetY = 7.5 - y;
+        btnSetPass.and(buttonPad.getBtn(32 + y + (8 * x)))
+          .onTrue(modifyTargetsCommand(target -> target.point = new AllianceTranslation2d(targetX, targetY).get()));
+        btnSetLocalisation.and(buttonPad.getBtn(32 + y + (8 * x)))
+          .onTrue(runOnce(() -> s_Vision.setPose(new AlliancePose2d(targetX, targetY, 0).get())));
+      }
+    }
 
     // A1 -> manual intake extend
     // A2 -> agitate intake
