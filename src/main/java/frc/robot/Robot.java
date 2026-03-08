@@ -382,13 +382,13 @@ public class Robot extends TimedRobot
 
     /* Targetting States */
     autoAimTrigger
-      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual));
+      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual).ignoringDisable(true));
     autoAimTrigger
       .and(() -> !FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point));
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point).ignoringDisable(true));
     autoAimTrigger
       .and(() -> FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub));
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub).ignoringDisable(true));
 
     /* Pass Point */
     autoAimTrigger.and(() -> autoPass)
