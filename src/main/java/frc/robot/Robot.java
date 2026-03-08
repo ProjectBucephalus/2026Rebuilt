@@ -391,11 +391,8 @@ public class Robot extends TimedRobot
       .and(shooterActiveTrigger)
       .whileTrue
       (
-        run(() ->
-        {
-          if (s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
-            s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()));
-        })
+        s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()))
+          .onlyIf(() -> s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
       );
 
     // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
@@ -410,34 +407,40 @@ public class Robot extends TimedRobot
       .and(debug.leftTrigger()
         .or(buttonPad.G1()))
       .and(debug.leftBumper().negate())
-      .whileTrue(s_Indexer.runCommand(() -> s_PortShooter.getSpeed()).alongWith(run(() -> s_PortShooter.revFlywheels())));//runOnce(() -> s_PortShooter.revFlywheels()));
+      .whileTrue(s_Indexer.runCommand(s_PortShooter::getSpeed).alongWith(run(s_PortShooter::revFlywheels)));//runOnce(() -> s_PortShooter.revFlywheels()));
     // debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
     buttonPad.G2()
-        .whileTrue(s_Indexer.runCommand(() -> s_PortShooter.getSpeed()).alongWith(run(() -> s_PortShooter.idleFlywheels())));
+        .whileTrue(s_Indexer.runCommand(s_PortShooter::getSpeed).alongWith(run(s_PortShooter::idleFlywheels)));
     debug.leftBumper()
       .or(buttonPad.G3())
-      .whileTrue(run(() -> 
-      {
-        s_PortShooter.idleFlywheels();
-        s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed);
-      }));
+      .whileTrue
+      (
+        parallel
+        (
+          s_PortShooter.run(s_PortShooter::idleFlywheels),
+          s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
+        )
+      );
 
     // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
     shooterActiveTrigger
       .and(debug.rightTrigger()
         .or(buttonPad.H1()))
       .and(debug.rightBumper().negate())
-      .whileTrue(s_Indexer.runCommand(() -> s_StbdShooter.getSpeed()).alongWith(run(() -> s_StbdShooter.revFlywheels())));//run(() -> s_StbdShooter.revFlywheels()));
+      .whileTrue(s_Indexer.runCommand(s_StbdShooter::getSpeed).alongWith(run(s_StbdShooter::revFlywheels)));//run(() -> s_StbdShooter.revFlywheels()));
     // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
     buttonPad.H2()
-        .whileTrue(s_Indexer.runCommand(() -> s_StbdShooter.getSpeed()).alongWith(run(() -> s_StbdShooter.idleFlywheels())));
+        .whileTrue(s_Indexer.runCommand(s_StbdShooter::getSpeed).alongWith(run(s_StbdShooter::idleFlywheels)));
     debug.rightBumper()
       .or(buttonPad.H3())
-      .whileTrue(run(() -> 
-      {
-        s_StbdShooter.idleFlywheels();
-        s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed);
-      }));
+      .whileTrue
+      (
+        parallel
+        (
+          s_StbdShooter.run(s_StbdShooter::idleFlywheels),
+          s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
+        )
+      );
 
     /* Manual Control */
     autoAimTrigger.negate()
@@ -453,10 +456,12 @@ public class Robot extends TimedRobot
       .onTrue(s_Hopper.extendCommand());
 
     debug.b().negate()
-      .and(debug.a()
+      .and
+      (
+        debug.a()
           .or(driver.leftTrigger().and(s_Hopper::extended))
           .or(buttonPad.B1())
-        )
+      )
       .whileTrue(s_Hopper.runIntakeCommand());
 
     driver.povUp()
