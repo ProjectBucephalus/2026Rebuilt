@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static frc.robot.constants.FieldConstants.*;
 
+import java.util.Optional;
+
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
@@ -19,6 +21,20 @@ public class FieldUtils
 {
   private static boolean redAlliance;
   static {updateAlliance();}
+
+  public static Optional<Alliance> autoWinner()
+  {
+    String gameData = DriverStation.getGameSpecificMessage();
+    if (gameData.length() > 0)
+      return switch (gameData.charAt(0))
+      {
+        case 'B' -> Optional.of(Alliance.Blue);
+        case 'R' -> Optional.of(Alliance.Red);
+        default  -> Optional.empty();
+      };
+    else 
+      return Optional.empty();
+  }
 
   /**
    * Checks whether we are on the red alliance <p>
