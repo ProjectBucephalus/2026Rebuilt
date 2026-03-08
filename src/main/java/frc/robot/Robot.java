@@ -4,7 +4,8 @@
 
 package frc.robot;
 
-import edu.wpi.first.epilogue.Epilogue;
+
+//import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
@@ -205,7 +206,7 @@ public class Robot extends TimedRobot
   public Robot() 
   {
     updateSwerveState();
-
+    
     initLogging();
     initInputTransmute();
     bindControls();
@@ -225,7 +226,7 @@ public class Robot extends TimedRobot
       DriverStation.startDataLog(DataLogManager.getLog());
     }
 
-    Epilogue.bind(this);
+    //Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
   }
@@ -704,6 +705,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
+    FieldUtils.startAuto();
     FieldUtils.updateAlliance();
 
     autoAim = true;
@@ -717,6 +719,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit() 
   {
+    FieldUtils.startTele();
     autoCommand.ifPresent(Command::cancel);
 
     FieldUtils.updateAlliance();

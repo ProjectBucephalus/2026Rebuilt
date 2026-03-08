@@ -374,6 +374,11 @@ public final class Constants
     }};
   }
 
+  public static final class LEDConstants 
+  {
+    public static final int LEDStripLen = 120;
+  }
+
   /** Tuning data for feeder */
   public  static final class FeederConstants 
   {
