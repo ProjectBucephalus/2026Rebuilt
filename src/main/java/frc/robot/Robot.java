@@ -368,31 +368,33 @@ public class Robot extends TimedRobot
       .whileTrue(modifyTargetsCommand(target -> target.point = FieldUtils.getClosestPassPoint(getTranslation())));
     
     /* Revving/Idleing as Appropriate */
-    Trigger shooterActiveTrigger = driver.rightBumper().negate()
-      .and(autoAimTrigger);
+    final Trigger shootActiveTrigger = driver.rightBumper().negate()
+      .and(() -> FieldUtils.hubActiveToleranced(FieldUtils.getAlliance(), ControlConstants.preShiftMargin, ControlConstants.postShiftMargin));
     
-    shooterActiveTrigger
-      .whileFalse
+    // Idle when right bumper
+    driver.rightBumper()
+      .whileTrue
       (
         forBothShootersCommand(Shooter::idleFlywheels)
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
       );
 
+    // Rev if auto aiming, auto revving, and shooters are active
     autoAimTrigger
       .and(() -> autoRev)
-      .and(shooterActiveTrigger)
+      .and(shootActiveTrigger)
       .onTrue(forBothShootersCommand(Shooter::revFlywheels))
       .onFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
     /* Shooting when Ready */
-    shooterActiveTrigger
+    shootActiveTrigger
       .and(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
       .whileTrue(s_Indexer.runCommand(() -> Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));
 
     //driver.leftBumper -> manual shoot -> ensure flywheels at least idle speed, then run indexers
     driver.leftBumper()
-      .and(shooterActiveTrigger)
+      .and(driver.rightBumper().negate())
       .whileTrue
       (
         s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()))
@@ -407,7 +409,7 @@ public class Robot extends TimedRobot
     // H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
 
     // debug.leftTrigger -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
-    shooterActiveTrigger
+    driver.rightBumper().negate()
       .and(debug.leftTrigger()
         .or(buttonPad.G1()))
       .and(debug.leftBumper().negate())
@@ -427,7 +429,7 @@ public class Robot extends TimedRobot
       );
 
     // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
-    shooterActiveTrigger
+    driver.rightBumper().negate()
       .and(debug.rightTrigger()
         .or(buttonPad.H1()))
       .and(debug.rightBumper().negate())
@@ -682,6 +684,7 @@ public class Robot extends TimedRobot
   @Override
   public void robotPeriodic() 
   {
+    FieldUtils.updateAutoWinner();
     updateSwerveState();
     CommandScheduler.getInstance().run();
   }

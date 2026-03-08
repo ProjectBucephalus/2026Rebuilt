@@ -27,6 +27,7 @@ public class FieldUtils
   public static Optional<Alliance> getAutoWinner()
     {return autoWinner;}
 
+  /** Attempts to fetch the auto winner from DriverStation, if we haven't already got it */
   public static void updateAutoWinner()
   {
     if (autoWinner.isEmpty()) 
@@ -42,31 +43,32 @@ public class FieldUtils
     }
   }
 
-  /**
-   * Get the current shift number
-   * @return Current shift number [1..4], -1 if still in auto, or 0 if in transition or endgame
-   */
-  public static int currentShift()
+  /** @return whether the provided alliance's hub is active, with margin on each side to maximise scoring */
+  public static boolean hubActiveToleranced(Alliance alliance, double preMargin, double postMargin) 
   {
     double timeElapsed = MatchTime.getTeleTimeElapsed();
-    if (timeElapsed == 0)
-      return -1;
-    else if (timeElapsed <= 10 || timeElapsed > 110)
-      return 0;
+
+    if 
+    (
+      timeElapsed == 0                     // Auto
+      || timeElapsed < (10 - preMargin)    // Transition
+      || timeElapsed >= (110 + postMargin) // Endgame
+    )
+      return true;
     else
-      return Math.floorDiv((int)timeElapsed, 25);
+    {
+      if (alliance == autoWinner.get()) 
+        return (timeElapsed >= (35 - preMargin) && timeElapsed < (60 + postMargin)) // Shift 2
+        || (timeElapsed >= (85 - preMargin) && timeElapsed < (110 + postMargin));   // Shift 4
+      else 
+        return (timeElapsed >= (10 - preMargin) && timeElapsed < (35 + postMargin)) // Shift 1
+        || (timeElapsed >= (60 - preMargin) && timeElapsed < (85 + postMargin));    // Shift 3
+    }     
   }
 
   /** @return whether the provided alliance's hub is active */
   public static boolean hubActive(Alliance alliance) 
-  {
-    int currentShift = currentShift();
-    if (currentShift <= 0) 
-      return true;
-    else
-      // If we are winner, we have the even shifts. Otherwise we have the odd shifts
-      return (currentShift % 2 == 0) == (alliance == autoWinner.get());
-  }
+    {return hubActiveToleranced(alliance, 0, 0);}
 
   /**
    * Checks whether we are on the red alliance <p>

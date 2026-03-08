@@ -65,6 +65,9 @@ public final class Constants
     public static final double manualIntakeExtensionAmount = 0.05;
     public static final double manualClimberExtensionScale = 0.05;
     public static final double manualShooterDeadband = 0.5;
+
+    public static final double preShiftMargin = 1;
+    public static final double postShiftMargin = 2;
   }
 
   /** Geometry and tuning data for drivebase */
