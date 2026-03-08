@@ -98,9 +98,8 @@ public class Limelight
     for (int i = result.targets.size() - 1; i >= 0; i--)
     {
       double targetAmb = result.targets.get(i).getPoseAmbiguity();
-      int targetID = result.targets.get(i).fiducialId;
       
-      if (targetAmb > 0.2 || trenchIDs.contains(targetID)) 
+      if (targetAmb > 0.2) 
       {
         result.targets.remove(i);
       } 

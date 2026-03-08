@@ -119,7 +119,7 @@ public class Shooter extends SubsystemBase
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
-    {return turret.getAzimuth() - shooterOffset.getRotation().getDegrees();}
+    {return turret.getAzimuth();}
 
   /** @return Current speed of the flywheels (RPS of the main flywheel) */
   public double getSpeed()
