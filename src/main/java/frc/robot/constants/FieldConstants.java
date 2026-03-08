@@ -124,7 +124,7 @@ public class FieldConstants
     public static final double bumpYa = hubYa - bumpWidth;
     public static final double bumpYb = hubYb + bumpWidth;
 
-    public static final double bumpDepth = 1.0;
+    public static final double bumpDepth = 0.5;
     public static final double bumpXa = hubCentreOffset + bumpDepth/2;
     public static final double bumpXb = hubCentreOffset - bumpDepth/2;
 
@@ -144,16 +144,15 @@ public class FieldConstants
     /* Trench Zone */
     public static final double trenchWidth = 1.28;
     /** Depth of region around Trench bar to keep out of */
-    public static final double trenchBarrierDepth = 0.8;
+    public static final double trenchBarrierDepth = 1.25;
     public static final double trenchXa = hubCentreOffset + trenchBarrierDepth/2;
     public static final double trenchXb = hubCentreOffset - trenchBarrierDepth/2;
 
-    public static final Box trenchSB = new Box(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchWidth);
-    public static final Box trenchNB = new Box(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
-    public static final Box trenchSR = new Box(fieldCentre.getX() + trenchXa, 0, fieldCentre.getX() + trenchXb, trenchWidth);
-    public static final Box trenchNR = new Box(fieldCentre.getX() + trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() + trenchXb, fieldWidth);
+    public static final BoxRestrictor trenchSB = new BoxRestrictor(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchWidth);
+    public static final BoxRestrictor trenchNB = new BoxRestrictor(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
+    public static final BoxRestrictor trenchSR = new BoxRestrictor(fieldCentre.getX() + trenchXa, 0, fieldCentre.getX() + trenchXb, trenchWidth);
+    public static final BoxRestrictor trenchNR = new BoxRestrictor(fieldCentre.getX() + trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() + trenchXb, fieldWidth);
 
-    
     /* Trench Column */
     //public static final double trenchColumnWidth = 1.67 - trenchWidth;
     public static final double trenchColumnDepth = 1.2;

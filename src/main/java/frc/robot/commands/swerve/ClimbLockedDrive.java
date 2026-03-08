@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Robot.ClimbPosition;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.FieldUtils;
 
@@ -12,8 +13,10 @@ import frc.robot.util.FieldUtils;
  * Heading-locked drive command with dynamic heading switching based on robot position 
  * @author 5985
  */
-public class TrenchLockedDrive extends HeadingLockedDrive 
+public class ClimbLockedDrive extends HeadingLockedDrive 
 {
+  private final Supplier<ClimbPosition> climbPosSup;
+  
   /**
    * Creates a Heading-locked drive command to face the nearest station <p>
    * (From 2025 Reefscape, left as an example)
@@ -22,23 +25,27 @@ public class TrenchLockedDrive extends HeadingLockedDrive
    * @param rotationOffset Field relative rotation to treat as 0
    * @param robotPoseSup Supplier for robot XY position in field coordinates
    */
-  public TrenchLockedDrive
+  public ClimbLockedDrive
   (
     CommandSwerveDrivetrain s_Swerve, 
     Supplier<Translation2d> joystickSupplier,
-    Supplier<Pose2d> robotPoseSup
+    Supplier<Pose2d> robotPoseSup,
+    Supplier<ClimbPosition> climbPosSup
   ) 
   {
     super(s_Swerve, joystickSupplier, Rotation2d.kZero, Rotation2d.kZero, robotPoseSup);
+    this.climbPosSup = climbPosSup;
   }
 
   @Override
-  public void initialize() 
+  protected void updateTargetHeading()
   {
-    robotPose = robotPoseSup.get();
-    var rotation = FieldUtils.inAllianceZone(robotPose.getTranslation()) ?
-      Rotation2d.kZero :
-      Rotation2d.k180deg;
+    var rotation = switch (climbPosSup.get()) 
+    {
+      case MidLeft -> Rotation2d.kCCW_90deg;
+      case MidRight -> Rotation2d.kCCW_90deg;
+      default -> Rotation2d.kZero;
+    };
     targetHeading = FieldUtils.allianceRotateRotation(rotation);
   }
 }

@@ -35,6 +35,7 @@ public class OutpostLockedDrive extends HeadingLockedDrive
   @Override
   public void initialize() 
   {
+    robotPose = robotPoseSup.get();
     var currRotation = robotPose.getRotation().getDegrees();
     double diff90 = Math.abs(currRotation - 90);
     double diff180 = Math.abs(currRotation - 180);

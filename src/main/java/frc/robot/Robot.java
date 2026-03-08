@@ -104,7 +104,7 @@ public class Robot extends TimedRobot
     AutoDisplay,
     OverrideControls
   }
-  private static enum ClimbPosition
+  public static enum ClimbPosition
   {
     OutLeft, OutRight,
     MidLeft, MidRight,
@@ -294,7 +294,26 @@ public class Robot extends TimedRobot
         )
       );
     
-    // TODO: if (nudging && in trench zone) {nudge to nearest 180 degrees}
+    PBDash.IO_FENCE.asSwitch()
+      .and(() -> nudging && s_Vision.hasLocalisation())
+      .and
+      (
+            trenchNB.asTrigger()
+        .or(trenchSB.asTrigger())
+        .or(trenchNR.asTrigger())
+        .or(trenchSR.asTrigger())
+      )
+      .whileTrue
+      (
+        new TrenchNudgeDrive
+        (
+          s_Swerve, 
+          driverStick::stickOutput, 
+          () -> -driver.getRightX(), 
+          driver::getRightTriggerAxis, 
+          () -> swerveState.Pose.getRotation()
+        ).onlyIf(() -> headingLock == HeadingLockState.Unlocked)
+      );
 
     new Trigger(() -> headingLock == HeadingLockState.Unlocked)
       .onTrue(s_Swerve.getDefaultCommand());
@@ -307,9 +326,21 @@ public class Robot extends TimedRobot
       .or(driver.a())
       .onTrue(runOnce(() -> headingLock = HeadingLockState.General));
 
-    //driver.b -> ?? bump rotation lock ??
+    driver.b().onTrue
+    (        
+      new NonCardinalDrive
+      (
+        s_Swerve, 
+        driverStick::stickOutput, 
+        () -> -driver.getRightX(), 
+        driver::getRightTriggerAxis, 
+        () -> swerveState.Pose.getRotation(), 
+        bumpRotationTolerance
+      )
+    );
     driver.y().onTrue(new TrenchLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
-    //driver.x -> tower rotation lock -> based on selected clime location, enable attractor
+    //driver.x -> tower rotation lock -> based on selected clime location, TODO enable attractor
+    driver.x().onTrue(new ClimbLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose, () -> climbPos));
     driver.a().onTrue(new OutpostLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
 
 

@@ -2,7 +2,6 @@ package frc.robot.commands.swerve;
 
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.util.FieldUtils;
 
 import java.util.function.Supplier;
 
