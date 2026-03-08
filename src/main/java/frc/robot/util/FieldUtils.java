@@ -19,21 +19,53 @@ import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed
  */
 public class FieldUtils 
 {
-  private static boolean redAlliance;
+  private static Alliance alliance;
   static {updateAlliance();}
 
-  public static Optional<Alliance> autoWinner()
+  private static Optional<Alliance> autoWinner = Optional.empty();
+
+  public static Optional<Alliance> getAutoWinner()
+    {return autoWinner;}
+
+  public static void updateAutoWinner()
   {
-    String gameData = DriverStation.getGameSpecificMessage();
-    if (gameData.length() > 0)
-      return switch (gameData.charAt(0))
-      {
-        case 'B' -> Optional.of(Alliance.Blue);
-        case 'R' -> Optional.of(Alliance.Red);
-        default  -> Optional.empty();
-      };
-    else 
-      return Optional.empty();
+    if (autoWinner.isEmpty()) 
+    {
+      String gameData = DriverStation.getGameSpecificMessage();
+      if (gameData.length() > 0)
+        autoWinner = switch (gameData.charAt(0))
+        {
+          case 'B' -> Optional.of(Alliance.Blue);
+          case 'R' -> Optional.of(Alliance.Red);
+          default  -> Optional.empty();
+        };
+    }
+  }
+
+  /**
+   * Get the current shift number
+   * @return Current shift number [1..4], -1 if still in auto, or 0 if in transition or endgame
+   */
+  public static int currentShift()
+  {
+    double timeElapsed = MatchTime.getTeleTimeElapsed();
+    if (timeElapsed == 0)
+      return -1;
+    else if (timeElapsed <= 10 || timeElapsed > 110)
+      return 0;
+    else
+      return Math.floorDiv((int)timeElapsed, 25);
+  }
+
+  /** @return whether the provided alliance's hub is active */
+  public static boolean hubActive(Alliance alliance) 
+  {
+    int currentShift = currentShift();
+    if (currentShift <= 0) 
+      return true;
+    else
+      // If we are winner, we have the even shifts. Otherwise we have the odd shifts
+      return (currentShift % 2 == 0) == (alliance == autoWinner.get());
   }
 
   /**
@@ -42,20 +74,29 @@ public class FieldUtils
    * 
    * @return true if we are on the red alliance
    */
-  public static boolean isRedAlliance() 
-    {return redAlliance;}
+  public static boolean isAlliance(Alliance testAlliance) 
+    {return alliance == testAlliance;}
+
+  public static Alliance getAlliance() 
+    {return alliance;}
 
   /**
    * Updates the cached alliance value 
    */
   public static void updateAlliance()
-    {redAlliance = DriverStation.getAlliance().map(Alliance.Red::equals).orElse(false);}
+    {alliance = DriverStation.getAlliance().orElse(Alliance.Blue);}
 
   /** 
    * @return the centre point of your alliance's hub
    */
   public static Translation2d getAllianceHubCentre() 
-    {return isRedAlliance() ? redHubCentre : blueHubCentre;}
+  {
+    return switch (getAlliance()) 
+    {
+      case Blue -> blueHubCentre;
+      case Red -> redHubCentre;
+    };
+  }
 
   /**
    * @return which driver station we are being controlled from (1, 2, or 3), or 0 if the value is unavailable
@@ -72,13 +113,11 @@ public class FieldUtils
   public static Pose2d allianceFlipPose(Pose2d pose) 
   {
     // flip pose when red
-    if (isRedAlliance()) 
-    {
+    if (isAlliance(Alliance.Red)) 
       return flipPose(pose);
-    }
-
-    // Blue or we don't know; return the original pose
-    return pose;
+    else
+      // Blue or we don't know; return the original pose
+      return pose;
   }
 
   /**
@@ -103,7 +142,7 @@ public class FieldUtils
   public static Pose2d allianceRotatePose(Pose2d pose) 
   {
     // flip pose when red
-    if (isRedAlliance()) 
+    if (isAlliance(Alliance.Red)) 
       // reflect the pose around center point, flip both the X and Y position and rotation
       return pose.rotateAround(fieldCentre, Rotation2d.k180deg);
     else 
@@ -132,7 +171,7 @@ public class FieldUtils
   public static Translation2d allianceFlipTranslation(Translation2d translation) 
   {
     // flip translation when red
-    if (isRedAlliance()) 
+    if (isAlliance(Alliance.Red)) 
       // reflect the translation around center point, flip both the X and Y position
       return flipTranslation(translation);
     else 
@@ -161,7 +200,7 @@ public class FieldUtils
   public static Translation2d allianceRotateTranslation(Translation2d translation) 
   {
     // flip translation when red
-    if (isRedAlliance()) 
+    if (isAlliance(Alliance.Red)) 
       // reflect the translation around center point, flip both the X and Y position
       return rotateTranslation(translation);
     else 
@@ -188,8 +227,8 @@ public class FieldUtils
    */
   public static void activateAllianceFencing() 
   {
-    GeoFencing.fieldRedGeoFence.setActiveCondition(() -> isRedAlliance());
-    GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> !isRedAlliance());
+    GeoFencing.fieldRedGeoFence.setActiveCondition(() -> isAlliance(Alliance.Red));
+    GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> isAlliance(Alliance.Blue));
   }
 
   /**
@@ -200,17 +239,20 @@ public class FieldUtils
    */
   public static boolean inAllianceZone(Translation2d pos) 
   {
-    if (isRedAlliance()) 
-      return pos.getX() > redStartLine.getX() - robotRadiusInscribed;
-    else 
-      return pos.getX() < blueStartLine.getX() + robotRadiusInscribed;
+    return switch (getAlliance())
+    {
+      case Blue -> pos.getX() < blueStartLine.getX() + robotRadiusInscribed;
+      case Red -> pos.getX() > redStartLine.getX() - robotRadiusInscribed;
+    };
   }
 
   public static Translation2d getClosestPassPoint(Translation2d pos)
   {
-    boolean inLeftHalf = isRedAlliance() 
-      ? pos.getY() < fieldCentre.getY()
-      : pos.getY() > fieldCentre.getY();
+    boolean inLeftHalf = switch (getAlliance())
+    {
+      case Blue -> pos.getY() > fieldCentre.getY();
+      case Red -> pos.getY() < fieldCentre.getY();
+    };
 
     return inLeftHalf ? ControlConstants.leftFerryTarget.get() : ControlConstants.rightFerryTarget.get();
   }  

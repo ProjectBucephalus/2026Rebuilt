@@ -57,6 +57,6 @@ public class AlliancePose2d implements Supplier<Pose2d>
   @Override
   public Pose2d get() 
   {
-    return FieldUtils.isRedAlliance() ? poseRed : poseBlue;
+    return switch (FieldUtils.getAlliance()) { case Blue -> poseBlue; case Red -> poseRed; };
   }
 }

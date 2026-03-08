@@ -6,7 +6,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.util.FieldUtils;
 
 /** 
  * Heading-locked drive command with dynamic heading switching based on robot position 
@@ -36,7 +38,7 @@ public class TargetStationDrive extends HeadingLockedDrive
   @Override
   protected void updateTargetHeading()
   {
-    targetHeading = redAlliance ^ (robotPose.getY() >= 4.026) ? 
+    targetHeading = FieldUtils.isAlliance(Alliance.Red) ^ (robotPose.getY() >= 4.026) ? 
       Rotation2d.fromDegrees(-55) : // Left side if blue, right side if red
       Rotation2d.fromDegrees(55); // Right side if blue, left side if red
   }

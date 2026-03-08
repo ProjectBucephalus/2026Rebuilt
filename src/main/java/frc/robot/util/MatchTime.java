@@ -81,7 +81,7 @@ public class MatchTime
    * NB while in auto should be identical to getGameTimeElapsed()
    * 
    * @return time elapsed since the startAuto() call, in seconds.
-   * Will return zero if startAuto() has not been called, and 15 if auto is finished.
+   * Will return zero if startAuto() has not been called, and {@value MatchTime#AUTO_TIME} if auto is finished.
    */
   public static double getAutoTimeElapsed()
   {

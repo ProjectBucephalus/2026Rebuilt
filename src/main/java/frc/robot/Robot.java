@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -243,7 +244,7 @@ public class Robot extends TimedRobot
     FieldObject.setRobotPosSup(this::getTranslation);
     
     driverStick
-      .rotated(FieldUtils.isRedAlliance())
+      .rotated(FieldUtils.isAlliance(Alliance.Red))
       .withFieldObjects(GeoFencing.fieldGeoFence)
       .withBrake(driverBrake)
       .withInputCurve(driverInputCurve)
@@ -367,7 +368,8 @@ public class Robot extends TimedRobot
       .whileTrue(modifyTargetsCommand(target -> target.point = FieldUtils.getClosestPassPoint(getTranslation())));
     
     /* Revving/Idleing as Appropriate */
-    Trigger shooterActiveTrigger = driver.rightBumper().negate();
+    Trigger shooterActiveTrigger = driver.rightBumper().negate()
+      .and(autoAimTrigger);
     
     shooterActiveTrigger
       .whileFalse
@@ -689,9 +691,14 @@ public class Robot extends TimedRobot
   {
     FieldUtils.updateAlliance();
     if (getTranslation().equals(Translation2d.kZero))
-    {
-      s_Swerve.resetPose(FieldUtils.isRedAlliance() ? FieldConstants.redStartLine : FieldConstants.blueStartLine);
-    }
+      s_Swerve.resetPose
+      (
+        switch (FieldUtils.getAlliance()) 
+        {
+          case Blue -> FieldConstants.blueStartLine; 
+          case Red -> FieldConstants.redStartLine;
+        }
+      );
   }
 
   @Override
