@@ -63,6 +63,7 @@ import frc.robot.util.AutoBuilder;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.Launchpad;
 import frc.robot.util.LockableXboxController;
+import frc.robot.util.MatchTime;
 import frc.robot.util.PBDash;
 import frc.robot.util.Launchpad.PadColour;
 import frc.robot.util.controlTransmutation.*;
@@ -705,7 +706,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
-    FieldUtils.startAuto();
+    MatchTime.startAuto();
     FieldUtils.updateAlliance();
 
     autoAim = true;
@@ -719,7 +720,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit() 
   {
-    FieldUtils.startTele();
+    MatchTime.startTele();
     autoCommand.ifPresent(Command::cancel);
 
     FieldUtils.updateAlliance();
