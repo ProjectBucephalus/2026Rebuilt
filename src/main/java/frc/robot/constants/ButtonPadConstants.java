@@ -2,47 +2,89 @@ package frc.robot.constants;
 
 import frc.robot.util.Launchpad;
 import frc.robot.util.Launchpad.DisplayGrid;
+import frc.robot.util.Launchpad.PadColour;
 
 /** Values for setting displays and binding controlls to the button pad */
 public class ButtonPadConstants 
 {
-    public static final DisplayGrid testGrid = Launchpad.generateDisplayGrid
+    private static final PadColour OF = PadColour.OFF;
+    private static final PadColour DG = PadColour.DIM_GREEN;
+    private static final PadColour MG = PadColour.MEDIUM_GREEN;
+    private static final PadColour FG = PadColour.FULL_GREEN;
+    private static final PadColour DR = PadColour.DIM_RED;
+    private static final PadColour MR = PadColour.MEDIUM_RED;
+    private static final PadColour FR = PadColour.FULL_RED;
+    private static final PadColour DA = PadColour.DIM_AMBER;
+    private static final PadColour MA = PadColour.MEDIUM_AMBER;
+    private static final PadColour FA = PadColour.FULL_AMBER;
+    private static final PadColour ML = PadColour.MEDIUM_YELLOW_GREEN;
+    private static final PadColour FL = PadColour.FULL_YELLOW_GREEN;
+    private static final PadColour FY = PadColour.FULL_YELLOW;
+    private static final PadColour MO = PadColour.MEDIUM_ORANGE;
+    private static final PadColour FO = PadColour.FULL_ORANGE;
+    private static final PadColour FC = PadColour.FULL_ORANGE_RED;
+
+    public static final DisplayGrid testGrid = new DisplayGrid
     (
-        0, 1, 2, 3, 4, 5, 6, 7,
-        8, 9, 0, 1, 2, 3, 4, 5,
-        6, 7, 8, 9, 0, 1, 2, 3,
-        4, 5, 6, 7, 8, 9, 0, 1,
-        2, 3, 4, 5, 6, 7, 8, 9,
-        0, 1, 2, 3, 4, 5, 6, 7,
-        8, 9, 0, 1, 2, 3, 4, 5,
-        6, 7, 8, 9, 0, 1, 2, 3
+        new PadColour[]
+        {
+            OF, DR, DA, DG, MR, MA, MG, FR,
+            FA, FG, OF, DR, DA, DG, MR, MA,
+            MG, FR, FA, FG, OF, DR, DA, DG,
+            MR, MA, MG, FR, FA, FG, OF, DR,
+            DA, DG, MR, MA, MG, FR, FA, FG,
+            OF, DR, DA, DG, MR, MA, MG, FR,
+            FA, FG, OF, DR, DA, DG, MR, MA,
+            MG, FR, FA, FG, OF, DR, DA, DG
+        }
     );
 
-    public static final DisplayGrid passPointMap = Launchpad.generateDisplayGrid
+    public static final DisplayGrid passPointMap = new DisplayGrid
     (
-        6, 6, 0, 5, 5, 0, 4, 6,
-        5, 0, 5, 4, 4, 5, 4, 6,
-        4, 6, 0, 5, 5, 0, 4, 6,
-        8, 7, 8, 9, 9, 8, 7, 8,
-        3, 3, 3, 3, 3, 3, 3, 3,
-        3, 3, 3, 3, 3, 3, 3, 3,
-        3, 3, 3, 3, 3, 3, 3, 3,
-        3, 9, 9, 3, 8, 3, 3, 9,
+        new PadColour[]
+        {
+            MG, MG, OF, MA, MA, OF, MR, MG,
+            MA, OF, MA, MR, MR, MA, MR, MG,
+            MR, MG, OF, MA, MA, OF, MR, MG,
+            FA, FR, FA, FG, FG, FA, FR, FA,
+            DG, DG, DG, DG, DG, DG, DG, DG,
+            DG, DG, DG, DG, DG, DG, DG, DG,
+            DG, DG, DG, DG, DG, DG, DG, DG,
+            DG, FG, FG, DG, FA, DG, DG, FG,
 
-        9, 1, 0, 0, 0, 0, 0, 0
+            FG, DR, OF, OF, OF, OF, OF, OF
+        }
     );
 
-    public static final DisplayGrid localisationMap = Launchpad.generateDisplayGrid
+    public static final DisplayGrid localisationMap = new DisplayGrid
     (
-        6, 6, 0, 5, 5, 0, 4, 6,
-        5, 0, 5, 4, 4, 5, 4, 6,
-        4, 6, 0, 5, 5, 0, 4, 6,
-        8, 7, 8, 9, 9, 8, 7, 8,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1,
-        1, 9, 9, 1, 8, 1, 1, 9,
+        new PadColour[]
+        {
+            MG, MG, OF, MA, MA, OF, MR, MG,
+            MA, OF, MA, MR, MR, MA, MR, MG,
+            MR, MG, OF, MA, MA, OF, MR, MG,
+            FA, FR, FA, FG, FG, FA, FR, FA,
+            DR, DR, DR, DR, DR, DR, DR, DR,
+            DR, DR, DR, DR, DR, DR, DR, DR,
+            DR, DR, DR, DR, DR, DR, DR, DR,
+            DR, FG, FG, DR, FA, DR, DR, FG,
 
-        3, 7, 0, 0, 0, 0, 0, 0
+            DG, FR, OF, OF, OF, OF, OF, OF
+        }
+    );
+
+    public static final DisplayGrid colourChart = new DisplayGrid
+    (
+        new PadColour[]
+        {
+            OF, OF, DG, DG, MG, MG, FG, FG,
+            OF, OF, DG, DG, MG, MG, FG, FG,
+            DR, DR, DA, DA, ML, ML, FL, FL,
+            DR, DR, DA, DA, ML, ML, FL, FL,
+            MR, MR, MO, MO, MA, MA, FY, FY,
+            MR, MR, MO, MO, MA, MA, FY, FY,
+            FR, FR, FC, FC, FO, FO, FA, FA,
+            FR, FR, FC, FC, FO, FO, FA, FA
+        }
     );
 }
