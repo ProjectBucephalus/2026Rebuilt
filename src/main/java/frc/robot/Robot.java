@@ -5,6 +5,7 @@
 package frc.robot;
 
 
+import edu.wpi.first.epilogue.Epilogue;
 //import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
@@ -228,7 +229,7 @@ public class Robot extends TimedRobot
       DriverStation.startDataLog(DataLogManager.getLog());
     }
 
-    //Epilogue.bind(this);
+    Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
   }
