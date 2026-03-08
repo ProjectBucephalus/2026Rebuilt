@@ -22,7 +22,7 @@ public class FieldUtils
   private static Alliance alliance;
   static {updateAlliance();}
 
-  private static Optional<Alliance> autoWinner = Optional.empty();
+  private static Optional<Alliance> autoWinner = Optional.of(Alliance.Blue);
 
   public static Optional<Alliance> getAutoWinner()
     {return autoWinner;}
@@ -50,7 +50,8 @@ public class FieldUtils
 
     if 
     (
-      timeElapsed == 0                     // Auto
+      autoWinner.isEmpty()                 // Don't know yet
+      || timeElapsed == 0                  // Auto
       || timeElapsed < (10 - preMargin)    // Transition
       || timeElapsed >= (110 + postMargin) // Endgame
     )
