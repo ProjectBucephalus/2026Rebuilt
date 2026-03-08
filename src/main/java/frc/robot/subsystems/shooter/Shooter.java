@@ -108,11 +108,11 @@ public class Shooter extends SubsystemBase
       target.distance += shiftSup.getAsDouble();
       target.speed = Interpolation.flywheelSpeedHub.get(target.distance);
       target.altitude = Interpolation.shooterAltitudeHub.get(target.distance);
-    });
+    }).withName("Manual Distance");
   }
 
   public Command adjustAzimuthCommand(DoubleSupplier shiftSup)
-    {return run(() -> target.azimuth += shiftSup.getAsDouble());}
+    {return run(() -> target.azimuth += shiftSup.getAsDouble()).withName("Manual Azimuth");}
 
   public void setFlySpeed(double speed)
     {target.speed = speed;}

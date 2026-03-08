@@ -57,6 +57,8 @@ public class BoxRestrictor extends Restrictor
         {distance = Math.hypot(Xa - robotPos.getX(), Ya - robotPos.getY());}
       else if (robotPos.getY() > Yb)
         {distance = Math.hypot(Xa - robotPos.getX(), robotPos.getY() - Yb);}
+      else 
+        {distance = Xa - robotPos.getX();}
     }
     else if (robotPos.getX() > Xb)
     {
@@ -64,6 +66,8 @@ public class BoxRestrictor extends Restrictor
         {distance = Math.hypot(robotPos.getX() - Xb, Ya - robotPos.getY());}
       else if (robotPos.getY() > Yb)
         {distance = Math.hypot(robotPos.getX() - Xb, robotPos.getY() - Yb);}
+      else
+        {distance = robotPos.getX() - Xb;}
     }
     else
     {

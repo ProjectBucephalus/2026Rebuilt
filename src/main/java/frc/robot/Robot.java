@@ -5,6 +5,7 @@
 package frc.robot;
 
 
+import edu.wpi.first.epilogue.Epilogue;
 //import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
@@ -16,8 +17,10 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -102,15 +105,17 @@ public class Robot extends TimedRobot
     AutoDisplay,
     OverrideControls
   }
-  private static enum ClimbPosition
+  public static enum ClimbPosition
   {
     OutLeft, OutRight,
     MidLeft, MidRight,
     InLeft, InRight
   }
+  private static enum HeadingLockState { Unlocked, Climb, General }
 
   private ButtonPadState btnSet = ButtonPadState.PassPointSelection;
   private ClimbPosition climbPos = ClimbPosition.OutLeft;
+  private HeadingLockState headingLock = HeadingLockState.Unlocked;
 
   private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
@@ -227,9 +232,11 @@ public class Robot extends TimedRobot
       DriverStation.startDataLog(DataLogManager.getLog());
     }
 
-    //Epilogue.bind(this);
+    Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
+
+    SmartDashboard.putData("Current Commands", CommandScheduler.getInstance());
   }
 
   /** Set up input modification and fencing systems */
@@ -243,7 +250,7 @@ public class Robot extends TimedRobot
     FieldObject.setRobotPosSup(this::getTranslation);
     
     driverStick
-      .rotated(FieldUtils.isRedAlliance())
+      .rotated(FieldUtils.isAlliance(Alliance.Red))
       .withFieldObjects(GeoFencing.fieldGeoFence)
       .withBrake(driverBrake)
       .withInputCurve(driverInputCurve)
@@ -281,6 +288,7 @@ public class Robot extends TimedRobot
         .or(bumpNR.asTrigger())
         .or(bumpSR.asTrigger())
       )
+      .onTrue(s_Hopper.bumpSafeCommand())
       .whileTrue
       (
         new NonCardinalDrive
@@ -294,34 +302,54 @@ public class Robot extends TimedRobot
         )
       );
     
-    // TODO: if (nudging && in trench zone) {nudge to nearest 180 degrees}
+    PBDash.IO_FENCE.asSwitch()
+      .and(() -> nudging && s_Vision.hasLocalisation())
+      .and
+      (
+            trenchNB.asTrigger()
+        .or(trenchSB.asTrigger())
+        .or(trenchNR.asTrigger())
+        .or(trenchSR.asTrigger())
+      )
+      .whileTrue
+      (
+        new TrenchNudgeDrive
+        (
+          s_Swerve, 
+          driverStick::stickOutput, 
+          () -> -driver.getRightX(), 
+          driver::getRightTriggerAxis, 
+          () -> swerveState.Pose.getRotation()
+        ).onlyIf(() -> headingLock == HeadingLockState.Unlocked)
+      );
 
-    //driver.b -> ?? bump rotation lock ??
-    driver.b()
-      .toggleOnTrue(
-        new HeadingLockedDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          Rotation2d.kCCW_90deg,
-          Rotation2d.kZero,
-          () -> swerveState.Pose
-        )
-      );
-    driver.x()
-      .toggleOnTrue(
-        new HeadingLockedDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          Rotation2d.kCW_90deg,
-          Rotation2d.kZero,
-          () -> swerveState.Pose
-        )
-      );
-    //driver.y -> trench rotation lock -> rotate on press, heading straight towards other zone
-    //driver.x -> tower rotation lock -> based on selected clime location, enable attractor
-    //driver.a -> outpost rotation lock -> face in or right, whichever is closer on press
+    new Trigger(() -> headingLock == HeadingLockState.Unlocked)
+      .onTrue(s_Swerve.getDefaultCommand());
+
+    driver.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value, ControlConstants.stickDeadband)
+      .onTrue(runOnce(() -> headingLock = HeadingLockState.Unlocked));
+
+    driver.y()
+      .or(driver.b())
+      .or(driver.a())
+      .onTrue(runOnce(() -> headingLock = HeadingLockState.General));
+
+    driver.b().onTrue
+    (        
+      new NonCardinalDrive
+      (
+        s_Swerve, 
+        driverStick::stickOutput, 
+        () -> -driver.getRightX(), 
+        driver::getRightTriggerAxis, 
+        () -> swerveState.Pose.getRotation(), 
+        bumpRotationTolerance
+      )
+    );
+    driver.y().onTrue(new TrenchLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
+    //driver.x -> tower rotation lock -> based on selected clime location, TODO enable attractor
+    driver.x().onTrue(new ClimbLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose, () -> climbPos));
+    driver.a().onTrue(new OutpostLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
 
 
     // -------------STATE--------------- //
@@ -371,34 +399,38 @@ public class Robot extends TimedRobot
       .whileTrue(modifyTargetsCommand(target -> target.point = FieldUtils.getClosestPassPoint(getTranslation())));
     
     /* Revving/Idleing as Appropriate */
-    Trigger shooterActiveTrigger = driver.rightBumper().negate();
+    final Trigger shootActiveTrigger = driver.rightBumper().negate()
+      .and(() -> FieldUtils.hubActiveToleranced(FieldUtils.getAlliance(), ControlConstants.preShiftShootMargin, ControlConstants.postShiftShootMargin));
     
-    shooterActiveTrigger
-      .whileFalse
+    // Idle when right bumper
+    driver.rightBumper()
+      .whileTrue
       (
         forBothShootersCommand(Shooter::idleFlywheels)
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
       );
 
+    // Rev if auto aiming, auto revving, and shooters are active
     autoAimTrigger
       .and(() -> autoRev)
-      .and(shooterActiveTrigger)
+      .and(shootActiveTrigger)
       .onTrue(forBothShootersCommand(Shooter::revFlywheels))
       .onFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
     /* Shooting when Ready */
-    shooterActiveTrigger
+    shootActiveTrigger
       .and(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
       .whileTrue(s_Indexer.runCommand(() -> Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));
 
     //driver.leftBumper -> manual shoot -> ensure flywheels at least idle speed, then run indexers
     driver.leftBumper()
-      .and(shooterActiveTrigger)
+      .and(driver.rightBumper().negate())
       .whileTrue
       (
         s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()))
           .onlyIf(() -> s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
+          .withName("Manual Shoot")
       );
 
     // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
@@ -409,43 +441,65 @@ public class Robot extends TimedRobot
     // H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
 
     // debug.leftTrigger -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
-    shooterActiveTrigger
+    driver.rightBumper().negate()
       .and(debug.leftTrigger()
         .or(buttonPad.G1()))
       .and(debug.leftBumper().negate())
-      .whileTrue(s_Indexer.runCommand(s_PortShooter::getSpeed).alongWith(run(s_PortShooter::revFlywheels)));//runOnce(() -> s_PortShooter.revFlywheels()));
+      .whileTrue
+      (
+        s_Indexer.runCommand(s_PortShooter::getSpeed)
+        .alongWith(runOnce(s_PortShooter::revFlywheels))
+        .withName("Manual Shoot Port")
+      );//runOnce(() -> s_PortShooter.revFlywheels()));
     // debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
     buttonPad.G2()
-        .whileTrue(s_Indexer.runCommand(s_PortShooter::getSpeed).alongWith(run(s_PortShooter::idleFlywheels)));
+      .whileTrue
+      (
+        s_Indexer.runCommand(s_PortShooter::getSpeed)
+        .alongWith(runOnce(s_PortShooter::idleFlywheels))
+        .withName("Eject Port")
+      );
     debug.leftBumper()
       .or(buttonPad.G3())
       .whileTrue
       (
         parallel
         (
-          s_PortShooter.run(s_PortShooter::idleFlywheels),
+          s_PortShooter.runOnce(s_PortShooter::idleFlywheels),
           s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
         )
+        .withName("Reverse Indexer Port")
       );
 
     // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
-    shooterActiveTrigger
+    driver.rightBumper().negate()
       .and(debug.rightTrigger()
         .or(buttonPad.H1()))
       .and(debug.rightBumper().negate())
-      .whileTrue(s_Indexer.runCommand(s_StbdShooter::getSpeed).alongWith(run(s_StbdShooter::revFlywheels)));//run(() -> s_StbdShooter.revFlywheels()));
+      .whileTrue
+      (
+        s_Indexer.runCommand(s_StbdShooter::getSpeed)
+        .alongWith(runOnce(s_StbdShooter::revFlywheels))
+        .withName("Manual Shoot Stbd")
+      );//run(() -> s_StbdShooter.revFlywheels()));
     // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
     buttonPad.H2()
-        .whileTrue(s_Indexer.runCommand(s_StbdShooter::getSpeed).alongWith(run(s_StbdShooter::idleFlywheels)));
+      .whileTrue
+      (
+        s_Indexer.runCommand(s_StbdShooter::getSpeed)
+        .alongWith(runOnce(s_StbdShooter::idleFlywheels))
+        .withName("Eject Stbd")
+      );
     debug.rightBumper()
       .or(buttonPad.H3())
       .whileTrue
       (
         parallel
         (
-          s_StbdShooter.run(s_StbdShooter::idleFlywheels),
+          s_StbdShooter.runOnce(s_StbdShooter::idleFlywheels),
           s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
         )
+        .withName("Reverse Indexer Stbd")
       );
 
     /* Manual Control */
@@ -634,7 +688,7 @@ public class Robot extends TimedRobot
 
   private Command forBothShootersCommand(Consumer<Shooter> action)
   {
-    return run(() -> {
+    return runOnce(() -> {
       action.accept(s_PortShooter);
       action.accept(s_StbdShooter);
     });
@@ -684,6 +738,7 @@ public class Robot extends TimedRobot
   @Override
   public void robotPeriodic() 
   {
+    FieldUtils.updateAutoWinner();
     updateSwerveState();
     CommandScheduler.getInstance().run();
   }
@@ -693,9 +748,14 @@ public class Robot extends TimedRobot
   {
     FieldUtils.updateAlliance();
     if (getTranslation().equals(Translation2d.kZero))
-    {
-      s_Swerve.resetPose(FieldUtils.isRedAlliance() ? FieldConstants.redStartLine : FieldConstants.blueStartLine);
-    }
+      s_Swerve.resetPose
+      (
+        switch (FieldUtils.getAlliance()) 
+        {
+          case Blue -> FieldConstants.blueStartLine; 
+          case Red -> FieldConstants.redStartLine;
+        }
+      );
   }
 
   @Override

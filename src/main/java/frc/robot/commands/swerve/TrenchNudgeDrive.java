@@ -21,14 +21,13 @@ import frc.robot.util.PBDash;
  * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned 
  * @author 5985
  */
-public class NonCardinalDrive extends SwerveCommandBase 
+public class TrenchNudgeDrive extends SwerveCommandBase 
 {
   private final PIDController thetaController = new PIDController(0.02, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
 
   protected DoubleSupplier rotationSup;
   protected double rotationVal;
   protected DoubleSupplier brakeSup;
-  private final double tolerance;
   private final Supplier<Rotation2d> robotRotationSup;
 
   protected final SwerveRequest.FieldCentric driveRequest = new SwerveRequest
@@ -43,22 +42,19 @@ public class NonCardinalDrive extends SwerveCommandBase
    * @param rotationSup Rotation input from joystick, [-1..1]
    * @param brakeSup Brake axis input for rotation, [0..1]
    * @param robotRotationSup Supplier for current robot rotation
-   * @param tolerance Minimum allowed angle away from cardinal, degrees
    */
-  public NonCardinalDrive
+  public TrenchNudgeDrive
   (
     CommandSwerveDrivetrain s_Swerve, 
     Supplier<Translation2d> joystickSupplier, 
     DoubleSupplier rotationSup, 
     DoubleSupplier brakeSup, 
-    Supplier<Rotation2d> robotRotationSup,
-    double tolerance
+    Supplier<Rotation2d> robotRotationSup
   ) 
   {
     super(s_Swerve, joystickSupplier);
     this.rotationSup = rotationSup;
     this.brakeSup = brakeSup;
-    this.tolerance = tolerance;
     this.robotRotationSup = robotRotationSup;
   }
 
@@ -67,34 +63,23 @@ public class NonCardinalDrive extends SwerveCommandBase
   {
     motionXY = joystickSupplier.get();
 
+    double robotRotation = robotRotationSup.get().getDegrees();
+
     /* Get and process Rotation input */
     rotationVal = rotationSup.getAsDouble();
-
-    double robotRotation = robotRotationSup.get().getDegrees();
 
     // Rotation stick not being actively controlled
     if (Math.abs(rotationVal) <= deadband) 
     {
-      // Wrap the robot's rotation to [0..90) (effectively, clockwise degrees past previous cardinal) 
-      double wrappedRotation = Conversions.mod(robotRotation, 90);
+      // Wrap the robot's rotation to [0..180) (effectively, clockwise degrees past previous straight) 
+      double wrappedRotation = Conversions.mod(robotRotation, 180);
 
-      // If we're less than tolerance past the previous cardinal, rotate to be tolerance past it
-      if (wrappedRotation < tolerance)
-      {
-        double error = tolerance - wrappedRotation;
-        double targetRotation = robotRotation + error;
-        rotationVal = thetaController.calculate(robotRotation, targetRotation);
-      }
-      // If we're less than tolerance before the next cardinal, rotate to be tolerance before it
-      else if (wrappedRotation > 90 - tolerance)
-      {
-        double error = wrappedRotation - (90 - tolerance);
-        double targetRotation = robotRotation - error;
-        rotationVal = thetaController.calculate(robotRotation, targetRotation);
-      }
-      // If not close to cardinal, don't change rotation
-      else
-        rotationVal = 0;
+      rotationVal = 
+      wrappedRotation > 90 ?
+      // If we're more than halfway to the next straight, rotate to it
+      thetaController.calculate(robotRotation, robotRotation + (180 - wrappedRotation)) :
+      // Less than halfway to next straight, rotate to previous straight
+      thetaController.calculate(robotRotation, robotRotation - wrappedRotation);
     }
     else
       {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}

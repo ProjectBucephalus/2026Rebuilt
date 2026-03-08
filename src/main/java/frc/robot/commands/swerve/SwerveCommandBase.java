@@ -2,7 +2,6 @@ package frc.robot.commands.swerve;
 
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.util.FieldUtils;
 
 import java.util.function.Supplier;
 
@@ -25,8 +24,6 @@ public abstract class SwerveCommandBase extends Command
   protected Translation2d motionXY;
   protected Pose2d robotPose;
 
-  protected boolean redAlliance;
-
   /** Creates a new SwerveCommandBase. This has no rotation or drive-request methods or objects */
   public SwerveCommandBase(CommandSwerveDrivetrain s_Swerve, Supplier<Translation2d> joystickSupplier) 
   {
@@ -40,8 +37,6 @@ public abstract class SwerveCommandBase extends Command
   @Override
   public void initialize() 
   {
-    redAlliance = FieldUtils.isRedAlliance();
-
     initDriveConstraints();
   }
 

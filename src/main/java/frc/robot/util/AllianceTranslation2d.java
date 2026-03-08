@@ -43,6 +43,6 @@ public class AllianceTranslation2d implements Supplier<Translation2d>
   @Override
   public Translation2d get() 
   {
-    return FieldUtils.isRedAlliance() ? pointRed : pointBlue;
+    return switch (FieldUtils.getAlliance()) { case Blue -> pointBlue; case Red -> pointRed; };
   }
 }

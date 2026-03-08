@@ -44,7 +44,8 @@ public class Indexer extends SubsystemBase
     (
       spindexer.runCommand(speedSup),
       feeder.runCommand(speedSup)
-    );
+    )
+    .withName("Run Indexer");
   }
 
   @Override

@@ -5,6 +5,9 @@ import java.util.function.BiPredicate;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.util.FieldUtils;
 import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.ObjectList;
 import frc.robot.util.controlTransmutation.geoFence.*;
@@ -84,6 +87,8 @@ public class FieldConstants
     public static final double hubFrontOffset = hubCentreOffset + hubSideLength / 2;
     public static final double hubBackOffset  = hubCentreOffset - hubSideLength / 2;
 
+    public static final double hubOutputDepth = 2;
+
     public static final Fence field = new Fence
     (
       fieldWest, 
@@ -106,6 +111,9 @@ public class FieldConstants
     public static final Box hubBlue = new Box(fieldCentre.getX() - hubFrontOffset, hubYa, fieldCentre.getX() - hubBackOffset, hubYb, hubRadius, hubBuffer);
     public static final Box hubRed  = new Box(fieldCentre.getX() + hubFrontOffset, hubYa, fieldCentre.getX() + hubBackOffset, hubYb, hubRadius, hubBuffer);
 
+    public static final Box hubBlueOutput = new Box(fieldCentre.getX() + hubOutputDepth, hubYa, fieldCentre.getX() - hubBackOffset, hubYb);
+    public static final Box hubRedOutput = new Box(fieldCentre.getX() - hubOutputDepth, hubYa, fieldCentre.getX() + hubBackOffset, hubYb);
+
     /* Bump Zone */
     // Speed should be limited when traversing
     // Rotation must NOT be square when traversing
@@ -116,7 +124,7 @@ public class FieldConstants
     public static final double bumpYa = hubYa - bumpWidth;
     public static final double bumpYb = hubYb + bumpWidth;
 
-    public static final double bumpDepth = 1.0;
+    public static final double bumpDepth = 0.5;
     public static final double bumpXa = hubCentreOffset + bumpDepth/2;
     public static final double bumpXb = hubCentreOffset - bumpDepth/2;
 
@@ -136,16 +144,15 @@ public class FieldConstants
     /* Trench Zone */
     public static final double trenchWidth = 1.28;
     /** Depth of region around Trench bar to keep out of */
-    public static final double trenchBarrierDepth = 0.8;
+    public static final double trenchBarrierDepth = 1.25;
     public static final double trenchXa = hubCentreOffset + trenchBarrierDepth/2;
     public static final double trenchXb = hubCentreOffset - trenchBarrierDepth/2;
 
-    public static final Box trenchSB = new Box(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchWidth);
-    public static final Box trenchNB = new Box(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
-    public static final Box trenchSR = new Box(fieldCentre.getX() + trenchXa, 0, fieldCentre.getX() + trenchXb, trenchWidth);
-    public static final Box trenchNR = new Box(fieldCentre.getX() + trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() + trenchXb, fieldWidth);
+    public static final BoxRestrictor trenchSB = new BoxRestrictor(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchWidth);
+    public static final BoxRestrictor trenchNB = new BoxRestrictor(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
+    public static final BoxRestrictor trenchSR = new BoxRestrictor(fieldCentre.getX() + trenchXa, 0, fieldCentre.getX() + trenchXb, trenchWidth);
+    public static final BoxRestrictor trenchNR = new BoxRestrictor(fieldCentre.getX() + trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() + trenchXb, fieldWidth);
 
-    
     /* Trench Column */
     //public static final double trenchColumnWidth = 1.67 - trenchWidth;
     public static final double trenchColumnDepth = 1.2;
@@ -209,7 +216,11 @@ public class FieldConstants
       trenchSR,
       trenchNR,
       hubBlue, 
-      hubRed
+      hubRed,
+      hubBlueOutput
+        .setActiveCondition(() -> FieldUtils.hubActiveToleranced(Alliance.Blue, ControlConstants.preShiftOutputMargin, ControlConstants.postShiftOutputMargin)),
+      hubRedOutput
+        .setActiveCondition(() -> FieldUtils.hubActiveToleranced(Alliance.Red, ControlConstants.preShiftOutputMargin, ControlConstants.postShiftOutputMargin))
     );
 
     public static final ObjectList fieldBlueGeoFence = new ObjectList

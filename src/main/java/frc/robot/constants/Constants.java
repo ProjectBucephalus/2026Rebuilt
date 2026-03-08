@@ -65,6 +65,12 @@ public final class Constants
     public static final double manualIntakeExtensionAmount = 0.05;
     public static final double manualClimberExtensionScale = 0.05;
     public static final double manualShooterDeadband = 0.5;
+
+    public static final double preShiftShootMargin = 1;
+    public static final double postShiftShootMargin = 2;
+
+    public static final double preShiftOutputMargin = 1;
+    public static final double postShiftOutputMargin = 2;
   }
 
   /** Geometry and tuning data for drivebase */
@@ -472,6 +478,7 @@ public final class Constants
       public static final double minRotations = -0.146;//-0.332;
       public static final double maxRotations = 0.0;
       public static final double homeRotations = 0.03;
+      public static final double bumpSafeRotations = -0.14;
 
       public static final double extendedTolerance = 0.05;
 
