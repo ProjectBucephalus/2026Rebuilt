@@ -281,6 +281,7 @@ public class Robot extends TimedRobot
         .or(bumpNR.asTrigger())
         .or(bumpSR.asTrigger())
       )
+      .onTrue(s_Hopper.bumpSafeCommand())
       .whileTrue
       (
         new NonCardinalDrive
