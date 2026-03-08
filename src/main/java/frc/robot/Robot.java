@@ -255,6 +255,10 @@ public class Robot extends TimedRobot
   /** Sets primary control bindings */
   private void bindControls()
   {
+    var test = new CommandXboxController(2);
+    test.y().whileTrue(new PathFollowDrive(s_Swerve, () -> swerveState, Pathfinding.testPath, () -> 0));
+    test.a().whileTrue(new PathFollowDrive(s_Swerve, () -> swerveState, Pathfinding.testPath, () -> 0.5));
+
     // -------------DRIVE--------------- //
 
     s_Swerve.setDefaultCommand
@@ -711,6 +715,7 @@ public class Robot extends TimedRobot
 
     autoAim = true;
     autoRev = true;
+    nudging = false;
     if (autoCommand.isEmpty())
       compileAuto();
 
@@ -726,6 +731,7 @@ public class Robot extends TimedRobot
     FieldUtils.updateAlliance();
     autoAim = true;
     autoRev = true;
+    nudging = true;
     initInputTransmute();
   }
 

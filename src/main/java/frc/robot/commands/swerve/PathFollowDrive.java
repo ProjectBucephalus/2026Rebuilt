@@ -110,6 +110,10 @@ public class PathFollowDrive extends SwerveCommandBase
   }
 
   @Override
+  public InterruptionBehavior getInterruptionBehavior() 
+    {return InterruptionBehavior.kCancelIncoming;}
+
+  @Override
   public void initDriveConstraints() 
   {
     currentWaypoint = 0;
