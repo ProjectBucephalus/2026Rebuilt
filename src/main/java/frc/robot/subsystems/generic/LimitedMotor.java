@@ -42,6 +42,7 @@ public class LimitedMotor extends SubsystemBase
    * @param limitIO DIO-ID of home limit-sensor. Set to {@code -1} to use motor stall instead of limit switch
    * @param minRotations Minimum position in mechanism rotations
    * @param maxRotations Maximum position in mechanism rotations
+   * @param homeRotations Sensor trigger position in mechanism rotations
    * @param configs Motor configuration object, uses Slot1 if present when not calibrated <br>
    *                {@code CustomParam0} is used for the stall current value if using motor stall
    */
@@ -56,7 +57,7 @@ public class LimitedMotor extends SubsystemBase
 
     m_Limited.getConfigurator().apply(configs);
 
-    m_Limited.setPosition(maxRotations);
+    m_Limited.setPosition(minRotations);
 
     if (limitIO == -1)
       limit = new StallLimit(configs.CustomParams.CustomParam0);
@@ -81,6 +82,20 @@ public class LimitedMotor extends SubsystemBase
       (request.withPosition(clampedRotations).withSlot(slot));
   }
 
+  /** Sets the target to the maximum limit */
+  public Command deployCommand() {return setTargetCommand(maxRotations);}
+  /** Sets the target to the minimum limit */
+  public Command retractCommand() {return setTargetCommand(minRotations);}
+
+  /**
+   * Sets the target point for the motor, ignoring limits
+   * @param target mechanism rotations
+   */
+  public void forceSetTarget(double target)
+  {
+    m_Limited.setControl(request.withPosition(target).withSlot(0));
+  }
+
   /**
    * Creates a command to set the target point for the motor <p>
    * NOTE: The provided value is only evaluated when the command is created
@@ -97,7 +112,7 @@ public class LimitedMotor extends SubsystemBase
    * @return the Command
    */
   public Command adjustTargetCommand(DoubleSupplier shiftSup) 
-    {return run(() -> setTarget(getAngle() + shiftSup.getAsDouble()));}
+    {return run(() -> {if (shiftSup.getAsDouble() != 0) forceSetTarget(getAngle() + shiftSup.getAsDouble());});}
 
   @Override
   public void periodic() 

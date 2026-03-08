@@ -18,6 +18,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
 
@@ -32,20 +33,33 @@ public class PBDash
   public static final Field2d FIELD = new Field2d();
   static { putSendable("Field", FIELD); }
 
+  // Auto-builder strings
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
   public static final Key<String>  AUTO_ERRS        = new Key<>("AUTO STRING ERRORS", "");
 
-  public static final Key<Integer> LL_EXPOSURE      = new Key<>("Exposure Setting", 0);
-  public static final Key<Boolean> LL_EXPOSURE_UP   = new Key<>("Increase Exposure", false);
-  public static final Key<Boolean> LL_EXPOSURE_DOWN = new Key<>("Decrease Exposure", false);
-  public static final Key<Boolean> LL_TOGGLE        = new Key<>("Use Limelight", true);
+  public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", true);
+  
+  // System switches and buttons
+  public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
+  public static final Key<Boolean> IO_FENCE         = new Key<>("Enable Fencing", true);
+  public static final Key<Boolean> IO_AUTO_AIM      = new Key<>("Auto Aim", true);
+  public static final Key<Boolean> IO_AUTO_PASS     = new Key<>("Auto Pass", true);
+  public static final Key<Boolean> IO_AUTO_REV      = new Key<>("Auto Rev", true);
 
-  public static final Key<Boolean> FENCE_TOGGLE     = new Key<>("Enable Fencing", true);
-
+  // State displays
   public static final Key<String>  STATE_DRIVE      = new Key<>("Drive State", "Disabled");
+  public static final Key<Boolean> STATE_NUDGING    = new Key<>("Nudging Active", true);
 
+  // Request queues
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
   public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
+
+  // Testing values
+  public static final Key<Double>  TEST_FLYSPEED    = new Key<>("Test Flyspeed", 0.0);
+  public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
+  public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
+
+  public static final Key<Double>  TEST_INTAKE_SPEED= new Key<>("Test Intake Speed", Constants.HopperConstants.IntakeConstants.intakeSpeed);
 
   public static void putFieldObject(String name, Pose2d pose)
     {FIELD.getObject(name).setPose(pose);}
@@ -249,6 +263,18 @@ public class PBDash
       else 
         return false;
     }
+
+    /** @return Trigger monitoring if the value has changed */
+    public Trigger asTrigger()
+      {return new Trigger(() -> hasChanged());}
+
+    /** @return Trigger monitoring if the value has changed then resetting the value */
+    public Trigger asButton()
+      {return new Trigger(() -> button());}
+
+    /** @return Trigger of value being `true` */
+    public Trigger asSwitch()
+      {return new Trigger(() -> get().equals(true));}
 
     /** Closes the underlying entry. <p> ATTEMPTING TO USE A KEY AFTER CLOSING IT WILL CAUSE ERRORS */
     public void close()

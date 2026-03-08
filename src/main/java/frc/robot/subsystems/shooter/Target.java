@@ -30,12 +30,12 @@ public class Target
 
   /** The currently active {@link TargetState} */
   public TargetState state; 
-  /** The target altitude, used for the {@link TargetState#Manual Manual} state, and for storing the last-calculated target in the other two states */
-  @Logged(name = "Target Altitude Degrees")
-  public double altitude = 0; 
   /** The target azimuth, used for the {@link TargetState#Manual Manual} state, and for storing the last-calculated target in the other two states */
   @Logged(name = "Target Azimuth Degrees")
   public double azimuth = 0; 
+  /** The target altitude, used for the {@link TargetState#Manual Manual} state, and for storing the last-calculated target in the other two states */
+  @Logged(name = "Target Altitude Degrees")
+  public double altitude = 0; 
   /** The target point, used for the {@link TargetState#Point Point} state */
   public Translation2d point = Translation2d.kZero;
   /** Offset from target point, used for leading shots while moving and separating ball-streams from multiple shooters */
@@ -45,6 +45,8 @@ public class Target
   protected double distance = 0;
   @Logged(name = "Target Speed Rotations per Second")
   public double speed = 0;
+  /** Flywheels will maintain speed while {@code true}, will idle when {@code false} */
+  public boolean flywheelsActive = false;
 
   /**
    * Construct a new {@link Target} with all values zeroed

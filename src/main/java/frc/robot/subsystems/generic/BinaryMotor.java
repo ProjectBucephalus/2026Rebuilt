@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.PBDash;
 
 /** 
  * A subsystem wrapped around a TalonFX to provide a simple subsystem for any motor mainly intended for binary operation (on or off) 
@@ -25,6 +26,11 @@ public class BinaryMotor extends SubsystemBase
   {
     this.defaultSpeed = defaultSpeed;
     m_Binary = new TalonFX(id);
+  }
+
+  public double getSpeed()
+  {
+    return m_Binary.getVelocity().getValueAsDouble();
   }
 
   public BinaryMotor(int id, double defaultSpeed, TalonFXConfiguration config) 
@@ -48,13 +54,19 @@ public class BinaryMotor extends SubsystemBase
   public void setSpeed(double speed) 
     {m_Binary.set(speed);}
 
+  public void start()
+    {m_Binary.set(PBDash.TEST_INTAKE_SPEED.get());}
+
+  public void stop()
+    {m_Binary.set(0);}
+
   /**
    * Construct a command that runs the motor at the default speed
    * 
    * @return the {@link Command}
    */
   public Command startCommand()
-    {return runOnce(() -> m_Binary.set(defaultSpeed));}
+    {return runOnce(this::start);}
 
   /**
    * Construct a command that runs the motor at the default speed on start, and stops the motor on end
@@ -62,7 +74,7 @@ public class BinaryMotor extends SubsystemBase
    * @return the {@link Command}
    */
   public Command runCommand()
-    {return startEnd(() -> m_Binary.set(defaultSpeed), () -> m_Binary.set(0));}
+    {return startEnd(this::start, this::stop);}
   
   /**
    * Construct a command that runs the motor at negative default speed
@@ -78,7 +90,7 @@ public class BinaryMotor extends SubsystemBase
    * @return the {@link Command}
    */
   public Command stopCommand()
-    {return runOnce(() -> m_Binary.set(0));}
+    {return runOnce(this::stop);}
 
   /**
    * Construct a command that sets the speed of the motor to an arbitrary value <p>

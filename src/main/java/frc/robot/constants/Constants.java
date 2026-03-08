@@ -62,7 +62,8 @@ public final class Constants
     public static final AllianceTranslation2d leftFerryTarget = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 1.5);
     public static final AllianceTranslation2d rightFerryTarget = new AllianceTranslation2d(1.5, 1.5);
 
-    public static final double manualExtensionAmount = 0.05;
+    public static final double manualIntakeExtensionAmount = 0.05;
+    public static final double manualClimberExtensionScale = 0.05;
     public static final double manualShooterDeadband = 0.5;
   }
 
@@ -124,13 +125,13 @@ public final class Constants
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.12;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactor = 0.25;
+    public static final double leadFactor = 0.1;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants
     {
-      private static final double motorPulley = 24;
-      private static final double mainWheelPulley = 18;
+      private static final double motorPulley = 18;
+      private static final double mainWheelPulley = 24;
       public static final double mainWheelBeltRatio = mainWheelPulley / motorPulley;
 
       /*
@@ -145,8 +146,8 @@ public final class Constants
       {
         flywheelConfig.Feedback.SensorToMechanismRatio = mainWheelBeltRatio;
 
-        flywheelConfig.Slot0.kS = 0.22;
-        flywheelConfig.Slot0.kV = 0.0924;
+        flywheelConfig.Slot0.kS = 0.21;
+        flywheelConfig.Slot0.kV = 0.1613;
         flywheelConfig.Slot0.kA = 0.0;
         flywheelConfig.Slot0.kP = 0.08;
         flywheelConfig.Slot0.kI = 0.0;
@@ -176,7 +177,8 @@ public final class Constants
       /** Range of motion of hood, degrees */
       public static final double hoodRange = 19;
 
-      public static final double homeAngle = 2;
+      public static final double portHomeAngle = 0;
+      public static final double stbdHomeAngle = 26;
 
       public static final double servoGear = 20;
       public static final double hoodGear = 193;
@@ -343,6 +345,9 @@ public final class Constants
     /** Distance to Speed conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
     {{
+      put(0.0, 0.0);
+      put(0.8, 0.0);
+      put(0.81, 23.75); // below min range
       put(1.01, 23.75); // min range
       put(1.7, 27.75); 
       put(1.8, 28.3); // max range while at 0 degrees hood + staying below lights
@@ -356,6 +361,8 @@ public final class Constants
     /** Distance to Speed conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap()
     {{
+      put(0.0, 0.0);
+      put(1.0, 0.0);
       put(1.2, 16.0);
       put(2.0575, 22.6); 
       put(2.915, 27.8); // max range while at 0 degrees hood + staying below lights
@@ -376,6 +383,7 @@ public final class Constants
   public  static final class FeederConstants 
   {
     public static final double feederSpeed = 50;
+    public static final double feederReverseSpeed = -25;
 
     private static final double gearboxRatio = 1;
     //private static final double lowerRollerPulley = 24;
@@ -417,19 +425,32 @@ public final class Constants
       public static final TalonFXConfiguration spindexerConfig = new TalonFXConfiguration();
       static
       {
+        spindexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         spindexerConfig.Feedback.SensorToMechanismRatio = spindexerRatio;
+
+        spindexerConfig.Slot0.kS = 0.56;
+        spindexerConfig.Slot0.kV = 0.127;
+
+        spindexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
       }
     }
 
     public static final class IntakeConstants 
     {
-      /** Default speed of intake when running, [-1..1] */
-      public static final double intakeSpeed = 0.65;
+      /** Default speed of intake when running, rps */
+      public static final double intakeSpeed = 65;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static
       {
         intakeConfig.Feedback.SensorToMechanismRatio = 1.0;
+
+        intakeConfig.Slot0.kS = 0.265;
+        intakeConfig.Slot0.kV = 0.1;
+
+        intakeConfig.Slot0.kP = 0.5;
+
+        intakeConfig.MotionMagic.MotionMagicAcceleration = 200.0;
       }
     }
 
@@ -448,8 +469,9 @@ public final class Constants
 
       public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = -0.35;
+      public static final double minRotations = -0.146;//-0.332;
       public static final double maxRotations = 0.0;
+      public static final double homeRotations = 0.03;
 
       public static final double extendedTolerance = 0.05;
 
@@ -464,13 +486,13 @@ public final class Constants
         extensionConfig.Feedback.SensorToMechanismRatio = extensionRatio;
 
         extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.6;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.0;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.5;
 
         extensionConfig.Slot0.kS = 0.2;
         extensionConfig.Slot0.kG = 0.47;
         extensionConfig.Slot0.kV = 0.0;
         extensionConfig.Slot0.kA = 0.0;
-        extensionConfig.Slot0.kP = 50.0;
+        extensionConfig.Slot0.kP = 60.0;
         extensionConfig.Slot0.kI = 3.0;
         extensionConfig.Slot0.kD = 0.0;
         extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
@@ -483,7 +505,7 @@ public final class Constants
         extensionConfig.Slot1.kD = 0.0;
         extensionConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
 
-        extensionConfig.CustomParams.CustomParam0 = 30; // Current draw read as "stall" by the limited motor system
+        extensionConfig.CustomParams.CustomParam0 = 90; // Current draw read as "stall" by the limited motor system
       };
     }
   }   

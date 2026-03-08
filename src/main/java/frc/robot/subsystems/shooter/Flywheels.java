@@ -72,7 +72,7 @@ public class Flywheels
   @Logged
   public boolean atSpeed() 
   {
-    return MathUtil.isNear(request.Velocity, getSpeed(), flySpeedTolerance);
+    return MathUtil.isNear(Math.max(request.Velocity, idleSpeed), getSpeed(), flySpeedTolerance);
   }
 
   /** @return Current speed of the flywheels (RPS of the main flywheel) */

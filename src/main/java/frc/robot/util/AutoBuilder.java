@@ -51,7 +51,7 @@ public class AutoBuilder
       
       if (input.length() > 1)
       {
-        String[] inArgs = input.substring(1).split(":");
+        String[] inArgs = input.substring(1).trim().split(":");
         int[] outArgs = new int[inArgs.length];
 
         for (int i = 0; i < inArgs.length; i++)
@@ -85,7 +85,7 @@ public class AutoBuilder
     for (var instr : splitInput) 
     {
       Instruction
-        .parse(instr)
+        .parse(instr.trim())
         .ifPresentOrElse
         (
           out::add, 

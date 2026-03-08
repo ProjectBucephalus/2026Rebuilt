@@ -11,6 +11,10 @@ import frc.robot.constants.Constants.HopperConstants.IntakeConstants;
 import frc.robot.constants.Constants.HopperConstants.SpindexerConstants;
 import frc.robot.subsystems.generic.BinaryMotor;
 import frc.robot.subsystems.generic.LimitedMotor;
+import frc.robot.subsystems.generic.VelocityMotor;
+
+import frc.robot.util.PBDash;
+
 import static frc.robot.constants.Constants.HopperConstants.*;
 import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.extensionJostleDelay;
 
@@ -25,11 +29,9 @@ import java.util.function.DoubleSupplier;
 public class Hopper extends SubsystemBase 
 {
   @Logged
-  private BinaryMotor spindexer;
+  private final VelocityMotor intake;
   @Logged
-  private BinaryMotor intake;
-  @Logged
-  private LimitedMotor extension;
+  private final LimitedMotor extension;
   
   /**
    * Creates a ball processing master-system with extendable intake, internally creates and manages associated subsystems
@@ -38,55 +40,27 @@ public class Hopper extends SubsystemBase
    * @param extensionCAN CAN-ID for intake-extension motor
    * @param extensionLimitIO DIO-ID of extension home switch
    */
-  public Hopper(int processorCAN, int intakeCAN, int extensionCAN, int extensionLimitIO)
+  public Hopper(int intakeCAN, int extensionCAN, int extensionLimitIO)
   { 
-    spindexer = new BinaryMotor(processorCAN, SpindexerConstants.spindexerSpeed, SpindexerConstants.spindexerConfig);
-    intake = new BinaryMotor(intakeCAN, IntakeConstants.intakeSpeed, IntakeConstants.intakeConfig);
-    extension = new LimitedMotor(extensionCAN, extensionLimitIO, ExtensionConstants.minRotations, ExtensionConstants.maxRotations, ExtensionConstants.minRotations, ExtensionConstants.extensionConfig);
+    intake = new VelocityMotor(intakeCAN, IntakeConstants.intakeConfig);
+    extension = new LimitedMotor(extensionCAN, extensionLimitIO, ExtensionConstants.minRotations, ExtensionConstants.maxRotations, ExtensionConstants.homeRotations, ExtensionConstants.extensionConfig);
   }
   
   /** @return Command to start running intake at default speed */
   public Command startIntakeCommand()
-  {return intake.startCommand();}
+  {return intake.setSpeedCommand(() -> IntakeConstants.intakeSpeed);}
 
   /** @return Command that runs the intake until it is interrupted */
   public Command runIntakeCommand()
-  {return intake.runCommand();}
+  {return intake.runCommand(() -> IntakeConstants.intakeSpeed);}
   
   /** @return Command to start running intake at negative default speed */
   public Command reverseIntakeCommand()
-  {return intake.reverseCommand();}
+  {return intake.setSpeedCommand(() -> -IntakeConstants.intakeSpeed);}
 
   /** @return Command to stop the intake */
   public Command stopIntakeCommand()
-  {return intake.stopCommand();}
-  
-  /** @return Command to start running spindexer at default speed */
-  public Command runSpindexerCommand()
-  {return spindexer.startCommand();}
-  
-  /** @return Command to start running spindexer at negative default speed */
-  public Command reverseSpindexerCommand()
-  {return spindexer.reverseCommand();}
-
-  /** @return Command to stop the spindexer */
-  public Command stopSpindexerCommand()
-  {return spindexer.stopCommand();}
-
-  /** @return Command to continually pulse the spindexer to agitate gamepieces */
-  public Command pulseSpindexerCommand()
-  {
-    return 
-    Commands.sequence
-    (
-      runSpindexerCommand(),
-      //Waits for 0.25 seconds
-      Commands.waitSeconds(SpindexerConstants.spindexerPulseDelay),
-      stopSpindexerCommand(),
-      Commands.waitSeconds(SpindexerConstants.spindexerPulseDelay)
-    )
-    .repeatedly();
-  }
+  {return intake.setSpeedCommand(() -> 0);}
 
   /** @return Command to retract the extension to home */
   public Command retractCommand()
@@ -120,30 +94,9 @@ public class Hopper extends SubsystemBase
     .repeatedly();
   }
 
-  /** @return Command to activate all systems */
-  public Command deployAllCommand()
-  {
-    return
-    Commands.parallel
-    (
-      startIntakeCommand(),
-      runSpindexerCommand(),
-      extendCommand()
-    );
-  }
-
-  /** @return Command to stow all systems */
-  public Command stowAllCommand()
-  {
-    return
-    Commands.parallel
-    (
-      stopIntakeCommand(),
-      stopSpindexerCommand(),
-      retractCommand()
-    );
-  }
-
   @Override
-  public void periodic() {}
+  public void periodic() 
+  {
+    PBDash.putDouble("Intake Speed", intake.getSpeed());
+  }
 }

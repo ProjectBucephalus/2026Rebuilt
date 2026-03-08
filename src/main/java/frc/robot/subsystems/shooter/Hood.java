@@ -2,17 +2,14 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
 import frc.robot.util.Conversions;
-import frc.robot.util.FieldUtils;
 
 import frc.robot.constants.Constants.Interpolation;
-import static frc.robot.constants.Constants.ShooterConstants.HoodConstants.*;
+import frc.robot.subsystems.shooter.Target.TargetState;
 
-import java.util.function.Supplier;
+import static frc.robot.constants.Constants.ShooterConstants.HoodConstants.*;
 
 /**
  * Interface class for a Servo-driven shooter hood to control altitude.
@@ -24,8 +21,8 @@ public class Hood
   private final Servo m_Servo;
   private final AnalogInput io_Altitude;
   private final boolean inverted;
-  private final Supplier<Target> targetSup;
-
+  private final double homeAngle;
+  private final Target target;
 
   /**
    * Creates a Servo driven shooter hood, to be managed by {@link Shooter} master-system
@@ -34,12 +31,13 @@ public class Hood
    * @param inverted Inverts the range and direction of motion of the servo
    * @param targetSup Supplier for current Target object
    */
-  public Hood(int servoID, int feedbackID, boolean inverted, Supplier<Target> targetSup)
+  public Hood(int servoID, int feedbackID, boolean inverted, double homeAngle, Target target)
   {
     m_Servo = new Servo(servoID);
     io_Altitude = new AnalogInput(feedbackID);
     this.inverted = inverted;
-    this.targetSup = targetSup;
+    this.target = target;
+    this.homeAngle = homeAngle;
   }
 
   /**
@@ -59,23 +57,13 @@ public class Hood
    * 
    * @param shooterPose the field-relative shooter pose
    */
-  protected void update(Pose2d shooterPose)
+  protected void update()
   {
-    var target = targetSup.get();
-    // Update the azimuth stored in the target based on the target state
-    // Ensures that changing to manual mode doesn't cause sudden motion
-    target.altitude = switch (target.state) 
-    {
-      case Manual -> target.altitude;
-      case Point -> Interpolation.shooterAltitudeLow.get(target.distance);
-      case Hub -> Interpolation.shooterAltitudeHub.get(target.distance);
-    };
-
     // Limit the target altitude to within the hood's range of motion
-    target.altitude = Conversions.clamp(target.altitude, 0, hoodRange);
+    double altitude = Conversions.clamp(target.altitude, 0, hoodRange);
 
     // Convert hood target in degrees to servo position from [0..1]
-    double servoTarget = ((target.altitude + homeAngle) * hoodRatio) / servoRange;
+    double servoTarget = ((altitude * hoodRatio) + homeAngle) / servoRange;
 
     // Invert the target position if needed
     if (inverted) servoTarget = 1 - servoTarget;
