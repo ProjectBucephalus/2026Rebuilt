@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -234,6 +235,8 @@ public class Robot extends TimedRobot
     Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
+
+    SmartDashboard.putData("Current Commands", CommandScheduler.getInstance());
   }
 
   /** Set up input modification and fencing systems */
@@ -423,6 +426,7 @@ public class Robot extends TimedRobot
       (
         s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()))
           .onlyIf(() -> s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
+          .withName("Manual Shoot")
       );
 
     // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
@@ -437,19 +441,30 @@ public class Robot extends TimedRobot
       .and(debug.leftTrigger()
         .or(buttonPad.G1()))
       .and(debug.leftBumper().negate())
-      .whileTrue(s_Indexer.runCommand(s_PortShooter::getSpeed).alongWith(run(s_PortShooter::revFlywheels)));//runOnce(() -> s_PortShooter.revFlywheels()));
+      .whileTrue
+      (
+        s_Indexer.runCommand(s_PortShooter::getSpeed)
+        .alongWith(runOnce(s_PortShooter::revFlywheels))
+        .withName("Manual Shoot Port")
+      );//runOnce(() -> s_PortShooter.revFlywheels()));
     // debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
     buttonPad.G2()
-        .whileTrue(s_Indexer.runCommand(s_PortShooter::getSpeed).alongWith(run(s_PortShooter::idleFlywheels)));
+      .whileTrue
+      (
+        s_Indexer.runCommand(s_PortShooter::getSpeed)
+        .alongWith(runOnce(s_PortShooter::idleFlywheels))
+        .withName("Eject Port")
+      );
     debug.leftBumper()
       .or(buttonPad.G3())
       .whileTrue
       (
         parallel
         (
-          s_PortShooter.run(s_PortShooter::idleFlywheels),
+          s_PortShooter.runOnce(s_PortShooter::idleFlywheels),
           s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
         )
+        .withName("Reverse Indexer Port")
       );
 
     // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
@@ -457,19 +472,30 @@ public class Robot extends TimedRobot
       .and(debug.rightTrigger()
         .or(buttonPad.H1()))
       .and(debug.rightBumper().negate())
-      .whileTrue(s_Indexer.runCommand(s_StbdShooter::getSpeed).alongWith(run(s_StbdShooter::revFlywheels)));//run(() -> s_StbdShooter.revFlywheels()));
+      .whileTrue
+      (
+        s_Indexer.runCommand(s_StbdShooter::getSpeed)
+        .alongWith(runOnce(s_StbdShooter::revFlywheels))
+        .withName("Manual Shoot Stbd")
+      );//run(() -> s_StbdShooter.revFlywheels()));
     // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
     buttonPad.H2()
-        .whileTrue(s_Indexer.runCommand(s_StbdShooter::getSpeed).alongWith(run(s_StbdShooter::idleFlywheels)));
+      .whileTrue
+      (
+        s_Indexer.runCommand(s_StbdShooter::getSpeed)
+        .alongWith(runOnce(s_StbdShooter::idleFlywheels))
+        .withName("Eject Stbd")
+      );
     debug.rightBumper()
       .or(buttonPad.H3())
       .whileTrue
       (
         parallel
         (
-          s_StbdShooter.run(s_StbdShooter::idleFlywheels),
+          s_StbdShooter.runOnce(s_StbdShooter::idleFlywheels),
           s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
         )
+        .withName("Reverse Indexer Stbd")
       );
 
     /* Manual Control */
@@ -658,7 +684,7 @@ public class Robot extends TimedRobot
 
   private Command forBothShootersCommand(Consumer<Shooter> action)
   {
-    return run(() -> {
+    return runOnce(() -> {
       action.accept(s_PortShooter);
       action.accept(s_StbdShooter);
     });
