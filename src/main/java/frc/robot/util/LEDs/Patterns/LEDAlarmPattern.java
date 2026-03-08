@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.util.FieldUtils;
+import frc.robot.util.MatchTime;
 
 public class LEDAlarmPattern extends LEDPatternObject{
 
@@ -44,7 +45,7 @@ public class LEDAlarmPattern extends LEDPatternObject{
     public AddressableLEDBuffer Render(AddressableLEDBuffer buffer)
     {
         LEDPattern.solid(Color.kBlack).applyTo(buffer);
-        double curTime = FieldUtils.getGameTimeElapsed();
+        double curTime = MatchTime.getGameTimeElapsed();
         if ((curTime > aTime) && (curTime < (aTime + aDuration)))
         {
             switch (aStyle) {
