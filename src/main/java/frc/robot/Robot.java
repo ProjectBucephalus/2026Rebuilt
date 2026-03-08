@@ -183,9 +183,6 @@ public class Robot extends TimedRobot
     -1 //IDConstants.extensionLimitDIO
   );
 
-  @Logged(name = "Indexer")
-  private final Indexer s_Indexer = new Indexer();
-
   /* Rumble */
   @SuppressWarnings("unused")
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
@@ -380,22 +377,23 @@ public class Robot extends TimedRobot
       .onTrue(forBothShootersCommand(Shooter::revFlywheels))
       .onFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
-    /* Shooting when Ready */
-    shooterActiveTrigger
+    shooterActiveTrigger 
       .and(s_PortShooter::shootReady)
+      .whileTrue(s_PortShooter.runIndexerCommand());
+    shooterActiveTrigger 
       .and(s_StbdShooter::shootReady)
-      .whileTrue(s_Indexer.runCommand(() -> Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));
+      .whileTrue(s_StbdShooter.runIndexerCommand());
 
     //driver.leftBumper -> manual shoot -> ensure flywheels at least idle speed, then run indexers
     driver.leftBumper()
       .and(shooterActiveTrigger)
       .whileTrue
       (
-        run(() ->
-        {
-          if (s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
-            s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()));
-        })
+        parallel
+        (
+          s_StbdShooter.runIndexerCommand(),
+          s_PortShooter.runIndexerCommand()
+        ).onlyIf(() -> s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
       );
 
     // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
@@ -410,34 +408,40 @@ public class Robot extends TimedRobot
       .and(debug.leftTrigger()
         .or(buttonPad.G1()))
       .and(debug.leftBumper().negate())
-      .whileTrue(s_Indexer.runCommand(() -> s_PortShooter.getSpeed()).alongWith(run(() -> s_PortShooter.revFlywheels())));//runOnce(() -> s_PortShooter.revFlywheels()));
+      .whileTrue(s_PortShooter.runFlywheelsCommand().alongWith(s_PortShooter.runIndexerCommand()));
     // debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
     buttonPad.G2()
-        .whileTrue(s_Indexer.runCommand(() -> s_PortShooter.getSpeed()).alongWith(run(() -> s_PortShooter.idleFlywheels())));
+      .whileTrue(parallel(run(s_PortShooter::idleFlywheels), s_PortShooter.runIndexerCommand()));
     debug.leftBumper()
       .or(buttonPad.G3())
-      .whileTrue(run(() -> 
-      {
-        s_PortShooter.idleFlywheels();
-        s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed);
-      }));
+      .whileTrue
+      (
+        parallel
+        (
+          run(s_PortShooter::idleFlywheels),
+          s_PortShooter.reverseIndexerCommand()
+        )
+      );
 
     // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
     shooterActiveTrigger
       .and(debug.rightTrigger()
         .or(buttonPad.H1()))
       .and(debug.rightBumper().negate())
-      .whileTrue(s_Indexer.runCommand(() -> s_StbdShooter.getSpeed()).alongWith(run(() -> s_StbdShooter.revFlywheels())));//run(() -> s_StbdShooter.revFlywheels()));
+      .whileTrue(s_StbdShooter.runFlywheelsCommand().alongWith(s_StbdShooter.runIndexerCommand()));
     // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
     buttonPad.H2()
-        .whileTrue(s_Indexer.runCommand(() -> s_StbdShooter.getSpeed()).alongWith(run(() -> s_StbdShooter.idleFlywheels())));
+      .whileTrue(parallel(run(s_StbdShooter::idleFlywheels), s_StbdShooter.runIndexerCommand()));
     debug.rightBumper()
       .or(buttonPad.H3())
-      .whileTrue(run(() -> 
-      {
-        s_StbdShooter.idleFlywheels();
-        s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed);
-      }));
+      .whileTrue
+      (
+        parallel
+        (
+          run(s_StbdShooter::idleFlywheels),
+          s_StbdShooter.reverseIndexerCommand()
+        )
+      );
 
     /* Manual Control */
     autoAimTrigger.negate()

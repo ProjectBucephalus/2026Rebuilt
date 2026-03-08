@@ -11,17 +11,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants.ShooterConstants;
+import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.Interpolation;
 import frc.robot.constants.Constants.ShooterConstants.HoodConstants;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.constants.IDConstants.ShooterIDs;
+import frc.robot.subsystems.generic.VelocityMotor;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.idleSpeed;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -40,6 +41,8 @@ public class Shooter extends SubsystemBase
   private final Turret turret;
   @Logged
   private final Hood hood;
+  @Logged
+  private final VelocityMotor indexer;
   
   private final Transform2d shooterOffset;
   private final Translation2d baseTargetOffset;
@@ -87,6 +90,7 @@ public class Shooter extends SubsystemBase
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, this::getTarget);
     hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, hoodHomeAngle, target);
+    indexer = new VelocityMotor(idBlock.indexerCAN(), FeederConstants.feederConfig);
 
     target.azimuth = turret.getAzimuth();
   }
@@ -161,10 +165,20 @@ public class Shooter extends SubsystemBase
     return flywheels.atSpeed();
   }
 
+  public Command runIndexerCommand()
+    {return indexer.runCommand(this::getSpeed);}
+
+  public Command reverseIndexerCommand()
+  {
+    return indexer.runCommand(() -> FeederConstants.feederReverseSpeed);
+  }
+
   /** Sets the flywheels to rev up to target speed */
   public void revFlywheels() {target.flywheelsActive = true;}
   /** Sets the flywheels to idle speed */
   public void idleFlywheels() {target.flywheelsActive = false;}
+  public Command runFlywheelsCommand()  
+    {return startEnd(this::revFlywheels, this::idleFlywheels);}
 
   private void telemetrise()
   {
@@ -233,7 +247,6 @@ public class Shooter extends SubsystemBase
 
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update();
-    
 
     telemetrise();
   }
