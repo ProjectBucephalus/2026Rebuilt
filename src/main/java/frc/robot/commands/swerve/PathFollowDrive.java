@@ -2,6 +2,7 @@ package frc.robot.commands.swerve;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
@@ -23,13 +24,15 @@ import static frc.robot.constants.Constants.SwerveConstants.*;
  */
 public class PathFollowDrive extends SwerveCommandBase 
 {
-  private final Supplier<SwerveDriveState> swerveStateSup;
   private final SwerveRequest.ApplyRobotSpeeds driveRequest = new SwerveRequest.ApplyRobotSpeeds();    
-
+  
   private final PIDController xController = new PIDController(driveKP, driveKI, driveKD);
   private final PIDController yController = new PIDController(driveKP, driveKI, driveKD);
   private final PIDController thetaController = new PIDController(rotationKP, rotationKI, rotationKD);
   {thetaController.enableContinuousInput(-Math.PI, Math.PI);} // Init block- runs when constructed, regardless of constructor used
+
+  private final Supplier<SwerveDriveState> swerveStateSup;
+  private final DoubleSupplier brakeSup;
 
   private final ArrayList<Pose2d> waypoints;
   private final ArrayList<Double> radiusPerSegment;
@@ -39,14 +42,16 @@ public class PathFollowDrive extends SwerveCommandBase
 
   /**
    * Creates a new PathFollowDrive to follow the given sequence
-   * @param s_Swerve        Swervedrive subsystem
-   * @param swerveStateSup  Swerve state supplier from Robot to avoid expensive calls to the swerve system
-   * @param path            Predefined path for command to follow
+   * @param s_Swerve       Swervedrive subsystem
+   * @param swerveStateSup Swerve state supplier from Robot to avoid expensive calls to the swerve system
+   * @param path           Predefined path for command to follow
+   * @param brakeSup       Speed reduction to apply, [0..1]. Higher is slower
    */
-  public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, Path path)
+  public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, Path path, DoubleSupplier brakeSup)
   {
     super(s_Swerve, () -> Translation2d.kZero);
     this.swerveStateSup = swerveStateSup;
+    this.brakeSup = brakeSup;
 
     this.waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
     this.radiusPerSegment = new ArrayList<>(path.sequence().length);
@@ -95,6 +100,7 @@ public class PathFollowDrive extends SwerveCommandBase
   {
     super(s_Swerve, () -> Translation2d.kZero);
     this.swerveStateSup = swerveStateSup;
+    brakeSup = () -> 0;
 
     this.waypoints = new ArrayList<>();
     this.radiusPerSegment = new ArrayList<>();
@@ -148,6 +154,7 @@ public class PathFollowDrive extends SwerveCommandBase
    */
   public ChassisSpeeds calculateDrivePID(Pose2d target, Pose2d pose)
   {
+    final double brake = 1 - brakeSup.getAsDouble();
     final var robotPos = pose.getTranslation();
     final var targetPos = target.getTranslation();
 
@@ -169,10 +176,13 @@ public class PathFollowDrive extends SwerveCommandBase
       throttleX = throttleY*ratio;
     }
     final double speedTheta = 
-      Conversions.clamp(thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), -maxAngularVelocity, maxAngularVelocity);
-    final var throttleXY = new Translation2d(throttleX, throttleY);
-
-    FieldConstants.GeoFencing.fieldGeoFence.process(throttleXY);
+      Conversions.clamp
+      (
+        thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), 
+        -maxAngularVelocity, 
+        maxAngularVelocity
+      ) * brake;
+    final var throttleXY = FieldConstants.GeoFencing.fieldGeoFence.process(new Translation2d(throttleX, throttleY)).times(brake);
 
     return ChassisSpeeds.fromFieldRelativeSpeeds
     (
