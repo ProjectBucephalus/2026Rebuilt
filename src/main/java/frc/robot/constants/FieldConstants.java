@@ -5,6 +5,9 @@ import java.util.function.BiPredicate;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.util.FieldUtils;
 import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.ObjectList;
 import frc.robot.util.controlTransmutation.geoFence.*;
@@ -84,6 +87,8 @@ public class FieldConstants
     public static final double hubFrontOffset = hubCentreOffset + hubSideLength / 2;
     public static final double hubBackOffset  = hubCentreOffset - hubSideLength / 2;
 
+    public static final double hubOutputDepth = 2;
+
     public static final Fence field = new Fence
     (
       fieldWest, 
@@ -105,6 +110,9 @@ public class FieldConstants
      */
     public static final Box hubBlue = new Box(fieldCentre.getX() - hubFrontOffset, hubYa, fieldCentre.getX() - hubBackOffset, hubYb, hubRadius, hubBuffer);
     public static final Box hubRed  = new Box(fieldCentre.getX() + hubFrontOffset, hubYa, fieldCentre.getX() + hubBackOffset, hubYb, hubRadius, hubBuffer);
+
+    public static final Box hubBlueOutput = new Box(fieldCentre.getX() + hubOutputDepth, hubYa, fieldCentre.getX() - hubBackOffset, hubYb);
+    public static final Box hubRedOutput = new Box(fieldCentre.getX() - hubOutputDepth, hubYa, fieldCentre.getX() + hubBackOffset, hubYb);
 
     /* Bump Zone */
     // Speed should be limited when traversing
@@ -209,7 +217,11 @@ public class FieldConstants
       trenchSR,
       trenchNR,
       hubBlue, 
-      hubRed
+      hubRed,
+      hubBlueOutput
+        .setActiveCondition(() -> FieldUtils.hubActiveToleranced(Alliance.Blue, ControlConstants.preShiftOutputMargin, ControlConstants.postShiftOutputMargin)),
+      hubRedOutput
+        .setActiveCondition(() -> FieldUtils.hubActiveToleranced(Alliance.Red, ControlConstants.preShiftOutputMargin, ControlConstants.postShiftOutputMargin))
     );
 
     public static final ObjectList fieldBlueGeoFence = new ObjectList

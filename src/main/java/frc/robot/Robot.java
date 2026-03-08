@@ -370,7 +370,7 @@ public class Robot extends TimedRobot
     
     /* Revving/Idleing as Appropriate */
     final Trigger shootActiveTrigger = driver.rightBumper().negate()
-      .and(() -> FieldUtils.hubActiveToleranced(FieldUtils.getAlliance(), ControlConstants.preShiftMargin, ControlConstants.postShiftMargin));
+      .and(() -> FieldUtils.hubActiveToleranced(FieldUtils.getAlliance(), ControlConstants.preShiftShootMargin, ControlConstants.postShiftShootMargin));
     
     // Idle when right bumper
     driver.rightBumper()
