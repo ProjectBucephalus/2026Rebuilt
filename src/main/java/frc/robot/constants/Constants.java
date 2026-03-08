@@ -166,7 +166,7 @@ public final class Constants
       /** Target flywheel speed when idle, mechanism rps */
       public static final double idleSpeed = 10;
       /** Allowed variation in flywheel speed for shooting, rps */
-      public static final double flySpeedTolerance = 1.25;
+      public static final double flySpeedTolerance = 2;
 
       //simulation
       public static final double kGearRatio = 10.0;
