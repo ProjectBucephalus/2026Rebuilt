@@ -151,8 +151,8 @@ public class PathFollowDrive extends SwerveCommandBase
     final var robotPos = pose.getTranslation();
     final var targetPos = target.getTranslation();
 
-    double speedX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
-    double speedY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
+    double speedX = xController.calculate(robotPos.getX(), targetPos.getX());
+    double speedY = yController.calculate(robotPos.getY(), targetPos.getY());
     double throttleX;
     double throttleY;
     
@@ -169,7 +169,7 @@ public class PathFollowDrive extends SwerveCommandBase
       throttleX = throttleY*ratio;
     }
     final double speedTheta = 
-      Math.min(thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), maxAngularVelocity);
+      Conversions.clamp(thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), -maxAngularVelocity, maxAngularVelocity);
     final var throttleXY = new Translation2d(throttleX, throttleY);
 
     FieldConstants.GeoFencing.fieldGeoFence.process(throttleXY);
