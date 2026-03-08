@@ -33,11 +33,13 @@ public class PBDash
   public static final Field2d FIELD = new Field2d();
   static { putSendable("Field", FIELD); }
 
+  public static final Key<Boolean> E_STOP           = new Key<>("Mechanism E-Stop", false);
+
   // Auto-builder strings
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
   public static final Key<String>  AUTO_ERRS        = new Key<>("AUTO STRING ERRORS", "");
 
-  public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", true);
+  public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", false);
   
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
@@ -265,7 +267,7 @@ public class PBDash
     }
 
     /** @return Trigger monitoring if the value has changed */
-    public Trigger asTrigger()
+    public Trigger asPulse()
       {return new Trigger(() -> hasChanged());}
 
     /** @return Trigger monitoring if the value has changed then resetting the value */
@@ -273,7 +275,7 @@ public class PBDash
       {return new Trigger(() -> button());}
 
     /** @return Trigger of value being `true` */
-    public Trigger asSwitch()
+    public Trigger asTrigger()
       {return new Trigger(() -> get().equals(true));}
 
     /** Closes the underlying entry. <p> ATTEMPTING TO USE A KEY AFTER CLOSING IT WILL CAUSE ERRORS */

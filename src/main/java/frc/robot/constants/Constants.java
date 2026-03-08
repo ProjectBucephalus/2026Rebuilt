@@ -46,7 +46,7 @@ public final class Constants
     /** Normal maximum rotational robot speed, relative to maximum uncapped rotational speed */
     public static final double maxRotThrottle = 1;
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
-    public static final double minRotThrottle = 0.5;
+    public static final double minRotThrottle = 0.3;
     /** Angle tolerance to consider something as "facing" the drivers, degrees */
     public static final double driverVisionTolerance = 5;
     /** Translation lineup tolerance, meters */
@@ -389,6 +389,7 @@ public final class Constants
   public  static final class FeederConstants 
   {
     public static final double feederSpeed = 50;
+    public static final double feederMinSpeed = 25;
     public static final double feederReverseSpeed = -25;
 
     private static final double gearboxRatio = 1;
@@ -454,7 +455,7 @@ public final class Constants
         intakeConfig.Slot0.kS = 0.265;
         intakeConfig.Slot0.kV = 0.1;
 
-        intakeConfig.Slot0.kP = 0.5;
+        intakeConfig.Slot0.kP = 0.25;
 
         intakeConfig.MotionMagic.MotionMagicAcceleration = 200.0;
       }
