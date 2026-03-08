@@ -21,7 +21,7 @@ public class ManualDrive extends SwerveCommandBase
 {
   protected DoubleSupplier rotationSup;
   protected double rotationVal;
-  protected DoubleSupplier brakeSup;
+  protected DoubleSupplier rotBrakeSup;
 
   protected final SwerveRequest.FieldCentric driveRequest = new SwerveRequest
     .FieldCentric() 
@@ -33,13 +33,13 @@ public class ManualDrive extends SwerveCommandBase
    * @param s_Swerve Drivebase subsystem
    * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
    * @param rotationSup Rotation input from joystick, [-1..1]
-   * @param brakeSup Brake axis input for rotation, [0..1]
+   * @param rotBrakeSup Brake axis input for rotation, [0..1]
    */
-  public ManualDrive(CommandSwerveDrivetrain s_Swerve, Supplier<Translation2d> joystickSupplier, DoubleSupplier rotationSup, DoubleSupplier brakeSup) 
+  public ManualDrive(CommandSwerveDrivetrain s_Swerve, Supplier<Translation2d> joystickSupplier, DoubleSupplier rotationSup, DoubleSupplier rotBrakeSup) 
   {
     super(s_Swerve, joystickSupplier);
     this.rotationSup = rotationSup;
-    this.brakeSup = brakeSup;
+    this.rotBrakeSup = rotBrakeSup;
   }
 
   @Override
@@ -53,7 +53,7 @@ public class ManualDrive extends SwerveCommandBase
     if (Math.abs(rotationVal) <= deadband) 
       {rotationVal = 0;}
     else
-      {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
+      {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, rotBrakeSup.getAsDouble());}
 
     if (motionXY.getNorm() != 0)
       {PBDash.STATE_DRIVE.put("Manual");}

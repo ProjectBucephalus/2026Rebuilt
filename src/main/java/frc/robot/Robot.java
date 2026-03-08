@@ -110,9 +110,11 @@ public class Robot extends TimedRobot
     MidLeft, MidRight,
     InLeft, InRight
   }
+  private static enum HeadingLockState { Unlocked, Climb, General }
 
   private ButtonPadState btnSet = ButtonPadState.PassPointSelection;
   private ClimbPosition climbPos = ClimbPosition.OutLeft;
+  private HeadingLockState headingLock = HeadingLockState.Unlocked;
 
   private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
@@ -294,32 +296,21 @@ public class Robot extends TimedRobot
     
     // TODO: if (nudging && in trench zone) {nudge to nearest 180 degrees}
 
+    new Trigger(() -> headingLock == HeadingLockState.Unlocked)
+      .onTrue(s_Swerve.getDefaultCommand());
+
+    driver.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value, ControlConstants.stickDeadband)
+      .onTrue(runOnce(() -> headingLock = HeadingLockState.Unlocked));
+
+    driver.y()
+      .or(driver.b())
+      .or(driver.a())
+      .onTrue(runOnce(() -> headingLock = HeadingLockState.General));
+
     //driver.b -> ?? bump rotation lock ??
-    driver.b()
-      .toggleOnTrue(
-        new HeadingLockedDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          Rotation2d.kCCW_90deg,
-          Rotation2d.kZero,
-          () -> swerveState.Pose
-        )
-      );
-    driver.x()
-      .toggleOnTrue(
-        new HeadingLockedDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          Rotation2d.kCW_90deg,
-          Rotation2d.kZero,
-          () -> swerveState.Pose
-        )
-      );
-    //driver.y -> trench rotation lock -> rotate on press, heading straight towards other zone
+    driver.y().onTrue(new TrenchLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
     //driver.x -> tower rotation lock -> based on selected clime location, enable attractor
-    //driver.a -> outpost rotation lock -> face in or right, whichever is closer on press
+    driver.a().onTrue(new OutpostLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
 
 
     // -------------STATE--------------- //

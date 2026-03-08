@@ -154,6 +154,17 @@ public class FieldUtils
   }
 
   /**
+   * Rotates the provided rotation if we're on the red alliance
+   * 
+   * @param pose a blue-origin rotation
+   * @return the rotation rotated to match our alliance
+   */
+  public static Rotation2d allianceRotateRotation(Rotation2d rotation) 
+  {
+    return isAlliance(Alliance.Red) ? rotation.unaryMinus() : rotation;
+  }
+
+  /**
    * Rotates the provided pose
    * 
    * @param pose original pose
