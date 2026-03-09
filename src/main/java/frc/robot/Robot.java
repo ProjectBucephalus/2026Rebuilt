@@ -354,6 +354,7 @@ public class Robot extends TimedRobot
     // -------------STATE--------------- //
 
     final Trigger autoAimTrigger = new Trigger(() -> autoAim && s_Vision.hasLocalisation());
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()));
 
     PBDash.IO_AUTO_AIM.asSwitch()
       .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()));
@@ -387,7 +388,7 @@ public class Robot extends TimedRobot
     autoAimTrigger
       .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual).ignoringDisable(true));
     autoAimTrigger
-      .and(() -> !FieldUtils.inAllianceZone(getTranslation()))
+      .and(allianceZoneTrigger.negate())
       .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point).ignoringDisable(true));
     autoAimTrigger
       .and(() -> FieldUtils.inAllianceZone(getTranslation()))
@@ -413,6 +414,7 @@ public class Robot extends TimedRobot
     autoAimTrigger
       .and(() -> autoRev)
       .and(shootActiveTrigger)
+      .and(allianceZoneTrigger.or(() -> autoPass))
       .onTrue(forBothShootersCommand(Shooter::revFlywheels))
       .onFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
@@ -533,7 +535,7 @@ public class Robot extends TimedRobot
     debug.povDown()
       .or(buttonPad.A1())
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
-    debug.povDown()
+    debug.povUp()
       .or(buttonPad.A3())
       .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
 
