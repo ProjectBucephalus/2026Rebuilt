@@ -388,11 +388,11 @@ public final class Constants
   }
 
   /** Tuning data for feeder */
-  public  static final class FeederConstants 
+  public  static final class IndexerConstants 
   {
-    public static final double feederSpeed = 50;
-    public static final double feederMinSpeed = 25;
-    public static final double feederReverseSpeed = -25;
+    public static final double indexerSpeed = 50;
+    public static final double indexerMinSpeed = 25;
+    public static final double indexerReverseSpeed = -25;
 
     private static final double gearboxRatio = 1;
     //private static final double lowerRollerPulley = 24;
@@ -400,19 +400,19 @@ public final class Constants
     //private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
     //private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
 
-    public static final TalonFXConfiguration feederConfig = new TalonFXConfiguration();
+    public static final TalonFXConfiguration indexerConfig = new TalonFXConfiguration();
     static
     {
-      feederConfig.Feedback.SensorToMechanismRatio = gearboxRatio;
+      indexerConfig.Feedback.SensorToMechanismRatio = gearboxRatio;
 
-      feederConfig.Slot0.kS = 0.56;
-      feederConfig.Slot0.kV = 0.127;
-      feederConfig.Slot0.kA = 0.0;
-      feederConfig.Slot0.kP = 0.16;
-      feederConfig.Slot0.kI = 0.01;
-      feederConfig.Slot0.kD = 0.0;
+      indexerConfig.Slot0.kS = 0.56;
+      indexerConfig.Slot0.kV = 0.127;
+      indexerConfig.Slot0.kA = 0.0;
+      indexerConfig.Slot0.kP = 0.16;
+      indexerConfig.Slot0.kI = 0.01;
+      indexerConfig.Slot0.kD = 0.0;
 
-      feederConfig.MotionMagic.MotionMagicAcceleration = 50.0;
+      indexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
     }
   }
 

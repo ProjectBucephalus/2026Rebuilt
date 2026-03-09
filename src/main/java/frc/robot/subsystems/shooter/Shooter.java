@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants.ShooterConstants;
-import frc.robot.constants.Constants.FeederConstants;
+import frc.robot.constants.Constants.IndexerConstants;
 import frc.robot.constants.Constants.Interpolation;
 import frc.robot.constants.Constants.ShooterConstants.HoodConstants;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
@@ -89,7 +89,7 @@ public class Shooter extends SubsystemBase
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, this::getTarget);
     hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, hoodHomeAngle, target);
-    indexer = new VelocityMotor(idBlock.indexerCAN(), FeederConstants.feederConfig);
+    indexer = new VelocityMotor(idBlock.indexerCAN(), IndexerConstants.indexerConfig);
 
     target.azimuth = turret.getAzimuth();
   }
@@ -165,11 +165,11 @@ public class Shooter extends SubsystemBase
   }
 
   public Command runIndexerCommand()
-    {return indexer.runCommand(this::getSpeed);}
+    {return indexer.runCommand(this::getSpeed).unless(() -> PBDash.E_STOP.get() && target.state != TargetState.Manual);}
 
   public Command reverseIndexerCommand()
   {
-    return indexer.runCommand(() -> FeederConstants.feederReverseSpeed);
+    return indexer.runCommand(() -> IndexerConstants.indexerReverseSpeed).unless(() -> PBDash.E_STOP.get() && target.state != TargetState.Manual);
   }
 
   /** Sets the flywheels to rev up to target speed */
@@ -239,6 +239,10 @@ public class Shooter extends SubsystemBase
       case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
+
+    if (target.disabled && (!PBDash.E_STOP.get()))
+      indexer.setSpeed(IndexerConstants.indexerReverseSpeed);
+
     if (target.disabled || (PBDash.E_STOP.get() && target.state != TargetState.Manual))
       flywheels.setSpeed(0);
     else if (target.flywheelsActive)
