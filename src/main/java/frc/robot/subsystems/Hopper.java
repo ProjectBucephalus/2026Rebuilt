@@ -63,15 +63,15 @@ public class Hopper extends SubsystemBase
     {return intake.setSpeedCommand(() -> 0);}
 
   public Command bumpSafeCommand()
-    {return extension.setTargetCommand(ExtensionConstants.bumpSafeRotations);}
+    {return extension.setTargetCommand(() -> Math.min(ExtensionConstants.bumpSafeRotations, extension.getAngle()));}
 
   /** @return Command to retract the extension to home */
   public Command retractCommand()
-    {return extension.setTargetCommand(ExtensionConstants.minRotations);}
+    {return extension.retractCommand();}
 
   /** @return Command to extend the extension to max */
   public Command extendCommand()
-    {return extension.setTargetCommand(ExtensionConstants.maxRotations);}
+    {return extension.deployCommand();}
 
   /**
    * @param  shiftSup Supplier for relative control value, mechanism rotations
