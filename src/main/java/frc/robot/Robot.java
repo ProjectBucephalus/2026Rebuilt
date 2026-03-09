@@ -257,6 +257,28 @@ public class Robot extends TimedRobot
       .withDeadband(driverDeadband);
 
     GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
+    GeoFencing.hubBlueOutput
+      .setActiveCondition
+      (
+        () -> 
+        FieldUtils.hubActiveToleranced
+        (
+          Alliance.Blue, 
+          ControlConstants.preShiftOutputMargin, 
+          ControlConstants.postShiftOutputMargin
+        ) && !nudging
+      );
+    GeoFencing.hubRedOutput
+      .setActiveCondition
+      (
+        () -> 
+        FieldUtils.hubActiveToleranced
+        (
+          Alliance.Red, 
+          ControlConstants.preShiftOutputMargin, 
+          ControlConstants.postShiftOutputMargin
+        ) && !nudging
+      );
   }
 
   /** Sets primary control bindings */
