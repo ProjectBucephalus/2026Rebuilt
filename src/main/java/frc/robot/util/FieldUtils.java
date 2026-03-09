@@ -22,7 +22,7 @@ public class FieldUtils
   private static Alliance alliance;
   static {updateAlliance();}
 
-  private static Optional<Alliance> autoWinner = Optional.of(Alliance.Blue);
+  private static Optional<Alliance> autoWinner = Optional.empty();
 
   public static Optional<Alliance> getAutoWinner()
     {return autoWinner;}
