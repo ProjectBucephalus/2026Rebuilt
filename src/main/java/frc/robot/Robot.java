@@ -438,7 +438,9 @@ public class Robot extends TimedRobot
         (
           s_StbdShooter.runIndexerCommand(),
           s_PortShooter.runIndexerCommand()
-        ).onlyIf(() -> s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
+        )
+        .onlyIf(() -> s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
+        .withName("Manual Shoot")
       );
 
     // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
@@ -453,10 +455,26 @@ public class Robot extends TimedRobot
       .and(debug.leftTrigger()
         .or(buttonPad.G1()))
       .and(debug.leftBumper().negate())
-      .whileTrue(s_PortShooter.runFlywheelsCommand().alongWith(s_PortShooter.runIndexerCommand()));
+      .whileTrue
+      (
+        parallel
+        (
+          s_PortShooter.runFlywheelsCommand(),
+          s_PortShooter.runIndexerCommand()
+        )
+        .withName("Manual Shoot Port")
+      );
+      buttonPad.G2()
+      .whileTrue
+      (
+        parallel
+        (
+          run(s_PortShooter::idleFlywheels), 
+          s_PortShooter.runIndexerCommand()
+          )
+          .withName("Eject Port")
+          );
     // debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
-    buttonPad.G2()
-      .whileTrue(parallel(run(s_PortShooter::idleFlywheels), s_PortShooter.runIndexerCommand()));
     debug.leftBumper()
       .or(buttonPad.G3())
       .whileTrue
@@ -466,6 +484,7 @@ public class Robot extends TimedRobot
           run(s_PortShooter::idleFlywheels),
           s_PortShooter.reverseIndexerCommand()
         )
+        .withName("Reverse Indexer Port")
       );
 
     // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
@@ -473,10 +492,26 @@ public class Robot extends TimedRobot
       .and(debug.rightTrigger()
         .or(buttonPad.H1()))
       .and(debug.rightBumper().negate())
-      .whileTrue(s_StbdShooter.runFlywheelsCommand().alongWith(s_StbdShooter.runIndexerCommand()));
-    // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
+      .whileTrue
+      (
+        parallel
+        (
+          s_StbdShooter.runFlywheelsCommand(),
+          s_StbdShooter.runIndexerCommand()
+        )
+        .withName("Manual Shoot Stbd")
+      );
     buttonPad.H2()
-      .whileTrue(parallel(run(s_StbdShooter::idleFlywheels), s_StbdShooter.runIndexerCommand()));
+      .whileTrue
+      (
+        parallel
+        (
+          run(s_StbdShooter::idleFlywheels), 
+          s_StbdShooter.runIndexerCommand()
+        )
+        .withName("Eject Stbd")
+      );
+    // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release
     debug.rightBumper()
       .or(buttonPad.H3())
       .whileTrue
@@ -486,6 +521,7 @@ public class Robot extends TimedRobot
           run(s_StbdShooter::idleFlywheels),
           s_StbdShooter.reverseIndexerCommand()
         )
+        .withName("Reverse Indexer Stbd")
       );
 
     /* Manual Control */
