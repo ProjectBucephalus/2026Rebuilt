@@ -120,31 +120,83 @@ public class ControlBindings
   A4-H8 -> Alliance Zone map
   M1 -> Full auto targeting, reset target -> map sets pass point
   M2 -> Position Mode -> map sets robot position
+  M4 -> Manual controlls
+  M6 -> Disable e-stop
+  M8 -> Enable e-stop
 
-  A1 -> manual intake extend
-  A2 -> agitate intake
-  A3 -> manual intake retract
+  Port Shooter:
+  Normal set:
+  A1 - Disable
+  A2 - Drop
+  B2 - Idle
+  C1 - Shoot
+  C2 - Unjam
 
-  B1 -> run intake
-  B3 -> reverse intake
+  Manual set:
+  A1 - Rev
+  A2 - Idle
+  A3 - Stop
+  A4 - Reverse
+  B2 - Left
+  D2 - Right
+  C1 - Up
+  C2 - Down
+  B4 - Feed
+  C4 - Stop feeder
+  D4 - Reverse feeder
 
-  Climb Targets:
-  C2 -> mid-left
-  D1 -> out-left
-  D3 -> in-left
-  E1 -> out-right
-  E3 -> in-right
-  F2 -> mid-right
+  Stbd Shooter:
+  Normal set:
+  H1 - Disable
+  H2 - Drop
+  G2 - Idle
+  F1 - Shoot
+  F2 - Unjam
 
-  D2 -> full retract climber
-  E2 -> full extend climber
+  Manual set:
+  H1 - Rev
+  H2 - Idle
+  H3 - Stop
+  H4 - Reverse
+  E2 - Left
+  G2 - Right
+  F1 - Up
+  F2 - Down
+  G4 - Feed
+  F4 - Stop feeder
+  E4 - Reverse feeder
 
-  G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
-  G2 -> port shooter idle, run indexer, return to previous state on release
-  G3 -> port shooter idle, reverse indexer, return to previous state on release
-  H1 -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
-  H2 -> stbd shooter idle, run indexer, return to previous state on release 
-  H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
+  Intake:
+  Normal set:
+  D1 - Run
+  D2 - Agitate
+  D3 - Deploy
+  E1 - Reverse
+  E2 - Squish
+  E3 - Stow
+
+  Manual set:
+  A6 - Run
+  A7 - Reverse
+  B6 - Out
+  C6 - In
+  B7 - Deply
+  C7 - Stow
+  B8 - Agitate
+  C8 - Squish
+
+  Climber:
+  Normal set:
+  B3 - Left Climb
+  G3 - Right Climb
+
+  Manual set:
+  F6 - Out
+  G6 - In
+  F7 - Deploy
+  G7 - Stow
+  F8 - Left Climb
+  G8 - Right Climb
 
   */
 }

@@ -5,14 +5,14 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.util.FieldUtils;
 
 /** 
  * Heading-locked drive command with dynamic heading switching based on robot position 
  * @author 5985
  */
-public class TargetStationDrive extends HeadingLockedDrive 
+public class TrenchLockedDrive extends HeadingLockedDrive 
 {
   /**
    * Creates a Heading-locked drive command to face the nearest station <p>
@@ -22,22 +22,23 @@ public class TargetStationDrive extends HeadingLockedDrive
    * @param rotationOffset Field relative rotation to treat as 0
    * @param robotPoseSup Supplier for robot XY position in field coordinates
    */
-  public TargetStationDrive
+  public TrenchLockedDrive
   (
     CommandSwerveDrivetrain s_Swerve, 
     Supplier<Translation2d> joystickSupplier,
-    Rotation2d rotationOffset,
     Supplier<Pose2d> robotPoseSup
   ) 
   {
-    super(s_Swerve, joystickSupplier, Rotation2d.kZero, rotationOffset, robotPoseSup);
+    super(s_Swerve, joystickSupplier, Rotation2d.kZero, Rotation2d.kZero, robotPoseSup);
   }
 
   @Override
-  protected void updateTargetHeading()
+  public void initialize() 
   {
-    targetHeading = redAlliance ^ (robotPose.getY() >= 4.026) ? 
-      Rotation2d.fromDegrees(-55) : // Left side if blue, right side if red
-      Rotation2d.fromDegrees(55); // Right side if blue, left side if red
+    robotPose = robotPoseSup.get();
+    var rotation = FieldUtils.inAllianceZone(robotPose.getTranslation()) ?
+      Rotation2d.kZero :
+      Rotation2d.k180deg;
+    targetHeading = FieldUtils.allianceRotateRotation(rotation);
   }
 }

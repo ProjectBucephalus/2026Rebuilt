@@ -18,7 +18,6 @@ import frc.robot.util.PBDash;
 import static frc.robot.constants.Constants.HopperConstants.*;
 import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.extensionJostleDelay;
 
-import java.security.cert.Extension;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -48,27 +47,30 @@ public class Hopper extends SubsystemBase
   
   /** @return Command to start running intake at default speed */
   public Command startIntakeCommand()
-  {return intake.setSpeedCommand(() -> IntakeConstants.intakeSpeed);}
+    {return intake.setSpeedCommand(() -> IntakeConstants.intakeSpeed);}
 
   /** @return Command that runs the intake until it is interrupted */
   public Command runIntakeCommand()
-  {return intake.runCommand(() -> IntakeConstants.intakeSpeed);}
+    {return intake.runCommand(() -> IntakeConstants.intakeSpeed).withName("Run Intake");}
   
   /** @return Command to start running intake at negative default speed */
   public Command reverseIntakeCommand()
-  {return intake.setSpeedCommand(() -> -IntakeConstants.intakeSpeed);}
+    {return intake.setSpeedCommand(() -> -IntakeConstants.intakeSpeed);}
 
   /** @return Command to stop the intake */
   public Command stopIntakeCommand()
-  {return intake.setSpeedCommand(() -> 0);}
+    {return intake.setSpeedCommand(() -> 0);}
+
+  public Command bumpSafeCommand()
+    {return extension.setTargetCommand(() -> Math.min(ExtensionConstants.bumpSafeRotations, extension.getAngle()));}
 
   /** @return Command to retract the extension to home */
   public Command retractCommand()
-  {return extension.setTargetCommand(ExtensionConstants.minRotations);}
+    {return extension.retractCommand().unless(PBDash.E_STOP::get);}
 
   /** @return Command to extend the extension to max */
   public Command extendCommand()
-  {return extension.setTargetCommand(ExtensionConstants.maxRotations);}
+    {return extension.deployCommand().unless(PBDash.E_STOP::get);}
 
   /**
    * @param  shiftSup Supplier for relative control value, mechanism rotations
@@ -84,14 +86,15 @@ public class Hopper extends SubsystemBase
   public Command extensionJostleCommand()
   {
     return 
-    Commands.sequence
+    Commands.repeatingSequence
     (
       extension.setTargetCommand(-0.2),
       Commands.waitSeconds(extensionJostleDelay),
       extendCommand(), 
       Commands.waitSeconds(extensionJostleDelay)
     )
-    .repeatedly();
+    .alongWith(runIntakeCommand())
+    .unless(PBDash.E_STOP::get);
   }
 
   @Override

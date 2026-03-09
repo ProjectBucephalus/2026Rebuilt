@@ -46,7 +46,7 @@ public final class Constants
     /** Normal maximum rotational robot speed, relative to maximum uncapped rotational speed */
     public static final double maxRotThrottle = 1;
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
-    public static final double minRotThrottle = 0.5;
+    public static final double minRotThrottle = 0.3;
     /** Angle tolerance to consider something as "facing" the drivers, degrees */
     public static final double driverVisionTolerance = 5;
     /** Translation lineup tolerance, meters */
@@ -65,6 +65,12 @@ public final class Constants
     public static final double manualIntakeExtensionAmount = 0.05;
     public static final double manualClimberExtensionScale = 0.05;
     public static final double manualShooterDeadband = 0.5;
+
+    public static final double preShiftShootMargin = 1;
+    public static final double postShiftShootMargin = 2;
+
+    public static final double preShiftOutputMargin = 1;
+    public static final double postShiftOutputMargin = 2;
   }
 
   /** Geometry and tuning data for drivebase */
@@ -160,7 +166,7 @@ public final class Constants
       /** Target flywheel speed when idle, mechanism rps */
       public static final double idleSpeed = 10;
       /** Allowed variation in flywheel speed for shooting, rps */
-      public static final double flySpeedTolerance = 1.25;
+      public static final double flySpeedTolerance = 2;
 
       //simulation
       public static final double kGearRatio = 10.0;
@@ -248,11 +254,13 @@ public final class Constants
   public static final class VisionConstants
   {
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d portLimelightOffset = new Transform3d(-0.1, 0, -0.675, new Rotation3d(0, -16, 0));
+    public static final Transform3d portLimelightOffset = new Transform3d(0.25, 0, -0.6745, new Rotation3d(0, -13, 0));
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d stbdLimelightOffset = new Transform3d(-0.1, 0, -0.675, new Rotation3d(0, -16, 0));
+    public static final Transform3d stbdLimelightOffset = new Transform3d(0.25, 0, -0.6745, new Rotation3d(0, -13, 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
     public static final double visionFrequencyThreshold = 10;
+    /** Cycles of latency to receive vision estimates, used to sync up turret rotation and vision readings */
+    public static final int latencyCycles = 5;
 
     public static final Set<Integer> hubIDs = Set.of
     (
@@ -374,10 +382,16 @@ public final class Constants
     }};
   }
 
+  public static final class LEDConstants 
+  {
+    public static final int LEDStripLen = 120;
+  }
+
   /** Tuning data for feeder */
   public  static final class FeederConstants 
   {
     public static final double feederSpeed = 50;
+    public static final double feederMinSpeed = 25;
     public static final double feederReverseSpeed = -25;
 
     private static final double gearboxRatio = 1;
@@ -443,7 +457,7 @@ public final class Constants
         intakeConfig.Slot0.kS = 0.265;
         intakeConfig.Slot0.kV = 0.1;
 
-        intakeConfig.Slot0.kP = 0.5;
+        intakeConfig.Slot0.kP = 0.15;
 
         intakeConfig.MotionMagic.MotionMagicAcceleration = 200.0;
       }
@@ -467,6 +481,7 @@ public final class Constants
       public static final double minRotations = -0.146;//-0.332;
       public static final double maxRotations = 0.0;
       public static final double homeRotations = 0.03;
+      public static final double bumpSafeRotations = -0.14;
 
       public static final double extendedTolerance = 0.05;
 

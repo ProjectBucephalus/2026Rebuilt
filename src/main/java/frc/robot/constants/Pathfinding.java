@@ -37,10 +37,7 @@ public abstract class Pathfinding
     /** Creates a Red Alliance clone of the original Blue Alliance path */
     public Path allianceRotated()
     {
-      if (FieldUtils.isRedAlliance())
-        return this.rotated();
-      else
-        return this;
+      return switch (FieldUtils.getAlliance()) { case Blue -> this; case Red -> this.rotated(); };
     }
   }
 

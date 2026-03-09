@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+
 import edu.wpi.first.epilogue.Epilogue;
+//import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
@@ -15,8 +17,10 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
@@ -62,6 +66,7 @@ import frc.robot.util.AutoBuilder;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.Launchpad;
 import frc.robot.util.LockableXboxController;
+import frc.robot.util.MatchTime;
 import frc.robot.util.PBDash;
 import frc.robot.util.Launchpad.PadColour;
 import frc.robot.util.controlTransmutation.*;
@@ -98,17 +103,19 @@ public class Robot extends TimedRobot
     PassPointSelection,
     LocalisationOveride,
     AutoDisplay,
-    OverrideControls
+    ManualControls
   }
-  private static enum ClimbPosition
+  public static enum ClimbPosition
   {
     OutLeft, OutRight,
     MidLeft, MidRight,
     InLeft, InRight
   }
+  private static enum HeadingLockState { Unlocked, Climb, General }
 
   private ButtonPadState btnSet = ButtonPadState.PassPointSelection;
   private ClimbPosition climbPos = ClimbPosition.OutLeft;
+  private HeadingLockState headingLock = HeadingLockState.Unlocked;
 
   private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
@@ -202,7 +209,7 @@ public class Robot extends TimedRobot
   public Robot() 
   {
     updateSwerveState();
-
+    
     initLogging();
     initInputTransmute();
     bindControls();
@@ -225,6 +232,8 @@ public class Robot extends TimedRobot
     Epilogue.bind(this);
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
+
+    SmartDashboard.putData("Current Commands", CommandScheduler.getInstance());
   }
 
   /** Set up input modification and fencing systems */
@@ -238,7 +247,7 @@ public class Robot extends TimedRobot
     FieldObject.setRobotPosSup(this::getTranslation);
     
     driverStick
-      .rotated(FieldUtils.isRedAlliance())
+      .rotated(FieldUtils.isAlliance(Alliance.Red))
       .withFieldObjects(GeoFencing.fieldGeoFence)
       .withBrake(driverBrake)
       .withInputCurve(driverInputCurve)
@@ -250,6 +259,43 @@ public class Robot extends TimedRobot
   /** Sets primary control bindings */
   private void bindControls()
   {
+    // -------------STATE--------------- //
+
+    final Trigger autoAimTrigger = new Trigger(() -> autoAim && s_Vision.hasLocalisation());
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()));
+
+    Trigger btnSetPass          = new Trigger(() -> btnSet == ButtonPadState.PassPointSelection);
+    Trigger btnSetLocalisation  = new Trigger(() -> btnSet == ButtonPadState.LocalisationOveride);
+    Trigger btnSetManual        = new Trigger(() -> btnSet == ButtonPadState.ManualControls);
+    Trigger btnSetAuto          = new Trigger(() -> btnSet == ButtonPadState.AutoDisplay);
+
+    PBDash.IO_AUTO_AIM.asTrigger()
+      .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()).ignoringDisable(true));
+    switchboard.button(1/*autoAimSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
+
+    PBDash.IO_AUTO_PASS.asTrigger()
+      .onChange(runOnce(() -> autoPass = PBDash.IO_AUTO_PASS.get()).ignoringDisable(true));
+    switchboard.button(1/*autoPassSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    
+    PBDash.IO_AUTO_REV.asTrigger()
+      .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()).ignoringDisable(true));
+    switchboard.button(1/*autoRevSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())).ignoringDisable(true));
+
+    switchboard.button(1/*fencingSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    switchboard.button(1/*visionSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())).ignoringDisable(true));
+
+    driver.back().onTrue(runOnce(() -> nudging = false).ignoringDisable(true));
+    driver.y().or(driver.b()).onTrue(runOnce(() -> nudging = true).ignoringDisable(true));
+    driver.back().or(driver.y()).or(driver.b()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(nudging)).ignoringDisable(true));
+    
+    
+    
     // -------------DRIVE--------------- //
 
     s_Swerve.setDefaultCommand
@@ -263,7 +309,10 @@ public class Robot extends TimedRobot
       )
     );
 
-    PBDash.IO_FENCE.asSwitch()
+    driver.start()
+      .onTrue(runOnce(() -> s_Swerve.resetRotation(Rotation2d.kZero)));
+
+    PBDash.IO_FENCE.asTrigger()
       .and(() -> nudging && s_Vision.hasLocalisation())
       .and
       (
@@ -272,6 +321,7 @@ public class Robot extends TimedRobot
         .or(bumpNR.asTrigger())
         .or(bumpSR.asTrigger())
       )
+      .onTrue(s_Hopper.bumpSafeCommand())
       .whileTrue
       (
         new NonCardinalDrive
@@ -285,108 +335,103 @@ public class Robot extends TimedRobot
         )
       );
     
-    // TODO: if (nudging && in trench zone) {nudge to nearest 180 degrees}
-
-    //driver.b -> ?? bump rotation lock ??
-    driver.b()
-      .toggleOnTrue(
-        new HeadingLockedDrive
+    PBDash.IO_FENCE.asTrigger()
+      .and(() -> nudging && s_Vision.hasLocalisation())
+      .and
+      (
+            trenchNB.asTrigger()
+        .or(trenchSB.asTrigger())
+        .or(trenchNR.asTrigger())
+        .or(trenchSR.asTrigger())
+      )
+      .whileTrue
+      (
+        new TrenchNudgeDrive
         (
           s_Swerve, 
-          driverStick::stickOutput,
-          Rotation2d.kCCW_90deg,
-          Rotation2d.kZero,
-          () -> swerveState.Pose
-        )
+          driverStick::stickOutput, 
+          () -> -driver.getRightX(), 
+          driver::getRightTriggerAxis, 
+          () -> swerveState.Pose.getRotation()
+        ).onlyIf(() -> headingLock == HeadingLockState.Unlocked)
       );
-    driver.x()
-      .toggleOnTrue(
-        new HeadingLockedDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          Rotation2d.kCW_90deg,
-          Rotation2d.kZero,
-          () -> swerveState.Pose
-        )
-      );
-    //driver.y -> trench rotation lock -> rotate on press, heading straight towards other zone
-    //driver.x -> tower rotation lock -> based on selected clime location, enable attractor
-    //driver.a -> outpost rotation lock -> face in or right, whichever is closer on press
 
+    new Trigger(() -> headingLock == HeadingLockState.Unlocked)
+      .onTrue(s_Swerve.getDefaultCommand());
 
-    // -------------STATE--------------- //
+    driver.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value, ControlConstants.stickDeadband)
+      .onTrue(runOnce(() -> headingLock = HeadingLockState.Unlocked));
 
-    final Trigger autoAimTrigger = new Trigger(() -> autoAim);
+    driver.y()
+      .or(driver.b())
+      .or(driver.a())
+      .onTrue(runOnce(() -> headingLock = HeadingLockState.General));
 
-    PBDash.IO_AUTO_AIM.asSwitch()
-      .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()));
-    switchboard.button(1/*autoAimSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())));
-    debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)));
-
-    PBDash.IO_AUTO_PASS.asSwitch()
-      .onChange(runOnce(() -> autoPass = PBDash.IO_AUTO_PASS.get()));
-    switchboard.button(1/*autoPassSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())));
-    
-    PBDash.IO_AUTO_REV.asSwitch()
-      .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()));
-    switchboard.button(1/*autoRevSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())));
-
-    switchboard.button(1/*fencingSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())));
-    switchboard.button(1/*visionSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())));
-
-    driver.back().onTrue(runOnce(() -> nudging = false));
-    driver.start().onTrue(runOnce(() -> nudging = true));
-    driver.start().or(driver.back()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(nudging)));
+    driver.b().onTrue
+    (        
+      new NonCardinalDrive
+      (
+        s_Swerve, 
+        driverStick::stickOutput, 
+        () -> -driver.getRightX(), 
+        driver::getRightTriggerAxis, 
+        () -> swerveState.Pose.getRotation(), 
+        bumpRotationTolerance
+      )
+    );
+    driver.y().onTrue(new TrenchLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
+    //driver.x -> tower rotation lock -> based on selected clime location, TODO enable attractor
+    driver.x().onTrue(new ClimbLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose, () -> climbPos));
+    driver.a().onTrue(new OutpostLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
 
 
     // -------------SHOOTERS------------ //
 
     /* Targetting States */
     autoAimTrigger
-      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual));
+      .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual).ignoringDisable(true));
     autoAimTrigger
-      .and(() -> !FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point));
+      .and(allianceZoneTrigger.negate())
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point).ignoringDisable(true));
     autoAimTrigger
-      .and(() -> FieldUtils.inAllianceZone(getTranslation()))
-      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub));
+      .and(allianceZoneTrigger)
+      .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub).ignoringDisable(true));
 
     /* Pass Point */
     autoAimTrigger.and(() -> autoPass)
       .whileTrue(modifyTargetsCommand(target -> target.point = FieldUtils.getClosestPassPoint(getTranslation())));
     
     /* Revving/Idleing as Appropriate */
-    Trigger shooterActiveTrigger = driver.rightBumper().negate();
+    final Trigger shootActiveTrigger = driver.rightBumper().negate()
+      .and(() -> FieldUtils.hubActiveToleranced(FieldUtils.getAlliance(), ControlConstants.preShiftShootMargin, ControlConstants.postShiftShootMargin));
     
-    shooterActiveTrigger
-      .whileFalse
+    // Idle when right bumper
+    driver.rightBumper()
+      .whileTrue
       (
         forBothShootersCommand(Shooter::idleFlywheels)
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
       );
 
+    // Rev if auto aiming, auto revving, and shooters are active
     autoAimTrigger
       .and(() -> autoRev)
-      .and(shooterActiveTrigger)
+      .and(shootActiveTrigger)
+      .and(allianceZoneTrigger.or(() -> autoPass))
       .onTrue(forBothShootersCommand(Shooter::revFlywheels))
       .onFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
-    shooterActiveTrigger 
+    /* Shooting when Ready */
+    shootActiveTrigger
       .and(s_PortShooter::shootReady)
       .whileTrue(s_PortShooter.runIndexerCommand());
-    shooterActiveTrigger 
+    shootActiveTrigger 
       .and(s_StbdShooter::shootReady)
       .whileTrue(s_StbdShooter.runIndexerCommand());
 
     //driver.leftBumper -> manual shoot -> ensure flywheels at least idle speed, then run indexers
     driver.leftBumper()
-      .and(shooterActiveTrigger)
+      .and(driver.rightBumper().negate())
       .whileTrue
       (
         parallel
@@ -404,7 +449,7 @@ public class Robot extends TimedRobot
     // H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
 
     // debug.leftTrigger -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
-    shooterActiveTrigger
+    driver.rightBumper().negate()
       .and(debug.leftTrigger()
         .or(buttonPad.G1()))
       .and(debug.leftBumper().negate())
@@ -424,7 +469,7 @@ public class Robot extends TimedRobot
       );
 
     // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
-    shooterActiveTrigger
+    driver.rightBumper().negate()
       .and(debug.rightTrigger()
         .or(buttonPad.H1()))
       .and(debug.rightBumper().negate())
@@ -457,31 +502,35 @@ public class Robot extends TimedRobot
       .onTrue(s_Hopper.extendCommand());
 
     debug.b().negate()
-      .and(debug.a()
-          .or(driver.leftTrigger().and(s_Hopper::extended))
+      .and
+      (
+        debug.a()
           .or(buttonPad.B1())
-        )
-      .whileTrue(s_Hopper.runIntakeCommand());
+          .or(driver.leftTrigger().and(s_Hopper::extended).and(PBDash.E_STOP.asTrigger().negate()))
+      )
+      .whileTrue(s_Hopper.runIntakeCommand())
+      .onFalse(s_Hopper.stopIntakeCommand());
 
-    driver.povUp()
+    driver.povDown()
       .or(debug.x())
       .or(buttonPad.A2())
-      .whileTrue(parallel(s_Hopper.extensionJostleCommand(), s_Hopper.runIntakeCommand()))
+      .whileTrue(s_Hopper.extensionJostleCommand())
       .onFalse(s_Hopper.extendCommand());
 
-    driver.povDown().onTrue(s_Hopper.retractCommand());
+    driver.povUp().onTrue(s_Hopper.retractCommand());
 
     debug.b()
       .or(buttonPad.B3())
       .onTrue(s_Hopper.reverseIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
 
-    debug.povUp()
+    debug.povDown()
       .or(buttonPad.A1())
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
-    debug.povDown()
+    debug.povUp()
       .or(buttonPad.A3())
       .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
+
 
     // -------------CLIMBER------------- //
     
@@ -504,10 +553,12 @@ public class Robot extends TimedRobot
     buttonPad.E3().onTrue(runOnce(() -> climbPos = ClimbPosition.InRight).ignoringDisable(true));
     buttonPad.F2().onTrue(runOnce(() -> climbPos = ClimbPosition.MidRight).ignoringDisable(true));
 
-
+    
     // -------------BTN-PAD------------- //
 
     buttonPad.setDisplayGrid(ButtonPadConstants.passPointMap);
+    buttonPad.setColour(PadColour.OFF, 68, 69, 70);
+    buttonPad.setColour(PadColour.FULL_RED, 71);
 
     //   A B C D E F G H  M
     // 1 [][][][][][][][] ()
@@ -523,18 +574,23 @@ public class Robot extends TimedRobot
     // M1 -> Full auto targeting, reset target -> map sets pass point
     // M2 -> Position Mode -> map sets robot position
 
-    Trigger btnSetPass          = new Trigger(() -> btnSet == ButtonPadState.PassPointSelection);
-    Trigger btnSetLocalisation  = new Trigger(() -> btnSet == ButtonPadState.LocalisationOveride);
-    Trigger btnSetAuto          = new Trigger(() -> btnSet == ButtonPadState.AutoDisplay);
-    Trigger btnSetOverride      = new Trigger(() -> btnSet == ButtonPadState.OverrideControls);
-
     buttonPad.M1().onTrue(runOnce(() -> btnSet = ButtonPadState.PassPointSelection).ignoringDisable(true));
     buttonPad.M2()
       .onTrue(runOnce(() -> btnSet = ButtonPadState.LocalisationOveride).ignoringDisable(true))
       .onFalse(runOnce(() -> btnSet = ButtonPadState.PassPointSelection).ignoringDisable(true));
 
+    buttonPad.M4().onTrue(runOnce(() -> btnSet = ButtonPadState.ManualControls).ignoringDisable(true));
+
+    buttonPad.M6().and(PBDash.E_STOP.asTrigger()).onTrue(runOnce(() -> PBDash.E_STOP.put(false)).ignoringDisable(true));
+    buttonPad.M8().onTrue(runOnce(() -> PBDash.E_STOP.put(true)).ignoringDisable(true));
+
+    PBDash.E_STOP.asTrigger()
+      .onTrue(runOnce(() -> buttonPad.setColour(PadColour.FULL_ORANGE, 69)).ignoringDisable(true))
+      .onFalse(runOnce(() -> buttonPad.setColour(PadColour.OFF, 69)).ignoringDisable(true));
+
     btnSetPass.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.passPointMap)).ignoringDisable(true));
     btnSetLocalisation.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.localisationMap)).ignoringDisable(true));
+    btnSetManual.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.manualControlGrid)).ignoringDisable(true));
 
     for (int x = 0; x <= 3; x++)
     {
@@ -543,37 +599,11 @@ public class Robot extends TimedRobot
         double targetX = 3.5 - x;
         double targetY = 7.5 - y;
         btnSetPass.and(buttonPad.getBtn(32 + y + (8 * x)))
-          .onTrue(modifyTargetsCommand(target -> target.point = new AllianceTranslation2d(targetX, targetY).get()));
+          .onTrue(modifyTargetsCommand(target -> target.point = new AllianceTranslation2d(targetX, targetY).get()).ignoringDisable(true));
         btnSetLocalisation.and(buttonPad.getBtn(32 + y + (8 * x)))
-          .onTrue(runOnce(() -> s_Vision.setPose(new AlliancePose2d(targetX, targetY, 0).get())));
+          .onTrue(runOnce(() -> s_Vision.setPose(new AlliancePose2d(targetX, targetY, 0).get())).ignoringDisable(true));
       }
     }
-
-    // A1 -> manual intake extend
-    // A2 -> agitate intake
-    // A3 -> manual intake retract
-
-    // B1 -> run intake
-    // B3 -> reverse intake
-
-    // Climb Targets:
-    // C2 -> mid-left
-    // D1 -> out-left
-    // D3 -> in-left
-    // E1 -> out-right
-    // E3 -> in-right
-    // F2 -> mid-right
-
-    // D2 -> full retract climber
-    // E2 -> full extend climber
-
-    // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
-    // G2 -> port shooter idle, run indexer, return to previous state on release
-    // G3 -> port shooter idle, reverse indexer, return to previous state on release
-    // H1 -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
-    // H2 -> stbd shooter idle, run indexer, return to previous state on release 
-    // H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
-
   }
 
   /** Mutually exclusive to bindControls */
@@ -627,7 +657,7 @@ public class Robot extends TimedRobot
 
   private Command forBothShootersCommand(Consumer<Shooter> action)
   {
-    return run(() -> {
+    return runOnce(() -> {
       action.accept(s_PortShooter);
       action.accept(s_StbdShooter);
     });
@@ -677,6 +707,7 @@ public class Robot extends TimedRobot
   @Override
   public void robotPeriodic() 
   {
+    FieldUtils.updateAutoWinner();
     updateSwerveState();
     CommandScheduler.getInstance().run();
   }
@@ -686,9 +717,14 @@ public class Robot extends TimedRobot
   {
     FieldUtils.updateAlliance();
     if (getTranslation().equals(Translation2d.kZero))
-    {
-      s_Swerve.resetPose(FieldUtils.isRedAlliance() ? FieldConstants.redStartLine : FieldConstants.blueStartLine);
-    }
+      s_Swerve.resetPose
+      (
+        switch (FieldUtils.getAlliance()) 
+        {
+          case Blue -> FieldConstants.blueStartLine; 
+          case Red -> FieldConstants.redStartLine;
+        }
+      );
   }
 
   @Override
@@ -703,10 +739,12 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit() 
   {
+    MatchTime.startAuto();
     FieldUtils.updateAlliance();
 
     autoAim = true;
     autoRev = true;
+    nudging = false;
     if (autoCommand.isEmpty())
       compileAuto();
 
@@ -716,11 +754,13 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit() 
   {
+    MatchTime.startTele();
     autoCommand.ifPresent(Command::cancel);
 
     FieldUtils.updateAlliance();
     autoAim = true;
     autoRev = true;
+    nudging = true;
     initInputTransmute();
   }
 
