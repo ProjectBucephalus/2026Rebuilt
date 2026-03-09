@@ -28,7 +28,6 @@ public class Limelight
   private static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
   private final Transform3d structureToCamera;
   private final PhotonPoseEstimator photonEstimator;
-  private PhotonPipelineResult result;
   private boolean onTurret = false;
   private DoubleSupplier turretAngleSup;
   private Transform2d robotToTurret;
@@ -72,49 +71,35 @@ public class Limelight
     onTurret = true;
   }
 
-  /** 
-   * Pulls all unread results from the camera and stores the latest <p>
-   * Subsequent requests before the camera produces a new result will not clear the stored result
-   */
-  public void getLatestResult() 
-  {
-    // getAllUnreadResults() should generally only be called once per cycle, as it clears the internal list
-    // The logic here protects against that feature to allow the latest result to be called as needed
-    var results = camera.getAllUnreadResults();
-
-    if (!results.isEmpty()) 
-      {result = results.get(results.size()-1);}
-  }
-
   /** @param pipelineIndex Vision pipeline index to start using */
   protected void updatePipeline(int pipelineIndex)
     {camera.setPipelineIndex(pipelineIndex);}
 
   /**
-   * Removes uncertain or unwanted tags from the pose estimate before calculating
+   * Removes uncertain or unwanted tags from the pose estimate before calculating<p>
+   * ONLY CALL ONCE PER CYCLE
    * @return Sanitised pose estimate
    */
   public Optional<EstimatedRobotPose> getPhotonEst()
   { 
-    if (result == null) return Optional.empty();
+    // Use this call to update some information that should only be done once per cycle
+    double reading = turretAngleSup.getAsDouble();
+    turretCache.add(reading);
+    if (turretCache.size() > latencyCycles)
+      {reading = turretCache.remove();}
+    currentTurretAngle = Rotation2d.fromDegrees(reading);
 
-    for (int i = result.targets.size() - 1; i >= 0; i--)
-    {
-      double targetAmb = result.targets.get(i).getPoseAmbiguity();
-      
-      if (targetAmb > 0.2) 
-      {
-        result.targets.remove(i);
-      } 
-    }
+    var results = camera.getAllUnreadResults();
 
-    var visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
-    if (visionEst.isEmpty()) 
-    {
-      visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
-    }
+    if (results == null || results.isEmpty()) 
+      return Optional.empty();
 
-    return visionEst;
+    var result = results.get(results.size() - 1);
+
+    result.targets.removeIf(target -> target.getPoseAmbiguity() > 0.2);
+
+    return photonEstimator.estimateCoprocMultiTagPose(result)
+      .or(() -> photonEstimator.estimateLowestAmbiguityPose(result));
   }
 
   public boolean isOnTurret()
@@ -130,20 +115,4 @@ public class Limelight
   /** @return Transform to convert FROM TURRET to Robot, including current azimuth */
   public Transform2d getTurretToRobot()
   {return new Transform2d(turretToRobot.getTranslation().rotateBy(getTurretAngle().unaryMinus()), turretToRobot.getRotation().minus(getTurretAngle()));}
-
-  /** 
-   * Intended to be called in {@link Vision#periodic()} <p>
-   * Pull the latest results from the camera ready to be used
-   */
-  public void update() 
-  {
-    result = null;
-    getLatestResult();
-
-    double reading = turretAngleSup.getAsDouble();
-    turretCache.add(reading);
-    if (turretCache.size() > latencyCycles)
-      {reading = turretCache.remove();}
-    currentTurretAngle = Rotation2d.fromDegrees(reading);
-  }
 }
