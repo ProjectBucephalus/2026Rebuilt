@@ -589,11 +589,18 @@ public class Robot extends TimedRobot
       .onTrue(runOnce(() -> btnSet = ButtonPadState.LocalisationOveride).ignoringDisable(true))
       .onFalse(runOnce(() -> btnSet = ButtonPadState.PassPointSelection).ignoringDisable(true));
 
+    buttonPad.M4().onTrue(runOnce(() -> btnSet = ButtonPadState.ManualControls).ignoringDisable(true));
+
     buttonPad.M6().and(PBDash.E_STOP.asTrigger()).onTrue(runOnce(() -> PBDash.E_STOP.put(false)));
     buttonPad.M8().onTrue(runOnce(() -> PBDash.E_STOP.put(true)));
 
+    PBDash.E_STOP.asTrigger()
+      .onTrue(runOnce(() -> buttonPad.setColour(PadColour.FULL_ORANGE, 69)).ignoringDisable(true))
+      .onFalse(runOnce(() -> buttonPad.setColour(PadColour.OFF, 69)).ignoringDisable(true));
+
     btnSetPass.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.passPointMap)).ignoringDisable(true));
     btnSetLocalisation.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.localisationMap)).ignoringDisable(true));
+    btnSetManual.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.manualControlGrid)).ignoringDisable(true));
 
     for (int x = 0; x <= 3; x++)
     {
