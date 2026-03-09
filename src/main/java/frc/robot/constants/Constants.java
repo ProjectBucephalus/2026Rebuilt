@@ -457,7 +457,7 @@ public final class Constants
         intakeConfig.Slot0.kS = 0.265;
         intakeConfig.Slot0.kV = 0.1;
 
-        intakeConfig.Slot0.kP = 0.25;
+        intakeConfig.Slot0.kP = 0.15;
 
         intakeConfig.MotionMagic.MotionMagicAcceleration = 200.0;
       }
