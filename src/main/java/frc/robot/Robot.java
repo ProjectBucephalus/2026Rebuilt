@@ -278,7 +278,7 @@ public class Robot extends TimedRobot
     driver.start()
       .onTrue(runOnce(() -> s_Swerve.resetRotation(Rotation2d.kZero)));
 
-    PBDash.IO_FENCE.asSwitch()
+    PBDash.IO_FENCE.asTrigger()
       .and(() -> nudging && s_Vision.hasLocalisation())
       .and
       (
@@ -301,7 +301,7 @@ public class Robot extends TimedRobot
         )
       );
     
-    PBDash.IO_FENCE.asSwitch()
+    PBDash.IO_FENCE.asTrigger()
       .and(() -> nudging && s_Vision.hasLocalisation())
       .and
       (
@@ -356,30 +356,30 @@ public class Robot extends TimedRobot
     final Trigger autoAimTrigger = new Trigger(() -> autoAim && s_Vision.hasLocalisation());
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()));
 
-    PBDash.IO_AUTO_AIM.asSwitch()
-      .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()));
+    PBDash.IO_AUTO_AIM.asTrigger()
+      .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()).ignoringDisable(true));
     switchboard.button(1/*autoAimSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())));
-    debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)));
+      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
 
-    PBDash.IO_AUTO_PASS.asSwitch()
-      .onChange(runOnce(() -> autoPass = PBDash.IO_AUTO_PASS.get()));
+    PBDash.IO_AUTO_PASS.asTrigger()
+      .onChange(runOnce(() -> autoPass = PBDash.IO_AUTO_PASS.get()).ignoringDisable(true));
     switchboard.button(1/*autoPassSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())));
+      .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())).ignoringDisable(true));
     
-    PBDash.IO_AUTO_REV.asSwitch()
-      .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()));
+    PBDash.IO_AUTO_REV.asTrigger()
+      .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()).ignoringDisable(true));
     switchboard.button(1/*autoRevSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())));
+      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())).ignoringDisable(true));
 
     switchboard.button(1/*fencingSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())));
+      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())).ignoringDisable(true));
     switchboard.button(1/*visionSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())));
+      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())).ignoringDisable(true));
 
-    driver.back().onTrue(runOnce(() -> nudging = false));
-    driver.y().or(driver.b()).onTrue(runOnce(() -> nudging = true));
-    driver.back().or(driver.y()).or(driver.b()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(nudging)));
+    driver.back().onTrue(runOnce(() -> nudging = false).ignoringDisable(true));
+    driver.y().or(driver.b()).onTrue(runOnce(() -> nudging = true).ignoringDisable(true));
+    driver.back().or(driver.y()).or(driver.b()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(nudging)).ignoringDisable(true));
 
 
     // -------------SHOOTERS------------ //
@@ -391,7 +391,7 @@ public class Robot extends TimedRobot
       .and(allianceZoneTrigger.negate())
       .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Point).ignoringDisable(true));
     autoAimTrigger
-      .and(() -> FieldUtils.inAllianceZone(getTranslation()))
+      .and(allianceZoneTrigger)
       .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub).ignoringDisable(true));
 
     /* Pass Point */
@@ -589,7 +589,8 @@ public class Robot extends TimedRobot
       .onTrue(runOnce(() -> btnSet = ButtonPadState.LocalisationOveride).ignoringDisable(true))
       .onFalse(runOnce(() -> btnSet = ButtonPadState.PassPointSelection).ignoringDisable(true));
 
-    buttonPad.M6().and(PBDash.E_STOP.asSwitch())
+    buttonPad.M6().and(PBDash.E_STOP.asTrigger()).onTrue(runOnce(() -> PBDash.E_STOP.put(false)));
+    buttonPad.M8().onTrue(runOnce(() -> PBDash.E_STOP.put(true)));
 
     btnSetPass.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.passPointMap)).ignoringDisable(true));
     btnSetLocalisation.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.localisationMap)).ignoringDisable(true));
