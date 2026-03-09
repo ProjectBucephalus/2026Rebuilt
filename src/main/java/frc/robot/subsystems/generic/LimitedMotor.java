@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Conversions;
+import frc.robot.util.PBDash;
 
 /** 
  * Generic subclass for a range-limited motor with a binary switch at the home position 
@@ -83,9 +84,11 @@ public class LimitedMotor extends SubsystemBase
   }
 
   /** Sets the target to the maximum limit */
-  public Command deployCommand() {return setTargetCommand(maxRotations);}
+  public Command deployCommand() 
+    {return setTargetCommand(maxRotations);}
   /** Sets the target to the minimum limit */
-  public Command retractCommand() {return setTargetCommand(minRotations);}
+  public Command retractCommand() 
+    {return setTargetCommand(minRotations);}
 
   /**
    * Sets the target point for the motor, ignoring limits
