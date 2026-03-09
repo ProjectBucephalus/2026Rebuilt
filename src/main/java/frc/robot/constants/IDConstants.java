@@ -33,10 +33,6 @@ public final class IDConstants
 
   public static final int LEDPWDPort = 0;
 
-  /* Limelights */
-  /* __________ */
-  public static final String foreLimelightName = "limelight-port";
-  public static final String aftLimelightName = "limelight-stbd";
   public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int azimuthAIO, int altitudePWM, int altitudeAIO, String ntID){}
 
   /* Port Turret, [16..18], PWM/AIO [0] */

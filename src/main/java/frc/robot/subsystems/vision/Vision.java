@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.util.PBDash;
@@ -109,6 +110,7 @@ public class Vision extends SubsystemBase
             timeSince = 0;
             haveLocalisation = true;
 
+            PBDash.putDouble("Vision desync", Math.abs(lastGoodPose - est.timestampSeconds));
             // Send pose estimate to consumer
             estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
           }

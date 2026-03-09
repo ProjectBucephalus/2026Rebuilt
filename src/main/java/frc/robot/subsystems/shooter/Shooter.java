@@ -50,7 +50,6 @@ public class Shooter extends SubsystemBase
   private SwerveDriveState swerveState;
 
   /** Current active target for the shooter */
-  @Logged(name = "Target")
   private Target target = new Target(TargetState.Manual);
 
   /**
@@ -119,7 +118,7 @@ public class Shooter extends SubsystemBase
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
-    {return turret.getAzimuth() - shooterOffset.getRotation().getDegrees();}
+    {return turret.getAzimuth();}
 
   /** @return Current speed of the flywheels (RPS of the main flywheel) */
   public double getSpeed()
@@ -226,7 +225,9 @@ public class Shooter extends SubsystemBase
       case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
-    if (target.flywheelsActive)
+    if (target.disabled || (PBDash.E_STOP.get() && target.state != TargetState.Manual))
+      flywheels.setSpeed(0);
+    else if (target.flywheelsActive)
       flywheels.setSpeed(target.speed);
     else
       flywheels.setSpeed(idleSpeed);

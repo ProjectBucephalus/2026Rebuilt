@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Conversions;
+import frc.robot.util.PBDash;
 
 /** 
  * Generic subclass for a range-limited motor with a binary switch at the home position 
@@ -83,9 +84,11 @@ public class LimitedMotor extends SubsystemBase
   }
 
   /** Sets the target to the maximum limit */
-  public Command deployCommand() {return setTargetCommand(maxRotations);}
+  public Command deployCommand() 
+    {return setTargetCommand(maxRotations);}
   /** Sets the target to the minimum limit */
-  public Command retractCommand() {return setTargetCommand(minRotations);}
+  public Command retractCommand() 
+    {return setTargetCommand(minRotations);}
 
   /**
    * Sets the target point for the motor, ignoring limits
@@ -98,12 +101,21 @@ public class LimitedMotor extends SubsystemBase
 
   /**
    * Creates a command to set the target point for the motor <p>
+   * @param target mechanism rotations
+   * @return the Command
+   */
+  public Command setTargetCommand(DoubleSupplier target)
+    {return runOnce(() -> setTarget(target.getAsDouble()));}
+
+  /**
+   * Creates a command to set the target point for the motor <p>
    * NOTE: The provided value is only evaluated when the command is created
    * @param target mechanism rotations
    * @return the Command
    */
   public Command setTargetCommand(double target)
-    {return runOnce(() -> setTarget(target));}
+    {return setTargetCommand(() -> target);}
+
 
   /**
    * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>

@@ -1,8 +1,10 @@
 package frc.robot.subsystems.vision;
 
-import static frc.robot.constants.Constants.VisionConstants.trenchIDs;
+import static frc.robot.constants.Constants.VisionConstants.*;
 
+import java.util.ArrayDeque;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.function.DoubleSupplier;
 
 import org.photonvision.EstimatedRobotPose;
@@ -31,7 +33,8 @@ public class Limelight
   private DoubleSupplier turretAngleSup;
   private Transform2d robotToTurret;
   private Transform2d turretToRobot;
-  
+  private Queue<Double> turretCache = new ArrayDeque<>(5);
+  private Rotation2d currentTurretAngle;
 
   /**
    * Creates a new static Limelight vision camera
@@ -39,16 +42,16 @@ public class Limelight
    * @param robotToCamera Transform3d from robot-centre at floor level to the centre of the camera lens
    */
   public Limelight(String name, Transform3d robotToCamera) 
-    {
-      this.camera = new PhotonCamera(name);
-      structureToCamera = robotToCamera;
-      photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
-      
-      turretAngleSup = () -> 0;
-      robotToTurret = Transform2d.kZero;
-      turretToRobot = Transform2d.kZero;
-      onTurret = false;
-    }
+  {
+    this.camera = new PhotonCamera(name);
+    structureToCamera = robotToCamera;
+    photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
+    
+    turretAngleSup = () -> 0;
+    robotToTurret = Transform2d.kZero;
+    turretToRobot = Transform2d.kZero;
+    onTurret = false;
+  }
 
  // rotation2d supplier, translation2d assign in constructor + set flag to true (turret to robot)
  /**
@@ -98,9 +101,8 @@ public class Limelight
     for (int i = result.targets.size() - 1; i >= 0; i--)
     {
       double targetAmb = result.targets.get(i).getPoseAmbiguity();
-      int targetID = result.targets.get(i).fiducialId;
       
-      if (targetAmb > 0.2 || trenchIDs.contains(targetID)) 
+      if (targetAmb > 0.2) 
       {
         result.targets.remove(i);
       } 
@@ -119,7 +121,7 @@ public class Limelight
   {return onTurret;}
 
   public Rotation2d getTurretAngle()
-  {return Rotation2d.fromDegrees(turretAngleSup.getAsDouble());}
+    {return currentTurretAngle;}
   
   /** @return Transform to convert FROM ROBOT to Turret, including current azimuth */
   public Transform2d getRobotToTurret()
@@ -137,6 +139,11 @@ public class Limelight
   {
     result = null;
     getLatestResult();
-    //PBDash.putString(camera.getName() + "result", (result.toString()));
+
+    double reading = turretAngleSup.getAsDouble();
+    turretCache.add(reading);
+    if (turretCache.size() > latencyCycles)
+      {reading = turretCache.remove();}
+    currentTurretAngle = Rotation2d.fromDegrees(reading);
   }
 }
