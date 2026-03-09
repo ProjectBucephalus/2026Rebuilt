@@ -591,8 +591,8 @@ public class Robot extends TimedRobot
 
     buttonPad.M4().onTrue(runOnce(() -> btnSet = ButtonPadState.ManualControls).ignoringDisable(true));
 
-    buttonPad.M6().and(PBDash.E_STOP.asTrigger()).onTrue(runOnce(() -> PBDash.E_STOP.put(false)));
-    buttonPad.M8().onTrue(runOnce(() -> PBDash.E_STOP.put(true)));
+    buttonPad.M6().and(PBDash.E_STOP.asTrigger()).onTrue(runOnce(() -> PBDash.E_STOP.put(false)).ignoringDisable(true));
+    buttonPad.M8().onTrue(runOnce(() -> PBDash.E_STOP.put(true)).ignoringDisable(true));
 
     PBDash.E_STOP.asTrigger()
       .onTrue(runOnce(() -> buttonPad.setColour(PadColour.FULL_ORANGE, 69)).ignoringDisable(true))
@@ -609,9 +609,9 @@ public class Robot extends TimedRobot
         double targetX = 3.5 - x;
         double targetY = 7.5 - y;
         btnSetPass.and(buttonPad.getBtn(32 + y + (8 * x)))
-          .onTrue(modifyTargetsCommand(target -> target.point = new AllianceTranslation2d(targetX, targetY).get()));
+          .onTrue(modifyTargetsCommand(target -> target.point = new AllianceTranslation2d(targetX, targetY).get()).ignoringDisable(true));
         btnSetLocalisation.and(buttonPad.getBtn(32 + y + (8 * x)))
-          .onTrue(runOnce(() -> s_Vision.setPose(new AlliancePose2d(targetX, targetY, 0).get())));
+          .onTrue(runOnce(() -> s_Vision.setPose(new AlliancePose2d(targetX, targetY, 0).get())).ignoringDisable(true));
       }
     }
 
