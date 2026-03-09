@@ -103,7 +103,7 @@ public class Robot extends TimedRobot
     PassPointSelection,
     LocalisationOveride,
     AutoDisplay,
-    OverrideControls
+    ManualControls
   }
   public static enum ClimbPosition
   {
@@ -275,6 +275,9 @@ public class Robot extends TimedRobot
       )
     );
 
+    driver.start()
+      .onTrue(runOnce(() -> s_Swerve.resetRotation(Rotation2d.kZero)));
+
     PBDash.IO_FENCE.asSwitch()
       .and(() -> nudging && s_Vision.hasLocalisation())
       .and
@@ -350,7 +353,7 @@ public class Robot extends TimedRobot
 
     // -------------STATE--------------- //
 
-    final Trigger autoAimTrigger = new Trigger(() -> autoAim);
+    final Trigger autoAimTrigger = new Trigger(() -> autoAim && s_Vision.hasLocalisation());
 
     PBDash.IO_AUTO_AIM.asSwitch()
       .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()));
@@ -374,8 +377,8 @@ public class Robot extends TimedRobot
       .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())));
 
     driver.back().onTrue(runOnce(() -> nudging = false));
-    driver.start().onTrue(runOnce(() -> nudging = true));
-    driver.start().or(driver.back()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(nudging)));
+    driver.y().or(driver.b()).onTrue(runOnce(() -> nudging = true));
+    driver.back().or(driver.y()).or(driver.b()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(nudging)));
 
 
     // -------------SHOOTERS------------ //
@@ -417,24 +420,17 @@ public class Robot extends TimedRobot
     shootActiveTrigger
       .and(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
-      .whileTrue(s_Indexer.runCommand(() -> Math.min(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed())));
+      .whileTrue(s_Indexer.runCommand(() -> Math.max(Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()), FeederConstants.feederMinSpeed)));
 
     //driver.leftBumper -> manual shoot -> ensure flywheels at least idle speed, then run indexers
     driver.leftBumper()
       .and(driver.rightBumper().negate())
       .whileTrue
       (
-        s_Indexer.runCommand(() -> Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()))
-          .onlyIf(() -> s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
+        s_Indexer.runCommand(() -> Math.max(Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()), FeederConstants.feederMinSpeed))
+          //.onlyIf(() -> s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
           .withName("Manual Shoot")
       );
-
-    // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
-    // G2 -> port shooter idle, run indexer, return to previous state on release
-    // G3 -> port shooter idle, reverse indexer, return to previous state on release
-    // H1 -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
-    // H2 -> stbd shooter idle, run indexer, return to previous state on release 
-    // H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
 
     // debug.leftTrigger -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
     driver.rightBumper().negate()
@@ -518,7 +514,8 @@ public class Robot extends TimedRobot
           .or(driver.leftTrigger().and(s_Hopper::extended))
           .or(buttonPad.B1())
       )
-      .whileTrue(s_Hopper.runIntakeCommand());
+      .whileTrue(s_Hopper.runIntakeCommand())
+      .onFalse(s_Hopper.stopIntakeCommand());
 
     driver.povUp()
       .or(debug.x())
@@ -582,13 +579,15 @@ public class Robot extends TimedRobot
 
     Trigger btnSetPass          = new Trigger(() -> btnSet == ButtonPadState.PassPointSelection);
     Trigger btnSetLocalisation  = new Trigger(() -> btnSet == ButtonPadState.LocalisationOveride);
+    Trigger btnSetManual        = new Trigger(() -> btnSet == ButtonPadState.ManualControls);
     Trigger btnSetAuto          = new Trigger(() -> btnSet == ButtonPadState.AutoDisplay);
-    Trigger btnSetOverride      = new Trigger(() -> btnSet == ButtonPadState.OverrideControls);
 
     buttonPad.M1().onTrue(runOnce(() -> btnSet = ButtonPadState.PassPointSelection).ignoringDisable(true));
     buttonPad.M2()
       .onTrue(runOnce(() -> btnSet = ButtonPadState.LocalisationOveride).ignoringDisable(true))
       .onFalse(runOnce(() -> btnSet = ButtonPadState.PassPointSelection).ignoringDisable(true));
+
+    buttonPad.M6().and(PBDash.E_STOP.asSwitch())
 
     btnSetPass.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.passPointMap)).ignoringDisable(true));
     btnSetLocalisation.onTrue(runOnce(() -> buttonPad.setDisplayGrid(ButtonPadConstants.localisationMap)).ignoringDisable(true));
@@ -606,30 +605,7 @@ public class Robot extends TimedRobot
       }
     }
 
-    // A1 -> manual intake extend
-    // A2 -> agitate intake
-    // A3 -> manual intake retract
-
-    // B1 -> run intake
-    // B3 -> reverse intake
-
-    // Climb Targets:
-    // C2 -> mid-left
-    // D1 -> out-left
-    // D3 -> in-left
-    // E1 -> out-right
-    // E3 -> in-right
-    // F2 -> mid-right
-
-    // D2 -> full retract climber
-    // E2 -> full extend climber
-
-    // G1 -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
-    // G2 -> port shooter idle, run indexer, return to previous state on release
-    // G3 -> port shooter idle, reverse indexer, return to previous state on release
-    // H1 -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
-    // H2 -> stbd shooter idle, run indexer, return to previous state on release 
-    // H3 -> stbd shooter idle, reverse indexer, return to previous state on release 
+   
 
   }
 
