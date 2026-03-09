@@ -18,7 +18,6 @@ import frc.robot.util.PBDash;
 import static frc.robot.constants.Constants.HopperConstants.*;
 import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.extensionJostleDelay;
 
-import java.security.cert.Extension;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -63,15 +62,15 @@ public class Hopper extends SubsystemBase
     {return intake.setSpeedCommand(() -> 0);}
 
   public Command bumpSafeCommand()
-    {return extension.setTargetCommand(ExtensionConstants.bumpSafeRotations);}
+    {return extension.setTargetCommand(() -> Math.min(ExtensionConstants.bumpSafeRotations, extension.getAngle()));}
 
   /** @return Command to retract the extension to home */
   public Command retractCommand()
-    {return extension.setTargetCommand(ExtensionConstants.minRotations);}
+    {return extension.retractCommand().unless(PBDash.E_STOP::get);}
 
   /** @return Command to extend the extension to max */
   public Command extendCommand()
-    {return extension.setTargetCommand(ExtensionConstants.maxRotations);}
+    {return extension.deployCommand().unless(PBDash.E_STOP::get);}
 
   /**
    * @param  shiftSup Supplier for relative control value, mechanism rotations
@@ -87,14 +86,15 @@ public class Hopper extends SubsystemBase
   public Command extensionJostleCommand()
   {
     return 
-    Commands.sequence
+    Commands.repeatingSequence
     (
       extension.setTargetCommand(-0.2),
       Commands.waitSeconds(extensionJostleDelay),
       extendCommand(), 
       Commands.waitSeconds(extensionJostleDelay)
     )
-    .repeatedly();
+    .alongWith(runIntakeCommand())
+    .unless(PBDash.E_STOP::get);
   }
 
   @Override

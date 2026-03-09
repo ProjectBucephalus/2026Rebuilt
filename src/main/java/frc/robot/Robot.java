@@ -519,8 +519,8 @@ public class Robot extends TimedRobot
       .and
       (
         debug.a()
-          .or(driver.leftTrigger().and(s_Hopper::extended))
           .or(buttonPad.B1())
+          .or(driver.leftTrigger().and(s_Hopper::extended).and(PBDash.E_STOP.asTrigger().negate()))
       )
       .whileTrue(s_Hopper.runIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
@@ -528,7 +528,7 @@ public class Robot extends TimedRobot
     driver.povDown()
       .or(debug.x())
       .or(buttonPad.A2())
-      .whileTrue(parallel(s_Hopper.extensionJostleCommand(), s_Hopper.runIntakeCommand()))
+      .whileTrue(s_Hopper.extensionJostleCommand())
       .onFalse(s_Hopper.extendCommand());
 
     driver.povUp().onTrue(s_Hopper.retractCommand());

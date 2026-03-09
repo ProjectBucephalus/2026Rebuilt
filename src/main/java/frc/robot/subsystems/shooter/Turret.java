@@ -2,8 +2,10 @@ package frc.robot.subsystems.shooter;
 
 import frc.robot.Robot;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
+import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
+import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
@@ -96,7 +98,7 @@ public class Turret
    * 
    * @return the azimuth, in degrees
    */
-  @Logged(name = "Turret Azimuth Degrees")
+  @Logged(name = "azimuth Degrees")
   public double getAzimuth() 
   {
     if (Robot.isSimulation())
@@ -106,7 +108,7 @@ public class Turret
   }
   
   /** @return turret degrees as reported by potentiometer */
-  @Logged(name = "Potentiometer Degrees")
+  @Logged(name = "potentiometer Degrees")
   public double getRawAzimuth()
     {return io_Azimuth.get() / TurretConstants.azimuthPotRatio;}
 
@@ -203,7 +205,8 @@ public class Turret
       case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
     };
 
-    m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
+    if (!target.disabled && (!PBDash.E_STOP.get() || target.state == TargetState.Manual))
+      m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
   }   
   
   protected void updateSim()
