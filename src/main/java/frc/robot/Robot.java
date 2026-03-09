@@ -517,20 +517,20 @@ public class Robot extends TimedRobot
       .whileTrue(s_Hopper.runIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
 
-    driver.povUp()
+    driver.povDown()
       .or(debug.x())
       .or(buttonPad.A2())
       .whileTrue(parallel(s_Hopper.extensionJostleCommand(), s_Hopper.runIntakeCommand()))
       .onFalse(s_Hopper.extendCommand());
 
-    driver.povDown().onTrue(s_Hopper.retractCommand());
+    driver.povUp().onTrue(s_Hopper.retractCommand());
 
     debug.b()
       .or(buttonPad.B3())
       .onTrue(s_Hopper.reverseIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
 
-    debug.povUp()
+    debug.povDown()
       .or(buttonPad.A1())
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
     debug.povDown()
