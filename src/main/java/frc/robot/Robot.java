@@ -262,6 +262,43 @@ public class Robot extends TimedRobot
   /** Sets primary control bindings */
   private void bindControls()
   {
+    // -------------STATE--------------- //
+
+    final Trigger autoAimTrigger = new Trigger(() -> autoAim && s_Vision.hasLocalisation());
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()));
+
+    Trigger btnSetPass          = new Trigger(() -> btnSet == ButtonPadState.PassPointSelection);
+    Trigger btnSetLocalisation  = new Trigger(() -> btnSet == ButtonPadState.LocalisationOveride);
+    Trigger btnSetManual        = new Trigger(() -> btnSet == ButtonPadState.ManualControls);
+    Trigger btnSetAuto          = new Trigger(() -> btnSet == ButtonPadState.AutoDisplay);
+
+    PBDash.IO_AUTO_AIM.asTrigger()
+      .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()).ignoringDisable(true));
+    switchboard.button(1/*autoAimSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
+
+    PBDash.IO_AUTO_PASS.asTrigger()
+      .onChange(runOnce(() -> autoPass = PBDash.IO_AUTO_PASS.get()).ignoringDisable(true));
+    switchboard.button(1/*autoPassSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    
+    PBDash.IO_AUTO_REV.asTrigger()
+      .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()).ignoringDisable(true));
+    switchboard.button(1/*autoRevSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())).ignoringDisable(true));
+
+    switchboard.button(1/*fencingSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    switchboard.button(1/*visionSwitchID*/)
+      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())).ignoringDisable(true));
+
+    driver.back().onTrue(runOnce(() -> nudging = false).ignoringDisable(true));
+    driver.y().or(driver.b()).onTrue(runOnce(() -> nudging = true).ignoringDisable(true));
+    driver.back().or(driver.y()).or(driver.b()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(nudging)).ignoringDisable(true));
+    
+    
+    
     // -------------DRIVE--------------- //
 
     s_Swerve.setDefaultCommand
@@ -349,37 +386,6 @@ public class Robot extends TimedRobot
     //driver.x -> tower rotation lock -> based on selected clime location, TODO enable attractor
     driver.x().onTrue(new ClimbLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose, () -> climbPos));
     driver.a().onTrue(new OutpostLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
-
-
-    // -------------STATE--------------- //
-
-    final Trigger autoAimTrigger = new Trigger(() -> autoAim && s_Vision.hasLocalisation());
-    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()));
-
-    PBDash.IO_AUTO_AIM.asTrigger()
-      .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()).ignoringDisable(true));
-    switchboard.button(1/*autoAimSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())).ignoringDisable(true));
-    debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
-
-    PBDash.IO_AUTO_PASS.asTrigger()
-      .onChange(runOnce(() -> autoPass = PBDash.IO_AUTO_PASS.get()).ignoringDisable(true));
-    switchboard.button(1/*autoPassSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())).ignoringDisable(true));
-    
-    PBDash.IO_AUTO_REV.asTrigger()
-      .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()).ignoringDisable(true));
-    switchboard.button(1/*autoRevSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())).ignoringDisable(true));
-
-    switchboard.button(1/*fencingSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())).ignoringDisable(true));
-    switchboard.button(1/*visionSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())).ignoringDisable(true));
-
-    driver.back().onTrue(runOnce(() -> nudging = false).ignoringDisable(true));
-    driver.y().or(driver.b()).onTrue(runOnce(() -> nudging = true).ignoringDisable(true));
-    driver.back().or(driver.y()).or(driver.b()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(nudging)).ignoringDisable(true));
 
 
     // -------------SHOOTERS------------ //
@@ -539,6 +545,7 @@ public class Robot extends TimedRobot
       .or(buttonPad.A3())
       .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
 
+
     // -------------CLIMBER------------- //
     
     debug.back()
@@ -560,10 +567,12 @@ public class Robot extends TimedRobot
     buttonPad.E3().onTrue(runOnce(() -> climbPos = ClimbPosition.InRight).ignoringDisable(true));
     buttonPad.F2().onTrue(runOnce(() -> climbPos = ClimbPosition.MidRight).ignoringDisable(true));
 
-
+    
     // -------------BTN-PAD------------- //
 
     buttonPad.setDisplayGrid(ButtonPadConstants.passPointMap);
+    buttonPad.setColour(PadColour.OFF, 68, 69, 70);
+    buttonPad.setColour(PadColour.FULL_RED, 71);
 
     //   A B C D E F G H  M
     // 1 [][][][][][][][] ()
@@ -578,11 +587,6 @@ public class Robot extends TimedRobot
     // A4-H8 -> Alliance Zone map
     // M1 -> Full auto targeting, reset target -> map sets pass point
     // M2 -> Position Mode -> map sets robot position
-
-    Trigger btnSetPass          = new Trigger(() -> btnSet == ButtonPadState.PassPointSelection);
-    Trigger btnSetLocalisation  = new Trigger(() -> btnSet == ButtonPadState.LocalisationOveride);
-    Trigger btnSetManual        = new Trigger(() -> btnSet == ButtonPadState.ManualControls);
-    Trigger btnSetAuto          = new Trigger(() -> btnSet == ButtonPadState.AutoDisplay);
 
     buttonPad.M1().onTrue(runOnce(() -> btnSet = ButtonPadState.PassPointSelection).ignoringDisable(true));
     buttonPad.M2()
@@ -614,9 +618,6 @@ public class Robot extends TimedRobot
           .onTrue(runOnce(() -> s_Vision.setPose(new AlliancePose2d(targetX, targetY, 0).get())).ignoringDisable(true));
       }
     }
-
-   
-
   }
 
   /** Mutually exclusive to bindControls */
