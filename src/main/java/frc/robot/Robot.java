@@ -47,6 +47,7 @@ import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.constants.Constants.VisionConstants;
+import frc.robot.constants.Constants.ShooterConstants.FlywheelConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
@@ -440,10 +441,9 @@ public class Robot extends TimedRobot
           .withName("Manual Shoot")
       );
 
-    // debug.leftTrigger -> run port flywheel and indexer, return to previous state on release // ?? what speed ??
     driver.rightBumper().negate()
       .and(debug.leftTrigger()
-        .or(buttonPad.G1()))
+        .or(buttonPad.C1().and(btnSetPass.or(btnSetLocalisation))))
       .and(debug.leftBumper().negate())
       .whileTrue
       (
@@ -451,16 +451,17 @@ public class Robot extends TimedRobot
         .alongWith(runOnce(s_PortShooter::revFlywheels))
         .withName("Manual Shoot Port")
       );//runOnce(() -> s_PortShooter.revFlywheels()));
-    // debug.leftBumper -> port shooter idle, reverse indexer, return to previous state on release
-    buttonPad.G2()
+
+    buttonPad.A2().and(btnSetPass.or(btnSetLocalisation))
       .whileTrue
       (
         s_Indexer.runCommand(s_PortShooter::getSpeed)
         .alongWith(runOnce(s_PortShooter::idleFlywheels))
         .withName("Eject Port")
       );
+
     debug.leftBumper()
-      .or(buttonPad.G3())
+      .or(buttonPad.C2().and(btnSetPass.or(btnSetLocalisation)))
       .whileTrue
       (
         parallel
@@ -468,13 +469,12 @@ public class Robot extends TimedRobot
           s_PortShooter.runOnce(s_PortShooter::idleFlywheels),
           s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
         )
-        .withName("Reverse Indexer Port")
+        .withName("Unjam Port")
       );
 
-    // debug.rightTrigger -> run stbd flywheel and indexer, return to previous state on release // ?? what speed ??
     driver.rightBumper().negate()
       .and(debug.rightTrigger()
-        .or(buttonPad.H1()))
+        .or(buttonPad.F1().and(btnSetPass.or(btnSetLocalisation))))
       .and(debug.rightBumper().negate())
       .whileTrue
       (
@@ -482,16 +482,17 @@ public class Robot extends TimedRobot
         .alongWith(runOnce(s_StbdShooter::revFlywheels))
         .withName("Manual Shoot Stbd")
       );//run(() -> s_StbdShooter.revFlywheels()));
-    // debug.rightBumper -> stbd shooter idle, reverse indexer, return to previous state on release 
-    buttonPad.H2()
+
+    buttonPad.H2().and(btnSetPass.or(btnSetLocalisation))
       .whileTrue
       (
         s_Indexer.runCommand(s_StbdShooter::getSpeed)
         .alongWith(runOnce(s_StbdShooter::idleFlywheels))
         .withName("Eject Stbd")
       );
+
     debug.rightBumper()
-      .or(buttonPad.H3())
+      .or(buttonPad.F2().and(btnSetPass.or(btnSetLocalisation)))
       .whileTrue
       (
         parallel
@@ -499,27 +500,91 @@ public class Robot extends TimedRobot
           s_StbdShooter.runOnce(s_StbdShooter::idleFlywheels),
           s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
         )
-        .withName("Reverse Indexer Stbd")
+        .withName("Unjam Stbd")
       );
 
-    /* Manual Control */
+    /* Manual Target Control */
     autoAimTrigger.negate()
       .whileTrue(s_PortShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband)))
       .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband)))
       .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)))
       .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)));
 
+    buttonPad.B2().and(btnSetManual)
+      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> -ControlConstants.manualShooterAzimuthAmount));
+    buttonPad.D2().and(btnSetManual)
+      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> ControlConstants.manualShooterAzimuthAmount));
+    buttonPad.C1().and(btnSetManual)
+      .whileTrue(s_PortShooter.adjustDistanceCommand(() -> ControlConstants.manualShooterDistanceAmount));
+    buttonPad.C2().and(btnSetManual)
+      .whileTrue(s_PortShooter.adjustDistanceCommand(() -> -ControlConstants.manualShooterDistanceAmount));
+
+    buttonPad.E2().and(btnSetManual)
+      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> -ControlConstants.manualShooterAzimuthAmount));
+    buttonPad.G2().and(btnSetManual)
+      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> ControlConstants.manualShooterAzimuthAmount));
+    buttonPad.F1().and(btnSetManual)
+      .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> ControlConstants.manualShooterDistanceAmount));
+    buttonPad.F2().and(btnSetManual)
+      .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> -ControlConstants.manualShooterDistanceAmount));
+
+    /* Manual Flywheel control */
+    buttonPad.A1().and(btnSetManual)
+      .and(driver.rightBumper().negate())
+      .onTrue(runOnce(() -> s_PortShooter.revFlywheels()));
+    buttonPad.H1().and(btnSetManual)
+      .and(driver.rightBumper().negate())
+      .onTrue(runOnce(() -> s_StbdShooter.revFlywheels()));
+
+    buttonPad.A2().and(btnSetManual)
+      .or(buttonPad.B2().and(btnSetPass.or(btnSetLocalisation)))
+      .onTrue(runOnce(() -> s_PortShooter.idleFlywheels()));
+    buttonPad.H2().and(btnSetManual)
+      .or(buttonPad.G2().and(btnSetPass.or(btnSetLocalisation)))
+      .onTrue(runOnce(() -> s_StbdShooter.idleFlywheels()));
+
+    buttonPad.A3().and(btnSetManual)
+      .onTrue(s_PortShooter.setFlySpeedCommand(0));
+    buttonPad.H3().and(btnSetManual)
+      .onTrue(s_StbdShooter.setFlySpeedCommand(0));
+
+    buttonPad.A4().and(btnSetManual)
+      .onTrue(s_PortShooter.setFlySpeedCommand(-FlywheelConstants.idleSpeed));
+    buttonPad.H4().and(btnSetManual)
+      .onTrue(s_StbdShooter.setFlySpeedCommand(-FlywheelConstants.idleSpeed));
+
+    /* Manual Feeder control */
+    buttonPad.B4().and(btnSetManual)
+      .whileTrue(s_Indexer.runCommand(s_PortShooter::getSpeed));
+    buttonPad.G4().and(btnSetManual)
+      .whileTrue(s_Indexer.runCommand(s_StbdShooter::getSpeed));
+    
+    buttonPad.C4().and(btnSetManual)
+      .or(buttonPad.B2().and(btnSetPass.or(btnSetLocalisation)))
+      .whileTrue(s_Indexer.runCommand(() -> 0));
+    buttonPad.F4().and(btnSetManual)
+      .or(buttonPad.G2().and(btnSetPass.or(btnSetLocalisation)))
+      .whileTrue(s_Indexer.runCommand(() -> 0));
+
+    buttonPad.D4().and(btnSetManual)
+      .whileTrue(s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed));
+    buttonPad.E4().and(btnSetManual)
+      .whileTrue(s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed));
+
 
     // -------------INTAKE-------------- //
 
     driver.leftTrigger()
+      .or(buttonPad.D3().and(btnSetPass.or(btnSetLocalisation)))
+      .or(buttonPad.B7().and(btnSetManual))
       .onTrue(s_Hopper.extendCommand());
 
     debug.b().negate()
       .and
       (
         debug.a()
-          .or(buttonPad.B1())
+          .or(buttonPad.D1().and(btnSetPass.or(btnSetLocalisation)))
+          .or(buttonPad.A6().and(btnSetManual))
           .or(driver.leftTrigger().and(s_Hopper::extended).and(PBDash.E_STOP.asTrigger().negate()))
       )
       .whileTrue(s_Hopper.runIntakeCommand())
@@ -527,47 +592,61 @@ public class Robot extends TimedRobot
 
     driver.povDown()
       .or(debug.x())
-      .or(buttonPad.A2())
+      .or(buttonPad.D2().and(btnSetPass.or(btnSetLocalisation)))
+      .or(buttonPad.B8().and(btnSetManual))
       .whileTrue(s_Hopper.extensionJostleCommand())
       .onFalse(s_Hopper.extendCommand());
 
-    driver.povUp().onTrue(s_Hopper.retractCommand());
+    driver.povUp()
+      .or(buttonPad.E3().and(btnSetPass.or(btnSetLocalisation)))
+      .or(buttonPad.C7().and(btnSetManual))
+      .onTrue(s_Hopper.retractCommand());
 
     debug.b()
-      .or(buttonPad.B3())
+      .or(buttonPad.E1().and(btnSetPass.or(btnSetLocalisation)))
+      .or(buttonPad.A7().and(btnSetManual))
       .onTrue(s_Hopper.reverseIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
 
     debug.povDown()
-      .or(buttonPad.A1())
+      .or(buttonPad.B6().and(btnSetManual))
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
     debug.povUp()
-      .or(buttonPad.A3())
+      .or(buttonPad.C6().and(btnSetManual))
       .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
+
+    buttonPad.E3().and(btnSetPass.or(btnSetLocalisation))
+      .or(buttonPad.C7().and(btnSetManual))
+      .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.intakeSquishAmount));
 
 
     // -------------CLIMBER------------- //
     
     debug.back()
-      .or(buttonPad.D2())
+      .or(buttonPad.G7().and(btnSetManual))
       .onTrue(s_Climber.retractCommand());
     debug.start()
-      .or(buttonPad.E2())
+      .or(buttonPad.F7().and(btnSetManual))
       .onTrue(s_Climber.deployCommand());
       
     s_Climber.setDefaultCommand(s_Climber.adjustTargetCommand(() -> debug.getLeftY() * ControlConstants.manualClimberExtensionScale));
 
+    buttonPad.F6().and(btnSetManual)
+      .whileTrue(s_Climber.adjustTargetCommand(() -> ControlConstants.manualClimberExtensionAmount));
+    buttonPad.G6().and(btnSetManual)
+      .whileTrue(s_Climber.adjustTargetCommand(() -> -ControlConstants.manualClimberExtensionAmount));
+
     switchboard.button(0/*climbButtonID1*/).and(switchboard.button(0/*climbButtonID2*/))
         .onTrue(s_Climber.retractCommand());
 
-    buttonPad.C2().onTrue(runOnce(() -> climbPos = ClimbPosition.MidLeft).ignoringDisable(true));
-    buttonPad.D1().onTrue(runOnce(() -> climbPos = ClimbPosition.OutLeft).ignoringDisable(true));
-    buttonPad.D3().onTrue(runOnce(() -> climbPos = ClimbPosition.InLeft).ignoringDisable(true));
-    buttonPad.E1().onTrue(runOnce(() -> climbPos = ClimbPosition.OutRight).ignoringDisable(true));
-    buttonPad.E3().onTrue(runOnce(() -> climbPos = ClimbPosition.InRight).ignoringDisable(true));
-    buttonPad.F2().onTrue(runOnce(() -> climbPos = ClimbPosition.MidRight).ignoringDisable(true));
+    buttonPad.B3().and(btnSetPass)
+      .or(buttonPad.F8().and(btnSetManual))
+      .onTrue(runOnce(() -> climbPos = ClimbPosition.MidLeft).ignoringDisable(true));
+    buttonPad.G3().and(btnSetPass)
+      .or(buttonPad.G8().and(btnSetManual))
+      .onTrue(runOnce(() -> climbPos = ClimbPosition.MidRight).ignoringDisable(true));
 
-    
+
     // -------------BTN-PAD------------- //
 
     buttonPad.setDisplayGrid(ButtonPadConstants.passPointMap);
