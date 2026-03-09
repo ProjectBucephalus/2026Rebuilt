@@ -24,35 +24,20 @@ public class ButtonPadConstants
     private static final PadColour FO = PadColour.FULL_ORANGE;
     private static final PadColour FC = PadColour.FULL_ORANGE_RED;
 
-    public static final DisplayGrid testGrid = new DisplayGrid
-    (
-        new PadColour[]
-        {
-            OF, DR, DA, DG, MR, MA, MG, FR,
-            FA, FG, OF, DR, DA, DG, MR, MA,
-            MG, FR, FA, FG, OF, DR, DA, DG,
-            MR, MA, MG, FR, FA, FG, OF, DR,
-            DA, DG, MR, MA, MG, FR, FA, FG,
-            OF, DR, DA, DG, MR, MA, MG, FR,
-            FA, FG, OF, DR, DA, DG, MR, MA,
-            MG, FR, FA, FG, OF, DR, DA, DG
-        }
-    );
-
     public static final DisplayGrid passPointMap = new DisplayGrid
     (
         new PadColour[]
         {
-            MG, MG, OF, MA, MA, OF, MR, MG,
-            MA, OF, MA, MR, MR, MA, MR, MG,
-            MR, MG, OF, MA, MA, OF, MR, MG,
-            FA, FR, FA, FG, FG, FA, FR, FA,
-            DG, DG, DG, DG, DG, DG, DG, DG,
-            DG, DG, DG, DG, DG, DG, DG, DG,
-            DG, DG, DG, DG, DG, DG, DG, DG,
-            DG, FG, FG, DG, FA, DG, DG, FG,
+            MA, OF, MR, FO, FO, MG, OF, MA,
+            MR, MR, MR, FO, FO, MG, MG, MG,
+            OF, FY, OF, FY, FY, OF, FY, OF,
+            DA, FA, DA, FA, FA, DA, FA, DA,
+            OF, OF, OF, OF, OF, OF, OF, OF,
+            OF, OF, OF, OF, OF, OF, OF, OF,
+            OF, OF, OF, OF, OF, OF, OF, OF,
+            OF, DA, DA, OF, DA, OF, OF, DA,
 
-            FG, DR, OF, OF, OF, OF, OF, OF
+            FG, MR, OF, MG
         }
     );
 
@@ -60,16 +45,33 @@ public class ButtonPadConstants
     (
         new PadColour[]
         {
-            MG, MG, OF, MA, MA, OF, MR, MG,
-            MA, OF, MA, MR, MR, MA, MR, MG,
-            MR, MG, OF, MA, MA, OF, MR, MG,
-            FA, FR, FA, FG, FG, FA, FR, FA,
+            MA, OF, MR, FO, FO, MG, OF, MA,
+            MR, MR, MR, FO, FO, MG, MG, MG,
+            OF, FY, OF, FY, FY, OF, FY, OF,
+            DA, FA, DA, FA, FA, DA, FA, DA,
             DR, DR, DR, DR, DR, DR, DR, DR,
             DR, DR, DR, DR, DR, DR, DR, DR,
             DR, DR, DR, DR, DR, DR, DR, DR,
-            DR, FG, FG, DR, FA, DR, DR, FG,
+            DR, DA, DA, DR, DA, DR, DR, DA,
 
-            DG, FR, OF, OF, OF, OF, OF, OF
+            MG, FR, OF, MG
+        }
+    );
+
+    public static final DisplayGrid manualControlGrid = new DisplayGrid
+    (
+        new PadColour[]
+        {
+            MR, OF, MA, OF, OF, MA, OF, MG,
+            MR, FO, MA, FO, FY, MA, FY, MG,
+            MR, OF, OF, OF, OF, OF, OF, MG,
+            MR, DA, FO, DA, DA, FO, DA, MG,
+            OF, OF, OF, OF, OF, OF, OF, OF,
+            FO, FO, FO, OF, OF, FO, FO, OF,
+            FO, FY, FY, OF, OF, FY, FY, OF,
+            OF, FO, FO, OF, OF, FY, FY, OF,
+
+            MG, MR, OF, FG
         }
     );
 
