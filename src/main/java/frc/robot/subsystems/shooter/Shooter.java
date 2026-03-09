@@ -49,6 +49,7 @@ public class Shooter extends SubsystemBase
   private final Supplier<SwerveDriveState> swerveStateSup;
   private SwerveDriveState swerveState;
 
+  @Logged
   /** Current active target for the shooter */
   private Target target = new Target(TargetState.Manual);
 

@@ -217,10 +217,8 @@ public class FieldConstants
       trenchNR,
       hubBlue, 
       hubRed,
-      hubBlueOutput
-        .setActiveCondition(() -> FieldUtils.hubActiveToleranced(Alliance.Blue, ControlConstants.preShiftOutputMargin, ControlConstants.postShiftOutputMargin)),
+      hubBlueOutput,
       hubRedOutput
-        .setActiveCondition(() -> FieldUtils.hubActiveToleranced(Alliance.Red, ControlConstants.preShiftOutputMargin, ControlConstants.postShiftOutputMargin))
     );
 
     public static final ObjectList fieldBlueGeoFence = new ObjectList

@@ -79,11 +79,9 @@ public class Vision extends SubsystemBase
   {
     if (PBDash.IO_LL.get()) 
     {
+      usingVision = true;
       for (var ll : lls)
       {
-        usingVision = true;
-        ll.update();
-
         // Pose estimate returns Optional, so may or may not be present
         ll.getPhotonEst().ifPresent(est -> {
           // Reject update if it contains no tags, or if the robot is rotating too fast         
@@ -91,8 +89,8 @@ public class Vision extends SubsystemBase
           {
             double avgTagDist = 
               est.targetsUsed
-                 .stream()
-                 .collect(Collectors.averagingDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm()));
+                .stream()
+                .collect(Collectors.averagingDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm()));
 
             // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
             double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
