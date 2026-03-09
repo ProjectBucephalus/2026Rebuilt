@@ -5,7 +5,7 @@ import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
 import frc.robot.util.Conversions;
-
+import frc.robot.util.PBDash;
 import frc.robot.constants.Constants.Interpolation;
 import frc.robot.subsystems.shooter.Target.TargetState;
 
@@ -61,6 +61,9 @@ public class Hood
   {
     // Limit the target altitude to within the hood's range of motion
     double altitude = Conversions.clamp(target.altitude, 0, hoodRange);
+
+    if (target.disabled || (PBDash.E_STOP.get() && target.state != TargetState.Manual))
+      altitude = 0;
 
     // Convert hood target in degrees to servo position from [0..1]
     double servoTarget = ((altitude * hoodRatio) + homeAngle) / servoRange;
