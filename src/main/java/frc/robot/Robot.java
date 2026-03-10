@@ -441,7 +441,7 @@ public class Robot extends TimedRobot
 
     // Rev if auto aiming, auto revving, and shooters are active
     autoAimTrigger
-      .and(() -> autoRev)
+      .and(PBDash.IO_AUTO_REV::get)
       .and(shootActiveTrigger)
       .and(allianceZoneTrigger.or(() -> autoPass))
       .onTrue(forBothShootersCommand(Shooter::revFlywheels))
@@ -618,11 +618,13 @@ public class Robot extends TimedRobot
       (
         debug.a()
           .or(buttonPad.D1().and(btnSetPass.or(btnSetLocalisation)))
-          .or(buttonPad.A6().and(btnSetManual))
           .or(driver.leftTrigger().and(s_Hopper::extended).and(PBDash.E_STOP.asTrigger().negate()))
       )
       .whileTrue(s_Hopper.runIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
+
+    buttonPad.A6().and(btnSetManual)
+      .whileTrue(s_Hopper.runIntakeCommand(PBDash.TEST_INTAKE_SPEED::get));
 
     driver.povDown()
       .or(debug.x())
@@ -903,13 +905,6 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    s_PortShooter.getTarget().speed = PBDash.TEST_FLYSPEED.get();
-    //s_PortShooter.getTarget().azimuth = PBDash.TEST_AZIMUTH.get();
-    s_PortShooter.getTarget().altitude = PBDash.TEST_ALTITUDE.get();
-    s_PortShooter.getTarget().flywheelsActive = true;
-    s_StbdShooter.getTarget().speed = PBDash.TEST_FLYSPEED.get();
-    //s_StbdShooter.getTarget().azimuth = PBDash.TEST_AZIMUTH.get();
-    s_StbdShooter.getTarget().altitude = PBDash.TEST_ALTITUDE.get();
-    s_StbdShooter.getTarget().flywheelsActive = true;
+    
   }
 }

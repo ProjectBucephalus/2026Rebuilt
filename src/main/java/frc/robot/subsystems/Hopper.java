@@ -45,9 +45,9 @@ public class Hopper extends SubsystemBase
     extension = new LimitedMotor(extensionCAN, extensionLimitIO, ExtensionConstants.minRotations, ExtensionConstants.maxRotations, ExtensionConstants.homeRotations, ExtensionConstants.extensionConfig);
   }
   
-  /** @return Command to start running intake at default speed */
-  public Command startIntakeCommand()
-    {return intake.setSpeedCommand(() -> IntakeConstants.intakeSpeed);}
+  /** @return Command to start running intake at input speed */
+  public Command runIntakeCommand(DoubleSupplier speedSup)
+    {return intake.runCommand(speedSup).withName("Manual Run Intake");}
 
   /** @return Command that runs the intake until it is interrupted */
   public Command runIntakeCommand()
