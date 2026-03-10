@@ -134,8 +134,8 @@ public class Robot extends TimedRobot
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(0);
   private final LockableXboxController debug = new LockableXboxController(1, Button.kY);
-  private final CommandGenericHID switchboard = new CommandGenericHID(2);
-  private final Launchpad buttonPad = new Launchpad(3);
+  private final Launchpad buttonPad = new Launchpad(2);
+  private final CommandGenericHID switchboard = new CommandGenericHID(4);
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();
@@ -459,7 +459,8 @@ public class Robot extends TimedRobot
       .whileTrue
       (
         s_Indexer.runCommand(() -> Math.max(Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()), FeederConstants.feederMinSpeed))
-          //.onlyIf(() -> s_StbdShooter.makeShootSafe() && s_PortShooter.makeShootSafe())
+          .alongWith(forBothShootersCommand(Shooter::makeShootSafe))
+          .alongWith(forBothShootersCommand(Shooter::revFlywheels))
           .withName("Manual Shoot")
       );
 
@@ -470,6 +471,7 @@ public class Robot extends TimedRobot
       .whileTrue
       (
         s_Indexer.runCommand(s_PortShooter::getSpeed)
+        .alongWith(runOnce(s_PortShooter::makeShootSafe))
         .alongWith(runOnce(s_PortShooter::revFlywheels))
         .withName("Manual Shoot Port")
       );//runOnce(() -> s_PortShooter.revFlywheels()));
@@ -501,6 +503,7 @@ public class Robot extends TimedRobot
       .whileTrue
       (
         s_Indexer.runCommand(s_StbdShooter::getSpeed)
+        .alongWith(runOnce(s_StbdShooter::makeShootSafe))
         .alongWith(runOnce(s_StbdShooter::revFlywheels))
         .withName("Manual Shoot Stbd")
       );//run(() -> s_StbdShooter.revFlywheels()));
@@ -532,30 +535,33 @@ public class Robot extends TimedRobot
       .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)))
       .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)));
 
-    buttonPad.B2().and(btnSetManual)
-      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> -ControlConstants.manualShooterAzimuthAmount));
-    buttonPad.D2().and(btnSetManual)
+    buttonPad.B2().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> ControlConstants.manualShooterAzimuthAmount));
-    buttonPad.C1().and(btnSetManual)
+    buttonPad.D2().and(btnSetManual).and(autoAimTrigger.negate())
+      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> -ControlConstants.manualShooterAzimuthAmount));
+    buttonPad.C1().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_PortShooter.adjustDistanceCommand(() -> ControlConstants.manualShooterDistanceAmount));
-    buttonPad.C2().and(btnSetManual)
+    buttonPad.C2().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_PortShooter.adjustDistanceCommand(() -> -ControlConstants.manualShooterDistanceAmount));
 
-    buttonPad.E2().and(btnSetManual)
-      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> -ControlConstants.manualShooterAzimuthAmount));
-    buttonPad.G2().and(btnSetManual)
+    buttonPad.E2().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> ControlConstants.manualShooterAzimuthAmount));
-    buttonPad.F1().and(btnSetManual)
+    buttonPad.G2().and(btnSetManual).and(autoAimTrigger.negate())
+      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> -ControlConstants.manualShooterAzimuthAmount));
+    buttonPad.F1().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> ControlConstants.manualShooterDistanceAmount));
-    buttonPad.F2().and(btnSetManual)
+    buttonPad.F2().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> -ControlConstants.manualShooterDistanceAmount));
 
     /* Manual Flywheel control */
+    // Rev
     buttonPad.A1().and(btnSetManual)
       .and(driver.rightBumper().negate())
+      .onTrue(runOnce(() -> s_PortShooter.makeShootSafe()))
       .onTrue(runOnce(() -> s_PortShooter.revFlywheels()));
     buttonPad.H1().and(btnSetManual)
       .and(driver.rightBumper().negate())
+      .onTrue(runOnce(() -> s_StbdShooter.makeShootSafe()))
       .onTrue(runOnce(() -> s_StbdShooter.revFlywheels()));
 
     buttonPad.A2().and(btnSetManual)
@@ -566,14 +572,20 @@ public class Robot extends TimedRobot
       .onTrue(runOnce(() -> s_StbdShooter.idleFlywheels()));
 
     buttonPad.A3().and(btnSetManual)
-      .onTrue(s_PortShooter.setFlySpeedCommand(0));
+      .or(PBDash.E_STOP::get)
+      .onTrue(s_PortShooter.setFlySpeedCommand(0))
+      .onTrue(runOnce(() -> s_PortShooter.revFlywheels()));
     buttonPad.H3().and(btnSetManual)
-      .onTrue(s_StbdShooter.setFlySpeedCommand(0));
+      .or(PBDash.E_STOP::get)
+      .onTrue(s_StbdShooter.setFlySpeedCommand(0))
+      .onTrue(runOnce(() -> s_StbdShooter.revFlywheels()));
 
     buttonPad.A4().and(btnSetManual)
-      .onTrue(s_PortShooter.setFlySpeedCommand(-FlywheelConstants.idleSpeed));
+      .onTrue(s_PortShooter.setFlySpeedCommand(-FlywheelConstants.idleSpeed))
+      .onTrue(runOnce(() -> s_PortShooter.revFlywheels()));
     buttonPad.H4().and(btnSetManual)
-      .onTrue(s_StbdShooter.setFlySpeedCommand(-FlywheelConstants.idleSpeed));
+      .onTrue(s_StbdShooter.setFlySpeedCommand(-FlywheelConstants.idleSpeed))
+      .onTrue(runOnce(() -> s_StbdShooter.revFlywheels()));
 
     /* Manual Feeder control */
     buttonPad.B4().and(btnSetManual)
