@@ -331,16 +331,36 @@ public final class Constants
     /** Distance to Altitude conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
     {{
-      put(0.81, 0.0); // min range
-      put(1.5, 0.0); 
-      put(1.8, 1.0); // max range while at 0 degrees hood + staying below lights
-      put(2.7, 7.3);
-      put(3.7, 13.7);
-      put(4.875, 18.0); 
-      put(5.1, 19.0); // max range while staying below lights
-      put(5.8, 19.0); // max range while staying below ceiling
+      put(0.0, 0.0);
+      put(1.0, 0.0);
+      put(1.1, 1.0);
+      put(1.5, 4.0);
+      put(2.0, 8.0);
+      put(2.5, 10.0);
+      put(3.0, 13.0);
+      put(3.5, 15.0);
+      put(4.0, 19.0);
+      put(5.3, 19.0);
     }};
-    
+
+    /** Distance to Speed conversion for shooting into the elevated Hub */
+    public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.9, 0.0);
+      put(0.1, 45.0); // below min range
+      put(1.1, 45.0);
+      put(1.5, 46.5);
+      put(2.0, 48.0);
+      put(2.5, 49.0);
+      put(3.0, 50.0);
+      put(3.5, 52.0);
+      put(4.0, 56.0); // TODO: Needs retesting when possible
+
+      put(5.3, 63.0);
+      put(5.4, 63.0);
+    }};
+
     /** Distance to Altitude conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
     {{
@@ -354,35 +374,19 @@ public final class Constants
       put(7.735, 19.0); // max range while staying below ceiling
     }};
 
-    /** Distance to Speed conversion for shooting into the elevated Hub */
-    public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
-    {{
-      put(0.0, 0.0);
-      put(0.8, 0.0);
-      put(0.81, 23.75); // below min range
-      put(1.01, 23.75); // min range
-      put(1.7, 27.75); 
-      put(1.8, 28.3); // max range while at 0 degrees hood + staying below lights
-      put(2.7, 29.2);
-      put(3.7, 30.65);
-      put(4.875, 32.5);
-      put(5.1, 33.0); // max range while staying below lights
-      put(5.8, 34.8); // max range while staying below ceiling
-    }};
-
     /** Distance to Speed conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap()
     {{
       put(0.0, 0.0);
       put(1.0, 0.0);
-      put(1.2, 16.0);
-      put(2.0575, 22.6); 
-      put(2.915, 27.8); // max range while at 0 degrees hood + staying below lights
-      put(3.9425, 28.6);
-      put(4.97, 29.7);
-      put(5.9975, 31.0);
-      put(7.025, 32.5); // max range while staying below lights
-      put(7.735, 34.3); // max range while staying below ceiling
+      put(1.2, 36.0);
+      put(2.0575, 42.6); 
+      put(2.915, 47.8);
+      put(3.9425, 52.6);
+      put(4.97, 59.7);
+      put(5.9975, 61.0);
+      put(7.025, 62.5); // max range while staying below lights
+      put(7.735, 64.3); // max range while staying below ceiling
     }};
   }
 
@@ -451,7 +455,7 @@ public final class Constants
     public static final class IntakeConstants 
     {
       /** Default speed of intake when running, rps */
-      public static final double intakeSpeed = 65;
+      public static final double intakeSpeed = 55;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static
