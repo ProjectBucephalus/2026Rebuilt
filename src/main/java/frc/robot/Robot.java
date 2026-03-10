@@ -812,6 +812,7 @@ public class Robot extends TimedRobot
   {
     swerveState = s_Swerve.getState();
     PBDash.FIELD.setRobotPose(swerveState.Pose);
+    PBDash.putDouble("Robot Forward Speed metres per second", swerveState.Speeds.vxMetersPerSecond);
   }
   
   private void handleAutoErr(String invalidInstr)
@@ -910,6 +911,11 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    PBDash.putDouble("Robot Forward Speed metres per second", swerveState.Speeds.vxMetersPerSecond);
+    if (!PBDash.E_STOP.get())
+    {
+      modifyTargets(target -> target.state = TargetState.Manual);
+      modifyTargets(target -> target.altitude = PBDash.TEST_ALTITUDE.get());
+      modifyTargets(target -> target.speed = PBDash.TEST_FLYSPEED.get());
+    }
   }
 }

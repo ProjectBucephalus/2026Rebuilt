@@ -64,7 +64,7 @@ public class PBDash
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
   
   // Manual speed adjustment
-  public static final Key<Double>  IO_INTAKE_SPEED  = new Key<>("Intake Speed", Constants.HopperConstants.IntakeConstants.intakeSpeed);
+  public static final Key<Double>  IO_INTAKE_SPEED  = new Key<>("Intake Target Speed", Constants.HopperConstants.IntakeConstants.intakeSpeed);
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
   public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
 
