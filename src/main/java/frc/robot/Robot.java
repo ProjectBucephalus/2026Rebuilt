@@ -290,32 +290,37 @@ public class Robot extends TimedRobot
     final Trigger autoAimTrigger = new Trigger(() -> autoAim && s_Vision.hasLocalisation());
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()));
 
+    // Button pad modes
     Trigger btnSetPass          = new Trigger(() -> btnSet == ButtonPadState.PassPointSelection);
     Trigger btnSetLocalisation  = new Trigger(() -> btnSet == ButtonPadState.LocalisationOveride);
     Trigger btnSetManual        = new Trigger(() -> btnSet == ButtonPadState.ManualControls);
-    Trigger btnSetAuto          = new Trigger(() -> btnSet == ButtonPadState.AutoDisplay);
 
+    // Auto aim switch
     PBDash.IO_AUTO_AIM.asTrigger()
       .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()).ignoringDisable(true));
     switchboard.button(1/*autoAimSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())).ignoringDisable(true));
     debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
 
+    // Auto pass switch
     PBDash.IO_AUTO_PASS.asTrigger()
       .onChange(runOnce(() -> autoPass = PBDash.IO_AUTO_PASS.get()).ignoringDisable(true));
     switchboard.button(1/*autoPassSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())).ignoringDisable(true));
     
+    // Auto rev switch
     PBDash.IO_AUTO_REV.asTrigger()
       .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()).ignoringDisable(true));
     switchboard.button(1/*autoRevSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())).ignoringDisable(true));
 
+    // Geofence and Vision switches
     switchboard.button(1/*fencingSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())).ignoringDisable(true));
     switchboard.button(1/*visionSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())).ignoringDisable(true));
 
+    // Nudging
     driver.back().onTrue(runOnce(() -> nudging = false).ignoringDisable(true));
     driver.y().or(driver.b()).onTrue(runOnce(() -> nudging = true).ignoringDisable(true));
     driver.back().or(driver.y()).or(driver.b()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(nudging)).ignoringDisable(true));
@@ -335,9 +340,11 @@ public class Robot extends TimedRobot
       )
     );
 
+    // Heading reset when not using vision
     driver.start()
       .onTrue(runOnce(() -> s_Swerve.resetRotation(Rotation2d.kZero)));
 
+    // Bump nudging
     PBDash.IO_FENCE.asTrigger()
       .and(() -> nudging && s_Vision.hasLocalisation())
       .and
@@ -361,6 +368,7 @@ public class Robot extends TimedRobot
         )
       );
     
+    // Trench nudging
     PBDash.IO_FENCE.asTrigger()
       .and(() -> nudging && s_Vision.hasLocalisation())
       .and
@@ -382,17 +390,21 @@ public class Robot extends TimedRobot
         ).onlyIf(() -> headingLock == HeadingLockState.Unlocked)
       );
 
+    // Reset to manual drive when heading unlocks
     new Trigger(() -> headingLock == HeadingLockState.Unlocked)
       .onTrue(s_Swerve.getDefaultCommand());
 
+    // Unlock heading
     driver.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value, ControlConstants.stickDeadband)
       .onTrue(runOnce(() -> headingLock = HeadingLockState.Unlocked));
 
+    // Lock heading
     driver.y()
       .or(driver.b())
       .or(driver.a())
       .onTrue(runOnce(() -> headingLock = HeadingLockState.General));
 
+    // Bump heading lock
     driver.b().onTrue
     (        
       new NonCardinalDrive
@@ -405,11 +417,17 @@ public class Robot extends TimedRobot
         bumpRotationTolerance
       )
     );
+
+    // Trench heading lock
     driver.y().onTrue(new TrenchLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
-    //driver.x -> tower rotation lock -> based on selected clime location, TODO enable attractor
+
+    // Climb heading lock
     driver.x().onTrue(new ClimbLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose, () -> climbPos));
+
+    // Outpost heading lock
     driver.a().onTrue(new OutpostLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
 
+    // Update throttle limits
     PBDash.IO_MAX_THROTTLE.asPulse()
       .onTrue(runOnce(() -> driverBrake.withMaxThrottle(PBDash.IO_MAX_THROTTLE.get())));
     PBDash.IO_MIN_THROTTLE.asPulse()
@@ -418,7 +436,7 @@ public class Robot extends TimedRobot
 
     // -------------SHOOTERS------------ //
 
-    /* Targetting States */
+    // Targetting States
     autoAimTrigger
       .onFalse(modifyTargetsCommand(target -> target.state = TargetState.Manual).ignoringDisable(true));
     autoAimTrigger
@@ -428,13 +446,13 @@ public class Robot extends TimedRobot
       .and(allianceZoneTrigger)
       .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub).ignoringDisable(true));
 
-    /* Pass Point */
+    // Pass Point
     autoAimTrigger.and(() -> autoPass)
       .whileTrue(modifyTargetsCommand(target -> target.point = FieldUtils.getClosestPassPoint(getTranslation())));
     
-    /* Revving/Idleing as Appropriate */
-    final Trigger shootActiveTrigger = driver.rightBumper().negate()
-      .and(() -> FieldUtils.hubActiveToleranced(FieldUtils.getAlliance(), ControlConstants.preShiftShootMargin, ControlConstants.postShiftShootMargin));
+    // Revving/Idleing as Appropriate
+    final Trigger shootActiveTrigger = driver.rightBumper().negate();
+    final Trigger hubActiveTrigger = new Trigger(() -> FieldUtils.hubActiveToleranced(FieldUtils.getAlliance(), ControlConstants.preShiftShootMargin, ControlConstants.postShiftShootMargin));
     
     // Idle when right bumper
     driver.rightBumper()
@@ -448,17 +466,17 @@ public class Robot extends TimedRobot
     autoAimTrigger
       .and(PBDash.IO_AUTO_REV::get)
       .and(shootActiveTrigger)
-      .and(allianceZoneTrigger.or(() -> autoPass))
+      .and(allianceZoneTrigger.and(hubActiveTrigger).or(() -> autoPass))
       .onTrue(forBothShootersCommand(Shooter::revFlywheels))
       .onFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
-    /* Shooting when Ready */
+    // Shooting when Ready
     shootActiveTrigger
       .and(s_PortShooter::shootReady)
       .and(s_StbdShooter::shootReady)
       .whileTrue(s_Indexer.runCommand(() -> Math.max(Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()), FeederConstants.feederMinSpeed)));
 
-    //driver.leftBumper -> manual shoot -> ensure flywheels at least idle speed, then run indexers
+    // Dual manual shoot
     driver.leftBumper()
       .and(driver.rightBumper().negate())
       .whileTrue
@@ -469,6 +487,7 @@ public class Robot extends TimedRobot
           .withName("Manual Shoot")
       );
 
+    // Port manual shoot
     driver.rightBumper().negate()
       .and(debug.leftTrigger()
         .or(buttonPad.C1().and(btnSetPass.or(btnSetLocalisation))))
@@ -479,8 +498,9 @@ public class Robot extends TimedRobot
         .alongWith(runOnce(s_PortShooter::makeShootSafe))
         .alongWith(runOnce(s_PortShooter::revFlywheels))
         .withName("Manual Shoot Port")
-      );//runOnce(() -> s_PortShooter.revFlywheels()));
+      );
 
+    // Port eject
     buttonPad.A2().and(btnSetPass.or(btnSetLocalisation))
       .whileTrue
       (
@@ -489,6 +509,7 @@ public class Robot extends TimedRobot
         .withName("Eject Port")
       );
 
+    // Port unjam
     debug.leftBumper()
       .or(buttonPad.C2().and(btnSetPass.or(btnSetLocalisation)))
       .whileTrue
@@ -501,6 +522,7 @@ public class Robot extends TimedRobot
         .withName("Unjam Port")
       );
 
+    // Stbd manual shoot
     driver.rightBumper().negate()
       .and(debug.rightTrigger()
         .or(buttonPad.F1().and(btnSetPass.or(btnSetLocalisation))))
@@ -511,8 +533,9 @@ public class Robot extends TimedRobot
         .alongWith(runOnce(s_StbdShooter::makeShootSafe))
         .alongWith(runOnce(s_StbdShooter::revFlywheels))
         .withName("Manual Shoot Stbd")
-      );//run(() -> s_StbdShooter.revFlywheels()));
+      );
 
+    // Stbd eject
     buttonPad.H2().and(btnSetPass.or(btnSetLocalisation))
       .whileTrue
       (
@@ -521,6 +544,7 @@ public class Robot extends TimedRobot
         .withName("Eject Stbd")
       );
 
+    // Stbd unjam
     debug.rightBumper()
       .or(buttonPad.F2().and(btnSetPass.or(btnSetLocalisation)))
       .whileTrue
@@ -533,13 +557,15 @@ public class Robot extends TimedRobot
         .withName("Unjam Stbd")
       );
 
-    /* Manual Target Control */
+    // Manual Target Control
+    // Dual
     autoAimTrigger.negate()
       .whileTrue(s_PortShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband)))
       .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband)))
       .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)))
       .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)));
 
+    // Port
     buttonPad.B2().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> ControlConstants.manualShooterAzimuthAmount));
     buttonPad.D2().and(btnSetManual).and(autoAimTrigger.negate())
@@ -549,6 +575,7 @@ public class Robot extends TimedRobot
     buttonPad.C2().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_PortShooter.adjustDistanceCommand(() -> -ControlConstants.manualShooterDistanceAmount));
 
+    // Stbd
     buttonPad.E2().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> ControlConstants.manualShooterAzimuthAmount));
     buttonPad.G2().and(btnSetManual).and(autoAimTrigger.negate())
@@ -558,7 +585,7 @@ public class Robot extends TimedRobot
     buttonPad.F2().and(btnSetManual).and(autoAimTrigger.negate())
       .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> -ControlConstants.manualShooterDistanceAmount));
 
-    /* Manual Flywheel control */
+    // Manual Flywheel control
     // Rev
     buttonPad.A1().and(btnSetManual)
       .and(driver.rightBumper().negate())
@@ -569,6 +596,7 @@ public class Robot extends TimedRobot
       .onTrue(runOnce(() -> s_StbdShooter.makeShootSafe()))
       .onTrue(runOnce(() -> s_StbdShooter.revFlywheels()));
 
+    // Idle
     buttonPad.A2().and(btnSetManual)
       .or(buttonPad.B2().and(btnSetPass.or(btnSetLocalisation)))
       .onTrue(runOnce(() -> s_PortShooter.idleFlywheels()));
@@ -576,15 +604,17 @@ public class Robot extends TimedRobot
       .or(buttonPad.G2().and(btnSetPass.or(btnSetLocalisation)))
       .onTrue(runOnce(() -> s_StbdShooter.idleFlywheels()));
 
+    // Stop
     buttonPad.A3().and(btnSetManual)
-      .or(PBDash.E_STOP::get)
+      .or(PBDash.E_STOP.asPulse().and(PBDash.E_STOP::get))
       .onTrue(s_PortShooter.setFlySpeedCommand(0))
       .onTrue(runOnce(() -> s_PortShooter.revFlywheels()));
     buttonPad.H3().and(btnSetManual)
-      .or(PBDash.E_STOP::get)
+      .or(PBDash.E_STOP.asPulse().and(PBDash.E_STOP::get))
       .onTrue(s_StbdShooter.setFlySpeedCommand(0))
       .onTrue(runOnce(() -> s_StbdShooter.revFlywheels()));
 
+    // Reverse
     buttonPad.A4().and(btnSetManual)
       .onTrue(s_PortShooter.setFlySpeedCommand(-FlywheelConstants.idleSpeed))
       .onTrue(runOnce(() -> s_PortShooter.revFlywheels()));
@@ -592,12 +622,14 @@ public class Robot extends TimedRobot
       .onTrue(s_StbdShooter.setFlySpeedCommand(-FlywheelConstants.idleSpeed))
       .onTrue(runOnce(() -> s_StbdShooter.revFlywheels()));
 
-    /* Manual Feeder control */
+    // Manual Feeder control
+    // Run
     buttonPad.B4().and(btnSetManual)
       .whileTrue(s_Indexer.runCommand(s_PortShooter::getSpeed));
     buttonPad.G4().and(btnSetManual)
       .whileTrue(s_Indexer.runCommand(s_StbdShooter::getSpeed));
     
+    // Stop
     buttonPad.C4().and(btnSetManual)
       .or(buttonPad.B2().and(btnSetPass.or(btnSetLocalisation)))
       .whileTrue(s_Indexer.runCommand(() -> 0));
@@ -605,6 +637,7 @@ public class Robot extends TimedRobot
       .or(buttonPad.G2().and(btnSetPass.or(btnSetLocalisation)))
       .whileTrue(s_Indexer.runCommand(() -> 0));
 
+    // Reverse
     buttonPad.D4().and(btnSetManual)
       .whileTrue(s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed));
     buttonPad.E4().and(btnSetManual)
@@ -612,12 +645,13 @@ public class Robot extends TimedRobot
 
 
     // -------------INTAKE-------------- //
-
+    // Deploy
     driver.leftTrigger()
       .or(buttonPad.D3().and(btnSetPass.or(btnSetLocalisation)))
       .or(buttonPad.B7().and(btnSetManual))
       .onTrue(s_Hopper.extendCommand());
 
+    // Run
     debug.b().negate()
       .and
       (
@@ -628,9 +662,11 @@ public class Robot extends TimedRobot
       .whileTrue(s_Hopper.runIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
 
+    // Manual run
     buttonPad.A6().and(btnSetManual)
       .whileTrue(s_Hopper.runIntakeCommand(PBDash.IO_INTAKE_SPEED::get));
 
+    // Agitate
     driver.povDown()
       .or(debug.x())
       .or(buttonPad.D2().and(btnSetPass.or(btnSetLocalisation)))
@@ -638,17 +674,20 @@ public class Robot extends TimedRobot
       .whileTrue(s_Hopper.extensionJostleCommand())
       .onFalse(s_Hopper.extendCommand());
 
+    // Stow
     driver.povUp()
       .or(buttonPad.E3().and(btnSetPass.or(btnSetLocalisation)))
       .or(buttonPad.C7().and(btnSetManual))
       .onTrue(s_Hopper.retractCommand());
 
+    // Reverse
     debug.b()
       .or(buttonPad.E1().and(btnSetPass.or(btnSetLocalisation)))
       .or(buttonPad.A7().and(btnSetManual))
       .onTrue(s_Hopper.reverseIntakeCommand())
       .onFalse(s_Hopper.stopIntakeCommand());
 
+    // Manual extension
     debug.povDown()
       .or(buttonPad.B6().and(btnSetManual))
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
@@ -656,20 +695,24 @@ public class Robot extends TimedRobot
       .or(buttonPad.C6().and(btnSetManual))
       .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
 
-    buttonPad.E3().and(btnSetPass.or(btnSetLocalisation))
-      .or(buttonPad.C7().and(btnSetManual))
+    // Squish
+    buttonPad.E2().and(btnSetPass.or(btnSetLocalisation))
+      .or(buttonPad.C8().and(btnSetManual))
       .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.intakeSquishAmount));
 
 
     // -------------CLIMBER------------- //
-    
+    // Stow
     debug.back()
       .or(buttonPad.G7().and(btnSetManual))
+      .or(switchboard.button(0/*climbButtonID1*/).and(switchboard.button(0/*climbButtonID2*/)))
       .onTrue(s_Climber.retractCommand());
+    // Deploy
     debug.start()
       .or(buttonPad.F7().and(btnSetManual))
       .onTrue(s_Climber.deployCommand());
       
+    // Manual extension
     s_Climber.setDefaultCommand(s_Climber.adjustTargetCommand(() -> debug.getLeftY() * ControlConstants.manualClimberExtensionScale));
 
     buttonPad.F6().and(btnSetManual)
@@ -677,8 +720,6 @@ public class Robot extends TimedRobot
     buttonPad.G6().and(btnSetManual)
       .whileTrue(s_Climber.adjustTargetCommand(() -> -ControlConstants.manualClimberExtensionAmount));
 
-    switchboard.button(0/*climbButtonID1*/).and(switchboard.button(0/*climbButtonID2*/))
-        .onTrue(s_Climber.retractCommand());
 
     buttonPad.B3().and(btnSetPass)
       .or(buttonPad.F8().and(btnSetManual))
@@ -897,6 +938,13 @@ public class Robot extends TimedRobot
     autoRev = true;
     nudging = true;
     initInputTransmute();
+
+    CommandScheduler.getInstance()
+      .schedule
+      (
+        io_driverLeft.timedRequestCommand("Teleop Start", 1.5), 
+        io_driverRight.timedRequestCommand("Teleop Start", 1.5)
+      );
   }
 
   @Override
