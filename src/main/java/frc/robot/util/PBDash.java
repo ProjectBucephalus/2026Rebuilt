@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
+import frc.robot.constants.Constants.ControlConstants;
 
 /** 
  * Simplified interface for most dashboard/network-table interactions 
@@ -48,20 +49,24 @@ public class PBDash
   public static final Key<Boolean> IO_AUTO_PASS     = new Key<>("Auto Pass", true);
   public static final Key<Boolean> IO_AUTO_REV      = new Key<>("Auto Rev", true);
 
+  
   // State displays
   public static final Key<String>  STATE_DRIVE      = new Key<>("Drive State", "Disabled");
   public static final Key<Boolean> STATE_NUDGING    = new Key<>("Nudging Active", true);
-
+  
   // Request queues
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
   public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
-
+  
   // Testing values
   public static final Key<Double>  TEST_FLYSPEED    = new Key<>("Test Flyspeed", 0.0);
   public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
-
-  public static final Key<Double>  TEST_INTAKE_SPEED= new Key<>("Test Intake Speed", Constants.HopperConstants.IntakeConstants.intakeSpeed);
+  
+  // Manual speed adjustment
+  public static final Key<Double>  IO_INTAKE_SPEED  = new Key<>("Intake Speed", Constants.HopperConstants.IntakeConstants.intakeSpeed);
+  public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
+  public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
 
   public static void putFieldObject(String name, Pose2d pose)
     {FIELD.getObject(name).setPose(pose);}

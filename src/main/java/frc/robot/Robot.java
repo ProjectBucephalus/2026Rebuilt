@@ -410,6 +410,11 @@ public class Robot extends TimedRobot
     driver.x().onTrue(new ClimbLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose, () -> climbPos));
     driver.a().onTrue(new OutpostLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveState.Pose));
 
+    PBDash.IO_MAX_THROTTLE.asPulse()
+      .onTrue(runOnce(() -> driverBrake.withMaxThrottle(PBDash.IO_MAX_THROTTLE.get())));
+    PBDash.IO_MIN_THROTTLE.asPulse()
+      .onTrue(runOnce(() -> driverBrake.withMinThrottle(PBDash.IO_MIN_THROTTLE.get())));
+
 
     // -------------SHOOTERS------------ //
 
@@ -624,7 +629,7 @@ public class Robot extends TimedRobot
       .onFalse(s_Hopper.stopIntakeCommand());
 
     buttonPad.A6().and(btnSetManual)
-      .whileTrue(s_Hopper.runIntakeCommand(PBDash.TEST_INTAKE_SPEED::get));
+      .whileTrue(s_Hopper.runIntakeCommand(PBDash.IO_INTAKE_SPEED::get));
 
     driver.povDown()
       .or(debug.x())
@@ -905,6 +910,6 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    
+    PBDash.putDouble("Robot Forward Speed metres per second", swerveState.Speeds.vxMetersPerSecond);
   }
 }
