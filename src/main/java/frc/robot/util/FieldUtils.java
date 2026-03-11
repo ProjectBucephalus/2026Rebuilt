@@ -161,7 +161,7 @@ public class FieldUtils
    */
   public static Rotation2d allianceRotateRotation(Rotation2d rotation) 
   {
-    return isAlliance(Alliance.Red) ? rotation.unaryMinus() : rotation;
+    return isAlliance(Alliance.Red) ? rotation.rotateBy(Rotation2d.k180deg) : rotation;
   }
 
   /**

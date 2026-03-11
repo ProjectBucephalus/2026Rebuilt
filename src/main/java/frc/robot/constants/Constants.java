@@ -50,7 +50,7 @@ public final class Constants
     /** Angle tolerance to consider something as "facing" the drivers, degrees */
     public static final double driverVisionTolerance = 5;
     /** Translation lineup tolerance, meters */
-    public static final double lineupTolerance = 0.05;
+    public static final double lineupTolerance = 0.1;
     /** Rotation lineup tolerance, degrees */
     public static final double angleLineupTolerance = 3;
 
@@ -76,7 +76,7 @@ public final class Constants
     public static final double preShiftOutputMargin = 1;
     public static final double postShiftOutputMargin = 2;
   }
-  
+
   /** Geometry and tuning data for drivebase */
   public static final class SwerveConstants
   {

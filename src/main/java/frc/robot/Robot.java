@@ -130,7 +130,7 @@ public class Robot extends TimedRobot
 
   private boolean nudging = true;
 
-  private AutoState autoControl;
+  private AutoState autoControl = new AutoState();
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);

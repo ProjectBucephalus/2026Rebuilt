@@ -156,7 +156,11 @@ public class AutoBuilder
 
         // f i - Follow path at index `i` in Path.autoPaths 
         case 'f' ->
-          commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, Path.autoPaths[instr.arg(0)]));
+        {
+          var path = Path.autoPaths[instr.arg(0) - 1];
+          currPose = path.targetPose();
+          commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, path.allianceRotated()));
+        }
 
         // w d - Wait for duration `d`
         case 'w' -> 
