@@ -456,6 +456,13 @@ public final class Constants
     {
       /** Default speed of intake when running, rps */
       public static final double intakeSpeed = 55;
+
+      /** Intake speed at which robot throttle starts being applied, rps */
+      public static final double brakeSpeedStart = 10;
+      /** Intake speed at which maximum robot throttle is applied, rps above throttleStart */
+      public static final double brakeSpeedRange = 40 - brakeSpeedStart;
+      /** Maximum brake value */
+      public static final double intakeBrake = 0.5;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static
