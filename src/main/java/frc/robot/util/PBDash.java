@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -199,6 +200,11 @@ public class PBDash
   /** Internal helper to make some lines shorter */
   private static final NetworkTableEntry entry(String name)
     {return table.getEntry(name);}
+
+  public static final void print(Key<String> key, String... text)
+  {
+    key.put(key.get() + Arrays.stream(text).collect(Collectors.joining()));
+  }
 
   /** 
    * A generic class encapslating a NetworkTable entry, adding additional safety and providing methods for ease of interaction. <p>
