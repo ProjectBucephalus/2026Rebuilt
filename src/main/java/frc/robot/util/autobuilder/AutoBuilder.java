@@ -12,8 +12,24 @@ import frc.robot.subsystems.Intake;
 import frc.robot.util.PBDash;
 import frc.robot.util.autobuilder.ParsedRepr.Instruction;
 
+/**
+ * Dynamically creates an autonomous Command from an input string of instructions
+ * @author 5985
+ */
 public class AutoBuilder 
 {
+  /**
+   * Compiles an auto string into a sequential command
+   * 
+   * @param commandInput The auto string, comprised of instructions seperated by commas.
+   *                     Each instruction is a name followed by parenthesis-delimited arguments. Whitespace is ignored. 
+   *                     For example, {@code driveto(1 2), waitfor(3), driveto(4 5 6)}
+   * @param swerveStateSup Swerve state supplier, used for instructions involving driving or the robot's position
+   * @param state The robot's state object, used for instructions such as setting auto-passing
+   * @param s_Swerve The swerve subsystem
+   * @param s_Intake The intake subsystem
+   * @return A command that executes the auto string's instructions in sequence
+   */
   public static Command compile
   (
     String source,
@@ -24,19 +40,15 @@ public class AutoBuilder
   )
   {
     PBDash.AUTO_ERRS.init();
-    List<Token> tokens = new Tokeniser(PBDash.AUTO_STRING.get()).tokenise();
-    List<Instruction> instrs = new Parser(tokens).parse();
+    // driveto(1 2) becomes [Token(Text, "driveto"), Token(LParen, "("), Token(Num, "1"), Token(Num, "2"), Token(LParen, ")")]
+    List<Token> tokens = new Tokeniser(PBDash.AUTO_STRING.get()).tokenise(); 
+    // [Token(Text, "driveto"), Token(LParen, "("), Token(Num, "1"), Token(Num, "2"), Token(LParen, ")")] 
+    // becomes [Instruction(driveto, [Value(Num, 1), Value(Num, 1)])]
+    List<Instruction> instrs = new Parser(tokens).parse(); 
     return new CommandGen(instrs, swerveStateSup, state, s_Swerve, s_Intake).build();
   }
 
-  public static void test()
-  {
-    PBDash.AUTO_ERRS.init();
-    var tokens = new Tokeniser(PBDash.AUTO_STRING.get()).tokenise();
-    var instrs = new Parser(tokens).parse();
-    PBDash.putString("test", instrs.toString());
-  }
-
+  /** Appends the provided error message to {@link PBDash#AUTO_ERRS}, followed by a comma */
   protected static void error(String message) 
   {
     PBDash.AUTO_ERRS.append(message + ", ");

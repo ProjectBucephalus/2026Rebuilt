@@ -379,7 +379,6 @@ public class Robot extends TimedRobot
   @Override
   public void testInit() 
   {
-    AutoBuilder.test();
     CommandScheduler.getInstance().cancelAll();
 
     FieldUtils.updateAlliance();
