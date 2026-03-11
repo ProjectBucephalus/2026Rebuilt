@@ -12,7 +12,7 @@ import frc.robot.constants.Constants.HopperConstants.SpindexerConstants;
 import frc.robot.subsystems.generic.BinaryMotor;
 import frc.robot.subsystems.generic.LimitedMotor;
 import frc.robot.subsystems.generic.VelocityMotor;
-
+import frc.robot.util.Conversions;
 import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.HopperConstants.*;
@@ -43,6 +43,12 @@ public class Hopper extends SubsystemBase
   { 
     intake = new VelocityMotor(intakeCAN, IntakeConstants.intakeConfig);
     extension = new LimitedMotor(extensionCAN, extensionLimitIO, ExtensionConstants.minRotations, ExtensionConstants.maxRotations, ExtensionConstants.homeRotations, ExtensionConstants.extensionConfig);
+  }
+
+  /** @return brake value to apply when intake is running */
+  public double brakeFromIntake()
+  {
+    return Conversions.clamp((intake.getSpeed() - IntakeConstants.brakeSpeedStart) / IntakeConstants.brakeSpeedRange, 0, 1) * IntakeConstants.intakeBrake;
   }
   
   /** @return Command to start running intake at input speed */

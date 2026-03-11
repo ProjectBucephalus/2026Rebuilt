@@ -209,7 +209,7 @@ public class Robot extends TimedRobot
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
-  private final Brake driverBrake = new Brake(driver::getRightTriggerAxis, ControlConstants.maxThrottle, ControlConstants.minThrottle);
+  private final Brake driverBrake = new Brake(() -> Math.max(driver.getRightTriggerAxis(), s_Hopper.brakeFromIntake()), ControlConstants.maxThrottle, ControlConstants.minThrottle);
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
 
