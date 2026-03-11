@@ -37,9 +37,20 @@ public class Lexer
     switch (c)
     {
       case ' ', '\t', '\n', '\r' -> {}
+      case '"' -> string();
 
-      default -> AutoBuilder.error("Unexpected character: " + c);
+      default -> AutoBuilder.error(current, "unexpected character " + c);
     }
+  }
+
+  private void string()
+  {
+    while (!atEnd() && !match('"'));
+
+    if (atEnd()) 
+      AutoBuilder.error(current, "unterminated string");
+    else
+      addToken(TokenType.STRING);
   }
 
   private boolean atEnd()

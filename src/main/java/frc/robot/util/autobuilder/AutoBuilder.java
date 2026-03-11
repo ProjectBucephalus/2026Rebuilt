@@ -6,9 +6,9 @@ public class AutoBuilder
 {
   private static boolean hadError = false;
 
-  protected static void error(String message) 
+  protected static void error(int pos, String message) 
   {
     hadError = true;
-    PBDash.print(PBDash.AUTO_ERRS, message, ", ");
+    PBDash.print(PBDash.AUTO_ERRS, pos + ": ", message, ", ");
   }  
 }
