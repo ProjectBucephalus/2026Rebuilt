@@ -27,7 +27,7 @@ public class FieldUtils
   public static Optional<Alliance> getAutoWinner()
     {return autoWinner;}
 
-  /** Attempts to fetch the auto winner from DriverStation, if we haven't already got it */
+  /** Attempts to fetch the alliance that won auto from DriverStation, if we haven't already got it */
   public static void updateAutoWinner()
   {
     if (autoWinner.isEmpty()) 

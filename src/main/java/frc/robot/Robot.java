@@ -855,12 +855,9 @@ public class Robot extends TimedRobot
     PBDash.FIELD.setRobotPose(swerveState.Pose);
     PBDash.putDouble("Robot Forward Speed metres per second", swerveState.Speeds.vxMetersPerSecond);
   }
-  
-  private void handleAutoErr(String invalidInstr)
-    {PBDash.AUTO_ERRS.put(PBDash.AUTO_ERRS.get() + ", " + invalidInstr);}
 
   private void compileAuto()
-    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState, this::handleAutoErr));}
+    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState));}
 
   /** Returns the t2d of the robot centre in field coordinates */
   public Translation2d getTranslation()

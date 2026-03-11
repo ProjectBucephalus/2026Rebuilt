@@ -77,7 +77,7 @@ public class AutoBuilder
    * @param errHandler A consumer to accept any erroneous instructions, intended for error logging purposes
    * @return The input parsed into a list of instructions, minus any invalid instructions
    */
-  private static List<Instruction> parseInstructions(String input, Consumer<String> errHandler) 
+  private static List<Instruction> parseInstructions(String input) 
   {
     String[] splitInput = input.split(",");
     var out = new ArrayList<Instruction>(splitInput.length);
@@ -89,7 +89,7 @@ public class AutoBuilder
         .ifPresentOrElse
         (
           out::add, 
-          () -> errHandler.accept(instr)
+          () -> PBDash.AUTO_ERRS.put(PBDash.AUTO_ERRS.get() + instr + ", ")
         );
     }
 
@@ -111,15 +111,14 @@ public class AutoBuilder
   (
     String commandInput, 
     CommandSwerveDrivetrain s_Swerve, 
-    Supplier<SwerveDriveState> swerveStateSup, 
-    Consumer<String> errHandler
+    Supplier<SwerveDriveState> swerveStateSup
   )
   {
     // The command list to be output
     var commandList = new SequentialCommandGroup();
 
     // For each instruction, adds the corresponding commands to the list
-    for (var instr : parseInstructions(commandInput, errHandler)) 
+    for (var instr : parseInstructions(commandInput)) 
     {
       switch (instr.code) 
       {
