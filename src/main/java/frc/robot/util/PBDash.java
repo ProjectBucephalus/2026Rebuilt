@@ -1,6 +1,8 @@
 package frc.robot.util;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -19,6 +21,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
@@ -31,9 +35,7 @@ import frc.robot.constants.Constants.ControlConstants;
 public class PBDash 
 {
   private static final NetworkTable table = NetworkTableInstance.getDefault().getTable(IDConstants.dashTableName);
-
-  public static final Field2d FIELD = new Field2d();
-  static { putSendable("Field", FIELD); }
+  private static final Map<String, Sendable> tablesToData = new HashMap<>();
 
   public static final Key<Boolean> E_STOP           = new Key<>("Mechanism E-Stop", false);
 
@@ -65,9 +67,22 @@ public class PBDash
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
   
   // Manual speed adjustment
-  public static final Key<Double>  IO_INTAKE_SPEED  = new Key<>("Intake Target Speed", Constants.HopperConstants.IntakeConstants.intakeSpeed);
+  public static final Key<Double>  IO_INTAKE_SPEED  = new Key<>("Intake Target Speed", Constants.IntakeConstants.RollerConstants.intakeSpeed);
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
   public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
+
+  public static final Field2d FIELD = new Field2d();
+  static { putSendable("Field", FIELD); }
+
+  public static final SendableChooser<String> AUTO_PRESETS = new SendableChooser<>();
+  static
+  {
+    AUTO_PRESETS.setDefaultOption("Blank", "");
+    AUTO_PRESETS.addOption("Wait", "t 0");
+    AUTO_PRESETS.addOption("Collection Loop", "f 1, f 5, f 4");
+    AUTO_PRESETS.onChange(AUTO_STRING::put);
+    putSendable("Auto Presets", AUTO_PRESETS);
+  }
 
   public static void putFieldObject(String name, Pose2d pose)
     {FIELD.getObject(name).setPose(pose);}
@@ -103,14 +118,23 @@ public class PBDash
    */
   public static void putSendable(String name, Sendable data) 
   {
-    NetworkTable dataTable = table.getSubTable(name);
+    Sendable sddata = tablesToData.get(name);
+    if (sddata == null || sddata != data) 
+    {
+      tablesToData.put(name, data);
+      NetworkTable dataTable = table.getSubTable(name);
+      SendableBuilderImpl builder = new SendableBuilderImpl();
+      builder.setTable(dataTable);
+      SendableRegistry.publish(data, builder);
+      builder.startListeners();
+      dataTable.getEntry(".name").setString(name);
+    }
+  }
 
-    SendableBuilderImpl builder = new SendableBuilderImpl();
-    builder.setTable(dataTable);
-    SendableRegistry.publish(data, builder);
-    builder.startListeners();
-
-    dataTable.getEntry(".name").setString(name);
+  public static void updateSendables()
+  {
+    for (Sendable data : tablesToData.values()) 
+      SendableRegistry.update(data);
   }
 
   /**
@@ -201,7 +225,7 @@ public class PBDash
   private static final NetworkTableEntry entry(String name)
     {return table.getEntry(name);}
 
-  public static final void print(Key<String> key, String... text)
+  public static void append(Key<String> key, String... text)
   {
     key.put(key.get() + Arrays.stream(text).collect(Collectors.joining()));
   }
@@ -212,8 +236,8 @@ public class PBDash
    */
   public static class Key<T>
   {
-    private T defaultVal;
-    private GenericEntry ntEntry;
+    private final T defaultVal;
+    private final GenericEntry ntEntry;
     private T lastVal;
 
     /**

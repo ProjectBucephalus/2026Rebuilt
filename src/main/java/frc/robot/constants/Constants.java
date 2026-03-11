@@ -50,7 +50,7 @@ public final class Constants
     /** Angle tolerance to consider something as "facing" the drivers, degrees */
     public static final double driverVisionTolerance = 5;
     /** Translation lineup tolerance, meters */
-    public static final double lineupTolerance = 0.05;
+    public static final double lineupTolerance = 0.1;
     /** Rotation lineup tolerance, degrees */
     public static final double angleLineupTolerance = 3;
 
@@ -76,7 +76,7 @@ public final class Constants
     public static final double preShiftOutputMargin = 1;
     public static final double postShiftOutputMargin = 2;
   }
-  
+
   /** Geometry and tuning data for drivebase */
   public static final class SwerveConstants
   {
@@ -422,11 +422,7 @@ public final class Constants
 
       feederConfig.MotionMagic.MotionMagicAcceleration = 50.0;
     }
-  }
 
-  /** Geometry and tuning data for hopper system */
-  public static final class HopperConstants
-  {
     public static final class SpindexerConstants 
     {
       /** Duration and interval of spindexer pulses when agitating, seconds */
@@ -451,11 +447,22 @@ public final class Constants
         spindexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
       }
     }
+  }
 
-    public static final class IntakeConstants 
+  /** Geometry and tuning data for intake system */
+  public static final class IntakeConstants
+  {
+    public static final class RollerConstants 
     {
       /** Default speed of intake when running, rps */
       public static final double intakeSpeed = 55;
+
+      /** Intake speed at which robot throttle starts being applied, rps */
+      public static final double brakeSpeedStart = 10;
+      /** Intake speed at which maximum robot throttle is applied, rps above throttleStart */
+      public static final double brakeSpeedRange = 40 - brakeSpeedStart;
+      /** Maximum brake value */
+      public static final double intakeBrake = 0.5;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static
@@ -471,7 +478,7 @@ public final class Constants
       }
     }
 
-    /** Geometry and tuning data of intake/hopper extension */
+    /** Geometry and tuning data of intake extension */
     public static final class ExtensionConstants 
     {
       private static final double extensionPlanetaryRatio = 9;

@@ -161,7 +161,7 @@ public class FieldUtils
    */
   public static Rotation2d allianceRotateRotation(Rotation2d rotation) 
   {
-    return isAlliance(Alliance.Red) ? rotation.unaryMinus() : rotation;
+    return isAlliance(Alliance.Red) ? rotation.rotateBy(Rotation2d.k180deg) : rotation;
   }
 
   /**
@@ -232,17 +232,6 @@ public class FieldUtils
   {
     // reflect the translation around center point, flip both the X and Y position
     return translation.rotateAround(fieldCentre, Rotation2d.k180deg);
-  }
-
-  /**
-   * Activates the relevant geofences for our alliance
-   * 
-   * @param redAlliance whether we're on the red alliance
-   */
-  public static void activateAllianceFencing() 
-  {
-    GeoFencing.fieldRedGeoFence.setActiveCondition(() -> isAlliance(Alliance.Red));
-    GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> isAlliance(Alliance.Blue));
   }
 
   /**
