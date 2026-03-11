@@ -32,7 +32,7 @@ public class AutoBuilder
   /**
    * An auto instruction. Used as an intermediate representation between the text string and the final command output
    */
-  private static record Instruction(char code, int... args) 
+  private static record Instruction(String raw, char code, int... args) 
   {
     public int argCount()
       {return args.length;}
@@ -58,12 +58,12 @@ public class AutoBuilder
     {
       if (input == null || input.length() == 0) return Optional.empty();
       
-      input = input.replaceAll("//s", "").toLowerCase();
-      char code = input.charAt(0);
+      var cleanInput = input.replaceAll("//s", "").toLowerCase();
+      char code = cleanInput.charAt(0);
       
-      if (input.length() > 1)
+      if (cleanInput.length() > 1)
       {
-        String[] inArgs = input.substring(1).trim().split(":");
+        String[] inArgs = cleanInput.substring(1).trim().split(":");
         int[] outArgs = new int[inArgs.length];
 
         for (int i = 0; i < inArgs.length; i++)
@@ -74,10 +74,10 @@ public class AutoBuilder
             {return Optional.empty();}
         }
 
-        return Optional.of(new Instruction(code, outArgs));
+        return Optional.of(new Instruction(input, code, outArgs));
       } 
       else 
-        return Optional.of(new Instruction(code));
+        return Optional.of(new Instruction(input, code));
     }
   }
 
@@ -96,13 +96,14 @@ public class AutoBuilder
 
     for (var instr : splitInput) 
     {
-      Instruction
-        .parse(instr.trim())
-        .ifPresentOrElse
-        (
-          out::add, 
-          () -> PBDash.AUTO_ERRS.put(PBDash.AUTO_ERRS.get() + instr + ", ")
-        );
+      if (instr.length() > 0)
+        Instruction
+          .parse(instr.trim())
+          .ifPresentOrElse
+          (
+            out::add, 
+            () -> error("invalid args in " + instr)
+          );
     }
 
     return out;
@@ -128,6 +129,7 @@ public class AutoBuilder
     Hopper s_Intake
   )
   {
+    PBDash.AUTO_ERRS.init();
     var currPose = swerveStateSup.get().Pose;
     // The command list to be output
     var commandList = new SequentialCommandGroup();
@@ -138,7 +140,13 @@ public class AutoBuilder
       {
         // g x:y:r - Go to `x`, `y`, `r` (alliance origin relative). r optional, maintains current rotation if omitted
         case 'g' ->
-				{         
+				{ 
+          if (instr.argCount() < 2) 
+          {
+            error(instr.raw + " is missing args");
+            break;
+          }
+
           var posTarget = new Translation2d
           (
             MathUtil.clamp(instr.arg(0), 0.5, (FieldConstants.fieldCentre.getX()) - 0.5), 
@@ -157,6 +165,12 @@ public class AutoBuilder
         // f i - Follow path at index `i` in Path.autoPaths 
         case 'f' ->
         {
+          if (instr.argCount() < 1) 
+          {
+            error(instr.raw + " is missing args");
+            break;
+          }
+
           var path = Path.autoPaths[instr.arg(0) - 1];
           currPose = path.targetPose();
           commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, path.allianceRotated()));
@@ -164,15 +178,37 @@ public class AutoBuilder
 
         // w d - Wait for duration `d`
         case 'w' -> 
+        {
+          if (instr.argCount() < 1) 
+          {
+            error(instr.raw + " is missing args");
+            break;
+          }
+
           commandList.addCommands(Commands.waitSeconds(instr.arg(0)));
+        }
 
         // t d - wait until time `d`
         case 't' ->
-          commandList.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - instr.arg(0))));
+        {
+          if (instr.argCount() < 1) 
+          {
+            error(instr.raw + " is missing args");
+            break;
+          }
 
+          commandList.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - instr.arg(0))));
+        }
+          
         // i b - if `b` is truthy, deploys and runs intake, otherwise stops intake (leaving it deployed)
         case 'i' ->
         {
+          if (instr.argCount() < 1) 
+          {
+            error(instr.raw + " is missing args");
+            break;
+          }
+
           if (instr.boolArg(0)) 
             commandList.addCommands(Commands.parallel(s_Intake.extendCommand(), s_Intake.startIntakeCommand()));
           else 
@@ -181,10 +217,23 @@ public class AutoBuilder
 
         // p b - sets auto passing based on truthiness of `b`
         case 'p' -> 
+        {
+          if (instr.argCount() < 1) 
+          {
+            error(instr.raw + " is missing args");
+            break;
+          }
+
           commandList.addCommands(Commands.runOnce(() -> autoControl.pass = instr.boolArg(0)));
+        }
+          
+        default -> error("unknown code " + instr.code);
       }
     }
 
     return commandList.withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
   }
+
+  private static void error(String message)
+    {PBDash.append(PBDash.AUTO_ERRS, message, ", ");}
 }

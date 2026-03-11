@@ -240,7 +240,7 @@ public class Robot extends TimedRobot
 
     s_Swerve.registerTelemetry(ctreLogger::telemeterize);
 
-    SmartDashboard.putData("Current Commands", CommandScheduler.getInstance());
+    PBDash.putSendable("Current Commands", CommandScheduler.getInstance());
   }
 
   /** Set up input modification and fencing systems */
@@ -884,6 +884,7 @@ public class Robot extends TimedRobot
   public void robotPeriodic() 
   {
     FieldUtils.updateAutoWinner();
+    PBDash.updateSendables();
     updateSwerveState();
     CommandScheduler.getInstance().run();
   }
