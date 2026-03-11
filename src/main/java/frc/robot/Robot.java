@@ -36,6 +36,7 @@ import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
 
 import frc.robot.util.*;
+import frc.robot.util.autobuilder.AutoBuilder;
 import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
 
@@ -289,7 +290,9 @@ public class Robot extends TimedRobot
   }
 
   private void compileAuto()
-    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), () -> swerveState, state, s_Swerve, s_Intake));}
+  {
+    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), () -> swerveState, state, s_Swerve, s_Intake));
+  }
 
   @Logged(name = "CAN Load")
   public float getCanLoad() 
@@ -376,6 +379,7 @@ public class Robot extends TimedRobot
   @Override
   public void testInit() 
   {
+    AutoBuilder.test();
     CommandScheduler.getInstance().cancelAll();
 
     FieldUtils.updateAlliance();

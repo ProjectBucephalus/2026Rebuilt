@@ -1,6 +1,5 @@
 package frc.robot.util;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -22,7 +21,6 @@ import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
@@ -78,8 +76,8 @@ public class PBDash
   static
   {
     AUTO_PRESETS.setDefaultOption("Blank", "");
-    AUTO_PRESETS.addOption("Wait", "t 0");
-    AUTO_PRESETS.addOption("Collection Loop", "f 1, f 5, f 4");
+    AUTO_PRESETS.addOption("Wait", "WaitUntil(0)");
+    AUTO_PRESETS.addOption("Collection Loop", "Follow(r_trench_a2m), Follow(r_balls), Follow(l_trench_m2a)");
     AUTO_PRESETS.onChange(AUTO_STRING::put);
     putSendable("Auto Presets", AUTO_PRESETS);
   }
@@ -225,11 +223,6 @@ public class PBDash
   private static final NetworkTableEntry entry(String name)
     {return table.getEntry(name);}
 
-  public static void append(Key<String> key, String... text)
-  {
-    key.put(key.get() + Arrays.stream(text).collect(Collectors.joining()));
-  }
-
   /** 
    * A generic class encapslating a NetworkTable entry, adding additional safety and providing methods for ease of interaction. <p>
    * Primarily intended to be stored as a constant
@@ -312,6 +305,13 @@ public class PBDash
     /** @return Trigger of value being `true` */
     public Trigger asTrigger()
       {return new Trigger(() -> get().equals(true));}
+    
+    public void append(String text)
+    {
+      // The cast from String to T will only ever happen is T is already String
+      if (get() instanceof String str)
+        put((T)(str + text));
+    }
 
     /** Closes the underlying entry. <p> ATTEMPTING TO USE A KEY AFTER CLOSING IT WILL CAUSE ERRORS */
     public void close()
