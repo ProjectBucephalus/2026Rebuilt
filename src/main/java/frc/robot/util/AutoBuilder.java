@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Robot.AutoState;
+import frc.robot.Robot.RobotState;
 import frc.robot.commands.swerve.PathFollowDrive;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Path;
@@ -124,7 +124,7 @@ public class AutoBuilder
   (
     String commandInput, 
     Supplier<SwerveDriveState> swerveStateSup,
-    AutoState autoControl,
+    RobotState state,
     CommandSwerveDrivetrain s_Swerve, 
     Intake s_Intake
   )
@@ -224,7 +224,7 @@ public class AutoBuilder
             break;
           }
 
-          commandList.addCommands(Commands.runOnce(() -> autoControl.pass = instr.boolArg(0)));
+          commandList.addCommands(Commands.runOnce(() -> state.pass = instr.boolArg(0)));
         }
           
         default -> error("unknown code " + instr.code);

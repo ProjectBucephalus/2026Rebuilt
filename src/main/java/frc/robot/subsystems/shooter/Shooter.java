@@ -51,7 +51,7 @@ public class Shooter extends SubsystemBase
 
   @Logged
   /** Current active target for the shooter */
-  private Target target = new Target(TargetState.Manual);
+  private final Target target = new Target(TargetState.Manual);
 
   /**
    * Creates Turreted Shooter master-system, internally creates and manages associated subsystems
@@ -85,7 +85,7 @@ public class Shooter extends SubsystemBase
     ntId = idBlock.ntID();
 
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
-    turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, this::getTarget);
+    turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, target);
     hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, hoodHomeAngle, target);
 
     target.azimuth = turret.getAzimuth();

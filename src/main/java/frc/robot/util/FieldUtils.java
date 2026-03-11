@@ -235,17 +235,6 @@ public class FieldUtils
   }
 
   /**
-   * Activates the relevant geofences for our alliance
-   * 
-   * @param redAlliance whether we're on the red alliance
-   */
-  public static void activateAllianceFencing() 
-  {
-    GeoFencing.fieldRedGeoFence.setActiveCondition(() -> isAlliance(Alliance.Red));
-    GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> isAlliance(Alliance.Blue));
-  }
-
-  /**
    * Checks if the provided position is within our alliance zone
    * 
    * @param pos Position to check against

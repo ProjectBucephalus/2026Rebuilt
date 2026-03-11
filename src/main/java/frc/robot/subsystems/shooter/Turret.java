@@ -50,7 +50,7 @@ public class Turret
 
   private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
-  private final Supplier<Target> targetSup;
+  private final Target target;
 
   private double lastCalibration = 0;
   private double potLastCycle = 0;
@@ -62,12 +62,12 @@ public class Turret
    * @param potOffset Potentiometer reading for centre of rotation
    * @param targetSup Supplier for current Target object
    */
-  public Turret(int motorID, int potID, double potOffset, Supplier<Target> targetSup) 
+  public Turret(int motorID, int potID, double potOffset, Target target) 
   {
     m_Turret = new TalonFXS(motorID);
     io_Azimuth = new AnalogPotentiometer(potID, potRange, potOffset);
 
-    this.targetSup = targetSup;
+    this.target = target;
 
     m_Turret.getConfigurator().apply(turretConfig);
 
@@ -178,7 +178,7 @@ public class Turret
 
   private boolean atAzimuth()
   {
-    return Conversions.nearRotation(getAzimuth(), targetSup.get().azimuth, TurretConstants.azimuthTolerance);
+    return Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance);
   }
 
   public boolean readyToShoot(ChassisSpeeds swerveSpeeds)
@@ -194,7 +194,7 @@ public class Turret
   protected void update(Pose2d shooterPose, double robotDegreesPerSecond)
   {
     calibrate();
-    var target = targetSup.get();
+
     // Update the azimuth stored in the target based on the target state
     // Ensures that changing to manual mode doesn't cause sudden motion
     target.azimuth = switch (target.state) 
