@@ -21,7 +21,7 @@ import frc.robot.commands.swerve.PathFollowDrive;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.Intake;
 
 /**
  * Dynamically creates Command list from input string of tags
@@ -126,7 +126,7 @@ public class AutoBuilder
     Supplier<SwerveDriveState> swerveStateSup,
     AutoState autoControl,
     CommandSwerveDrivetrain s_Swerve, 
-    Hopper s_Intake
+    Intake s_Intake
   )
   {
     PBDash.AUTO_ERRS.init();

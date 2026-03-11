@@ -188,8 +188,8 @@ public class Robot extends TimedRobot
     ClimberConstants.climberConfig
   );
   
-  @Logged(name = "Hopper")
-  private final Hopper s_Hopper = new Hopper
+  @Logged(name = "Intake")
+  private final Intake s_Intake = new Intake
   (
     IDConstants.intakeCAN, 
     IDConstants.extensionCAN, 
@@ -209,7 +209,7 @@ public class Robot extends TimedRobot
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
-  private final Brake driverBrake = new Brake(() -> Math.max(driver.getRightTriggerAxis(), s_Hopper.brakeFromIntake()), ControlConstants.maxThrottle, ControlConstants.minThrottle);
+  private final Brake driverBrake = new Brake(() -> Math.max(driver.getRightTriggerAxis(), s_Intake.brakeFromIntake()), ControlConstants.maxThrottle, ControlConstants.minThrottle);
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
 
@@ -357,7 +357,7 @@ public class Robot extends TimedRobot
         .or(bumpNR.asTrigger())
         .or(bumpSR.asTrigger())
       )
-      .onTrue(s_Hopper.bumpSafeCommand())
+      .onTrue(s_Intake.bumpSafeCommand())
       .whileTrue
       (
         new NonCardinalDrive
@@ -652,7 +652,7 @@ public class Robot extends TimedRobot
     driver.leftTrigger()
       .or(buttonPad.D3().and(btnSetPass.or(btnSetLocalisation)))
       .or(buttonPad.B7().and(btnSetManual))
-      .onTrue(s_Hopper.extendCommand());
+      .onTrue(s_Intake.extendCommand());
 
     // Run
     debug.b().negate()
@@ -660,48 +660,48 @@ public class Robot extends TimedRobot
       (
         debug.a()
           .or(buttonPad.D1().and(btnSetPass.or(btnSetLocalisation)))
-          .or(driver.leftTrigger().and(s_Hopper::extended).and(PBDash.E_STOP.asTrigger().negate()))
+          .or(driver.leftTrigger().and(s_Intake::extended).and(PBDash.E_STOP.asTrigger().negate()))
       )
-      .whileTrue(s_Hopper.runIntakeCommand())
-      .onFalse(s_Hopper.stopIntakeCommand());
+      .whileTrue(s_Intake.runIntakeCommand())
+      .onFalse(s_Intake.stopIntakeCommand());
 
     // Manual run
     buttonPad.A6().and(btnSetManual)
-      .whileTrue(s_Hopper.runIntakeCommand(PBDash.IO_INTAKE_SPEED::get));
+      .whileTrue(s_Intake.runIntakeCommand(PBDash.IO_INTAKE_SPEED::get));
 
     // Agitate
     driver.povDown()
       .or(debug.x())
       .or(buttonPad.D2().and(btnSetPass.or(btnSetLocalisation)))
       .or(buttonPad.B8().and(btnSetManual))
-      .whileTrue(s_Hopper.extensionJostleCommand())
-      .onFalse(s_Hopper.extendCommand());
+      .whileTrue(s_Intake.extensionJostleCommand())
+      .onFalse(s_Intake.extendCommand());
 
     // Stow
     driver.povUp()
       .or(buttonPad.E3().and(btnSetPass.or(btnSetLocalisation)))
       .or(buttonPad.C7().and(btnSetManual))
-      .onTrue(s_Hopper.retractCommand());
+      .onTrue(s_Intake.retractCommand());
 
     // Reverse
     debug.b()
       .or(buttonPad.E1().and(btnSetPass.or(btnSetLocalisation)))
       .or(buttonPad.A7().and(btnSetManual))
-      .onTrue(s_Hopper.reverseIntakeCommand())
-      .onFalse(s_Hopper.stopIntakeCommand());
+      .onTrue(s_Intake.reverseIntakeCommand())
+      .onFalse(s_Intake.stopIntakeCommand());
 
     // Manual extension
     debug.povDown()
       .or(buttonPad.B6().and(btnSetManual))
-      .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
+      .whileTrue(s_Intake.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
     debug.povUp()
       .or(buttonPad.C6().and(btnSetManual))
-      .whileTrue(s_Hopper.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
+      .whileTrue(s_Intake.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
 
     // Squish
     buttonPad.E2().and(btnSetPass.or(btnSetLocalisation))
       .or(buttonPad.C8().and(btnSetManual))
-      .whileTrue(s_Hopper.manualExtensionCommand(() -> ControlConstants.intakeSquishAmount));
+      .whileTrue(s_Intake.manualExtensionCommand(() -> ControlConstants.intakeSquishAmount));
 
 
     // -------------CLIMBER------------- //
@@ -860,7 +860,7 @@ public class Robot extends TimedRobot
   }
 
   private void compileAuto()
-    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), () -> swerveState, autoControl, s_Swerve, s_Hopper));}
+    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), () -> swerveState, autoControl, s_Swerve, s_Intake));}
 
   /** Returns the t2d of the robot centre in field coordinates */
   public Translation2d getTranslation()

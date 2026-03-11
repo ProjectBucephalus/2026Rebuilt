@@ -422,11 +422,7 @@ public final class Constants
 
       feederConfig.MotionMagic.MotionMagicAcceleration = 50.0;
     }
-  }
 
-  /** Geometry and tuning data for hopper system */
-  public static final class HopperConstants
-  {
     public static final class SpindexerConstants 
     {
       /** Duration and interval of spindexer pulses when agitating, seconds */
@@ -451,8 +447,12 @@ public final class Constants
         spindexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
       }
     }
+  }
 
-    public static final class IntakeConstants 
+  /** Geometry and tuning data for intake system */
+  public static final class IntakeConstants
+  {
+    public static final class RollerConstants 
     {
       /** Default speed of intake when running, rps */
       public static final double intakeSpeed = 55;
@@ -478,7 +478,7 @@ public final class Constants
       }
     }
 
-    /** Geometry and tuning data of intake/hopper extension */
+    /** Geometry and tuning data of intake extension */
     public static final class ExtensionConstants 
     {
       private static final double extensionPlanetaryRatio = 9;
