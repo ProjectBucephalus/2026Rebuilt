@@ -53,6 +53,10 @@ public class Hopper extends SubsystemBase
   public Command runIntakeCommand()
     {return intake.runCommand(() -> IntakeConstants.intakeSpeed).withName("Run Intake");}
   
+  /** @return Command to start running intake at default speed */
+  public Command startIntakeCommand()
+    {return intake.setSpeedCommand(() -> IntakeConstants.intakeSpeed);}
+
   /** @return Command to start running intake at negative default speed */
   public Command reverseIntakeCommand()
     {return intake.setSpeedCommand(() -> -IntakeConstants.intakeSpeed);}

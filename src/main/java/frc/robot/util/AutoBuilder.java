@@ -3,12 +3,12 @@ package frc.robot.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
@@ -16,9 +16,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Robot.AutoState;
 import frc.robot.commands.swerve.PathFollowDrive;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Hopper;
 
 /**
  * Dynamically creates Command list from input string of tags
@@ -31,6 +34,15 @@ public class AutoBuilder
    */
   private static record Instruction(char code, int... args) 
   {
+    public int argCount()
+      {return args.length;}
+    
+    public int arg(int i)
+      {return args[i];}
+
+    public boolean boolArg(int i)
+      {return args[i] != 0;}
+
     /**
      * Attempts to create an Instruction, returning Empty if the provided text is invalid
      * 
@@ -110,13 +122,15 @@ public class AutoBuilder
   public static Command compileAutoString
   (
     String commandInput, 
+    Supplier<SwerveDriveState> swerveStateSup,
+    AutoState autoControl,
     CommandSwerveDrivetrain s_Swerve, 
-    Supplier<SwerveDriveState> swerveStateSup
+    Hopper s_Intake
   )
   {
+    var currPose = swerveStateSup.get().Pose;
     // The command list to be output
     var commandList = new SequentialCommandGroup();
-
     // For each instruction, adds the corresponding commands to the list
     for (var instr : parseInstructions(commandInput)) 
     {
@@ -127,25 +141,40 @@ public class AutoBuilder
 				{         
           var posTarget = new Translation2d
           (
-            MathUtil.clamp(instr.args[0], 0.5, (FieldConstants.fieldCentre.getX()) - 0.5), 
-            MathUtil.clamp(instr.args[1], 0.5, FieldConstants.fieldWidth - 0.5)
+            MathUtil.clamp(instr.arg(0), 0.5, (FieldConstants.fieldCentre.getX()) - 0.5), 
+            MathUtil.clamp(instr.arg(1), 0.5, FieldConstants.fieldWidth - 0.5)
           );
-
           var rotationTarget = 
-            instr.args.length > 2 ? 
-            Rotation2d.fromDegrees(instr.args[2]) : 
-            swerveStateSup.get().Pose.getRotation().plus(Rotation2d.k180deg);
-          
-          commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, new AlliancePose2d(posTarget, rotationTarget).get()));
+            instr.argCount() > 2 ? 
+            Rotation2d.fromDegrees(instr.arg(2)) : 
+            currPose.getRotation();
+
+          currPose = new Pose2d(posTarget, rotationTarget);
+
+          commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, FieldUtils.allianceRotatePose(currPose)));
         }
+
+        case 'f' ->
+          commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, Path.autoPaths[instr.arg(0)]));
 
         // w d - Wait for duration d
         case 'w' -> 
-          commandList.addCommands(Commands.waitSeconds(instr.args[0]));
+          commandList.addCommands(Commands.waitSeconds(instr.arg(0)));
 
         // t d - wait until time d
         case 't' ->
-          commandList.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - instr.args[0])));
+          commandList.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - instr.arg(0))));
+
+        case 'i' ->
+        {
+          if (instr.boolArg(0)) 
+            commandList.addCommands(Commands.parallel(s_Intake.extendCommand(), s_Intake.startIntakeCommand()));
+          else 
+            commandList.addCommands(s_Intake.stopIntakeCommand());
+        }
+
+        case 'p' -> 
+          commandList.addCommands(Commands.runOnce(() -> autoControl.pass = instr.boolArg(0)));
       }
     }
 

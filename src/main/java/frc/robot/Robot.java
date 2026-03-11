@@ -112,6 +112,13 @@ public class Robot extends TimedRobot
     MidLeft, MidRight,
     InLeft, InRight
   }
+  public static class AutoState 
+  {
+    public boolean aim = false;
+    public boolean pass = false;
+    public boolean rev = false;
+  }
+  
   private static enum HeadingLockState { Unlocked, Climb, General }
 
   private ButtonPadState btnSet = ButtonPadState.PassPointSelection;
@@ -123,9 +130,7 @@ public class Robot extends TimedRobot
 
   private boolean nudging = true;
 
-  private boolean autoAim = false;
-  private boolean autoPass = false;
-  private boolean autoRev = false;
+  private AutoState autoControl;
 
   /* Telemetry and SD */
   private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
@@ -195,9 +200,7 @@ public class Robot extends TimedRobot
   private final Indexer s_Indexer = new Indexer();
 
   /* Rumble */
-  @SuppressWarnings("unused")
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
-  @SuppressWarnings("unused")
   private final RumbleRequester io_driverLeft  = new RumbleRequester(driver, RumbleType.kLeftRumble, PBDash.RUMBLE_DRIVER::get);
   @SuppressWarnings("unused")
   private final RumbleRequester io_debugRight  = new RumbleRequester(debug, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
@@ -287,7 +290,7 @@ public class Robot extends TimedRobot
   {
     // -------------STATE--------------- //
 
-    final Trigger autoAimTrigger = new Trigger(() -> autoAim && s_Vision.hasLocalisation());
+    final Trigger autoAimTrigger = new Trigger(() -> autoControl.aim && s_Vision.hasLocalisation());
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(getTranslation()));
 
     // Button pad modes
@@ -297,20 +300,20 @@ public class Robot extends TimedRobot
 
     // Auto aim switch
     PBDash.IO_AUTO_AIM.asTrigger()
-      .onChange(runOnce(() -> autoAim = PBDash.IO_AUTO_AIM.get()).ignoringDisable(true));
+      .onChange(runOnce(() -> autoControl.aim = PBDash.IO_AUTO_AIM.get()).ignoringDisable(true));
     switchboard.button(1/*autoAimSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())).ignoringDisable(true));
     debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
 
     // Auto pass switch
     PBDash.IO_AUTO_PASS.asTrigger()
-      .onChange(runOnce(() -> autoPass = PBDash.IO_AUTO_PASS.get()).ignoringDisable(true));
+      .onChange(runOnce(() -> autoControl.pass = PBDash.IO_AUTO_PASS.get()).ignoringDisable(true));
     switchboard.button(1/*autoPassSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())).ignoringDisable(true));
     
     // Auto rev switch
     PBDash.IO_AUTO_REV.asTrigger()
-      .onChange(runOnce(() -> autoRev = PBDash.IO_AUTO_REV.get()).ignoringDisable(true));
+      .onChange(runOnce(() -> autoControl.rev = PBDash.IO_AUTO_REV.get()).ignoringDisable(true));
     switchboard.button(1/*autoRevSwitchID*/)
       .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())).ignoringDisable(true));
 
@@ -447,7 +450,7 @@ public class Robot extends TimedRobot
       .onTrue(modifyTargetsCommand(target -> target.state = TargetState.Hub).ignoringDisable(true));
 
     // Pass Point
-    autoAimTrigger.and(() -> autoPass)
+    autoAimTrigger.and(() -> autoControl.pass)
       .whileTrue(modifyTargetsCommand(target -> target.point = FieldUtils.getClosestPassPoint(getTranslation())));
     
     // Revving/Idleing as Appropriate
@@ -466,7 +469,7 @@ public class Robot extends TimedRobot
     autoAimTrigger
       .and(PBDash.IO_AUTO_REV::get)
       .and(shootActiveTrigger)
-      .and(allianceZoneTrigger.and(hubActiveTrigger).or(() -> autoPass))
+      .and(allianceZoneTrigger.and(hubActiveTrigger).or(() -> autoControl.pass))
       .onTrue(forBothShootersCommand(Shooter::revFlywheels))
       .onFalse(forBothShootersCommand(Shooter::idleFlywheels));
 
@@ -857,7 +860,7 @@ public class Robot extends TimedRobot
   }
 
   private void compileAuto()
-    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), s_Swerve, () -> swerveState));}
+    {autoCommand = Optional.of(AutoBuilder.compileAutoString(PBDash.AUTO_STRING.get(), () -> swerveState, autoControl, s_Swerve, s_Hopper));}
 
   /** Returns the t2d of the robot centre in field coordinates */
   public Translation2d getTranslation()
@@ -915,8 +918,9 @@ public class Robot extends TimedRobot
     MatchTime.startAuto();
     FieldUtils.updateAlliance();
 
-    autoAim = true;
-    autoRev = true;
+    autoControl.aim = true;
+    autoControl.rev = true;
+    autoControl.pass = false;
     nudging = false;
     if (autoCommand.isEmpty())
       compileAuto();
@@ -931,8 +935,8 @@ public class Robot extends TimedRobot
     autoCommand.ifPresent(Command::cancel);
 
     FieldUtils.updateAlliance();
-    autoAim = true;
-    autoRev = true;
+    autoControl.aim = true;
+    autoControl.rev = true;
     nudging = true;
     initInputTransmute();
 

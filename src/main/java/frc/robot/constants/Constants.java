@@ -76,7 +76,7 @@ public final class Constants
     public static final double preShiftOutputMargin = 1;
     public static final double postShiftOutputMargin = 2;
   }
-
+  
   /** Geometry and tuning data for drivebase */
   public static final class SwerveConstants
   {
