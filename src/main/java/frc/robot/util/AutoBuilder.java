@@ -136,7 +136,7 @@ public class AutoBuilder
     {
       switch (instr.code) 
       {
-        // g x:y:r - Go to x, y, r (alliance origin relative). r optional
+        // g x:y:r - Go to `x`, `y`, `r` (alliance origin relative). r optional, maintains current rotation if omitted
         case 'g' ->
 				{         
           var posTarget = new Translation2d
@@ -154,17 +154,19 @@ public class AutoBuilder
           commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, FieldUtils.allianceRotatePose(currPose)));
         }
 
+        // f i - Follow path at index `i` in Path.autoPaths 
         case 'f' ->
           commandList.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, Path.autoPaths[instr.arg(0)]));
 
-        // w d - Wait for duration d
+        // w d - Wait for duration `d`
         case 'w' -> 
           commandList.addCommands(Commands.waitSeconds(instr.arg(0)));
 
-        // t d - wait until time d
+        // t d - wait until time `d`
         case 't' ->
           commandList.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - instr.arg(0))));
 
+        // i b - if `b` is truthy, deploys and runs intake, otherwise stops intake (leaving it deployed)
         case 'i' ->
         {
           if (instr.boolArg(0)) 
@@ -173,6 +175,7 @@ public class AutoBuilder
             commandList.addCommands(s_Intake.stopIntakeCommand());
         }
 
+        // p b - sets auto passing based on truthiness of `b`
         case 'p' -> 
           commandList.addCommands(Commands.runOnce(() -> autoControl.pass = instr.boolArg(0)));
       }
