@@ -80,8 +80,8 @@ public final class ParsedRepr
       };
     }
 
-    /** @return The underlying String value, or throws a {@link ParsedRepr.TypeMismatchException TypeMismatchException} if this value is not a String */
-    public String asString() throws TypeMismatchException
+    /** @return The underlying String value, or throws a {@link ParsedRepr.TypeMismatchException TypeMismatchException} if this value is not Text */
+    public String asText() throws TypeMismatchException
     {
       return switch (type)
       {
