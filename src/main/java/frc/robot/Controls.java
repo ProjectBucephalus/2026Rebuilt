@@ -30,6 +30,7 @@ import frc.robot.commands.swerve.OutpostLockedDrive;
 import frc.robot.commands.swerve.TrenchLockedDrive;
 import frc.robot.commands.swerve.TrenchNudgeDrive;
 import frc.robot.constants.ButtonPadConstants;
+import frc.robot.constants.IDConstants;
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.ShooterConstants.FlywheelConstants;
@@ -86,27 +87,27 @@ public class Controls
     // Auto aim switch
     PBDash.IO_AUTO_AIM.asTrigger()
       .onChange(runOnce(() -> state.aim = PBDash.IO_AUTO_AIM.get()).ignoringDisable(true));
-    switchboard.button(1/*autoAimSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(0/*autoAimSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    switchboard.button(IDConstants.autoAimSwitchID)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(IDConstants.autoAimSwitchID).getAsBoolean())).ignoringDisable(true));
     debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
 
     // Auto pass switch
     PBDash.IO_AUTO_PASS.asTrigger()
       .onChange(runOnce(() -> state.pass = PBDash.IO_AUTO_PASS.get()).ignoringDisable(true));
-    switchboard.button(1/*autoPassSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(0/*autoPassSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    switchboard.button(IDConstants.autoPassSwitchID)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(IDConstants.autoPassSwitchID).getAsBoolean())).ignoringDisable(true));
     
     // Auto rev switch
     PBDash.IO_AUTO_REV.asTrigger()
       .onChange(runOnce(() -> state.rev = PBDash.IO_AUTO_REV.get()).ignoringDisable(true));
-    switchboard.button(1/*autoRevSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(0/*autoRevSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    switchboard.button(IDConstants.autoRevSwitchID)
+      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(IDConstants.autoRevSwitchID).getAsBoolean())).ignoringDisable(true));
 
     // Geofence and Vision switches
-    switchboard.button(1/*fencingSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(0/*fencingSwitchID*/).getAsBoolean())).ignoringDisable(true));
-    switchboard.button(1/*visionSwitchID*/)
-      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(0/*visionSwitchID*/).getAsBoolean())).ignoringDisable(true));
+    switchboard.button(IDConstants.fencingSwitchID)
+      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(IDConstants.fencingSwitchID).getAsBoolean())).ignoringDisable(true));
+    switchboard.button(IDConstants.visionSwitchID)
+      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(IDConstants.visionSwitchID).getAsBoolean())).ignoringDisable(true));
 
     // state.nudging
     driver.back().onTrue(runOnce(() -> state.nudging = false).ignoringDisable(true));
@@ -493,7 +494,7 @@ public class Controls
     // Stow
     debug.back()
       .or(buttonPad.G7().and(btnSetManual))
-      .or(switchboard.button(0/*climbButtonID1*/).and(switchboard.button(0/*climbButtonID2*/)))
+      .or(switchboard.button(IDConstants.climbButtonID))
       .onTrue(s_Climber.retractCommand());
     // Deploy
     debug.start()

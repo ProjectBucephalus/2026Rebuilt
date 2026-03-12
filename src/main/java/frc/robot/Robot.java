@@ -106,10 +106,10 @@ public class Robot extends TimedRobot
   private final CANBus canBus = new CANBus();
 
   /* Controllers */
-  private final CommandXboxController driver = new CommandXboxController(0);
-  private final LockableXboxController debug = new LockableXboxController(1, Button.kY);
-  private final Launchpad buttonPad = new Launchpad(2);
-  private final CommandGenericHID switchboard = new CommandGenericHID(4);
+  private final CommandXboxController driver = new CommandXboxController(IDConstants.driverPort);
+  private final LockableXboxController debug = new LockableXboxController(IDConstants.debugPort, Button.kY);
+  private final Launchpad buttonPad = new Launchpad(IDConstants.buttonPadPort);
+  private final CommandGenericHID switchboard = new CommandGenericHID(IDConstants.switchboardPort);
   
   /* Subsystems */
   private final CommandSwerveDrivetrain s_Swerve = TunerConstants.createDrivetrain();

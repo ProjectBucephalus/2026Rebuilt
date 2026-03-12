@@ -82,4 +82,19 @@ public final class IDConstants
   public static final String stbdLimelightName = "PhotonStbd";
 
   public static final String dashTableName = "PBDash";
+
+  /* Controllers */
+  /* ----------- */
+  public static final int driverPort = 0;
+  public static final int debugPort = 1;
+  public static final int buttonPadPort = 2;
+  public static final int switchboardPort = 4;
+
+  /* Switchboard Switches */
+  public static final int autoAimSwitchID = 4;
+  public static final int autoPassSwitchID = 5;
+  public static final int autoRevSwitchID = 6;
+  public static final int fencingSwitchID = 7;
+  public static final int visionSwitchID = 8;
+  public static final int climbButtonID = 9;
 }
