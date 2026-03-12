@@ -164,15 +164,13 @@ public class Shooter extends SubsystemBase
   }
 
   public Command runIndexerCommand()
-    {return indexer.runCommand(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed)).unless(() -> PBDash.E_STOP.get() && target.state != TargetState.Manual);}
+    {return indexer.runCommand(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed));}
 
   public Command reverseIndexerCommand()
-  {
-    return indexer.runCommand(() -> IndexerConstants.indexerReverseSpeed).unless(() -> PBDash.E_STOP.get() && target.state != TargetState.Manual);
-  }
+    {return indexer.runCommand(() -> IndexerConstants.indexerReverseSpeed);}
 
   public Command stopIndexerCommand()
-    {return indexer.runCommand(() -> 0.0).unless(() -> PBDash.E_STOP.get() && target.state != TargetState.Manual);}
+    {return indexer.runCommand(() -> 0.0);}
 
   /** Sets the flywheels to rev up to target speed */
   public void revFlywheels() {target.flywheelsActive = true;}
