@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
 import frc.robot.util.Conversions;
 import frc.robot.util.PBDash;
-import frc.robot.constants.Constants.Interpolation;
 import frc.robot.subsystems.shooter.Target.TargetState;
 
 import static frc.robot.constants.Constants.ShooterConstants.HoodConstants.*;
@@ -19,10 +18,13 @@ import static frc.robot.constants.Constants.ShooterConstants.HoodConstants.*;
 public class Hood 
 {
   private final Servo m_Servo;
+  @SuppressWarnings("unused") // May be used in future
   private final AnalogInput io_Altitude;
+  
+  private final Target target;
+
   private final boolean inverted;
   private final double homeAngle;
-  private final Target target;
 
   /**
    * Creates a Servo driven shooter hood, to be managed by {@link Shooter} master-system

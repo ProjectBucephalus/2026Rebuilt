@@ -1,23 +1,20 @@
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
-import frc.robot.constants.Constants.IntakeConstants.RollerConstants;
-import frc.robot.subsystems.generic.BinaryMotor;
+
 import frc.robot.subsystems.generic.LimitedMotor;
 import frc.robot.subsystems.generic.VelocityMotor;
 import frc.robot.util.Conversions;
 import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.IntakeConstants.*;
-import static frc.robot.constants.Constants.IntakeConstants.ExtensionConstants.extensionJostleDelay;
-
-import java.util.function.DoubleSupplier;
 
 /**
  * Ball processing master-system with extendable intake, internally creates and manages associated subsystems
@@ -98,9 +95,9 @@ public class Intake extends SubsystemBase
     Commands.repeatingSequence
     (
       extension.setTargetCommand(-0.2),
-      Commands.waitSeconds(extensionJostleDelay),
+      Commands.waitSeconds(ExtensionConstants.extensionJostleDelay),
       extendCommand(), 
-      Commands.waitSeconds(extensionJostleDelay)
+      Commands.waitSeconds(ExtensionConstants.extensionJostleDelay)
     )
     .alongWith(runIntakeCommand())
     .unless(PBDash.E_STOP::get);

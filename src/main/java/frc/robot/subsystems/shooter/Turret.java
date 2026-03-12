@@ -9,8 +9,6 @@ import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
-import java.util.function.Supplier;
-
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.sim.ChassisReference;

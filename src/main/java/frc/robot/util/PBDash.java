@@ -306,6 +306,11 @@ public class PBDash
     public Trigger asTrigger()
       {return new Trigger(() -> get().equals(true));}
     
+    @SuppressWarnings("unchecked")
+    /**
+     * Appends the provided text to the current value of the key, or does nothing if this is not a Key<String>
+     * @param text The text to append
+     */
     public void append(String text)
     {
       // The cast from String to T will only ever happen is T is already String

@@ -579,7 +579,6 @@ public class Controls
   }
 
   /** Mutually exclusive to {@link Controls#bind bind()} */
-  @SuppressWarnings("unused")
   public static void bindSysId
   ( 
     CommandXboxController driver,

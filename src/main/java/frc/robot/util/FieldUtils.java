@@ -10,7 +10,6 @@ import static frc.robot.constants.FieldConstants.*;
 import java.util.Optional;
 
 import frc.robot.constants.Constants.ControlConstants;
-import frc.robot.constants.FieldConstants.GeoFencing;
 import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
 
 /** 

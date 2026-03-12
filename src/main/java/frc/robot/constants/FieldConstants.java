@@ -1,14 +1,8 @@
 package frc.robot.constants;
 
-import java.util.function.BiPredicate;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.constants.Constants.ControlConstants;
-import frc.robot.util.FieldUtils;
-import frc.robot.util.controlTransmutation.Attractor;
 import frc.robot.util.controlTransmutation.ObjectList;
 import frc.robot.util.controlTransmutation.geoFence.*;
 import frc.robot.util.controlTransmutation.restrictor.*;
