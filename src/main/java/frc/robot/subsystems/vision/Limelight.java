@@ -10,7 +10,6 @@ import java.util.function.DoubleSupplier;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.targeting.PhotonPipelineResult;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -29,13 +28,14 @@ public class Limelight
   private final PhotonCamera camera;
   private final PhotonPoseEstimator photonEstimator;
 
+  private final boolean onTurret;
+
+  private final Transform2d robotToTurret;
+  private final Transform2d turretToRobot;
   private final Transform3d structureToCamera;
 
-  private boolean onTurret = false;
-  private DoubleSupplier turretAngleSup;
-  private Transform2d robotToTurret;
-  private Transform2d turretToRobot;
-  private Queue<Double> turretCache = new ArrayDeque<>(5);
+  private final DoubleSupplier turretAngleSup;
+  private final Queue<Double> turretCache = new ArrayDeque<>(6);
   private Rotation2d currentTurretAngle;
 
   /**
@@ -45,13 +45,15 @@ public class Limelight
    */
   public Limelight(String name, Transform3d robotToCamera) 
   {
-    this.camera = new PhotonCamera(name);
-    structureToCamera = robotToCamera;
-    photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
-    
-    turretAngleSup = () -> 0;
+    camera = new PhotonCamera(name);
+
     robotToTurret = Transform2d.kZero;
     turretToRobot = Transform2d.kZero;
+    structureToCamera = robotToCamera;
+
+    photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
+
+    turretAngleSup = () -> 0;
     onTurret = false;
   }
 
@@ -65,12 +67,15 @@ public class Limelight
   */
   public Limelight(String name, Transform3d turretToCamera, DoubleSupplier turretAngleSup, Transform2d robotToTurret) 
   {
-    this.camera = new PhotonCamera(name);
-    this.turretAngleSup = turretAngleSup;
+    camera = new PhotonCamera(name);
+
     this.robotToTurret = robotToTurret;
     turretToRobot = robotToTurret.inverse();
     structureToCamera = turretToCamera;
+
     photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
+
+    this.turretAngleSup = turretAngleSup;
     onTurret = true;
   }
 
@@ -86,11 +91,7 @@ public class Limelight
   public Optional<EstimatedRobotPose> getPhotonEst()
   { 
     // Use this call to update some information that should only be done once per cycle
-    double reading = turretAngleSup.getAsDouble();
-    turretCache.add(reading);
-    if (turretCache.size() > latencyCycles)
-      {reading = turretCache.remove();}
-    currentTurretAngle = Rotation2d.fromDegrees(reading);
+    updateTurretCache();
 
     // getAllUnreadResults() should generally only be called once per cycle, as it clears the internal list
     var results = camera.getAllUnreadResults();
@@ -104,6 +105,16 @@ public class Limelight
 
     return photonEstimator.estimateCoprocMultiTagPose(result)
       .or(() -> photonEstimator.estimateLowestAmbiguityPose(result));
+  }
+
+  /** Updates the cached turret headings and the current value. ONLY CALL ONCE PER CYCLE */
+  private void updateTurretCache()
+  {
+    double reading = turretAngleSup.getAsDouble();
+    turretCache.add(reading);
+    if (turretCache.size() > latencyCycles)
+      {reading = turretCache.remove();}
+    currentTurretAngle = Rotation2d.fromDegrees(reading);
   }
 
   public boolean isOnTurret()
