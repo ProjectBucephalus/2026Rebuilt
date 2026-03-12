@@ -40,7 +40,7 @@ public class Tokeniser
     return tokens;
   }
 
-  /** Reads one token at the current position and adds it to the list */
+  /** Reads one token from the current position and adds it to the list */
   private void nextToken()
   {
     char c = advance();
@@ -113,11 +113,11 @@ public class Tokeniser
   private boolean isAlphaNumeric(char c) 
     {return isAlpha(c) || isDigit(c);}
 
-  /** Gets the current character in the source and advances our position, or returns {@code '\0'} if we're already passed the end of the source */
+  /** Gets the current character in the source and advances our position, or returns {@code '\0'} if we're already past the end of the source */
   private char advance() 
     {return current >= source.length() ? '\0' : source.charAt(current++);}
 
-  /** Gets the current character in the source without advancing, or {@code '\0'} if we're already passed the end of the source */
+  /** Gets the current character in the source without advancing, or {@code '\0'} if we're already past the end of the source */
   private char peek() 
     {return current >= source.length() ? '\0' : source.charAt(current);}
 

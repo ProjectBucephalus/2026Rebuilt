@@ -9,8 +9,23 @@ public final class ParsedRepr
 {
   private ParsedRepr() {}
 
+  /** An exception thrown when an {@link ParsedRepr.Instruction Instruction} has the incorrect number of arguments */
+  public static class ArgCountException extends Exception 
+  {
+    /** The expected number of arguments */
+    public final int expected;
+    /** The actual number found found */
+    public final int found;
+
+    public ArgCountException(int expected, int found)
+    {
+      this.expected = expected;
+      this.found = found;
+    }
+  }
+
   /** An exception thrown when attempting to get a {@link ParsedRepr.Value Value} as a type that it isn't */
-  public static class TypeMismatchException extends RuntimeException 
+  public static class TypeMismatchException extends Exception 
   {
     /** The expected type */
     public final Type expected;
@@ -42,11 +57,11 @@ public final class ParsedRepr
       /** Boolean type, which uses {@code on} and {@code off} as it's literals */
       Bool,
       /** String type, limited to {@code a..z}, {@code 0..9}, and {@code _}. Cannot start with a digit */
-      String
+      Text
     }
 
     /** @return The underlying double value, or throws a {@link ParsedRepr.TypeMismatchException TypeMismatchException} if this value is not a Num */
-    public double asNum()
+    public double asNum() throws TypeMismatchException
     {
       return switch (type)
       {
@@ -56,7 +71,7 @@ public final class ParsedRepr
     }
 
     /** @return The underlying boolean value, or throws a {@link ParsedRepr.TypeMismatchException TypeMismatchException} if this value is not a Bool */
-    public boolean asBool()
+    public boolean asBool() throws TypeMismatchException
     {
       return switch (type)
       {
@@ -66,12 +81,12 @@ public final class ParsedRepr
     }
 
     /** @return The underlying String value, or throws a {@link ParsedRepr.TypeMismatchException TypeMismatchException} if this value is not a String */
-    public String asString()
+    public String asString() throws TypeMismatchException
     {
       return switch (type)
       {
-        case String -> (String)value;
-        default -> throw new TypeMismatchException(Type.String, this);
+        case Text -> (String)value;
+        default -> throw new TypeMismatchException(Type.Text, this);
       };
     }
 

@@ -39,7 +39,7 @@ public class PBDash
 
   // Auto-builder strings
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
-  public static final Key<String>  AUTO_ERRS        = new Key<>("AUTO STRING ERRORS", "");
+  public static final Key<String>  AUTO_ERRS        = new Key<>("Auto String Errors", "");
 
   public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", false);
   

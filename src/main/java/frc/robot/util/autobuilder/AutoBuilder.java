@@ -1,16 +1,15 @@
 package frc.robot.util.autobuilder;
 
-import java.util.List;
 import java.util.function.Supplier;
+
+import edu.wpi.first.wpilibj2.command.Command;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot.RobotState;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.util.PBDash;
-import frc.robot.util.autobuilder.ParsedRepr.Instruction;
 
 /**
  * Dynamically creates an autonomous Command from an input string of instructions
@@ -39,18 +38,27 @@ public class AutoBuilder
     Intake s_Intake
   )
   {
+    // Wipe any previous errors
     PBDash.AUTO_ERRS.init();
     // driveto(1 2) becomes [Token(Text, "driveto"), Token(LParen, "("), Token(Num, "1"), Token(Num, "2"), Token(LParen, ")")]
-    List<Token> tokens = new Tokeniser(PBDash.AUTO_STRING.get()).tokenise(); 
+    var tokens = new Tokeniser(PBDash.AUTO_STRING.get()).tokenise(); 
     // [Token(Text, "driveto"), Token(LParen, "("), Token(Num, "1"), Token(Num, "2"), Token(LParen, ")")] 
     // becomes [Instruction(driveto, [Value(Num, 1), Value(Num, 1)])]
-    List<Instruction> instrs = new Parser(tokens).parse(); 
-    return new CommandGen(instrs, swerveStateSup, state, s_Swerve, s_Intake).build();
+    var instrs = new Parser(tokens).parse(); 
+    var command = new CommandGen(instrs, swerveStateSup, state, s_Swerve, s_Intake).compile();
+    return command;
   }
 
-  /** Appends the provided error message to {@link PBDash#AUTO_ERRS}, followed by a comma */
-  protected static void error(String message) 
+  /** 
+   * Appends the provided error message to {@link PBDash#AUTO_ERRS}, followed by a comma <p>
+   * Uses a StringBuilder internally to optimise long, multi-part error messages 
+   */
+  protected static void error(Object... message) 
   {
-    PBDash.AUTO_ERRS.append(message + ", ");
+    var builder = new StringBuilder();
+    for (var msgPart : message) builder.append(msgPart);
+    builder.append(", ");
+
+    PBDash.AUTO_ERRS.append(builder.toString());
   }  
 }
