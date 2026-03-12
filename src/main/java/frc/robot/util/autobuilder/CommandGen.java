@@ -167,7 +167,7 @@ public class CommandGen
       {
         assertArgCount(1);
 
-        var pathName = instr.arg(0).asString();
+        var pathName = instr.arg(0).asText();
         var path = Path.autoPaths.get(pathName);
 
         if (path == null)
