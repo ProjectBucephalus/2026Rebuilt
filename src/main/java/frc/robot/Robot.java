@@ -287,7 +287,7 @@ public class Robot extends TimedRobot
 
   private void compileAuto()
   {
-    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), () -> swerveState, state, s_Swerve, s_Intake));
+    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), () -> swerveState, s_Swerve, s_Intake));
   }
 
   @Logged(name = "CAN Load")

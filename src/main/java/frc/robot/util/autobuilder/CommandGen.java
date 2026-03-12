@@ -14,13 +14,13 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
-import frc.robot.Robot.RobotState;
 import frc.robot.commands.swerve.PathFollowDrive;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.util.FieldUtils;
+import frc.robot.util.PBDash;
 import frc.robot.util.autobuilder.ParsedRepr.*;
 
 /** Builds the final auto command from a list of {@link ParsedRepr.Instruction Instructions} */
@@ -28,7 +28,6 @@ public class CommandGen
 {
   /* Robot related values used by the produced command */
   private final Supplier<SwerveDriveState> swerveStateSup;
-  private final RobotState state;
   private final CommandSwerveDrivetrain s_Swerve;
   private final Intake s_Intake;
 
@@ -46,7 +45,6 @@ public class CommandGen
    * Creates a new command generator, storing all the provided robot values internally for use in the produced command
    * @param instrs The instructions to be compiled
    * @param swerveStateSup Swerve state supplier, used to get the robot's starting position and provided to driving-related commands
-   * @param state The robot's state object, used for instructions such as setting auto-passing
    * @param s_Swerve The swerve subsystem
    * @param s_Intake The intake subsystem
    */
@@ -54,14 +52,12 @@ public class CommandGen
   (
     List<Instruction> instrs,
     Supplier<SwerveDriveState> swerveStateSup,
-    RobotState state,
     CommandSwerveDrivetrain s_Swerve, 
     Intake s_Intake
   )
   {
     source = instrs;
     this.swerveStateSup = swerveStateSup;
-    this.state = state;
     this.s_Swerve = s_Swerve;
     this.s_Intake = s_Intake;
   }
@@ -210,7 +206,7 @@ public class CommandGen
         assertArgCount(1);
 
         boolean passState = instr.arg(0).asBool();
-        commands.addCommands(Commands.runOnce(() -> state.pass = passState));
+        commands.addCommands(Commands.runOnce(() -> PBDash.IO_AUTO_PASS.put(passState)));
       }
     }
   }
