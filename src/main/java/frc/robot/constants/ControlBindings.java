@@ -127,76 +127,76 @@ public class ControlBindings
   Port Shooter:
   Normal set:
   A1 - Disable
-  A2 - Drop
-  B2 - Idle
-  C1 - Shoot
-  C2 - Unjam
+  *A2 - Drop
+  *B2 - Idle
+  *C1 - Shoot
+  *C2 - Unjam
 
   Manual set:
-  A1 - Rev
-  A2 - Idle
-  A3 - Stop
-  A4 - Reverse
-  B2 - Left
-  D2 - Right
-  C1 - Up
-  C2 - Down
-  B4 - Feed
-  C4 - Stop feeder
-  D4 - Reverse feeder
+  *A1 - Rev
+  *A2 - Idle
+  *A3 - Stop
+  *A4 - Reverse
+  *B2 - Left
+  *D2 - Right
+  *C1 - Up
+  *C2 - Down
+  *B4 - Feed
+  *C4 - Stop feeder
+  *D4 - Reverse feeder
 
   Stbd Shooter:
   Normal set:
   H1 - Disable
-  H2 - Drop
-  G2 - Idle
-  F1 - Shoot
-  F2 - Unjam
+  *H2 - Drop
+  *G2 - Idle
+  *F1 - Shoot
+  *F2 - Unjam
 
   Manual set:
-  H1 - Rev
-  H2 - Idle
-  H3 - Stop
-  H4 - Reverse
-  E2 - Left
-  G2 - Right
-  F1 - Up
-  F2 - Down
-  G4 - Feed
-  F4 - Stop feeder
-  E4 - Reverse feeder
+  *H1 - Rev
+  *H2 - Idle
+  *H3 - Stop
+  *H4 - Reverse
+  *E2 - Left
+  *G2 - Right
+  *F1 - Up
+  *F2 - Down
+  *G4 - Feed
+  *F4 - Stop feeder
+  *E4 - Reverse feeder
 
   Intake:
   Normal set:
-  D1 - Run
-  D2 - Agitate
-  D3 - Deploy
-  E1 - Reverse
-  E2 - Squish
-  E3 - Stow
+  *D1 - Run
+  *D2 - Agitate
+  *D3 - Deploy
+  *E1 - Reverse
+  *E2 - Squish
+  *E3 - Stow
 
   Manual set:
-  A6 - Run
-  A7 - Reverse
-  B6 - Out
-  C6 - In
-  B7 - Deply
-  C7 - Stow
-  B8 - Agitate
-  C8 - Squish
+  *A6 - Run
+  *A7 - Reverse
+  *B6 - Out
+  *C6 - In
+  *B7 - Deploy
+  *C7 - Stow
+  *B8 - Agitate
+  *C8 - Squish
 
   Climber:
   Normal set:
-  B3 - Left Climb
-  G3 - Right Climb
+  *B3 - Left Climb
+  *G3 - Right Climb
 
   Manual set:
-  F6 - Out
-  G6 - In
-  F7 - Deploy
-  G7 - Stow
-  F8 - Left Climb
-  G8 - Right Climb
+  *F6 - Out
+  *G6 - In
+  *F7 - Deploy
+  *G7 - Stow
+  *F8 - Left Climb
+  *G8 - Right Climb
 
   */
 }

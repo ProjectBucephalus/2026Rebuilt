@@ -13,7 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.constants.FieldConstants;
-import frc.robot.constants.Pathfinding.Path;
+import frc.robot.constants.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 import static frc.robot.constants.Constants.SwerveConstants.*;
@@ -39,6 +39,9 @@ public class PathFollowDrive extends SwerveCommandBase
 
   private boolean onPath = false;
   private int currentWaypoint = 0;
+
+  public PathFollowDrive(CommandSwerveDrivetrain s_Swerve, Supplier<SwerveDriveState> swerveStateSup, Path path)
+    {this(s_Swerve, swerveStateSup, path, () -> 0.0);}
 
   /**
    * Creates a new PathFollowDrive to follow the given sequence

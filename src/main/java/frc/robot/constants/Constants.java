@@ -50,7 +50,7 @@ public final class Constants
     /** Angle tolerance to consider something as "facing" the drivers, degrees */
     public static final double driverVisionTolerance = 5;
     /** Translation lineup tolerance, meters */
-    public static final double lineupTolerance = 0.05;
+    public static final double lineupTolerance = 0.1;
     /** Rotation lineup tolerance, degrees */
     public static final double angleLineupTolerance = 3;
 
@@ -64,7 +64,11 @@ public final class Constants
 
     public static final double manualIntakeExtensionAmount = 0.05;
     public static final double manualClimberExtensionScale = 0.05;
+    public static final double manualClimberExtensionAmount = 0.05;
+    public static final double manualShooterAzimuthAmount = 0.5;
+    public static final double manualShooterDistanceAmount = 0.05;
     public static final double manualShooterDeadband = 0.5;
+    public static final double intakeSquishAmount = -0.02;
 
     public static final double preShiftShootMargin = 1;
     public static final double postShiftShootMargin = 2;
@@ -248,6 +252,35 @@ public final class Constants
         turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
       }
     }
+
+    /** Tuning data for indexer */
+    public  static final class IndexerConstants 
+    {
+      public static final double indexerSpeed = 50;
+      public static final double indexerMinSpeed = 25;
+      public static final double indexerReverseSpeed = -25;
+
+      private static final double gearboxRatio = 1;
+      //private static final double lowerRollerPulley = 24;
+      //private static final double upperRollerPuller = 18;
+      //private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
+      //private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
+
+      public static final TalonFXConfiguration indexerConfig = new TalonFXConfiguration();
+      static
+      {
+        indexerConfig.Feedback.SensorToMechanismRatio = gearboxRatio;
+
+        indexerConfig.Slot0.kS = 0.56;
+        indexerConfig.Slot0.kV = 0.127;
+        indexerConfig.Slot0.kA = 0.0;
+        indexerConfig.Slot0.kP = 0.16;
+        indexerConfig.Slot0.kI = 0.01;
+        indexerConfig.Slot0.kD = 0.0;
+
+        indexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
+      }
+    }
   }
 
   /** Geometry, tag, and tuning data for Vision system */
@@ -327,16 +360,36 @@ public final class Constants
     /** Distance to Altitude conversion for shooting into the elevated Hub */
     public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
     {{
-      put(0.81, 0.0); // min range
-      put(1.5, 0.0); 
-      put(1.8, 1.0); // max range while at 0 degrees hood + staying below lights
-      put(2.7, 7.3);
-      put(3.7, 13.7);
-      put(4.875, 18.0); 
-      put(5.1, 19.0); // max range while staying below lights
-      put(5.8, 19.0); // max range while staying below ceiling
+      put(0.0, 0.0);
+      put(1.0, 0.0);
+      put(1.1, 1.0);
+      put(1.5, 4.0);
+      put(2.0, 8.0);
+      put(2.5, 10.0);
+      put(3.0, 13.0);
+      put(3.5, 15.0);
+      put(4.0, 19.0);
+      put(5.3, 19.0);
     }};
-    
+
+    /** Distance to Speed conversion for shooting into the elevated Hub */
+    public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
+    {{
+      put(0.0, 0.0);
+      put(0.9, 0.0);
+      put(0.1, 45.0); // below min range
+      put(1.1, 45.0);
+      put(1.5, 46.5);
+      put(2.0, 48.0);
+      put(2.5, 49.0);
+      put(3.0, 50.0);
+      put(3.5, 52.0);
+      put(4.0, 56.0); // TODO: Needs retesting when possible
+
+      put(5.3, 63.0);
+      put(5.4, 63.0);
+    }};
+
     /** Distance to Altitude conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
     {{
@@ -350,35 +403,19 @@ public final class Constants
       put(7.735, 19.0); // max range while staying below ceiling
     }};
 
-    /** Distance to Speed conversion for shooting into the elevated Hub */
-    public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
-    {{
-      put(0.0, 0.0);
-      put(0.8, 0.0);
-      put(0.81, 23.75); // below min range
-      put(1.01, 23.75); // min range
-      put(1.7, 27.75); 
-      put(1.8, 28.3); // max range while at 0 degrees hood + staying below lights
-      put(2.7, 29.2);
-      put(3.7, 30.65);
-      put(4.875, 32.5);
-      put(5.1, 33.0); // max range while staying below lights
-      put(5.8, 34.8); // max range while staying below ceiling
-    }};
-
     /** Distance to Speed conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap()
     {{
       put(0.0, 0.0);
       put(1.0, 0.0);
-      put(1.2, 16.0);
-      put(2.0575, 22.6); 
-      put(2.915, 27.8); // max range while at 0 degrees hood + staying below lights
-      put(3.9425, 28.6);
-      put(4.97, 29.7);
-      put(5.9975, 31.0);
-      put(7.025, 32.5); // max range while staying below lights
-      put(7.735, 34.3); // max range while staying below ceiling
+      put(1.2, 36.0);
+      put(2.0575, 42.6); 
+      put(2.915, 47.8);
+      put(3.9425, 52.6);
+      put(4.97, 59.7);
+      put(5.9975, 61.0);
+      put(7.025, 62.5); // max range while staying below lights
+      put(7.735, 64.3); // max range while staying below ceiling
     }};
   }
 
@@ -387,67 +424,20 @@ public final class Constants
     public static final int LEDStripLen = 120;
   }
 
-  /** Tuning data for feeder */
-  public  static final class IndexerConstants 
+  /** Geometry and tuning data for intake system */
+  public static final class IntakeConstants
   {
-    public static final double indexerSpeed = 50;
-    public static final double indexerMinSpeed = 25;
-    public static final double indexerReverseSpeed = -25;
-
-    private static final double gearboxRatio = 1;
-    //private static final double lowerRollerPulley = 24;
-    //private static final double upperRollerPuller = 18;
-    //private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
-    //private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
-
-    public static final TalonFXConfiguration indexerConfig = new TalonFXConfiguration();
-    static
-    {
-      indexerConfig.Feedback.SensorToMechanismRatio = gearboxRatio;
-
-      indexerConfig.Slot0.kS = 0.56;
-      indexerConfig.Slot0.kV = 0.127;
-      indexerConfig.Slot0.kA = 0.0;
-      indexerConfig.Slot0.kP = 0.16;
-      indexerConfig.Slot0.kI = 0.01;
-      indexerConfig.Slot0.kD = 0.0;
-
-      indexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
-    }
-  }
-
-  /** Geometry and tuning data for hopper system */
-  public static final class HopperConstants
-  {
-    public static final class SpindexerConstants 
-    {
-      /** Duration and interval of spindexer pulses when agitating, seconds */
-      public static final double spindexerPulseDelay = 0.25;
-      /** Default speed of spindexer when running, [-1..1] */
-      public static final double spindexerSpeed = -0.5;
-
-      private static final double motorPulley = 24;
-      private static final double spindexerPulley = 30;
-      private static final double spindexerPlanetaryRatio = 3;
-      private static final double spindexerRatio = (spindexerPulley / motorPulley) * spindexerPlanetaryRatio;
-      
-      public static final TalonFXConfiguration spindexerConfig = new TalonFXConfiguration();
-      static
-      {
-        spindexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        spindexerConfig.Feedback.SensorToMechanismRatio = spindexerRatio;
-
-        spindexerConfig.Slot0.kS = 0.56;
-        spindexerConfig.Slot0.kV = 0.127;
-
-        spindexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
-      }
-    }
-
-    public static final class IntakeConstants 
+    public static final class RollerConstants 
     {
       /** Default speed of intake when running, rps */
-      public static final double intakeSpeed = 65;
+      public static final double intakeSpeed = 55;
+
+      /** Intake speed at which robot throttle starts being applied, rps */
+      public static final double brakeSpeedStart = 10;
+      /** Intake speed at which maximum robot throttle is applied, rps above throttleStart */
+      public static final double brakeSpeedRange = 40 - brakeSpeedStart;
+      /** Maximum brake value */
+      public static final double intakeBrake = 0.5;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static
@@ -463,7 +453,7 @@ public final class Constants
       }
     }
 
-    /** Geometry and tuning data of intake/hopper extension */
+    /** Geometry and tuning data of intake extension */
     public static final class ExtensionConstants 
     {
       private static final double extensionPlanetaryRatio = 9;

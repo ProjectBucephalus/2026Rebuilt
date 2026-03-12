@@ -55,7 +55,7 @@ public class BinaryMotor extends SubsystemBase
     {m_Binary.set(speed);}
 
   public void start()
-    {m_Binary.set(PBDash.TEST_INTAKE_SPEED.get());}
+    {m_Binary.set(PBDash.IO_INTAKE_SPEED.get());}
 
   public void stop()
     {m_Binary.set(0);}

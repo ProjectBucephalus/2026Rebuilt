@@ -30,7 +30,7 @@ public class ButtonPadConstants
         {
             MA, OF, MR, FO, FO, MG, OF, MA,
             MR, MR, MR, FO, FO, MG, MG, MG,
-            OF, FY, OF, FY, FY, OF, FY, OF,
+            OF, /*FY*/OF, OF, FY, FY, OF, /*FY*/OF, OF,
             DA, FA, DA, FA, FA, DA, FA, DA,
             OF, OF, OF, OF, OF, OF, OF, OF,
             OF, OF, OF, OF, OF, OF, OF, OF,
@@ -47,7 +47,7 @@ public class ButtonPadConstants
         {
             MA, OF, MR, FO, FO, MG, OF, MA,
             MR, MR, MR, FO, FO, MG, MG, MG,
-            OF, FY, OF, FY, FY, OF, FY, OF,
+            OF, /*FY*/OF, OF, FY, FY, OF, /*FY*/OF, OF,
             DA, FA, DA, FA, FA, DA, FA, DA,
             DR, DR, DR, DR, DR, DR, DR, DR,
             DR, DR, DR, DR, DR, DR, DR, DR,
@@ -67,9 +67,9 @@ public class ButtonPadConstants
             MR, OF, OF, OF, OF, OF, OF, MG,
             MR, DA, FO, DA, DA, FO, DA, MG,
             OF, OF, OF, OF, OF, OF, OF, OF,
-            FO, FO, FO, OF, OF, FO, FO, OF,
-            FO, FY, FY, OF, OF, FY, FY, OF,
-            OF, FO, FO, OF, OF, FY, FY, OF,
+            FO, FO, FO, OF, OF, /*FO, FO*/OF, OF, OF,
+            FO, FY, FY, OF, OF, /*FY, FY*/OF, OF, OF,
+            OF, FO, FO, OF, OF, /*FY, FY*/OF, OF, OF,
 
             MG, MR, OF, FG
         }

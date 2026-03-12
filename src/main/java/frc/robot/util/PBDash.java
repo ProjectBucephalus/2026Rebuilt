@@ -1,5 +1,7 @@
 package frc.robot.util;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,9 +20,11 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
+import frc.robot.constants.Constants.ControlConstants;
 
 /** 
  * Simplified interface for most dashboard/network-table interactions 
@@ -29,15 +33,13 @@ import frc.robot.constants.IDConstants;
 public class PBDash 
 {
   private static final NetworkTable table = NetworkTableInstance.getDefault().getTable(IDConstants.dashTableName);
-
-  public static final Field2d FIELD = new Field2d();
-  static { putSendable("Field", FIELD); }
+  private static final Map<String, Sendable> tablesToData = new HashMap<>();
 
   public static final Key<Boolean> E_STOP           = new Key<>("Mechanism E-Stop", false);
 
   // Auto-builder strings
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
-  public static final Key<String>  AUTO_ERRS        = new Key<>("AUTO STRING ERRORS", "");
+  public static final Key<String>  AUTO_ERRS        = new Key<>("Auto String Errors", "");
 
   public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", false);
   
@@ -48,20 +50,37 @@ public class PBDash
   public static final Key<Boolean> IO_AUTO_PASS     = new Key<>("Auto Pass", true);
   public static final Key<Boolean> IO_AUTO_REV      = new Key<>("Auto Rev", true);
 
+  
   // State displays
   public static final Key<String>  STATE_DRIVE      = new Key<>("Drive State", "Disabled");
   public static final Key<Boolean> STATE_NUDGING    = new Key<>("Nudging Active", true);
-
+  
   // Request queues
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
   public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
-
+  
   // Testing values
   public static final Key<Double>  TEST_FLYSPEED    = new Key<>("Test Flyspeed", 0.0);
   public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
+  
+  // Manual speed adjustment
+  public static final Key<Double>  IO_INTAKE_SPEED  = new Key<>("Intake Target Speed", Constants.IntakeConstants.RollerConstants.intakeSpeed);
+  public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
+  public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
 
-  public static final Key<Double>  TEST_INTAKE_SPEED= new Key<>("Test Intake Speed", Constants.HopperConstants.IntakeConstants.intakeSpeed);
+  public static final Field2d FIELD = new Field2d();
+  static { putSendable("Field", FIELD); }
+
+  public static final SendableChooser<String> AUTO_PRESETS = new SendableChooser<>();
+  static
+  {
+    AUTO_PRESETS.setDefaultOption("Blank", "");
+    AUTO_PRESETS.addOption("Wait", "WaitUntil(0)");
+    AUTO_PRESETS.addOption("Collection Loop", "Follow(r_trench_a2m), Follow(r_balls), Follow(l_trench_m2a)");
+    AUTO_PRESETS.onChange(AUTO_STRING::put);
+    putSendable("Auto Presets", AUTO_PRESETS);
+  }
 
   public static void putFieldObject(String name, Pose2d pose)
     {FIELD.getObject(name).setPose(pose);}
@@ -97,14 +116,23 @@ public class PBDash
    */
   public static void putSendable(String name, Sendable data) 
   {
-    NetworkTable dataTable = table.getSubTable(name);
+    Sendable sddata = tablesToData.get(name);
+    if (sddata == null || sddata != data) 
+    {
+      tablesToData.put(name, data);
+      NetworkTable dataTable = table.getSubTable(name);
+      SendableBuilderImpl builder = new SendableBuilderImpl();
+      builder.setTable(dataTable);
+      SendableRegistry.publish(data, builder);
+      builder.startListeners();
+      dataTable.getEntry(".name").setString(name);
+    }
+  }
 
-    SendableBuilderImpl builder = new SendableBuilderImpl();
-    builder.setTable(dataTable);
-    SendableRegistry.publish(data, builder);
-    builder.startListeners();
-
-    dataTable.getEntry(".name").setString(name);
+  public static void updateSendables()
+  {
+    for (Sendable data : tablesToData.values()) 
+      SendableRegistry.update(data);
   }
 
   /**
@@ -201,8 +229,8 @@ public class PBDash
    */
   public static class Key<T>
   {
-    private T defaultVal;
-    private GenericEntry ntEntry;
+    private final T defaultVal;
+    private final GenericEntry ntEntry;
     private T lastVal;
 
     /**
@@ -277,6 +305,13 @@ public class PBDash
     /** @return Trigger of value being `true` */
     public Trigger asTrigger()
       {return new Trigger(() -> get().equals(true));}
+    
+    public void append(String text)
+    {
+      // The cast from String to T will only ever happen is T is already String
+      if (get() instanceof String str)
+        put((T)(str + text));
+    }
 
     /** Closes the underlying entry. <p> ATTEMPTING TO USE A KEY AFTER CLOSING IT WILL CAUSE ERRORS */
     public void close()

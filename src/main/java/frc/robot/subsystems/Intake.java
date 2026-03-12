@@ -6,17 +6,16 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.HopperConstants.ExtensionConstants;
-import frc.robot.constants.Constants.HopperConstants.IntakeConstants;
-import frc.robot.constants.Constants.HopperConstants.SpindexerConstants;
+import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
+import frc.robot.constants.Constants.IntakeConstants.RollerConstants;
 import frc.robot.subsystems.generic.BinaryMotor;
 import frc.robot.subsystems.generic.LimitedMotor;
 import frc.robot.subsystems.generic.VelocityMotor;
-
+import frc.robot.util.Conversions;
 import frc.robot.util.PBDash;
 
-import static frc.robot.constants.Constants.HopperConstants.*;
-import static frc.robot.constants.Constants.HopperConstants.ExtensionConstants.extensionJostleDelay;
+import static frc.robot.constants.Constants.IntakeConstants.*;
+import static frc.robot.constants.Constants.IntakeConstants.ExtensionConstants.extensionJostleDelay;
 
 import java.util.function.DoubleSupplier;
 
@@ -25,10 +24,10 @@ import java.util.function.DoubleSupplier;
  * @author 5985
  */
 @Logged(strategy = Strategy.OPT_IN)
-public class Hopper extends SubsystemBase 
+public class Intake extends SubsystemBase 
 {
   @Logged
-  private final VelocityMotor intake;
+  private final VelocityMotor roller;
   @Logged
   private final LimitedMotor extension;
   
@@ -39,27 +38,37 @@ public class Hopper extends SubsystemBase
    * @param extensionCAN CAN-ID for intake-extension motor
    * @param extensionLimitIO DIO-ID of extension home switch
    */
-  public Hopper(int intakeCAN, int extensionCAN, int extensionLimitIO)
+  public Intake(int intakeCAN, int extensionCAN, int extensionLimitIO)
   { 
-    intake = new VelocityMotor(intakeCAN, IntakeConstants.intakeConfig);
+    roller = new VelocityMotor(intakeCAN, RollerConstants.intakeConfig);
     extension = new LimitedMotor(extensionCAN, extensionLimitIO, ExtensionConstants.minRotations, ExtensionConstants.maxRotations, ExtensionConstants.homeRotations, ExtensionConstants.extensionConfig);
   }
+
+  /** @return brake value to apply when intake is running */
+  public double brakeFromIntake()
+  {
+    return Conversions.clamp((roller.getSpeed() - RollerConstants.brakeSpeedStart) / RollerConstants.brakeSpeedRange, 0, 1) * RollerConstants.intakeBrake;
+  }
   
-  /** @return Command to start running intake at default speed */
-  public Command startIntakeCommand()
-    {return intake.setSpeedCommand(() -> IntakeConstants.intakeSpeed);}
+  /** @return Command to start running intake at input speed */
+  public Command runIntakeCommand(DoubleSupplier speedSup)
+    {return roller.runCommand(speedSup).withName("Manual Run Intake");}
 
   /** @return Command that runs the intake until it is interrupted */
   public Command runIntakeCommand()
-    {return intake.runCommand(() -> IntakeConstants.intakeSpeed).withName("Run Intake");}
+    {return roller.runCommand(() -> RollerConstants.intakeSpeed).withName("Run Intake");}
   
+  /** @return Command to start running intake at default speed */
+  public Command startIntakeCommand()
+    {return roller.setSpeedCommand(() -> RollerConstants.intakeSpeed);}
+
   /** @return Command to start running intake at negative default speed */
   public Command reverseIntakeCommand()
-    {return intake.setSpeedCommand(() -> -IntakeConstants.intakeSpeed);}
+    {return roller.setSpeedCommand(() -> -RollerConstants.intakeSpeed);}
 
   /** @return Command to stop the intake */
   public Command stopIntakeCommand()
-    {return intake.setSpeedCommand(() -> 0);}
+    {return roller.setSpeedCommand(() -> 0);}
 
   public Command bumpSafeCommand()
     {return extension.setTargetCommand(() -> Math.min(ExtensionConstants.bumpSafeRotations, extension.getAngle()));}
@@ -100,6 +109,6 @@ public class Hopper extends SubsystemBase
   @Override
   public void periodic() 
   {
-    PBDash.putDouble("Intake Speed", intake.getSpeed());
+    PBDash.putDouble("Intake Speed", roller.getSpeed());
   }
 }
