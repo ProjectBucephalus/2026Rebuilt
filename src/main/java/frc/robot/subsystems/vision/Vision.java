@@ -1,18 +1,17 @@
 package frc.robot.subsystems.vision;
 
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.util.PBDash;
@@ -22,20 +21,27 @@ import static frc.robot.constants.Constants.VisionConstants.*;
  * Computer-vision localisation master-system to manage multiple photon or limelight cameras 
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class Vision extends SubsystemBase 
 {
-  private final PoseEstimateConsumer estimateConsumer;
-  private final Supplier<Double> rpsSup;
+  @FunctionalInterface
+  public static interface PoseEstimateConsumer 
+  {
+    public void accept
+    (
+      Pose2d visionRobotPoseMeters, 
+      double timestampSeconds, 
+      Matrix<N3, N1> visionMeasurementStdDevs
+    );
+  }
+
   private final Limelight[] lls;
+  private final Supplier<Double> rpsSup;
+  private final PoseEstimateConsumer estimateConsumer;
   /** Timestamp of last good pose estimate, seconds, -1 on initialisation */
   @Logged
   double lastGoodPose = -1; 
-  /** Time since last good pose estimate, seconds */ // TODO Remove this or lastGoodPose? don't need same measurement in two perspectives
-  @Logged
-  double timeSince = 0; 
   /** True only while there is a recent valid pose estimate */
-  boolean haveLocalisation = false;
-  @Logged
   boolean usingVision = true;
 
   /**
@@ -46,9 +52,9 @@ public class Vision extends SubsystemBase
    */
   public Vision(PoseEstimateConsumer estimateConsumer, Supplier<Double> rpsSup, Limelight... lls) 
   {
-    this.estimateConsumer = estimateConsumer;
-    this.rpsSup = rpsSup;
     this.lls = lls;
+    this.rpsSup = rpsSup;
+    this.estimateConsumer = estimateConsumer;
   }
 
   /** 
@@ -57,9 +63,7 @@ public class Vision extends SubsystemBase
    */
   @Logged
   public boolean hasLocalisation()
-  {
-    return haveLocalisation || Robot.isSimulation();
-  }
+    {return (lastGoodPose > -1 && Timer.getTimestamp() - lastGoodPose < visionFrequencyThreshold) || Robot.isSimulation();}
 
   /**
    * Accepts a given robot pose as if it were a valid localisation estimate
@@ -68,9 +72,6 @@ public class Vision extends SubsystemBase
   public void setPose(Pose2d pose)
   {
     lastGoodPose = Timer.getTimestamp();
-    timeSince = 0;
-    haveLocalisation = true;
-
     estimateConsumer.accept(pose, Utils.getCurrentTimeSeconds(), VecBuilder.fill(0, 0, 1000));
   }
 
@@ -80,6 +81,7 @@ public class Vision extends SubsystemBase
     if (PBDash.IO_LL.get()) 
     {
       usingVision = true;
+
       for (var ll : lls)
       {
         // Pose estimate returns Optional, so may or may not be present
@@ -90,55 +92,35 @@ public class Vision extends SubsystemBase
             double avgTagDist = 
               est.targetsUsed
                 .stream()
-                .collect(Collectors.averagingDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm()));
+                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
+                .average()
+                .getAsDouble();
 
             // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
             double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
             double linearStdDev = linearStdDevBaseline * stdDevFactor;
             double rotStdDev = rotStdDevBaseline * stdDevFactor;
+            var stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev);
 
             // If the camera is mounted on a turret, apply additional offset processing
-            var poseOut = 
+            Pose2d poseOut = 
               ll.isOnTurret() 
               ? est.estimatedPose.toPose2d().transformBy(ll.getTurretToRobot())
               : est.estimatedPose.toPose2d();
             
             // Update time since last good pose estimate
             lastGoodPose = Timer.getTimestamp();
-            timeSince = 0;
-            haveLocalisation = true;
 
-            PBDash.putDouble("Vision desync", Math.abs(lastGoodPose - est.timestampSeconds));
             // Send pose estimate to consumer
-            estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+            estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), stdDevs);
           }
         });
       }
     } 
-    else 
+    else if (usingVision)
     {
-      if (usingVision)
-      {
-        usingVision = false;
-        haveLocalisation = false;
-        lastGoodPose = -1;
-      }
+      usingVision = false;
+      lastGoodPose = -1;
     }
-
-    // If no valid pose is found, update time since last pose
-    timeSince = Timer.getTimestamp() - lastGoodPose;
-    if (lastGoodPose == -1 || timeSince >= visionFrequencyThreshold) 
-      haveLocalisation = false; 
-  }
-
-  @FunctionalInterface
-  public static interface PoseEstimateConsumer 
-  {
-    public void accept
-    (
-      Pose2d visionRobotPoseMeters, 
-      double timestampSeconds, 
-      Matrix<N3, N1> visionMeasurementStdDevs
-    );
   }
 }
