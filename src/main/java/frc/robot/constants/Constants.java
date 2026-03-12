@@ -66,8 +66,8 @@ public final class Constants
     public static final double manualClimberExtensionScale = 0.05;
     public static final double manualClimberExtensionAmount = 0.05;
     public static final double manualShooterAzimuthAmount = 1.8;
-    public static final double manualShooterDistanceAmount = 0.05;
-    public static final double manualShooterDeadband = 0.5;
+    public static final double manualShooterDistanceAmount = 0.03;
+    public static final double manualShooterDeadband = 0.25;
     public static final double intakeSquishAmount = -0.02;
 
     public static final double preShiftShootMargin = 1;

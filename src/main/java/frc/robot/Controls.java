@@ -357,10 +357,10 @@ public class Controls
     // Manual Target Control
     // Dual
     autoAimTrigger.negate()
-      .whileTrue(s_PortShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband)))
-      .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband)))
-      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)))
-      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)));
+      .whileTrue(s_PortShooter.adjustDistanceCommand(() -> -MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband) * ControlConstants.manualShooterDistanceAmount))
+      .whileTrue(s_StbdShooter.adjustDistanceCommand(() -> -MathUtil.applyDeadband(debug.getRightY(), ControlConstants.manualShooterDeadband) * ControlConstants.manualShooterDistanceAmount))
+      .whileTrue(s_PortShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband) * ControlConstants.manualShooterAzimuthAmount))
+      .whileTrue(s_StbdShooter.adjustAzimuthCommand(() -> -MathUtil.applyDeadband(debug.getRightX(), ControlConstants.manualShooterDeadband)* ControlConstants.manualShooterAzimuthAmount));
 
     // Port
     buttonPad.B2().and(btnSetManual).and(autoAimTrigger.negate())

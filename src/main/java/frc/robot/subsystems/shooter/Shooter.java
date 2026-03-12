@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants.ShooterConstants;
@@ -105,16 +106,17 @@ public class Shooter extends SubsystemBase
 
   public Command adjustDistanceCommand(DoubleSupplier shiftSup)
   {
-    return run(() -> 
+    return Commands.run(() -> 
     {
       target.distance += shiftSup.getAsDouble();
+      target.distance = Math.max(target.distance, 0);
       target.speed = Interpolation.flywheelSpeedHub.get(target.distance);
       target.altitude = Interpolation.shooterAltitudeHub.get(target.distance);
     }).withName("Manual Distance");
   }
 
   public Command adjustAzimuthCommand(DoubleSupplier shiftSup)
-    {return run(() -> target.azimuth += shiftSup.getAsDouble()).withName("Manual Azimuth");}
+    {return Commands.run(() -> target.azimuth += shiftSup.getAsDouble()).withName("Manual Azimuth");}
 
   public void setFlySpeed(double speed)
     {target.speed = speed;}
