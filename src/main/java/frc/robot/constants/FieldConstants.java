@@ -65,7 +65,7 @@ public class FieldConstants
     /** Buffer zone around field walls, metres */
     public static final double wallBuffer = 0.35;
     /** Radius around field walls, metres */
-    public static final double wallRadius = 0.02;
+    public static final double wallRadius = 0.05;
     
     /** Radius around hubs, metres */
     public static final double hubRadius = 0.05;
@@ -138,7 +138,7 @@ public class FieldConstants
     /* Trench Zone */
     public static final double trenchWidth = 1.28;
     /** Depth of region around Trench bar to keep out of */
-    public static final double trenchBarrierDepth = 1.5;
+    public static final double trenchBarrierDepth = 2.8;
     public static final double trenchXa = hubCentreOffset + trenchBarrierDepth/2;
     public static final double trenchXb = hubCentreOffset - trenchBarrierDepth/2;
 
