@@ -1,18 +1,18 @@
 package frc.robot.subsystems.vision;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.ctre.phoenix6.Utils;
 
-import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.util.PBDash;
@@ -28,12 +28,12 @@ public class Vision extends SubsystemBase
   private final Supplier<Double> rpsSup;
   private final Limelight[] lls;
   /** Timestamp of last good pose estimate, seconds, -1 on initialisation */
+  @Logged
   double lastGoodPose = -1; 
   /** True only while there is a recent valid pose estimate */
   boolean haveLocalisation = false;
+  @Logged
   boolean usingVision = true;
-
-  private int pipelineIndex = PBDash.LL_EXPOSURE.defaultVal();
 
   /**
    * Creates a vision master-system to manage the provided cameras
@@ -48,26 +48,11 @@ public class Vision extends SubsystemBase
     this.lls = lls;
   }
 
-  /** Increments all camera pipelines in range [0..7] */
-  public void incrementPipeline() 
-  {
-    pipelineIndex = MathUtil.clamp(pipelineIndex + 1, 0, 7);
-    for (var ll : lls) {ll.updatePipeline(pipelineIndex);}
-    PBDash.LL_EXPOSURE.put(pipelineIndex);
-  }
-
-  /** Decrements all camera pipelines in range [0..7] */
-  public void decrementPipeline()
-  {
-    pipelineIndex = MathUtil.clamp(pipelineIndex - 1, 0, 7);
-    for (var ll : lls) {ll.updatePipeline(pipelineIndex);}
-    PBDash.LL_EXPOSURE.put(pipelineIndex);
-  }
-
   /** 
    * @return {@code true} if localisation can be trusted (or simulated)
    * <li>    {@code false} if running on odometry only
    */
+  @Logged
   public boolean hasLocalisation()
   {
     return haveLocalisation || Robot.isSimulation();
@@ -88,7 +73,7 @@ public class Vision extends SubsystemBase
   @Override
   public void periodic() 
   {
-    if (PBDash.LL_TOGGLE.get()) 
+    if (PBDash.IO_LL.get()) 
     {
       usingVision = true;
 
@@ -106,6 +91,12 @@ public class Vision extends SubsystemBase
                 .average()
                 .getAsDouble();
 
+            // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
+            double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
+            double linearStdDev = linearStdDevBaseline * stdDevFactor;
+            double rotStdDev = rotStdDevBaseline * stdDevFactor;
+            var stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev);
+
             // If the camera is mounted on a turret, apply additional offset processing
             var poseOut = 
               ll.isOnTurret() 
@@ -115,12 +106,6 @@ public class Vision extends SubsystemBase
             // Update time since last good pose estimate
             lastGoodPose = Timer.getTimestamp();
             haveLocalisation = true;
-
-            // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
-            double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-            double linearStdDev = linearStdDevBaseline * stdDevFactor;
-            double rotStdDev = rotStdDevBaseline * stdDevFactor;
-            var stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev);
 
             // Send pose estimate to consumer
             estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), stdDevs);

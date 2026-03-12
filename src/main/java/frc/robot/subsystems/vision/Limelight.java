@@ -1,13 +1,16 @@
 package frc.robot.subsystems.vision;
 
-import static frc.robot.constants.Constants.VisionConstants.trenchIDs;
+import static frc.robot.constants.Constants.VisionConstants.*;
 
+import java.util.ArrayDeque;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.function.DoubleSupplier;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -32,7 +35,8 @@ public class Limelight
   private DoubleSupplier turretAngleSup;
   private Transform2d robotToTurret;
   private Transform2d turretToRobot;
-  
+  private Queue<Double> turretCache = new ArrayDeque<>(5);
+  private Rotation2d currentTurretAngle;
 
   /**
    * Creates a new static Limelight vision camera
@@ -75,21 +79,28 @@ public class Limelight
     {camera.setPipelineIndex(pipelineIndex);}
 
   /**
-   * Removes uncertain or unwanted tags from the pose estimate before calculating
+   * Removes uncertain or unwanted tags from the pose estimate before calculating<p>
+   * ONLY CALL ONCE PER CYCLE
    * @return Sanitised pose estimate, or an empty Optional if there were no new results
    */
   public Optional<EstimatedRobotPose> getPhotonEst()
   { 
+    // Use this call to update some information that should only be done once per cycle
+    double reading = turretAngleSup.getAsDouble();
+    turretCache.add(reading);
+    if (turretCache.size() > latencyCycles)
+      {reading = turretCache.remove();}
+    currentTurretAngle = Rotation2d.fromDegrees(reading);
+
     // getAllUnreadResults() should generally only be called once per cycle, as it clears the internal list
     var results = camera.getAllUnreadResults();
-    
+
     if (results == null || results.isEmpty()) 
       return Optional.empty();
-    
+
     var result = results.get(results.size() - 1);
 
-    result.targets.removeIf
-      (target -> target.getPoseAmbiguity() > 0.2 || trenchIDs.contains(target.fiducialId));
+    result.targets.removeIf(target -> target.getPoseAmbiguity() > 0.2);
 
     return photonEstimator.estimateCoprocMultiTagPose(result)
       .or(() -> photonEstimator.estimateLowestAmbiguityPose(result));
@@ -99,7 +110,7 @@ public class Limelight
     {return onTurret;}
 
   public Rotation2d getTurretAngle()
-    {return Rotation2d.fromDegrees(turretAngleSup.getAsDouble());}
+    {return currentTurretAngle;}
   
   /** @return Transform to convert FROM ROBOT to Turret, including current azimuth */
   public Transform2d getRobotToTurret()

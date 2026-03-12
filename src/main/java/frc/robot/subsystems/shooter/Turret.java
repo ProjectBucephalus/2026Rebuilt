@@ -2,8 +2,10 @@ package frc.robot.subsystems.shooter;
 
 import frc.robot.Robot;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
+import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
+import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
@@ -48,7 +50,7 @@ public class Turret
 
   private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
-  private final Supplier<Target> targetSup;
+  private final Target target;
 
   private double lastCalibration = 0;
   private double potLastCycle = 0;
@@ -60,12 +62,12 @@ public class Turret
    * @param potOffset Potentiometer reading for centre of rotation
    * @param targetSup Supplier for current Target object
    */
-  public Turret(int motorID, int potID, double potOffset, Supplier<Target> targetSup) 
+  public Turret(int motorID, int potID, double potOffset, Target target) 
   {
     m_Turret = new TalonFXS(motorID);
     io_Azimuth = new AnalogPotentiometer(potID, potRange, potOffset);
 
-    this.targetSup = targetSup;
+    this.target = target;
 
     m_Turret.getConfigurator().apply(turretConfig);
 
@@ -96,7 +98,7 @@ public class Turret
    * 
    * @return the azimuth, in degrees
    */
-  @Logged(name = "Turret Azimuth Degrees")
+  @Logged(name = "azimuth Degrees")
   public double getAzimuth() 
   {
     if (Robot.isSimulation())
@@ -106,7 +108,7 @@ public class Turret
   }
   
   /** @return turret degrees as reported by potentiometer */
-  @Logged(name = "Potentiometer Degrees")
+  @Logged(name = "potentiometer Degrees")
   public double getRawAzimuth()
     {return io_Azimuth.get() / TurretConstants.azimuthPotRatio;}
 
@@ -176,7 +178,7 @@ public class Turret
 
   private boolean atAzimuth()
   {
-    return Conversions.nearRotation(getAzimuth(), targetSup.get().azimuth, TurretConstants.azimuthTolerance);
+    return Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance);
   }
 
   public boolean readyToShoot(ChassisSpeeds swerveSpeeds)
@@ -192,7 +194,7 @@ public class Turret
   protected void update(Pose2d shooterPose, double robotDegreesPerSecond)
   {
     calibrate();
-    var target = targetSup.get();
+
     // Update the azimuth stored in the target based on the target state
     // Ensures that changing to manual mode doesn't cause sudden motion
     target.azimuth = switch (target.state) 
@@ -203,7 +205,8 @@ public class Turret
       case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
     };
 
-    m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
+    if (!target.disabled && (!PBDash.E_STOP.get() || target.state == TargetState.Manual))
+      m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
   }   
   
   protected void updateSim()

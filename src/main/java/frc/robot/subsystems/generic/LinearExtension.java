@@ -1,7 +1,10 @@
 package frc.robot.subsystems.generic;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** 
@@ -21,19 +24,27 @@ public class LinearExtension extends LimitedMotor
    * @param metersPerRotation Meters of extension per mechanism rotation
    * @param configs Motor configuration object, uses Slot1 if present when not calibrated
    */
-  public LinearExtension(int motorCAN, int limitIO, double minPosition, double maxPosition, double metersPerRotation, TalonFXConfiguration configs)
+  public LinearExtension(int motorCAN, int limitIO, double minPosition, double maxPosition, double homePosition, double metersPerRotation, TalonFXConfiguration configs)
   {
-    super(motorCAN, limitIO, minPosition / metersPerRotation, maxPosition / metersPerRotation, configs);
+    super(motorCAN, limitIO, minPosition / metersPerRotation, maxPosition / metersPerRotation, homePosition / metersPerRotation, configs);
     this.metersPerRotation = metersPerRotation;
   } 
 
+  /** @return Current physical position, in meters */
+  @Logged(name = "Position Meters")
+  public double getPosition()
+    {return super.getAngle() * metersPerRotation;}
+
   /**
-   * Creates a command to set the target point for the extension <p>
-   * NOTE: The provided value is only evaluated when the command is created
-   * @param targetPosition meters
-   * @return the Command
+   * Sets the target point for the extension 
+   * @param target meters
    */
   @Override
-  public Command setTargetCommand(double targetPosition) 
-    {return super.setTargetCommand(targetPosition / metersPerRotation);}
+  public void setTarget(double target) 
+    {super.setTarget(target / metersPerRotation);}
+
+  /** @param shiftSup A supplier for the amount to adjust the target by in meters */
+  @Override
+  public Command adjustTargetCommand(DoubleSupplier shiftSup) 
+    {return super.adjustTargetCommand(shiftSup);}
 }

@@ -24,19 +24,19 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
  */
 public class TunerConstants 
 {
-  // Both sets of gains need to be tuned to your individual robot.
+  // Both sets of gains need to be tuned to your individual robot. TODO
 
   // The steer motor uses any SwerveModule.SteerRequestType control request with the
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
   private static final Slot0Configs steerGains = new Slot0Configs()
-    .withKP(100).withKI(0).withKD(0.5)
-    .withKS(0.1).withKV(2.66).withKA(0)
+    .withKP(13.544).withKI(0).withKD(0.09)
+    .withKS(0.274).withKV(2.2078).withKA(0)
     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
   private static final Slot0Configs driveGains = new Slot0Configs()
-    .withKP(5.4).withKI(0).withKD(0)
-    .withKS(0.186).withKV(0.115);
+    .withKP(0.183).withKI(0).withKD(0)
+    .withKS(0.1445).withKV(0.1184); // TODO: Confirm kP, it seems unreasonably low
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
@@ -54,8 +54,8 @@ public class TunerConstants
   // When not Pro-licensed, FusedCANcoder/SyncCANcoder automatically fall back to RemoteCANcoder
   private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.RemoteCANcoder;
 
-  // The stator current at which the wheels start to slip;
-  // This needs to be tuned to your individual robot
+  // The stator current at which the wheels start to slip; 
+  // This needs to be tuned to your individual robot TODO
   private static final Current kSlipCurrent = Amps.of(55);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
@@ -80,15 +80,15 @@ public class TunerConstants
   public static final CANBus kCANBus = new CANBus("", "./logs/example.hoot");
 
   // Theoretical free speed (m/s) at 12 V applied output;
-  // This needs to be tuned to your individual robot
+  // This needs to be tuned to your individual robot TODO
   public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.73);
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot
-  private static final double kCoupleRatio = 3.5714285714285716;
+  private static final double kCoupleRatio = 3.125;
 
-  private static final double kDriveGearRatio = 6.746031746031747;
-  private static final double kSteerGearRatio = 21.428571428571427;
+  private static final double kDriveGearRatio = 5.9;
+  private static final double kSteerGearRatio = 18.75;
   private static final Distance kWheelRadius = Meter.of(0.050);
 
   private static final boolean kInvertLeftSide = false;

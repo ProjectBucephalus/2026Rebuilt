@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants;
+import frc.robot.util.Conversions;
 
 /** 
  * Throttle modifier for the input 
@@ -67,6 +68,28 @@ public class Brake implements InputTransmuter
   public Brake withBrakeAxis(DoubleSupplier brakeAxis)
   {
     this.brakeAxis = brakeAxis;
+    return this;
+  }
+
+  /**
+   * Sets the maximum throttle value with no braking
+   * @param newMax new maximum throttle value, [0..1]
+   * @return The brake object with the new value
+   */
+  public Brake withMaxThrottle(double newMax)
+  {
+    max = Conversions.clamp(newMax, 0, 1);
+    return this;
+  }
+
+  /**
+   * Sets the minimum throttle value under full brake
+   * @param newMax new maximum throttle value, [0..1]
+   * @return The brake object with the new value
+   */
+  public Brake withMinThrottle(double newMin)
+  {
+    min = Conversions.clamp(newMin, 0, 1);
     return this;
   }
 }

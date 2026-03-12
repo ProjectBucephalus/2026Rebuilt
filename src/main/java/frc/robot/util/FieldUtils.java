@@ -6,6 +6,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static frc.robot.constants.FieldConstants.*;
+
+import java.util.Optional;
+
+import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
 
@@ -15,8 +19,57 @@ import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed
  */
 public class FieldUtils 
 {
-  private static boolean redAlliance;
+  private static Alliance alliance;
   static {updateAlliance();}
+
+  private static Optional<Alliance> autoWinner = Optional.empty();
+
+  public static Optional<Alliance> getAutoWinner()
+    {return autoWinner;}
+
+  /** Attempts to fetch the alliance that won auto from DriverStation, if we haven't already got it */
+  public static void updateAutoWinner()
+  {
+    if (autoWinner.isEmpty()) 
+    {
+      String gameData = DriverStation.getGameSpecificMessage();
+      if (gameData.length() > 0)
+        autoWinner = switch (gameData.charAt(0))
+        {
+          case 'B' -> Optional.of(Alliance.Blue);
+          case 'R' -> Optional.of(Alliance.Red);
+          default  -> Optional.empty();
+        };
+    }
+  }
+
+  /** @return whether the provided alliance's hub is active, with margin on each side to maximise scoring */
+  public static boolean hubActiveToleranced(Alliance alliance, double preMargin, double postMargin) 
+  {
+    double timeElapsed = MatchTime.getTeleTimeElapsed();
+
+    if 
+    (
+      autoWinner.isEmpty()                 // Don't know yet
+      || timeElapsed == 0                  // Auto
+      || timeElapsed < (10 - preMargin)    // Transition
+      || timeElapsed >= (110 + postMargin) // Endgame
+    )
+      return true;
+    else
+    {
+      if (alliance == autoWinner.get()) 
+        return (timeElapsed >= (35 - preMargin) && timeElapsed < (60 + postMargin)) // Shift 2
+        || (timeElapsed >= (85 - preMargin) && timeElapsed < (110 + postMargin));   // Shift 4
+      else 
+        return (timeElapsed >= (10 - preMargin) && timeElapsed < (35 + postMargin)) // Shift 1
+        || (timeElapsed >= (60 - preMargin) && timeElapsed < (85 + postMargin));    // Shift 3
+    }     
+  }
+
+  /** @return whether the provided alliance's hub is active */
+  public static boolean hubActive(Alliance alliance) 
+    {return hubActiveToleranced(alliance, 0, 0);}
 
   /**
    * Checks whether we are on the red alliance <p>
@@ -24,20 +77,29 @@ public class FieldUtils
    * 
    * @return true if we are on the red alliance
    */
-  public static boolean isRedAlliance() 
-    {return redAlliance;}
+  public static boolean isAlliance(Alliance testAlliance) 
+    {return alliance == testAlliance;}
+
+  public static Alliance getAlliance() 
+    {return alliance;}
 
   /**
    * Updates the cached alliance value 
    */
   public static void updateAlliance()
-    {redAlliance = DriverStation.getAlliance().map(Alliance.Red::equals).orElse(false);}
+    {alliance = DriverStation.getAlliance().orElse(Alliance.Blue);}
 
   /** 
    * @return the centre point of your alliance's hub
    */
   public static Translation2d getAllianceHubCentre() 
-    {return isRedAlliance() ? redHubCentre : blueHubCentre;}
+  {
+    return switch (getAlliance()) 
+    {
+      case Blue -> blueHubCentre;
+      case Red -> redHubCentre;
+    };
+  }
 
   /**
    * @return which driver station we are being controlled from (1, 2, or 3), or 0 if the value is unavailable
@@ -54,13 +116,11 @@ public class FieldUtils
   public static Pose2d allianceFlipPose(Pose2d pose) 
   {
     // flip pose when red
-    if (isRedAlliance()) 
-    {
+    if (isAlliance(Alliance.Red)) 
       return flipPose(pose);
-    }
-
-    // Blue or we don't know; return the original pose
-    return pose;
+    else
+      // Blue or we don't know; return the original pose
+      return pose;
   }
 
   /**
@@ -85,12 +145,23 @@ public class FieldUtils
   public static Pose2d allianceRotatePose(Pose2d pose) 
   {
     // flip pose when red
-    if (isRedAlliance()) 
+    if (isAlliance(Alliance.Red)) 
       // reflect the pose around center point, flip both the X and Y position and rotation
       return pose.rotateAround(fieldCentre, Rotation2d.k180deg);
     else 
       // Blue or we don't know; return the original pose
       return pose;
+  }
+
+  /**
+   * Rotates the provided rotation if we're on the red alliance
+   * 
+   * @param pose a blue-origin rotation
+   * @return the rotation rotated to match our alliance
+   */
+  public static Rotation2d allianceRotateRotation(Rotation2d rotation) 
+  {
+    return isAlliance(Alliance.Red) ? rotation.rotateBy(Rotation2d.k180deg) : rotation;
   }
 
   /**
@@ -114,7 +185,7 @@ public class FieldUtils
   public static Translation2d allianceFlipTranslation(Translation2d translation) 
   {
     // flip translation when red
-    if (isRedAlliance()) 
+    if (isAlliance(Alliance.Red)) 
       // reflect the translation around center point, flip both the X and Y position
       return flipTranslation(translation);
     else 
@@ -143,7 +214,7 @@ public class FieldUtils
   public static Translation2d allianceRotateTranslation(Translation2d translation) 
   {
     // flip translation when red
-    if (isRedAlliance()) 
+    if (isAlliance(Alliance.Red)) 
       // reflect the translation around center point, flip both the X and Y position
       return rotateTranslation(translation);
     else 
@@ -164,17 +235,6 @@ public class FieldUtils
   }
 
   /**
-   * Activates the relevant geofences for our alliance
-   * 
-   * @param redAlliance whether we're on the red alliance
-   */
-  public static void activateAllianceFencing() 
-  {
-    GeoFencing.fieldRedGeoFence.setActiveCondition(() -> isRedAlliance());
-    GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> !isRedAlliance());
-  }
-
-  /**
    * Checks if the provided position is within our alliance zone
    * 
    * @param pos Position to check against
@@ -182,22 +242,21 @@ public class FieldUtils
    */
   public static boolean inAllianceZone(Translation2d pos) 
   {
-    if (isRedAlliance()) 
-      return pos.getX() > redStartLine.getX() - robotRadiusInscribed;
-    else 
-      return pos.getX() < blueStartLine.getX() + robotRadiusInscribed;
+    return switch (getAlliance())
+    {
+      case Blue -> pos.getX() < blueStartLine.getX() + robotRadiusInscribed;
+      case Red -> pos.getX() > redStartLine.getX() - robotRadiusInscribed;
+    };
   }
 
-  /**
-   * Checks if the provided position is within our alliance zone
-   * 
-   * @param pos Position to check against
-   * @return If the position is within the alliance zone
-   */
-  public static boolean inLeftHalf(Translation2d pos) 
+  public static Translation2d getClosestPassPoint(Translation2d pos)
   {
-    return isRedAlliance() 
-      ? pos.getY() < fieldCentre.getY()
-      : pos.getY() > fieldCentre.getY();
-  }
+    boolean inLeftHalf = switch (getAlliance())
+    {
+      case Blue -> pos.getY() > fieldCentre.getY();
+      case Red -> pos.getY() < fieldCentre.getY();
+    };
+
+    return inLeftHalf ? ControlConstants.leftFerryTarget.get() : ControlConstants.rightFerryTarget.get();
+  }  
 }
