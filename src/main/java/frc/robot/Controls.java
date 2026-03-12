@@ -74,30 +74,37 @@ public class Controls
     Controls.s_StbdShooter = s_StbdShooter;
     // -------------STATE--------------- //
 
-    final Trigger autoAimTrigger = new Trigger(() -> state.aim && s_Vision.hasLocalisation());
+    final Trigger autoAimTrigger = PBDash.IO_AUTO_AIM.asTrigger().and(s_Vision::hasLocalisation);
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
 
     // Button pad modes
-    Trigger btnSetPass          = new Trigger(() -> state.btnSet == ButtonPadState.PassPointSelection);
-    Trigger btnSetLocalisation  = new Trigger(() -> state.btnSet == ButtonPadState.LocalisationOveride);
-    Trigger btnSetManual        = new Trigger(() -> state.btnSet == ButtonPadState.ManualControls);
+    final Trigger btnSetPass          = new Trigger(() -> state.btnSet == ButtonPadState.PassPointSelection);
+    final Trigger btnSetLocalisation  = new Trigger(() -> state.btnSet == ButtonPadState.LocalisationOveride);
+    final Trigger btnSetManual        = new Trigger(() -> state.btnSet == ButtonPadState.ManualControls);
+
+    // Sync all on first connection
+    new Trigger(switchboard::isConnected)
+      .onTrue
+      (
+        Commands.runOnce(() -> {
+          PBDash.IO_AUTO_AIM.put(switchboard.getHID().getRawButton(IDConstants.autoAimSwitchID));
+          PBDash.IO_AUTO_REV.put(switchboard.getHID().getRawButton(IDConstants.autoRevSwitchID));
+          PBDash.IO_AUTO_PASS.put(switchboard.getHID().getRawButton(IDConstants.autoPassSwitchID));
+          PBDash.IO_FENCE.put(switchboard.getHID().getRawButton(IDConstants.fencingSwitchID));   
+          PBDash.IO_LL.put(switchboard.getHID().getRawButton(IDConstants.visionSwitchID));
+        })
+      );
 
     // Auto aim switch
-    PBDash.IO_AUTO_AIM.asTrigger()
-      .onChange(runOnce(() -> state.aim = PBDash.IO_AUTO_AIM.get()).ignoringDisable(true));
     switchboard.button(IDConstants.autoAimSwitchID)
       .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(IDConstants.autoAimSwitchID).getAsBoolean())).ignoringDisable(true));
     debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
 
     // Auto pass switch
-    PBDash.IO_AUTO_PASS.asTrigger()
-      .onChange(runOnce(() -> state.pass = PBDash.IO_AUTO_PASS.get()).ignoringDisable(true));
     switchboard.button(IDConstants.autoPassSwitchID)
       .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(IDConstants.autoPassSwitchID).getAsBoolean())).ignoringDisable(true));
     
     // Auto rev switch
-    PBDash.IO_AUTO_REV.asTrigger()
-      .onChange(runOnce(() -> state.rev = PBDash.IO_AUTO_REV.get()).ignoringDisable(true));
     switchboard.button(IDConstants.autoRevSwitchID)
       .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(IDConstants.autoRevSwitchID).getAsBoolean())).ignoringDisable(true));
 
@@ -234,7 +241,7 @@ public class Controls
       .onTrue(bothShootersCmd(s -> s.getTarget().state = TargetState.Hub).ignoringDisable(true));
 
     // Pass Point
-    autoAimTrigger.and(() -> state.pass)
+    autoAimTrigger.and(PBDash.IO_AUTO_PASS::get)
       .whileTrue(bothShootersCmd(s -> s.getTarget().point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
     
     // Revving/Idleing as Appropriate
@@ -253,7 +260,7 @@ public class Controls
     autoAimTrigger
       .and(PBDash.IO_AUTO_REV::get)
       .and(shootActiveTrigger)
-      .and(allianceZoneTrigger.and(hubActiveTrigger).or(() -> state.pass))
+      .and(allianceZoneTrigger.and(hubActiveTrigger).or(PBDash.IO_AUTO_PASS::get))
       .onTrue(bothShootersCmd(Shooter::revFlywheels))
       .onFalse(bothShootersCmd(Shooter::idleFlywheels));
 

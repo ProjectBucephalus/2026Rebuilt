@@ -231,6 +231,11 @@ public class PBDash
   {
     private final T defaultVal;
     private final GenericEntry ntEntry;
+
+    private final Trigger mainTrigger = new Trigger(() -> get().equals(true));
+    private final Trigger btnTrigger = new Trigger(() -> button());
+    private final Trigger pulseTrigger = new Trigger(() -> hasChanged());
+
     private T lastVal;
 
     /**
@@ -296,15 +301,15 @@ public class PBDash
 
     /** @return Trigger monitoring if the value has changed */
     public Trigger asPulse()
-      {return new Trigger(() -> hasChanged());}
+      {return pulseTrigger;}
 
     /** @return Trigger monitoring if the value has changed then resetting the value */
     public Trigger asButton()
-      {return new Trigger(() -> button());}
+      {return btnTrigger;}
 
     /** @return Trigger of value being `true` */
     public Trigger asTrigger()
-      {return new Trigger(() -> get().equals(true));}
+      {return mainTrigger;}
     
     @SuppressWarnings("unchecked")
     /**

@@ -88,10 +88,6 @@ public class Robot extends TimedRobot
     public ClimbPosition climbPos = ClimbPosition.OutLeft;
     public HeadingLockState headingLock = HeadingLockState.Unlocked;
 
-    public boolean aim = false;
-    public boolean pass = false;
-    public boolean rev = false;
-
     public boolean nudging = true;
   }
   
@@ -338,11 +334,6 @@ public class Robot extends TimedRobot
   {
     MatchTime.startAuto();
     FieldUtils.updateAlliance();
-
-    state.aim = true;
-    state.rev = true;
-    state.pass = false;
-    state.nudging = false;
     
     if (autoCommand.isEmpty())
       compileAuto();
@@ -357,10 +348,6 @@ public class Robot extends TimedRobot
     FieldUtils.updateAlliance();
     
     autoCommand.ifPresent(Command::cancel);
-
-    state.aim = true;
-    state.rev = true;
-    state.nudging = true;
 
     initInputTransmute();
 
