@@ -165,9 +165,6 @@ public class Robot extends TimedRobot
     -1 //IDConstants.extensionLimitDIO
   );
 
-  @Logged(name = "Indexer")
-  private final Indexer s_Indexer = new Indexer();
-
   /* Rumble */
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
   private final RumbleRequester io_driverLeft  = new RumbleRequester(driver, RumbleType.kLeftRumble, PBDash.RUMBLE_DRIVER::get);
@@ -203,7 +200,6 @@ public class Robot extends TimedRobot
       s_Vision, 
       s_PortShooter, 
       s_StbdShooter, 
-      s_Indexer, 
       s_Intake, 
       s_Climber
     );

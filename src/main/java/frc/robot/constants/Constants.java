@@ -252,6 +252,35 @@ public final class Constants
         turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
       }
     }
+
+    /** Tuning data for indexer */
+    public  static final class IndexerConstants 
+    {
+      public static final double indexerSpeed = 50;
+      public static final double indexerMinSpeed = 25;
+      public static final double indexerReverseSpeed = -25;
+
+      private static final double gearboxRatio = 1;
+      //private static final double lowerRollerPulley = 24;
+      //private static final double upperRollerPuller = 18;
+      //private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
+      //private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
+
+      public static final TalonFXConfiguration indexerConfig = new TalonFXConfiguration();
+      static
+      {
+        indexerConfig.Feedback.SensorToMechanismRatio = gearboxRatio;
+
+        indexerConfig.Slot0.kS = 0.56;
+        indexerConfig.Slot0.kV = 0.127;
+        indexerConfig.Slot0.kA = 0.0;
+        indexerConfig.Slot0.kP = 0.16;
+        indexerConfig.Slot0.kI = 0.01;
+        indexerConfig.Slot0.kD = 0.0;
+
+        indexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
+      }
+    }
   }
 
   /** Geometry, tag, and tuning data for Vision system */
@@ -393,60 +422,6 @@ public final class Constants
   public static final class LEDConstants 
   {
     public static final int LEDStripLen = 120;
-  }
-
-  /** Tuning data for feeder */
-  public  static final class FeederConstants 
-  {
-    public static final double feederSpeed = 50;
-    public static final double feederMinSpeed = 25;
-    public static final double feederReverseSpeed = -25;
-
-    private static final double gearboxRatio = 1;
-    //private static final double lowerRollerPulley = 24;
-    //private static final double upperRollerPuller = 18;
-    //private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
-    //private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
-
-    public static final TalonFXConfiguration feederConfig = new TalonFXConfiguration();
-    static
-    {
-      feederConfig.Feedback.SensorToMechanismRatio = gearboxRatio;
-
-      feederConfig.Slot0.kS = 0.56;
-      feederConfig.Slot0.kV = 0.127;
-      feederConfig.Slot0.kA = 0.0;
-      feederConfig.Slot0.kP = 0.16;
-      feederConfig.Slot0.kI = 0.01;
-      feederConfig.Slot0.kD = 0.0;
-
-      feederConfig.MotionMagic.MotionMagicAcceleration = 50.0;
-    }
-
-    public static final class SpindexerConstants 
-    {
-      /** Duration and interval of spindexer pulses when agitating, seconds */
-      public static final double spindexerPulseDelay = 0.25;
-      /** Default speed of spindexer when running, [-1..1] */
-      public static final double spindexerSpeed = -0.5;
-
-      private static final double motorPulley = 24;
-      private static final double spindexerPulley = 30;
-      private static final double spindexerPlanetaryRatio = 3;
-      private static final double spindexerRatio = (spindexerPulley / motorPulley) * spindexerPlanetaryRatio;
-      
-      public static final TalonFXConfiguration spindexerConfig = new TalonFXConfiguration();
-      static
-      {
-        spindexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        spindexerConfig.Feedback.SensorToMechanismRatio = spindexerRatio;
-
-        spindexerConfig.Slot0.kS = 0.56;
-        spindexerConfig.Slot0.kV = 0.127;
-
-        spindexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
-      }
-    }
   }
 
   /** Geometry and tuning data for intake system */

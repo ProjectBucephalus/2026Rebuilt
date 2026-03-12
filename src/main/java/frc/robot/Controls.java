@@ -32,7 +32,6 @@ import frc.robot.commands.swerve.TrenchNudgeDrive;
 import frc.robot.constants.ButtonPadConstants;
 import frc.robot.constants.IDConstants;
 import frc.robot.constants.Constants.ControlConstants;
-import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.ShooterConstants.FlywheelConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
@@ -67,7 +66,6 @@ public class Controls
     Vision s_Vision,
     Shooter s_PortShooter,
     Shooter s_StbdShooter,
-    Indexer s_Indexer, 
     Intake s_Intake,
     LinearExtension s_Climber
   )
@@ -262,18 +260,22 @@ public class Controls
     // Shooting when Ready
     shootActiveTrigger
       .and(s_PortShooter::shootReady)
+      .whileTrue(s_PortShooter.runIndexerCommand());
+    shootActiveTrigger
       .and(s_StbdShooter::shootReady)
-      .whileTrue(s_Indexer.runCommand(() -> Math.max(Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()), FeederConstants.feederMinSpeed)));
+      .whileTrue(s_StbdShooter.runIndexerCommand());
 
     // Dual manual shoot
     driver.leftBumper()
       .and(driver.rightBumper().negate())
       .whileTrue
       (
-        s_Indexer.runCommand(() -> Math.max(Math.max(s_StbdShooter.getSpeed(), s_PortShooter.getSpeed()), FeederConstants.feederMinSpeed))
-          .alongWith(bothShootersCmd(Shooter::makeShootSafe))
-          .alongWith(bothShootersCmd(Shooter::revFlywheels))
-          .withName("Manual Shoot")
+        parallel
+        (
+          bothShootersCmd(Shooter::makeShootSafe),
+          bothShootersCmd(Shooter::revFlywheels),
+          bothShootersCmd(Shooter::runIndexerCommand)
+        ).withName("Manual Shoot")
       );
 
     // Port manual shoot
@@ -283,19 +285,23 @@ public class Controls
       .and(debug.leftBumper().negate())
       .whileTrue
       (
-        s_Indexer.runCommand(s_PortShooter::getSpeed)
-        .alongWith(runOnce(s_PortShooter::makeShootSafe))
-        .alongWith(runOnce(s_PortShooter::revFlywheels))
-        .withName("Manual Shoot Port")
+        parallel
+        (
+          runOnce(s_PortShooter::makeShootSafe),
+          runOnce(s_PortShooter::revFlywheels),
+          s_PortShooter.runIndexerCommand()
+        ).withName("Manual Shoot Port")
       );
 
     // Port eject
     buttonPad.A2().and(btnSetPass.or(btnSetLocalisation))
       .whileTrue
       (
-        s_Indexer.runCommand(s_PortShooter::getSpeed)
-        .alongWith(runOnce(s_PortShooter::idleFlywheels))
-        .withName("Eject Port")
+        parallel
+        (
+          s_PortShooter.runIndexerCommand(),
+          runOnce(s_PortShooter::idleFlywheels)
+        ).withName("Eject Port")
       );
 
     // Port unjam
@@ -306,9 +312,8 @@ public class Controls
         parallel
         (
           s_PortShooter.runOnce(s_PortShooter::idleFlywheels),
-          s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
-        )
-        .withName("Unjam Port")
+          s_PortShooter.reverseIndexerCommand()
+        ).withName("Unjam Port")
       );
 
     // Stbd manual shoot
@@ -318,19 +323,23 @@ public class Controls
       .and(debug.rightBumper().negate())
       .whileTrue
       (
-        s_Indexer.runCommand(s_StbdShooter::getSpeed)
-        .alongWith(runOnce(s_StbdShooter::makeShootSafe))
-        .alongWith(runOnce(s_StbdShooter::revFlywheels))
-        .withName("Manual Shoot Stbd")
+        parallel
+        (
+          runOnce(s_StbdShooter::makeShootSafe),
+          runOnce(s_StbdShooter::revFlywheels),
+          s_StbdShooter.runIndexerCommand()
+        ).withName("Manual Shoot Stbd")
       );
 
     // Stbd eject
     buttonPad.H2().and(btnSetPass.or(btnSetLocalisation))
       .whileTrue
       (
-        s_Indexer.runCommand(s_StbdShooter::getSpeed)
-        .alongWith(runOnce(s_StbdShooter::idleFlywheels))
-        .withName("Eject Stbd")
+        parallel
+        (
+          s_StbdShooter.runIndexerCommand(),
+          runOnce(s_StbdShooter::idleFlywheels)
+        ).withName("Eject Stbd")
       );
 
     // Stbd unjam
@@ -341,9 +350,8 @@ public class Controls
         parallel
         (
           s_StbdShooter.runOnce(s_StbdShooter::idleFlywheels),
-          s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed)
-        )
-        .withName("Unjam Stbd")
+          s_StbdShooter.reverseIndexerCommand()
+        ).withName("Unjam Stbd")
       );
 
     // Manual Target Control
@@ -414,23 +422,23 @@ public class Controls
     // Manual Feeder control
     // Run
     buttonPad.B4().and(btnSetManual)
-      .whileTrue(s_Indexer.runCommand(s_PortShooter::getSpeed));
+      .whileTrue(s_PortShooter.runIndexerCommand());
     buttonPad.G4().and(btnSetManual)
-      .whileTrue(s_Indexer.runCommand(s_StbdShooter::getSpeed));
+      .whileTrue(s_StbdShooter.runIndexerCommand());
     
     // Stop
     buttonPad.C4().and(btnSetManual)
       .or(buttonPad.B2().and(btnSetPass.or(btnSetLocalisation)))
-      .whileTrue(s_Indexer.runCommand(() -> 0));
+      .whileTrue(s_PortShooter.stopIndexerCommand());
     buttonPad.F4().and(btnSetManual)
       .or(buttonPad.G2().and(btnSetPass.or(btnSetLocalisation)))
-      .whileTrue(s_Indexer.runCommand(() -> 0));
+      .whileTrue(s_StbdShooter.stopIndexerCommand());
 
     // Reverse
     buttonPad.D4().and(btnSetManual)
-      .whileTrue(s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed));
+      .whileTrue(s_PortShooter.reverseIndexerCommand());
     buttonPad.E4().and(btnSetManual)
-      .whileTrue(s_Indexer.runCommand(() -> FeederConstants.feederReverseSpeed));
+      .whileTrue(s_StbdShooter.reverseIndexerCommand());
 
 
     // -------------INTAKE-------------- //

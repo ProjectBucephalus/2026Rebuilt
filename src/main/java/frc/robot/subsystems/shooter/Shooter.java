@@ -11,17 +11,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants.ShooterConstants;
+import frc.robot.constants.Constants.ShooterConstants.*;
 import frc.robot.constants.Constants.Interpolation;
 import frc.robot.constants.Constants.ShooterConstants.HoodConstants;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.constants.IDConstants.ShooterIDs;
+import frc.robot.subsystems.generic.VelocityMotor;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 
-import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.idleSpeed;
-
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -40,6 +39,8 @@ public class Shooter extends SubsystemBase
   private final Turret turret;
   @Logged
   private final Hood hood;
+  @Logged
+  private final VelocityMotor indexer;
   
   private final Transform2d shooterOffset;
   private final Translation2d baseTargetOffset;
@@ -87,6 +88,7 @@ public class Shooter extends SubsystemBase
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, target);
     hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, hoodHomeAngle, target);
+    indexer = new VelocityMotor(idBlock.indexerCAN(), IndexerConstants.indexerConfig);
 
     target.azimuth = turret.getAzimuth();
   }
@@ -155,11 +157,20 @@ public class Shooter extends SubsystemBase
    */
   public boolean makeShootSafe()
   {
-    if (target.speed < idleSpeed)
-      {target.speed = idleSpeed;}
+    if (target.speed < FlywheelConstants.idleSpeed)
+      {target.speed = FlywheelConstants.idleSpeed;}
 
     return flywheels.atSpeed();
   }
+
+  public Command runIndexerCommand()
+    {return indexer.runCommand(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed));}
+
+  public Command reverseIndexerCommand()
+    {return indexer.runCommand(() -> IndexerConstants.indexerReverseSpeed);}
+
+  public Command stopIndexerCommand()
+    {return indexer.runCommand(() -> 0.0);}
 
   /** Sets the flywheels to rev up to target speed */
   public void revFlywheels() {target.flywheelsActive = true;}
@@ -226,16 +237,19 @@ public class Shooter extends SubsystemBase
       case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
+
+    if (target.disabled && (!PBDash.E_STOP.get()))
+      indexer.setSpeed(IndexerConstants.indexerReverseSpeed);
+
     if (target.disabled || (PBDash.E_STOP.get() && target.state != TargetState.Manual))
       flywheels.setSpeed(0);
     else if (target.flywheelsActive)
       flywheels.setSpeed(target.speed);
     else
-      flywheels.setSpeed(idleSpeed);
+      flywheels.setSpeed(FlywheelConstants.idleSpeed);
 
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update();
-    
 
     telemetrise();
   }
