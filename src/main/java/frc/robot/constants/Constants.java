@@ -199,13 +199,13 @@ public final class Constants
     public static final class TurretConstants
     {
       /** Maximum rotation either side of centre before reaching mechanical/cable limits, degrees */
-      public static final double maxTurretAzimuth = 180;
+      public static final double maxTurretAzimuth = 250;
       /** Angle range at end-of-travel to stop shooting and prepare to unwind, degrees */
       public static final double limitBufferZone = 10;
       /** Position to hold when idle, degrees */
       public static final double turretIdlePosition = 0;
       /** Target rotation rate when moving, rps */
-      public static final double turretTurnSpeed = 0.5;
+      public static final double turretTurnSpeed = 1;
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
@@ -242,11 +242,11 @@ public final class Constants
         turretConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
         
         turretConfig.Slot0.kS = 0.5;
-        turretConfig.Slot0.kV = 6.2;
+        turretConfig.Slot0.kV = 7.38;
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 3.0;
+        turretConfig.Slot0.kP = 105.93;
         turretConfig.Slot0.kI = 0.0;
-        turretConfig.Slot0.kD = 0.0;
+        turretConfig.Slot0.kD = 0.5;
 
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
         turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
