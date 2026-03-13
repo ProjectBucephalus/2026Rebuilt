@@ -102,17 +102,19 @@ public class Vision extends SubsystemBase
             double rotStdDev = rotStdDevBaseline * stdDevFactor;
             var stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev);
 
+            double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
+
             // If the camera is mounted on a turret, apply additional offset processing
             Pose2d poseOut = 
               ll.isOnTurret() 
-              ? est.estimatedPose.toPose2d().transformBy(ll.getTurretToRobot())
+              ? est.estimatedPose.toPose2d().transformBy(ll.getTurretToRobot(timestamp))
               : est.estimatedPose.toPose2d();
             
             // Update time since last good pose estimate
             lastGoodPose = Timer.getTimestamp();
 
             // Send pose estimate to consumer
-            estimateConsumer.accept(poseOut, Utils.fpgaToCurrentTime(est.timestampSeconds), stdDevs);
+            estimateConsumer.accept(poseOut, timestamp, stdDevs);
           }
         });
       }

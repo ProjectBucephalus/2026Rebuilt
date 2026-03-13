@@ -292,8 +292,8 @@ public final class Constants
     public static final Transform3d stbdLimelightOffset = new Transform3d(0.25, 0, -0.6745, new Rotation3d(0, -13, 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
     public static final double visionFrequencyThreshold = 10;
-    /** Cycles of latency to receive vision estimates, used to sync up turret rotation and vision readings */
-    public static final int latencyCycles = 5;
+    /** How many seconds into the past we store turret azimuth readings */
+    public static final double azimuthBufLength = 10;
 
     public static final Set<Integer> hubIDs = Set.of
     (

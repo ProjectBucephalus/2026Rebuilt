@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -124,6 +125,10 @@ public class Shooter extends SubsystemBase
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
     {return turret.getAzimuth();}
+
+  /** @return A pair consisting of the timestamp of the last azimuth reading (in current seconds), and the reading itself (in degrees) */
+  public Pair<Double, Double> getAzimuthTimestamped()
+    {return turret.getAzimuthTimestamped();}
 
   /** @return Current speed of the flywheels (RPS of the main flywheel) */
   public double getSpeed()

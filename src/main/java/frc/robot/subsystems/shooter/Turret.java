@@ -9,6 +9,7 @@ import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.sim.ChassisReference;
@@ -16,6 +17,7 @@ import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -103,6 +105,20 @@ public class Turret
       return motorSim.getAngularPosition().in(Units.Degrees);
     else 
       return m_Turret.getPosition().getValue().in(Units.Degrees);
+  }
+
+  public Pair<Double, Double> getAzimuthTimestamped()
+  {
+    if (Robot.isSimulation())
+    {
+      double angle = motorSim.getAngularPosition().in(Units.Degrees);
+      return new Pair<Double,Double>(Utils.getCurrentTimeSeconds(), angle);
+    }
+    else 
+    {
+      var signal = m_Turret.getPosition();
+      return new Pair<Double,Double>(signal.getTimestamp().getTime(), signal.getValue().in(Units.Degrees));
+    }
   }
   
   /** @return turret degrees as reported by potentiometer */
