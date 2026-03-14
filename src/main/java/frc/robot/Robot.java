@@ -118,7 +118,8 @@ public class Robot extends TimedRobot
     IDConstants.portShooterIDs,
     ShooterConstants.TurretConstants.portPotOffset,
     true,
-    ShooterConstants.HoodConstants.portHomeAngle
+    ShooterConstants.HoodConstants.portHomeAngle,
+    false
   );
   
   @Logged(name = "Stbd Shooter")
@@ -129,7 +130,8 @@ public class Robot extends TimedRobot
     IDConstants.stbdShooterIDs,
     ShooterConstants.TurretConstants.stbdPotOffset,
     false,
-    ShooterConstants.HoodConstants.stbdHomeAngle
+    ShooterConstants.HoodConstants.stbdHomeAngle,
+    true
   );
   
   @Logged(name = "Vision")

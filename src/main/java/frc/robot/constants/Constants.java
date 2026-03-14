@@ -261,10 +261,6 @@ public final class Constants
       public static final double indexerReverseSpeed = -25;
 
       private static final double gearboxRatio = 1;
-      //private static final double lowerRollerPulley = 24;
-      //private static final double upperRollerPuller = 18;
-      //private static final double rollerBeltRatio = upperRollerPuller / lowerRollerPulley;
-      //private static final double motorToUpperRatio = rollerBeltRatio * gearboxRatio;
 
       public static final TalonFXConfiguration indexerConfig = new TalonFXConfiguration();
       static

@@ -26,6 +26,7 @@ import frc.robot.util.PBDash;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 /**
@@ -77,7 +78,8 @@ public class Shooter extends SubsystemBase
     ShooterIDs idBlock,
     double azimuthOffset,
     boolean invertedHood,
-    double hoodHomeAngle
+    double hoodHomeAngle,
+    boolean invertedFeeder
   ) 
   {
     this.swerveStateSup = swerveStateSup;
@@ -90,6 +92,9 @@ public class Shooter extends SubsystemBase
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, target);
     hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, hoodHomeAngle, target);
+    
+    var indexerDir = invertedFeeder ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+    IndexerConstants.indexerConfig.MotorOutput.Inverted = indexerDir;
     indexer = new VelocityMotor(idBlock.indexerCAN(), IndexerConstants.indexerConfig);
 
     target.azimuth = turret.getAzimuth();
