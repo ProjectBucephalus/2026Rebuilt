@@ -176,7 +176,7 @@ public class Shooter extends SubsystemBase
   }
 
   public Command runIndexerCommand()
-    {return indexer.runCommand(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed));}
+    {return indexer.runCommand(() -> Math.max(getSpeed() * 2.9, IndexerConstants.indexerMinSpeed));}
 
   public Command reverseIndexerCommand()
     {return indexer.runCommand(() -> IndexerConstants.indexerReverseSpeed);}

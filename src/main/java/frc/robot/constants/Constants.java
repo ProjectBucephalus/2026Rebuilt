@@ -263,13 +263,14 @@ public final class Constants
     }
 
     /** Tuning data for indexer */
-    public  static final class IndexerConstants 
+    public static final class IndexerConstants 
     {
       public static final double indexerSpeed = 50;
       public static final double indexerMinSpeed = 25;
       public static final double indexerReverseSpeed = -25;
 
       private static final double gearboxRatio = 1;
+      public static final double flywheelSpeedRatio = 2.9;
 
       public static final TalonFXConfiguration indexerConfig = new TalonFXConfiguration();
       static
