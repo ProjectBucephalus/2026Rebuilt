@@ -336,7 +336,7 @@ public class Robot extends TimedRobot
     MatchTime.startAuto();
     FieldUtils.updateAlliance();
     
-    if (autoCommand.isEmpty())
+    //if (autoCommand.isEmpty())
       compileAuto();
 
     CommandScheduler.getInstance().schedule(autoCommand.get());
