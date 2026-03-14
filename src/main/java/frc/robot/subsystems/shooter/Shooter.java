@@ -160,7 +160,8 @@ public class Shooter extends SubsystemBase
       target.flywheelsActive
       && turret.readyToShoot(swerveState.Speeds)
       && hood.atAltitude()
-      && flywheels.atSpeed();
+      && flywheels.atSpeed()
+      && target.distance > ShooterConstants.minRange;
   }
 
   /**
