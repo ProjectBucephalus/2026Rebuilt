@@ -68,8 +68,8 @@ public class CommandGen
    */
   public Command compile()
   {
-    // Initialise our starting pose based on where the robot currently is TODO ensure this behaviour is okay
-    currPose = swerveStateSup.get().Pose;
+    // Initialise our starting pose based on where the robot currently is. If we're on red alliance, we rotate the pose to make it blue-relative
+    currPose = FieldUtils.allianceRotatePose(swerveStateSup.get().Pose);
 
     // Iterate over each instruction, calling a seperate function that handles the actual compilation logic and handling any errors that arise
     // This design means that the actual compilation logic is seperated from the error handling, and doesn't have to consider them
@@ -154,6 +154,18 @@ public class CommandGen
         if (y != yArg) {AutoBuilder.error("warning: y value `", yArg, "` was clamped to `", y, "`");}
 
         currPose = new Pose2d(new Translation2d(x, y), rotationTarget);
+
+        // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
+        commands.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, FieldUtils.allianceRotatePose(currPose)));
+      }
+      // driveby(x y) - Relative drive TODO document
+      case driveby -> 
+      {
+        assertArgCount(2);
+
+        Translation2d offset = new Translation2d(instr.arg(0).asNum(), instr.arg(1).asNum());
+
+        currPose = new Pose2d(currPose.getTranslation().plus(offset), currPose.getRotation());
 
         // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
         commands.addCommands(new PathFollowDrive(s_Swerve, swerveStateSup, FieldUtils.allianceRotatePose(currPose)));

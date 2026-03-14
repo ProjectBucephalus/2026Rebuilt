@@ -468,7 +468,7 @@ public final class Constants
 
       //public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = -0.146;//-0.332;
+      public static final double minRotations = -0.332;
       public static final double maxRotations = 0.0;
       public static final double homeRotations = 0.03;
       public static final double bumpSafeRotations = -0.14;
@@ -481,7 +481,7 @@ public final class Constants
       public static final TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
       static
       {
-        extensionConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        extensionConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         extensionConfig.Feedback.FeedbackRemoteSensorID = IDConstants.extensionEncoderCAN;
         extensionConfig.Feedback.RotorToSensorRatio = extensionPlanetaryRatio * extensionGearRatio;

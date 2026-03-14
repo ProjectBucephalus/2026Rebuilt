@@ -105,7 +105,7 @@ public final class ParsedRepr
      */
     public static enum Type
     {
-      driveto, follow, 
+      driveto, driveby, follow, 
       waitfor, waituntil, 
       intake, 
       passing
