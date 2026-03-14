@@ -66,13 +66,12 @@ public class Hood
     // Limit the target altitude to within the hood's range of motion
     double altitude = Conversions.clamp(target.altitude, 0, hoodRange);
 
-
-
     boolean inTrench = GeoFencing.trenchNB.asTrigger()
       .or(GeoFencing.trenchSB.asTrigger())
       .or(GeoFencing.trenchNR.asTrigger())
       .or(GeoFencing.trenchSR.asTrigger())
       .getAsBoolean();
+      
     if (target.disabled || inTrench)
       altitude = 0;
 
