@@ -501,8 +501,8 @@ public final class Constants
         extensionConfig.Slot0.kD = 0.0;
         extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.6;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.5;
+        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 10;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 50;
       };
     }
   }   
