@@ -199,7 +199,7 @@ public final class Constants
     public static final class TurretConstants
     {
       /** Maximum rotation either side of centre before reaching mechanical/cable limits, degrees */
-      public static final double maxTurretAzimuth = 5;
+      public static final double maxTurretAzimuth = 215;
       /** Angle range at end-of-travel to stop shooting and prepare to unwind, degrees */
       public static final double limitBufferZone = 10;
       /** Position to hold when idle, degrees */
@@ -244,7 +244,7 @@ public final class Constants
         turretConfig.Slot0.kS = 0.5;
         turretConfig.Slot0.kV = 7.38;
         turretConfig.Slot0.kA = 0.0;
-        turretConfig.Slot0.kP = 105.93;
+        turretConfig.Slot0.kP = 4.27;
         turretConfig.Slot0.kI = 0.0;
         turretConfig.Slot0.kD = 0.5;
 
