@@ -256,6 +256,6 @@ public class FieldUtils
       case Red -> pos.getY() < fieldCentre.getY();
     };
 
-    return inLeftHalf ? ControlConstants.leftFerryTarget.get() : ControlConstants.rightFerryTarget.get();
+    return inLeftHalf ? ControlConstants.leftPassPoint.get() : ControlConstants.rightPassPoint.get();
   }  
 }

@@ -60,8 +60,8 @@ public final class Constants
     /** Attractor maximum angle tolerance, degrees */
     public static final double maxAngleTolerance = 60;
 
-    public static final AllianceTranslation2d leftFerryTarget = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 1.5);
-    public static final AllianceTranslation2d rightFerryTarget = new AllianceTranslation2d(1.5, 1.5);
+    public static final AllianceTranslation2d leftPassPoint = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 2);
+    public static final AllianceTranslation2d rightPassPoint = new AllianceTranslation2d(1.5, 2);
 
     public static final double manualIntakeExtensionAmount = 0.15;
     public static final double manualClimberExtensionScale = 0.05;
