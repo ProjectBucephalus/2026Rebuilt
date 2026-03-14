@@ -242,7 +242,7 @@ public class Robot extends TimedRobot
     GeoFencing.fieldRedGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Red));
     GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Blue));
 
-    GeoFencing.hubBlueOutput
+ /*   GeoFencing.hubBlueOutput
       .setActiveCondition
       (
         () -> 
@@ -263,7 +263,7 @@ public class Robot extends TimedRobot
           ControlConstants.preShiftOutputMargin, 
           ControlConstants.postShiftOutputMargin
         ) && !state.nudging
-      );
+      ); */
   }
 
   /** Sets trigger conditions to activate controller rumbles */

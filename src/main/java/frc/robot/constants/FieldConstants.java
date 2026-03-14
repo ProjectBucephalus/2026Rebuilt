@@ -63,9 +63,9 @@ public class FieldConstants
     public static final double fieldWest = 0;
 
     /** Buffer zone around field walls, metres */
-    public static final double wallBuffer = 0.35;
+    public static final double wallBuffer = 0.7;
     /** Radius around field walls, metres */
-    public static final double wallRadius = 0.05;
+    public static final double wallRadius = 0;
     
     /** Radius around hubs, metres */
     public static final double hubRadius = 0.15;
@@ -210,9 +210,9 @@ public class FieldConstants
       trenchSR,
       trenchNR,
       hubBlue, 
-      hubRed,
+      hubRed/*,
       hubBlueOutput,
-      hubRedOutput
+      hubRedOutput */
     );
 
     public static final ObjectList fieldBlueGeoFence = new ObjectList
