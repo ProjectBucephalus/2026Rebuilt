@@ -81,7 +81,8 @@ public final class Constants
     public static final Pair<String, String>[] autoPresets = new Pair[]
     {
       new Pair<>("Blank", ""),
-      new Pair<>("Drive Back", "Intake(on), DriveBy(-1 0)")
+      new Pair<>("Drive Back", "Intake(on), DriveBy(-1 0)"),
+      new Pair<>("Aussie's Auto", "Follow(r_trench_a2m), Intake(on), Follow(r_balls), Follow(r_trench_m2a), DriveTo(2.5 2)")
     };
   }
 
