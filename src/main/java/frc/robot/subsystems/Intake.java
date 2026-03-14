@@ -79,6 +79,10 @@ public class Intake extends SubsystemBase
   public Command extendCommand()
     {return extension.setTargetCommand(() -> ExtensionConstants.maxRotations).unless(PBDash.E_STOP::get);}
 
+  /** @return Command to extend the extension to the squish position */
+  public Command squishCommand()
+    {return extension.setTargetCommand(() -> ExtensionConstants.squishRotations);}
+
   /**
    * @param  shiftSup Supplier for relative control value, mechanism rotations
    * @return Command to smoothly control the extension 

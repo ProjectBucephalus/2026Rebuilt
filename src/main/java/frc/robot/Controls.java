@@ -502,7 +502,8 @@ public class Controls
     // Squish
     buttonPad.E2().and(btnSetPass.or(btnSetLocalisation))
       .or(buttonPad.C8().and(btnSetManual))
-      .whileTrue(s_Intake.manualExtensionCommand(() -> ControlConstants.intakeSquishAmount));
+      .onTrue(s_Intake.squishCommand())
+      .onFalse(s_Intake.extendCommand());
 
 
     // -------------CLIMBER------------- //
