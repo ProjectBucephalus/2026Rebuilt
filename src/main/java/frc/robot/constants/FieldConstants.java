@@ -219,18 +219,18 @@ public class FieldConstants
     (
       towerPostBlueN,
       towerPostBlueS,
-      towerRed,
+      towerRed/*,
       depotBlueZone,
-      depotRedFence
+      depotRedFence*/
     );
 
     public static final ObjectList fieldRedGeoFence = new ObjectList
     (
       towerPostRedN,
       towerPostRedS,
-      towerBlue,
+      towerBlue/*,
       depotRedZone,
-      depotBlueFence
+      depotBlueFence*/
     );
 
     public static final ObjectList fieldGeoFence = new ObjectList
