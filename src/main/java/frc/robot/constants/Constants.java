@@ -195,8 +195,8 @@ public final class Constants
       /** Range of motion of hood, degrees */
       public static final double hoodRange = 19;
 
-      public static final double portHomeAngle = 0;
-      public static final double stbdHomeAngle = 26;
+      public static final double portHomeAngle = 10;
+      public static final double stbdHomeAngle = 21;
 
       public static final double servoGear = 20;
       public static final double hoodGear = 193;
