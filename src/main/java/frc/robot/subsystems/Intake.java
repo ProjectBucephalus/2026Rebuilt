@@ -38,8 +38,6 @@ public class Intake extends SubsystemBase
   { 
     roller = new VelocityMotor(intakeCAN, RollerConstants.intakeConfig);
     extension = new PositionMotor(extensionCAN, ExtensionConstants.extensionConfig);
-
-    //new LimitedMotor(extensionCAN, ExtensionConstants.minRotations, ExtensionConstants.maxRotations, ExtensionConstants.homeRotations);
   }
 
   /** @return brake value to apply when intake is running */
