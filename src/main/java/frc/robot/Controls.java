@@ -82,19 +82,6 @@ public class Controls
     final Trigger btnSetLocalisation  = new Trigger(() -> state.btnSet == ButtonPadState.LocalisationOveride);
     final Trigger btnSetManual        = new Trigger(() -> state.btnSet == ButtonPadState.ManualControls);
 
-    // Sync all on first connection
-    new Trigger(switchboard::isConnected)
-      .onTrue
-      (
-        Commands.runOnce(() -> {
-          PBDash.IO_AUTO_AIM.put(switchboard.getHID().getRawButton(IDConstants.autoAimSwitchID));
-          PBDash.IO_AUTO_REV.put(switchboard.getHID().getRawButton(IDConstants.autoRevSwitchID));
-          PBDash.IO_AUTO_PASS.put(switchboard.getHID().getRawButton(IDConstants.autoPassSwitchID));
-          PBDash.IO_FENCE.put(switchboard.getHID().getRawButton(IDConstants.fencingSwitchID));   
-          PBDash.IO_LL.put(switchboard.getHID().getRawButton(IDConstants.visionSwitchID));
-        })
-      );
-
     // Auto aim switch
     switchboard.button(IDConstants.autoAimSwitchID)
       .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(IDConstants.autoAimSwitchID).getAsBoolean())).ignoringDisable(true));
@@ -261,8 +248,8 @@ public class Controls
       .and(PBDash.IO_AUTO_REV::get)
       .and(shootActiveTrigger)
       .and(allianceZoneTrigger.and(hubActiveTrigger).or(PBDash.IO_AUTO_PASS::get))
-      .onTrue(bothShootersCmd(Shooter::revFlywheels))
-      .onFalse(bothShootersCmd(Shooter::idleFlywheels));
+      .onTrue(bothShootersCmd(Shooter::revFlywheels).ignoringDisable(true))
+      .onFalse(bothShootersCmd(Shooter::idleFlywheels).ignoringDisable(true));
 
     // Shooting when Ready
     shootActiveTrigger

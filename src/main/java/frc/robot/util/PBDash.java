@@ -38,7 +38,7 @@ public class PBDash
   public static final Key<Boolean> E_STOP           = new Key<>("Mechanism E-Stop", false);
 
   // Auto-builder strings
-  public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
+  public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "Intake(on), DriveTo(2.5 4)");
   public static final Key<String>  AUTO_ERRS        = new Key<>("Auto String Errors", "");
 
   public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", false);
@@ -47,7 +47,7 @@ public class PBDash
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
   public static final Key<Boolean> IO_FENCE         = new Key<>("Enable Fencing", true);
   public static final Key<Boolean> IO_AUTO_AIM      = new Key<>("Auto Aim", true);
-  public static final Key<Boolean> IO_AUTO_PASS     = new Key<>("Auto Pass", true);
+  public static final Key<Boolean> IO_AUTO_PASS     = new Key<>("Auto Pass", false);
   public static final Key<Boolean> IO_AUTO_REV      = new Key<>("Auto Rev", true);
 
   
