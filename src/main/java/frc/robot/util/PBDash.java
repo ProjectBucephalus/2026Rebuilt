@@ -75,7 +75,7 @@ public class PBDash
   public static final SendableChooser<String> AUTO_PRESETS = new SendableChooser<>();
   static
   {
-    AUTO_PRESETS.setDefaultOption(ControlConstants.autoPresets[0].getFirst(), ControlConstants.autoPresets[0].getFirst());
+    AUTO_PRESETS.setDefaultOption(ControlConstants.autoPresets[0].getFirst(), ControlConstants.autoPresets[0].getSecond());
     for (int i = 1; i < ControlConstants.autoPresets.length; i++)
     {
       var preset = ControlConstants.autoPresets[i];
