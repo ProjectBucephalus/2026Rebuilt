@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
@@ -269,7 +270,8 @@ public class Robot extends TimedRobot
   /** Sets trigger conditions to activate controller rumbles */
   private void bindRumbles()
   {
-
+    new Trigger(() -> FieldUtils.hubActive(FieldUtils.getAlliance())) 
+      .onChange(io_driverLeft.timedRequestCommand("Shift Change", 0.5));
   }
 
   /* UTIL METHODS */
