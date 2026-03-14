@@ -62,7 +62,7 @@ public final class Constants
     public static final AllianceTranslation2d leftFerryTarget = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 1.5);
     public static final AllianceTranslation2d rightFerryTarget = new AllianceTranslation2d(1.5, 1.5);
 
-    public static final double manualIntakeExtensionAmount = 0.05;
+    public static final double manualIntakeExtensionAmount = 0.15;
     public static final double manualClimberExtensionScale = 0.05;
     public static final double manualClimberExtensionAmount = 0.05;
     public static final double manualShooterAzimuthAmount = 1.8;
