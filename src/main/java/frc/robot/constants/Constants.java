@@ -215,7 +215,7 @@ public final class Constants
       /** Position to hold when idle, degrees */
       public static final double turretIdlePosition = 0;
       /** Target rotation rate when moving, rps */
-      public static final double turretTurnSpeed = 1;
+      public static final double turretTurnSpeed = 2;
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
