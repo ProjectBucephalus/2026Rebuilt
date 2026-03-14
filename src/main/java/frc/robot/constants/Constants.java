@@ -144,7 +144,8 @@ public final class Constants
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.12;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactor = 0.1;
+    public static final double leadFactor = 0.5;
+    public static final double minRange = 1.1;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants
@@ -214,7 +215,7 @@ public final class Constants
       /** Position to hold when idle, degrees */
       public static final double turretIdlePosition = 0;
       /** Target rotation rate when moving, rps */
-      public static final double turretTurnSpeed = 1;
+      public static final double turretTurnSpeed = 2;
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
