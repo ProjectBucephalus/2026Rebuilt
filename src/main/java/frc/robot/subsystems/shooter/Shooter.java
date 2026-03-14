@@ -262,7 +262,7 @@ public class Shooter extends SubsystemBase
       flywheels.setSpeed(FlywheelConstants.idleSpeed);
 
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
-    hood.update();
+    hood.update(shooterPose);
 
     telemetrise();
   }

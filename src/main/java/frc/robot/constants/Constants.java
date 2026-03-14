@@ -82,7 +82,12 @@ public final class Constants
     {
       new Pair<>("Blank", ""),
       new Pair<>("Drive Back", "Intake(on), DriveBy(-1 0)"),
-      new Pair<>("Aussie's Auto", "Follow(r_trench_a2m), Intake(on), Follow(r_balls), Follow(r_trench_m2a), DriveTo(2.5 2)")
+      new Pair<>("Aussie's Auto", "Follow(r_trench_a2m), Intake(on), Follow(r_balls), Follow(r_trench_m2a), DriveTo(1.5 1)"),
+      new Pair<>
+      (
+        "Aussie's Auto v2", 
+        "Follow(r_trench_a2m), Intake(on), Follow(r_balls), Follow(r_trench_m2a), DriveTo(3 1), WaitFor(4), Follow(r_trench_a2m), DriveTo(5.75 5 90), Follow(r_trench_m2a), DriveTo(3 1)"
+      )
     };
   }
 
