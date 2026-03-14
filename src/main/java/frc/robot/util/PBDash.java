@@ -75,9 +75,12 @@ public class PBDash
   public static final SendableChooser<String> AUTO_PRESETS = new SendableChooser<>();
   static
   {
-    AUTO_PRESETS.setDefaultOption("Blank", "");
-    AUTO_PRESETS.addOption("Wait", "WaitUntil(0)");
-    AUTO_PRESETS.addOption("Collection Loop", "Follow(r_trench_a2m), Follow(r_balls), Follow(l_trench_m2a)");
+    AUTO_PRESETS.setDefaultOption(ControlConstants.autoPresets[0].getFirst(), ControlConstants.autoPresets[0].getFirst());
+    for (int i = 1; i < ControlConstants.autoPresets.length; i++)
+    {
+      var preset = ControlConstants.autoPresets[i];
+      AUTO_PRESETS.addOption(preset.getFirst(), preset.getSecond());
+    }
     AUTO_PRESETS.onChange(AUTO_STRING::put);
     putSendable("Auto Presets", AUTO_PRESETS);
   }

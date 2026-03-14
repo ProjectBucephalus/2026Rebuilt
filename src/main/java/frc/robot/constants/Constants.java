@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import frc.robot.util.AllianceTranslation2d;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -75,6 +76,14 @@ public final class Constants
 
     public static final double preShiftOutputMargin = 1;
     public static final double postShiftOutputMargin = 2;
+
+    @SuppressWarnings("unchecked") // No way to make it work that doesn't give warning afaik
+    /** First element is the default */
+    public static final Pair<String, String>[] autoPresets = new Pair[]
+    {
+      new Pair<>("Blank", ""),
+      new Pair<>("Drive Back", "DriveBy(-1 0)")
+    };
   }
 
   /** Geometry and tuning data for drivebase */
@@ -477,7 +486,7 @@ public final class Constants
       public static final TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
       static
       {
-        extensionConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        extensionConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         extensionConfig.Feedback.FeedbackRemoteSensorID = IDConstants.extensionEncoderCAN;
         extensionConfig.Feedback.RotorToSensorRatio = extensionPlanetaryRatio * extensionGearRatio;
