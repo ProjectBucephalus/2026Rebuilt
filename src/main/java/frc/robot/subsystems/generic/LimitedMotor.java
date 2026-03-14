@@ -3,28 +3,20 @@ package frc.robot.subsystems.generic;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Conversions;
 /** 
  * Generic subclass for a range-limited motor with a binary switch at the home position 
  * @author 5985
  */
 @Logged(strategy = Strategy.OPT_IN)
-public class LimitedMotor extends SubsystemBase
+public class LimitedMotor extends PositionMotor
 {
-  private final TalonFX m_Limited;
-
   private final Limit limit;
-
-  private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
   private final double maxRotations;
   private final double minRotations;
@@ -47,16 +39,13 @@ public class LimitedMotor extends SubsystemBase
    */
   public LimitedMotor(int motorCAN, int limitIO, double minRotations, double maxRotations, double homeRotations, TalonFXConfiguration configs)
   {
+    super(motorCAN, configs);
     this.maxRotations = maxRotations;
     this.minRotations = minRotations;
     this.homeRotations = homeRotations;
     slot1Valid = configs.Slot1.kP != 0;
 
-    m_Limited = new TalonFX(motorCAN);
-
-    m_Limited.getConfigurator().apply(configs);
-
-    m_Limited.setPosition(minRotations);
+    m_Position.setPosition(minRotations);
 
     if (limitIO == -1)
       limit = new StallLimit(configs.CustomParams.CustomParam0);
@@ -64,21 +53,27 @@ public class LimitedMotor extends SubsystemBase
       limit = new DIOLimit(limitIO);
   } 
 
-  /** @return Current physical angle, in mechanism rotations */
-  @Logged(name = "Angle Rotations")
-  public double getAngle()
-    {return m_Limited.getPosition().getValue().in(Units.Rotation);}
-
   /**
    * Sets the target point for the motor 
    * @param target mechanism rotations
    */
+  @Override
   public void setTarget(double target) 
   {
     double clampedRotations = Conversions.clamp(target, minRotations, maxRotations);
     int slot = (!homed && slot1Valid) ? 1 : 0;
-    m_Limited.setControl
-      (request.withPosition(clampedRotations).withSlot(slot));
+    request.withSlot(slot);
+    super.setTarget(clampedRotations);
+  }
+
+  /**
+   * Sets the target point for the motor, ignoring limits
+   * @param target mechanism rotations
+   */
+  public void forceSetTarget(double target)
+  {
+    request.withSlot(0);
+    super.setTarget(target);
   }
 
   /** Sets the target to the maximum limit */
@@ -89,38 +84,12 @@ public class LimitedMotor extends SubsystemBase
     {return setTargetCommand(minRotations);}
 
   /**
-   * Sets the target point for the motor, ignoring limits
-   * @param target mechanism rotations
-   */
-  public void forceSetTarget(double target)
-  {
-    m_Limited.setControl(request.withPosition(target).withSlot(0));
-  }
-
-  /**
-   * Creates a command to set the target point for the motor <p>
-   * @param target mechanism rotations
-   * @return the Command
-   */
-  public Command setTargetCommand(DoubleSupplier target)
-    {return runOnce(() -> setTarget(target.getAsDouble()));}
-
-  /**
-   * Creates a command to set the target point for the motor <p>
-   * NOTE: The provided value is only evaluated when the command is created
-   * @param target mechanism rotations
-   * @return the Command
-   */
-  public Command setTargetCommand(double target)
-    {return setTargetCommand(() -> target);}
-
-
-  /**
    * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
    * Primarily intended for joystick control
    * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
    * @return the Command
    */
+  @Override
   public Command adjustTargetCommand(DoubleSupplier shiftSup) 
     {return run(() -> {if (shiftSup.getAsDouble() != 0) forceSetTarget(getAngle() + shiftSup.getAsDouble());});}
 
@@ -133,7 +102,7 @@ public class LimitedMotor extends SubsystemBase
       {
         homed = true;
         homeLastCycle = true;
-        m_Limited.setPosition(homeRotations);
+        m_Position.setPosition(homeRotations);
       }
     }
     else 
@@ -164,6 +133,6 @@ public class LimitedMotor extends SubsystemBase
 
     @Override
     public boolean atLimit() 
-      {return Math.abs(m_Limited.getTorqueCurrent().getValueAsDouble()) >= stallCurrent;}
+      {return Math.abs(m_Position.getTorqueCurrent().getValueAsDouble()) >= stallCurrent;}
   }
 }

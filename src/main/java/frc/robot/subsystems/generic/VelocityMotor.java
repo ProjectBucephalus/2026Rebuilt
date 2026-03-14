@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * A subsystem wrapped around a TalonFX to provide a simple subsystem for controlling a motor with mechanism ratio
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class VelocityMotor extends SubsystemBase 
 {
   protected final TalonFX m_Velocity;

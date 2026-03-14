@@ -466,7 +466,7 @@ public final class Constants
       private static final double extensionOutPulley = 30;
       private static final double extensionChainRatio = extensionOutPulley / extensionInPulley;
 
-      public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
+      //public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
       public static final double minRotations = -0.146;//-0.332;
       public static final double maxRotations = 0.0;
@@ -483,10 +483,9 @@ public final class Constants
       {
         extensionConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        extensionConfig.Feedback.SensorToMechanismRatio = extensionRatio;
-
-        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.6;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.5;
+        extensionConfig.Feedback.FeedbackRemoteSensorID = IDConstants.extensionEncoderCAN;
+        extensionConfig.Feedback.RotorToSensorRatio = extensionPlanetaryRatio * extensionGearRatio;
+        extensionConfig.Feedback.SensorToMechanismRatio = extensionChainRatio;
 
         extensionConfig.Slot0.kS = 0.2;
         extensionConfig.Slot0.kG = 0.47;
@@ -497,15 +496,8 @@ public final class Constants
         extensionConfig.Slot0.kD = 0.0;
         extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        extensionConfig.Slot1.kS = 0.0;
-        extensionConfig.Slot1.kV = 0.0;
-        extensionConfig.Slot1.kA = 0.0;
-        extensionConfig.Slot1.kP = 0.0;
-        extensionConfig.Slot1.kI = 0.0;
-        extensionConfig.Slot1.kD = 0.0;
-        extensionConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
-
-        extensionConfig.CustomParams.CustomParam0 = 90; // Current draw read as "stall" by the limited motor system
+        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.6;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.5;
       };
     }
   }   

@@ -5,12 +5,14 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** 
  * Generic subclass for a linear extension with a binary switch at the home position 
  * @author 5985
  */
+@Logged(strategy = Strategy.OPT_IN)
 public class LinearExtension extends LimitedMotor 
 {
   private final double metersPerRotation;

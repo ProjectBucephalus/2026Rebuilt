@@ -157,8 +157,7 @@ public class Robot extends TimedRobot
   private final Intake s_Intake = new Intake
   (
     IDConstants.intakeCAN, 
-    IDConstants.extensionCAN, 
-    -1 //IDConstants.extensionLimitDIO
+    IDConstants.extensionCAN
   );
 
   /* Rumble */

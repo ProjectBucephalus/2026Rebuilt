@@ -66,7 +66,7 @@ public final class IDConstants
   // public static final int stbdFeederCan = 25;
 
   /* Processor, [28..30] */
-  public static final int spindexerCAN = 28;
+  public static final int extensionEncoderCAN = 28;
   public static final int intakeCAN = 29;
   public static final int extensionCAN = 30;
 
@@ -75,7 +75,6 @@ public final class IDConstants
 
   /* Sensors */
   /* ------- */
-  public static final int extensionLimitDIO = 0;
   public static final int climberLimitDIO = 1;
   
   /* Network device names */
