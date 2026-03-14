@@ -100,7 +100,7 @@ public record Path(double pointRadius, Rotation2d heading, Translation2d... sequ
         1, 
         Rotation2d.kCCW_90deg, 
         new Translation2d(7.75, 0.625),
-        new Translation2d(7.75, 2.5)
+        new Translation2d(7.75, 5)
       )
     );
     // 6: Left side mid zone ball collection
