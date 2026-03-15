@@ -189,6 +189,7 @@ public class Shooter extends SubsystemBase
   public void revFlywheels() {target.flywheelsActive = true;}
   /** Sets the flywheels to idle speed */
   public void idleFlywheels() {target.flywheelsActive = false;}
+  public Command runFlywheelsCommand() {return Commands.startEnd(this::revFlywheels, this::idleFlywheels);}
 
   private void telemetrise()
   {

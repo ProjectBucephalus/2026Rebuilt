@@ -4,6 +4,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -219,17 +220,17 @@ public class Controls
 
     // Targetting States
     autoAimTrigger
-      .onFalse(bothShootersCmd(s -> s.getTarget().state = TargetState.Manual).ignoringDisable(true));
+      .onFalse(bothShooters(s -> s.getTarget().state = TargetState.Manual).ignoringDisable(true));
     autoAimTrigger
       .and(allianceZoneTrigger.negate())
-      .onTrue(bothShootersCmd(s -> s.getTarget().state = TargetState.Point).ignoringDisable(true));
+      .onTrue(bothShooters(s -> s.getTarget().state = TargetState.Point).ignoringDisable(true));
     autoAimTrigger
       .and(allianceZoneTrigger)
-      .onTrue(bothShootersCmd(s -> s.getTarget().state = TargetState.Hub).ignoringDisable(true));
+      .onTrue(bothShooters(s -> s.getTarget().state = TargetState.Hub).ignoringDisable(true));
 
     // Pass Point
     autoAimTrigger.and(PBDash.IO_AUTO_PASS::get)
-      .whileTrue(bothShootersCmd(s -> s.getTarget().point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
+      .whileTrue(bothShooters(s -> s.getTarget().point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
     
     // Revving/Idleing as Appropriate
     final Trigger shootActiveTrigger = driver.rightBumper().negate();
@@ -239,7 +240,7 @@ public class Controls
     driver.rightBumper()
       .whileTrue
       (
-        bothShootersCmd(Shooter::idleFlywheels)
+        bothShooters(Shooter::idleFlywheels)
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
       );
 
@@ -248,8 +249,8 @@ public class Controls
       .and(PBDash.IO_AUTO_REV::get)
       .and(shootActiveTrigger)
       .and(allianceZoneTrigger.and(hubActiveTrigger).or(PBDash.IO_AUTO_PASS::get))
-      .onTrue(bothShootersCmd(Shooter::revFlywheels).ignoringDisable(true))
-      .onFalse(bothShootersCmd(Shooter::idleFlywheels).ignoringDisable(true));
+      .onTrue(bothShooters(Shooter::revFlywheels).ignoringDisable(true))
+      .onFalse(bothShooters(Shooter::idleFlywheels).ignoringDisable(true));
 
     // Shooting when Ready
     shootActiveTrigger
@@ -266,8 +267,8 @@ public class Controls
       (
         parallel
         (
-          bothShootersCmd(Shooter::makeShootSafe),
-          bothShootersCmd(Shooter::revFlywheels),
+          bothShooters(Shooter::makeShootSafe),
+          bothShootersCmd(Shooter::runFlywheelsCommand),
           bothShootersCmd(Shooter::runIndexerCommand)
         ).withName("Manual Shoot")
       );
@@ -282,7 +283,7 @@ public class Controls
         parallel
         (
           runOnce(s_PortShooter::makeShootSafe),
-          runOnce(s_PortShooter::revFlywheels),
+          s_PortShooter.runFlywheelsCommand(),
           s_PortShooter.runIndexerCommand()
         ).withName("Manual Shoot Port")
       );
@@ -320,7 +321,7 @@ public class Controls
         parallel
         (
           runOnce(s_StbdShooter::makeShootSafe),
-          runOnce(s_StbdShooter::revFlywheels),
+          s_StbdShooter.runFlywheelsCommand(),
           s_StbdShooter.runIndexerCommand()
         ).withName("Manual Shoot Stbd")
       );
@@ -381,11 +382,11 @@ public class Controls
     buttonPad.A1().and(btnSetManual)
       .and(driver.rightBumper().negate())
       .onTrue(runOnce(() -> s_PortShooter.makeShootSafe()))
-      .onTrue(runOnce(() -> s_PortShooter.revFlywheels()));
+      .whileTrue(s_PortShooter.runFlywheelsCommand());
     buttonPad.H1().and(btnSetManual)
       .and(driver.rightBumper().negate())
       .onTrue(runOnce(() -> s_StbdShooter.makeShootSafe()))
-      .onTrue(runOnce(() -> s_StbdShooter.revFlywheels()));
+      .whileTrue(s_PortShooter.runFlywheelsCommand());
 
     // Idle
     buttonPad.A2().and(btnSetManual)
@@ -566,7 +567,7 @@ public class Controls
         double targetX = 3.5 - x;
         double targetY = 7.5 - y;
         btnSetPass.and(buttonPad.getBtn(32 + y + (8 * x)))
-          .onTrue(bothShootersCmd(s -> s.getTarget().point = new AllianceTranslation2d(targetX, targetY).get()).ignoringDisable(true));
+          .onTrue(bothShooters(s -> s.getTarget().point = new AllianceTranslation2d(targetX, targetY).get()).ignoringDisable(true));
         btnSetLocalisation.and(buttonPad.getBtn(32 + y + (8 * x)))
           .onTrue(runOnce(() -> s_Vision.setPose(new AlliancePose2d(targetX, targetY, 0).get())).ignoringDisable(true));
       }
@@ -608,11 +609,20 @@ public class Controls
     driver.x().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
-  private static Command bothShootersCmd(Consumer<Shooter> action)
+  private static Command bothShooters(Consumer<Shooter> action)
   {
     return runOnce(() -> {
       action.accept(s_PortShooter);
       action.accept(s_StbdShooter);
     });
+  }
+
+  private static Command bothShootersCmd(Function<Shooter, Command> cmd)
+  {
+    return parallel
+    (
+      cmd.apply(s_PortShooter),
+      cmd.apply(s_StbdShooter)
+    );
   }
 }
