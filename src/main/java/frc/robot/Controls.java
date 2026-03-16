@@ -88,6 +88,8 @@ public class Controls
       .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(IDConstants.autoAimSwitchID).getAsBoolean())).ignoringDisable(true));
     debug.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
 
+    buttonPad.M1().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(true)).ignoringDisable(true));
+    
     // Auto pass switch
     switchboard.button(IDConstants.autoPassSwitchID)
       .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(IDConstants.autoPassSwitchID).getAsBoolean())).ignoringDisable(true));
