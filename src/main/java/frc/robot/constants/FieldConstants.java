@@ -3,6 +3,7 @@ package frc.robot.constants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.util.controlTransmutation.ObjectList;
 import frc.robot.util.controlTransmutation.geoFence.*;
 import frc.robot.util.controlTransmutation.restrictor.*;
@@ -146,6 +147,12 @@ public class FieldConstants
     public static final BoxRestrictor trenchNB = new BoxRestrictor(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
     public static final BoxRestrictor trenchSR = new BoxRestrictor(fieldCentre.getX() + trenchXa, 0, fieldCentre.getX() + trenchXb, trenchWidth);
     public static final BoxRestrictor trenchNR = new BoxRestrictor(fieldCentre.getX() + trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() + trenchXb, fieldWidth);
+
+    public static final Trigger trenchTrigger = 
+      trenchNB.asTrigger()
+        .or(trenchSB.asTrigger())
+        .or(trenchNR.asTrigger())
+        .or(trenchSR.asTrigger());
 
     /* Trench Column */
     //public static final double trenchColumnWidth = 1.67 - trenchWidth;

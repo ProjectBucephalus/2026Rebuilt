@@ -15,8 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.ShooterConstants.*;
 import frc.robot.constants.Constants.Interpolation;
-import frc.robot.constants.Constants.ShooterConstants.HoodConstants;
-import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
+import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.constants.IDConstants.ShooterIDs;
 import frc.robot.subsystems.generic.VelocityMotor;
 import frc.robot.subsystems.shooter.Target.TargetState;
@@ -161,7 +160,8 @@ public class Shooter extends SubsystemBase
       && turret.readyToShoot(swerveState.Speeds)
       && hood.atAltitude()
       && flywheels.atSpeed()
-      && target.distance > ShooterConstants.minRange;
+      && target.distance > ShooterConstants.minRange
+      && !GeoFencing.trenchTrigger.getAsBoolean();
   }
 
   /**

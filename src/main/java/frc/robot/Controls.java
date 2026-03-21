@@ -154,14 +154,8 @@ public class Controls
     
     // Trench state.nudging
     PBDash.IO_FENCE.asTrigger()
+      .and(trenchTrigger)
       .and(() -> state.nudging && s_Vision.hasLocalisation())
-      .and
-      (
-            trenchNB.asTrigger()
-        .or(trenchSB.asTrigger())
-        .or(trenchNR.asTrigger())
-        .or(trenchSR.asTrigger())
-      )
       .whileTrue
       (
         new TrenchNudgeDrive
