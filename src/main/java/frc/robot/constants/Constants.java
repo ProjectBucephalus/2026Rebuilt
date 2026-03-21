@@ -180,6 +180,9 @@ public final class Constants
 
         flywheelConfig.MotionMagic.MotionMagicAcceleration = 150.0;
         flywheelConfig.MotionMagic.MotionMagicJerk = 1000.0;
+
+        flywheelConfig.CurrentLimits.StatorCurrentLimit = 25;
+        flywheelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
       }
 
       /** Target flywheel speed when idle, mechanism rps */
@@ -291,6 +294,8 @@ public final class Constants
         indexerConfig.Slot0.kD = 0.0;
 
         indexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
+
+        indexerConfig.CurrentLimits.StatorCurrentLimit = 30;
       }
     }
   }
@@ -462,6 +467,8 @@ public final class Constants
         intakeConfig.Slot0.kP = 0.15;
 
         intakeConfig.MotionMagic.MotionMagicAcceleration = 200.0;
+
+        intakeConfig.CurrentLimits.StatorCurrentLimit = 55;
       }
     }
 
@@ -510,6 +517,8 @@ public final class Constants
 
         extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 10;
         extensionConfig.MotionMagic.MotionMagicAcceleration = 50;
+
+        extensionConfig.CurrentLimits.StatorCurrentLimit = 50;
       };
     }
   }   
