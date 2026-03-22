@@ -35,6 +35,7 @@ import frc.robot.util.PBDash;
 import frc.robot.util.controlTransmutation.Brake;
 import frc.robot.util.controlTransmutation.JoystickTransmuter;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Intake.RollerState;
 import frc.robot.subsystems.generic.LinearExtension;
 
 public record ControlBinder
@@ -211,33 +212,33 @@ public record ControlBinder
 
   private void bindIntake()
   {
-    // Deploy
-    operator.leftBumper()
-      .onTrue(s_Intake.deployCommand());
-    // Stow
-    operator.rightBumper()
-      .onTrue(s_Intake.stowCommand());
+    // Off
+    driver.leftBumper().onTrue(s_Intake.stopIntakeCommand());
+    // On
+    driver.rightBumper().onTrue(s_Intake.startIntakeCommand());
 
-    // Run
-    operator.b().negate()
-      .and
-      (
-        operator.a()
-          .or(driver.leftTrigger().and(s_Intake::extended))
-      )
-      .whileTrue(s_Intake.runIntakeCommand())
-      .onFalse(s_Intake.stopIntakeCommand());
+    // Deploy
+    operator.leftBumper().onTrue(s_Intake.deployCommand());
+    // Stow
+    operator.rightBumper().onTrue(s_Intake.stowCommand());
 
     // Reverse
     operator.leftTrigger()
-      .onTrue(s_Intake.reverseIntakeCommand())
-      .onFalse(s_Intake.stopIntakeCommand());
+      .whileTrue
+      (
+        new Command() 
+        {
+          private RollerState prevState;
 
-    // Manual extension
-    operator.povDown()
-      .whileTrue(s_Intake.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
-    operator.povUp()
-      .whileTrue(s_Intake.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
+          public void initialize()
+          {
+            prevState = s_Intake.state;
+            s_Intake.state = RollerState.Reversed;
+          }
+
+          public void end(boolean i) {s_Intake.state = prevState;}
+        }
+      );
   }
 
   private void bindClimber()

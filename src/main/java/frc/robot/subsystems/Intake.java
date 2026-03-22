@@ -6,13 +6,11 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.subsystems.generic.PositionMotor;
 import frc.robot.subsystems.generic.VelocityMotor;
 import frc.robot.util.Conversions;
-import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.IntakeConstants.*;
 
@@ -23,6 +21,10 @@ import static frc.robot.constants.Constants.IntakeConstants.*;
 @Logged(strategy = Strategy.OPT_IN)
 public class Intake extends SubsystemBase 
 {
+  public static enum RollerState { On, Off, Reversed }
+
+  public RollerState state = RollerState.Off;
+
   @Logged
   private final VelocityMotor roller;
   @Logged
@@ -46,25 +48,21 @@ public class Intake extends SubsystemBase
     return Conversions.clamp((roller.getSpeed() - RollerConstants.brakeSpeedStart) / RollerConstants.brakeSpeedRange, 0, 1) * RollerConstants.intakeBrake;
   }
   
-  /** @return Command to start running intake at input speed */
-  public Command runIntakeCommand(DoubleSupplier speedSup)
-    {return roller.runCommand(speedSup).withName("Manual Run Intake");}
-
   /** @return Command that runs the intake until it is interrupted */
   public Command runIntakeCommand()
-    {return roller.runCommand(() -> RollerConstants.intakeSpeed).withName("Run Intake");}
+    {return roller.startEnd(() -> state = RollerState.On, () -> state = RollerState.Off).withName("Run Intake");}
   
   /** @return Command to start running intake at default speed */
   public Command startIntakeCommand()
-    {return roller.setSpeedCommand(() -> RollerConstants.intakeSpeed);}
-
-  /** @return Command to start running intake at negative default speed */
-  public Command reverseIntakeCommand()
-    {return roller.setSpeedCommand(() -> -RollerConstants.intakeSpeed);}
+    {return roller.runOnce(() -> state = RollerState.On);}
 
   /** @return Command to stop the intake */
   public Command stopIntakeCommand()
-    {return roller.setSpeedCommand(() -> 0);}
+    {return roller.runOnce(() -> state = RollerState.Off);}
+
+  /** @return Command to start running intake at negative default speed */
+  public Command reverseIntakeCommand()
+    {return roller.runOnce(() -> state = RollerState.Reversed);}
 
   public Command bumpSafeCommand()
   {
@@ -79,10 +77,6 @@ public class Intake extends SubsystemBase
   public Command deployCommand()
     {return extension.setTargetCommand(() -> ExtensionConstants.maxRotations);}
 
-  /** @return Command to extend the extension to the squish position */
-  public Command squishCommand()
-    {return extension.setTargetCommand(() -> ExtensionConstants.squishRotations);}
-
   /**
    * @param  shiftSup Supplier for relative control value, mechanism rotations
    * @return Command to smoothly control the extension 
@@ -93,23 +87,23 @@ public class Intake extends SubsystemBase
   public boolean extended() 
     {return MathUtil.isNear(ExtensionConstants.maxRotations, extension.getAngle(), ExtensionConstants.extendedTolerance);}
 
-  /** @return Command to continually jostle the extension to agitate gamepieces */
-  public Command extensionJostleCommand()
-  {
-    return 
-    Commands.repeatingSequence
-    (
-      extension.setTargetCommand(-0.2),
-      Commands.waitSeconds(ExtensionConstants.extensionJostleDelay),
-      deployCommand(), 
-      Commands.waitSeconds(ExtensionConstants.extensionJostleDelay)
-    )
-    .alongWith(runIntakeCommand());
-  }
-
   @Override
   public void periodic() 
   {
-    PBDash.putDouble("Intake Speed", roller.getSpeed());
+    switch (state)  
+    {
+      case On -> 
+      {
+        // TODO
+      }
+      case Off -> 
+      {
+        roller.setSpeed(0);
+      }
+      case Reversed -> 
+      {
+        roller.setSpeed(-RollerConstants.intakeSpeed);
+      }
+    }
   }
 }
