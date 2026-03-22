@@ -164,19 +164,29 @@ public record ControlBinder
     final Trigger autoAimTrigger = PBDash.IO_AUTO_AIM.asTrigger().and(s_Vision::hasLocalisation);
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
 
+    PBDash.IO_AUTO_AIM.asTrigger()
+      .and(() -> !s_Vision.hasLocalisation())
+      .onTrue
+      (
+        runOnce(() -> {
+          s_PortShooter.target.azimuth = -60;
+          s_StbdShooter.target.azimuth = 60;
+        })
+      );
+
     // Targetting States
     autoAimTrigger
-      .onFalse(bothShooters(s -> s.getTarget().state = TargetState.Manual).ignoringDisable(true));
+      .onFalse(bothShooters(s -> s.target.state = TargetState.Manual).ignoringDisable(true));
     autoAimTrigger
       .and(allianceZoneTrigger.negate())
-      .onTrue(bothShooters(s -> s.getTarget().state = TargetState.Point).ignoringDisable(true));
+      .onTrue(bothShooters(s -> s.target.state = TargetState.Point).ignoringDisable(true));
     autoAimTrigger
       .and(allianceZoneTrigger)
-      .onTrue(bothShooters(s -> s.getTarget().state = TargetState.Hub).ignoringDisable(true));
+      .onTrue(bothShooters(s -> s.target.state = TargetState.Hub).ignoringDisable(true));
 
     // Pass Point
     autoAimTrigger.and(PBDash.IO_AUTO_PASS::get)
-      .whileTrue(bothShooters(s -> s.getTarget().point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
+      .whileTrue(bothShooters(s -> s.target.point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
     
     // Revving/Idleing as Appropriate
     final Trigger shootActiveTrigger = driver.rightBumper().negate();

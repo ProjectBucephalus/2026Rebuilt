@@ -54,7 +54,7 @@ public class Shooter extends SubsystemBase
 
   @Logged
   /** Current active target for the shooter */
-  private final Target target = new Target(TargetState.Manual);
+  public final Target target = new Target(TargetState.Manual);
 
   /**
    * Creates Turreted Shooter master-system, internally creates and manages associated subsystems
@@ -137,9 +137,6 @@ public class Shooter extends SubsystemBase
   /** @return Current speed of the flywheels (RPS of the main flywheel) */
   public double getSpeed()
     {return flywheels.getSpeed();}
-
-  /** @return Current Target object for the Shooter system */
-  public Target getTarget() {return target;}
 
   /**
    * Trigger factory for whether we are in a valid state to be shooting. This requires that:
