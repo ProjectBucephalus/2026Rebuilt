@@ -42,9 +42,8 @@ public class ClimbLockedDrive extends HeadingLockedDrive
   {
     var rotation = switch (climbPosSup.get()) 
     {
-      case MidLeft -> Rotation2d.kCCW_90deg;
-      case MidRight -> Rotation2d.kCCW_90deg;
-      default -> Rotation2d.kZero;
+      case Left -> Rotation2d.kCCW_90deg;
+      case Right -> Rotation2d.kCW_90deg;
     };
     targetHeading = FieldUtils.allianceRotateRotation(rotation);
   }

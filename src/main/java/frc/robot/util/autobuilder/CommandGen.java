@@ -209,7 +209,7 @@ public class CommandGen
         assertArgCount(1);
 
         if (instr.arg(0).asBool()) 
-          commands.addCommands(Commands.parallel(s_Intake.extendCommand(), s_Intake.startIntakeCommand()));
+          commands.addCommands(Commands.parallel(s_Intake.deployCommand(), s_Intake.startIntakeCommand()));
         else 
           commands.addCommands(s_Intake.stopIntakeCommand());
       }

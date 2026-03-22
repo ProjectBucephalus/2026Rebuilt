@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -67,28 +66,12 @@ import frc.robot.util.libs.Telemetry;
 public class Robot extends TimedRobot 
 {
   /* State */
-  public static enum ButtonPadState
-  {
-    PassPointSelection,
-    LocalisationOveride,
-    AutoDisplay,
-    ManualControls
-  }
-  public static enum ClimbPosition
-  {
-    OutLeft, OutRight,
-    MidLeft, MidRight,
-    InLeft, InRight
-  }
-  public static enum HeadingLockState { Unlocked, Climb, General }
+  public static enum ClimbPosition { Left, Right }
 
   @Logged
   public static class RobotState 
   {
-    public ButtonPadState btnSet = ButtonPadState.PassPointSelection;
-    public ClimbPosition climbPos = ClimbPosition.OutLeft;
-    public HeadingLockState headingLock = HeadingLockState.Unlocked;
-
+    public ClimbPosition climbPos = ClimbPosition.Left;
     public boolean nudging = true;
   }
   
@@ -104,8 +87,7 @@ public class Robot extends TimedRobot
 
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(IDConstants.driverPort);
-  private final LockableXboxController debug = new LockableXboxController(IDConstants.debugPort, Button.kY);
-  private final Launchpad buttonPad = new Launchpad(IDConstants.buttonPadPort);
+  private final CommandXboxController operator = new CommandXboxController(IDConstants.debugPort);
   private final CommandGenericHID switchboard = new CommandGenericHID(IDConstants.switchboardPort);
   
   /* Subsystems */
@@ -167,9 +149,9 @@ public class Robot extends TimedRobot
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
   private final RumbleRequester io_driverLeft  = new RumbleRequester(driver, RumbleType.kLeftRumble, PBDash.RUMBLE_DRIVER::get);
   @SuppressWarnings("unused")
-  private final RumbleRequester io_debugRight  = new RumbleRequester(debug, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
+  private final RumbleRequester io_debugRight  = new RumbleRequester(operator, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
   @SuppressWarnings("unused")
-  private final RumbleRequester io_debugLeft   = new RumbleRequester(debug, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
+  private final RumbleRequester io_debugLeft   = new RumbleRequester(operator, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
@@ -189,8 +171,7 @@ public class Robot extends TimedRobot
       state, 
       () -> swerveState, 
       driver, 
-      debug, 
-      buttonPad,
+      operator, 
       switchboard, 
       driverStick, 
       driverBrake, 

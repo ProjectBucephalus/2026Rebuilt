@@ -77,7 +77,7 @@ public class LimitedMotor extends PositionMotor
   }
 
   /** Sets the target to the maximum limit */
-  public Command deployCommand() 
+  public Command extendCommand() 
     {return setTargetCommand(maxRotations);}
   /** Sets the target to the minimum limit */
   public Command retractCommand() 
