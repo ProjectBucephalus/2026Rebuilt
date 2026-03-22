@@ -49,13 +49,8 @@ public class PBDash
   public static final Key<Boolean> IO_AUTO_AIM      = new Key<>("Auto Aim", true);
   public static final Key<Boolean> IO_AUTO_PASS     = new Key<>("Auto Pass", false);
   public static final Key<Boolean> IO_AUTO_REV      = new Key<>("Auto Rev", true);
-
   
-  // State displays
-  public static final Key<String>  STATE_DRIVE      = new Key<>("Drive State", "Disabled");
-  public static final Key<Boolean> STATE_NUDGING    = new Key<>("Nudging Active", true);
-  
-  // Request queues
+  // Rumble strengths
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
   public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
   

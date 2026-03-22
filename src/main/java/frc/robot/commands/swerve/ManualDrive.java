@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.util.PBDash;
 
 /** 
  * Swerve drive interface for full manual control 
@@ -54,9 +53,6 @@ public class ManualDrive extends SwerveCommandBase
       {rotationVal = 0;}
     else
       {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, rotBrakeSup.getAsDouble());}
-
-    if (motionXY.getNorm() != 0)
-      {PBDash.STATE_DRIVE.put("Manual");}
 
     s_Swerve.setControl
     (

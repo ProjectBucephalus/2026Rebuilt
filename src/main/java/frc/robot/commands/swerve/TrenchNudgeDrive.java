@@ -15,7 +15,6 @@ import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
-import frc.robot.util.PBDash;
 
 /** 
  * A drive command that prevents the robot from being within a given tolerance of cardinal-aligned 
@@ -83,9 +82,6 @@ public class TrenchNudgeDrive extends SwerveCommandBase
     }
     else
       {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
-
-    if (motionXY.getX() != 0 || motionXY.getY() != 0)
-      {PBDash.STATE_DRIVE.put("Manual");}
 
     s_Swerve.setControl
     (

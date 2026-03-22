@@ -71,26 +71,29 @@ public record ControlBinder
 
   private void bindState()
   {
-    // Auto aim switch
+    // Auto Aim
     switchboard.button(IDConstants.autoAimSwitchID)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(IDConstants.autoAimSwitchID).getAsBoolean())).ignoringDisable(true));    
-    // Auto pass switch
+      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(IDConstants.autoAimSwitchID).getAsBoolean())).ignoringDisable(true));
+
+    // Auto Pass
     switchboard.button(IDConstants.autoPassSwitchID)
       .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(IDConstants.autoPassSwitchID).getAsBoolean())).ignoringDisable(true));
-    // Auto rev switch
+
+    // Auto Rev
     switchboard.button(IDConstants.autoRevSwitchID)
       .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(IDConstants.autoRevSwitchID).getAsBoolean())).ignoringDisable(true));
 
-    // Geofence and Vision switches
+    // Fencing
     switchboard.button(IDConstants.fencingSwitchID)
       .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(IDConstants.fencingSwitchID).getAsBoolean())).ignoringDisable(true));
+
+    // Vision
     switchboard.button(IDConstants.visionSwitchID)
       .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(IDConstants.visionSwitchID).getAsBoolean())).ignoringDisable(true));
 
-    // state.nudging
+    // Nudging
     driver.b().onTrue(runOnce(() -> state.nudging = false).ignoringDisable(true));
     driver.a().onTrue(runOnce(() -> state.nudging = true).ignoringDisable(true));
-    driver.b().or(driver.a()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(state.nudging)).ignoringDisable(true));
   }
 
   private void bindDrive()
