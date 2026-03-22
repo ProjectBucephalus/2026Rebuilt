@@ -166,7 +166,7 @@ public class Robot extends TimedRobot
     initLogging();
     initInputTransmute();
 
-    Controls.bind
+    new ControlBinder
     (
       state, 
       () -> swerveState, 
@@ -181,7 +181,8 @@ public class Robot extends TimedRobot
       s_StbdShooter, 
       s_Intake, 
       s_Climber
-    );
+    )
+    .bind();
 
     bindRumbles();
   }

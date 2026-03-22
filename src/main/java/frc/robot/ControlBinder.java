@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Robot.ClimbPosition;
 import frc.robot.Robot.RobotState;
 import frc.robot.commands.swerve.ClimbLockedDrive;
 import frc.robot.commands.swerve.ManualDrive;
@@ -36,44 +37,46 @@ import frc.robot.util.controlTransmutation.JoystickTransmuter;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.generic.LinearExtension;
 
-public class Controls 
+public record ControlBinder
+(
+  RobotState state,
+  Supplier<SwerveDriveState> swerveStateSup,
+  CommandXboxController driver,
+  CommandXboxController operator,
+  CommandGenericHID switchboard,
+  JoystickTransmuter driverStick,
+  Brake driverBrake,
+  CommandSwerveDrivetrain s_Swerve,
+  Vision s_Vision,
+  Shooter s_PortShooter,
+  Shooter s_StbdShooter,
+  Intake s_Intake,
+  LinearExtension s_Climber
+)
 {
-  private static Shooter s_PortShooter;
-  private static Shooter s_StbdShooter;
+  private static boolean bound = false;
 
-  public static void bind
-  (
-    RobotState state,
-    Supplier<SwerveDriveState> swerveStateSup,
-    CommandXboxController driver,
-    CommandXboxController operator,
-    CommandGenericHID switchboard,
-    JoystickTransmuter driverStick,
-    Brake driverBrake,
-    CommandSwerveDrivetrain s_Swerve,
-    Vision s_Vision,
-    Shooter s_PortShooter,
-    Shooter s_StbdShooter,
-    Intake s_Intake,
-    LinearExtension s_Climber
-  )
+  public void bind()
   {
-    Controls.s_PortShooter = s_PortShooter;
-    Controls.s_StbdShooter = s_StbdShooter;
-    // -------------STATE--------------- //
+    if (!bound) 
+    {
+      bindState();
+      bindDrive();
+      bindShooters();
+      bindIntake();
+      bindClimber();
+      bound = true;
+    }
+  }
 
-    final Trigger autoAimTrigger = PBDash.IO_AUTO_AIM.asTrigger().and(s_Vision::hasLocalisation);
-    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
-
+  private void bindState()
+  {
     // Auto aim switch
     switchboard.button(IDConstants.autoAimSwitchID)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(IDConstants.autoAimSwitchID).getAsBoolean())).ignoringDisable(true));
-    operator.rightStick().onTrue(runOnce(() -> PBDash.IO_AUTO_AIM.put(false)).ignoringDisable(true));
-    
+      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(IDConstants.autoAimSwitchID).getAsBoolean())).ignoringDisable(true));    
     // Auto pass switch
     switchboard.button(IDConstants.autoPassSwitchID)
       .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(IDConstants.autoPassSwitchID).getAsBoolean())).ignoringDisable(true));
-    
     // Auto rev switch
     switchboard.button(IDConstants.autoRevSwitchID)
       .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(IDConstants.autoRevSwitchID).getAsBoolean())).ignoringDisable(true));
@@ -88,8 +91,13 @@ public class Controls
     driver.b().onTrue(runOnce(() -> state.nudging = false).ignoringDisable(true));
     driver.a().onTrue(runOnce(() -> state.nudging = true).ignoringDisable(true));
     driver.b().or(driver.a()).onFalse(runOnce(() -> PBDash.STATE_NUDGING.put(state.nudging)).ignoringDisable(true));
-    
-    // -------------DRIVE--------------- //
+  }
+
+  private void bindDrive()
+  {
+    // Heading reset
+    driver.start()
+      .onTrue(runOnce(() -> s_Swerve.resetRotation(Rotation2d.kZero)));
 
     s_Swerve.setDefaultCommand
     (
@@ -101,10 +109,6 @@ public class Controls
         driver::getRightTriggerAxis
       )
     );
-
-    // Heading reset when not using vision
-    driver.start()
-      .onTrue(runOnce(() -> s_Swerve.resetRotation(Rotation2d.kZero)));
 
     // Bump state.nudging
     bumpTrigger
@@ -150,9 +154,12 @@ public class Controls
       .onTrue(runOnce(() -> driverBrake.withMaxThrottle(PBDash.IO_MAX_THROTTLE.get())));
     PBDash.IO_MIN_THROTTLE.asPulse()
       .onTrue(runOnce(() -> driverBrake.withMinThrottle(PBDash.IO_MIN_THROTTLE.get())));
+  }
 
-
-    // -------------SHOOTERS------------ //
+  private void bindShooters()
+  {
+    final Trigger autoAimTrigger = PBDash.IO_AUTO_AIM.asTrigger().and(s_Vision::hasLocalisation);
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
 
     // Targetting States
     autoAimTrigger
@@ -199,8 +206,10 @@ public class Controls
           bothShooters(Shooter::revFlywheels)
         )      
       );
+  }
 
-    // -------------INTAKE-------------- //
+  private void bindIntake()
+  {
     // Deploy
     operator.leftBumper()
       .onTrue(s_Intake.deployCommand());
@@ -228,55 +237,58 @@ public class Controls
       .whileTrue(s_Intake.manualExtensionCommand(() -> ControlConstants.manualIntakeExtensionAmount));
     operator.povUp()
       .whileTrue(s_Intake.manualExtensionCommand(() -> -ControlConstants.manualIntakeExtensionAmount));
+  }
 
-    // -------------CLIMBER------------- //
-    // Deploy
-    operator.start()
-      .onTrue(s_Climber.retractCommand());
-    // Stow
-    operator.back()
-      .onTrue(s_Climber.extendCommand());
+  private void bindClimber()
+  {
+    // Set Climb
+    driver.povLeft().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Left));
+    driver.povRight().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Right));
+
+    // Retract
+    operator.start().onTrue(s_Climber.retractCommand());
+    // Extend
+    operator.back().onTrue(s_Climber.extendCommand());
       
-    // Manual extension
+    // Manual Control
     s_Climber.setDefaultCommand(s_Climber.adjustTargetCommand(() -> operator.getRightY() * ControlConstants.manualClimberExtensionScale));
   }
 
   /** Mutually exclusive to {@link Controls#bind bind()} */
-  public static void bindSysId
-  ( 
-    CommandXboxController driver,
-    JoystickTransmuter driverStick,
-    Brake driverBrake,
-    CommandSwerveDrivetrain s_Swerve
-  )
+  public void bindSysId()
   {
-    s_Swerve.setDefaultCommand
-    (
-      new ManualDrive
+    if (!bound)
+    {
+      s_Swerve.setDefaultCommand
       (
-        s_Swerve, 
-        driverStick::stickOutput,
-        () -> -driver.getRightX(),
-        driver::getRightTriggerAxis
-      )
-    );
+        new ManualDrive
+        (
+          s_Swerve, 
+          driverStick::stickOutput,
+          () -> -driver.getRightX(),
+          driver::getRightTriggerAxis
+        )
+      );
 
-    driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-    driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+      driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+      driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
 
-    /*
-    * Joystick Y = quasistatic forward
-    * Joystick A = quasistatic reverse
-    * Joystick B = dynamic forward
-    * Joystick X = dyanmic reverse
-    */
-    driver.y().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    driver.a().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    driver.b().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    driver.x().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      /*
+      * Joystick Y = quasistatic forward
+      * Joystick A = quasistatic reverse
+      * Joystick B = dynamic forward
+      * Joystick X = dyanmic reverse
+      */
+      driver.y().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      driver.a().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      driver.b().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      driver.x().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+      bound = true;
+    }
   }
 
-  private static Command bothShooters(Consumer<Shooter> action)
+  private Command bothShooters(Consumer<Shooter> action)
   {
     return runOnce(() -> {
       action.accept(s_PortShooter);
@@ -284,7 +296,7 @@ public class Controls
     });
   }
 
-  private static Command bothShootersCmd(Function<Shooter, Command> cmd)
+  private Command bothShootersCmd(Function<Shooter, Command> cmd)
   {
     return parallel
     (
