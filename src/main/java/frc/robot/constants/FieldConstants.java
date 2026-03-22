@@ -174,6 +174,8 @@ public class FieldConstants
     public static final double towerDepth = 1.15;
     /** Distance from Outpost wall to Tower base, m */
     public static final double towerSpacing = 3.26;
+    /** Radius around the Tower base to avoid, m */
+    public static final double towerBaseRadius = 0.3;
     /** Radius to treat Tower uprights as circles, m */
     public static final double towerPostRadius = 0.1;
     /** Distance from edge of Tower base to centre of upright, m */
@@ -181,13 +183,33 @@ public class FieldConstants
     /** Distance from front of Tower base to centre of upright, m */
     public static final double towerPostFront  = 0.08;
 
-    public static final Box towerBlue = new Box(0, towerSpacing, towerDepth, towerSpacing + towerWidth);
+    public static final Box towerBlue = new Box(0, towerSpacing, towerDepth, towerSpacing + towerWidth, towerBaseRadius, 0.25);
     public static final Point towerPostBlueN = new Point(towerDepth - towerPostFront, towerSpacing + towerWidth - towerPostEdge, towerPostRadius, 0.25);
     public static final Point towerPostBlueS = new Point(towerDepth - towerPostFront, towerSpacing + towerPostEdge, towerPostRadius, 0.25);
     
-    public static final Box towerRed = new Box(fieldLength, fieldWidth - towerSpacing, fieldLength - towerDepth, fieldWidth - (towerSpacing + towerWidth));
+    public static final Box towerRed = new Box(fieldLength, fieldWidth - towerSpacing, fieldLength - towerDepth, fieldWidth - (towerSpacing + towerWidth), towerBaseRadius, 0.25);
     public static final Point towerPostRedN = new Point(fieldLength - (towerDepth - towerPostFront), fieldWidth - (towerSpacing + towerWidth - towerPostEdge), towerPostRadius, 0.25);
     public static final Point towerPostRedS = new Point(fieldLength - (towerDepth - towerPostFront), fieldWidth - (towerSpacing + towerPostEdge), towerPostRadius, 0.25);
+
+    /* Tower Exclusion Zones */
+    // Region in which turrets cannot safely shoot
+    // Region should technically be trapezoidal, but this is using a square region to simplify computation
+    /** Distance from right edge of Tower base to prevent shooting, m */
+    public static final double towerShadowRight = 0.3;
+    /** Distance from left edge of Tower base to prevent shooting, m */
+    public static final double towerShadowLeft = 0.2;
+
+    public static final BoxRestrictor towerShadowBlue = new BoxRestrictor(0, towerSpacing - towerShadowRight, towerDepth - towerPostFront, towerSpacing + towerWidth + towerShadowLeft);
+    public static final BoxRestrictor towerShadowRed  = new BoxRestrictor(fieldLength, fieldWidth - (towerSpacing - towerShadowRight), fieldLength - (towerDepth - towerPostFront), fieldWidth - (towerSpacing + towerWidth + towerShadowLeft));
+    
+    // Regions to avoid other climbing robots
+    /** Assumed radius for other robots, m */
+    public static final double clearRadius = 0.75;
+
+    public static final Box towerClearBlueLeft  = new Box(0, towerSpacing + clearRadius, towerDepth + clearRadius, towerSpacing + towerWidth + clearRadius, clearRadius, 0.25);
+    public static final Box towerClearBlueRight = new Box(0, towerSpacing - clearRadius, towerDepth + clearRadius, towerSpacing + towerWidth - clearRadius, clearRadius, 0.25);
+    public static final Box towerClearRedLeft   = new Box(fieldLength, fieldWidth - (towerSpacing + clearRadius), fieldLength - (towerDepth + clearRadius), fieldWidth - (towerSpacing + towerWidth + clearRadius), clearRadius, 0.25);
+    public static final Box towerClearRedRight  = new Box(fieldLength, fieldWidth - (towerSpacing - clearRadius), fieldLength - (towerDepth + clearRadius), fieldWidth - (towerSpacing + towerWidth - clearRadius), clearRadius, 0.25);
 
 
     /* Depot */
@@ -217,27 +239,21 @@ public class FieldConstants
       trenchSR,
       trenchNR,
       hubBlue, 
-      hubRed/*,
-      hubBlueOutput,
-      hubRedOutput */
+      hubRed
     );
 
     public static final ObjectList fieldBlueGeoFence = new ObjectList
     (
       towerPostBlueN,
       towerPostBlueS,
-      towerRed/*,
-      depotBlueZone,
-      depotRedFence*/
+      towerRed
     );
 
     public static final ObjectList fieldRedGeoFence = new ObjectList
     (
       towerPostRedN,
       towerPostRedS,
-      towerBlue/*,
-      depotRedZone,
-      depotBlueFence*/
+      towerBlue
     );
 
     public static final ObjectList fieldGeoFence = new ObjectList
