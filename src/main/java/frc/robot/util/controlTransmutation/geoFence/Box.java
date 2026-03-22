@@ -54,27 +54,27 @@ public class Box extends GeoFence
   }
 
   @Override
-  public double getDistance()
+  public double getDistance(Translation2d testPos)
   {
     double distance = 0;
 
-    if (robotPos.getX() < Xa)
+    if (testPos.getX() < Xa)
     {
-      if (robotPos.getY() < Ya) // SW Corner
-        {distance = Math.hypot(Xa - robotPos.getX(), Ya - robotPos.getY());}
-      else if (robotPos.getY() > Yb) // NW Corner
-        {distance = Math.hypot(Xa - robotPos.getX(), robotPos.getY() - Yb);}
+      if (testPos.getY() < Ya) // SW Corner
+        {distance = Math.hypot(Xa - testPos.getX(), Ya - testPos.getY());}
+      else if (testPos.getY() > Yb) // NW Corner
+        {distance = Math.hypot(Xa - testPos.getX(), testPos.getY() - Yb);}
       else // W Cardinal
-        {distance = Xa - robotPos.getX();}
+        {distance = Xa - testPos.getX();}
     }
-    else if (robotPos.getX() > Xb)
+    else if (testPos.getX() > Xb)
     {
-      if (robotPos.getY() < Ya) // SE Corner
-        {distance = Math.hypot(robotPos.getX() - Xb, Ya - robotPos.getY());}
-      else if (robotPos.getY() > Yb) // NE Corner
-        {distance = Math.hypot(robotPos.getX() - Xb, robotPos.getY() - Yb);}
+      if (testPos.getY() < Ya) // SE Corner
+        {distance = Math.hypot(testPos.getX() - Xb, Ya - testPos.getY());}
+      else if (testPos.getY() > Yb) // NE Corner
+        {distance = Math.hypot(testPos.getX() - Xb, testPos.getY() - Yb);}
       else // E Cardinal
-        {distance = robotPos.getX() - Xb;}
+        {distance = testPos.getX() - Xb;}
     }
     else
     {
@@ -83,19 +83,19 @@ public class Box extends GeoFence
       (
         Math.max
         (
-          Xa - robotPos.getX(), 
-          Ya - robotPos.getY()
+          Xa - testPos.getX(), 
+          Ya - testPos.getY()
         ),
         Math.max
         (
-          robotPos.getX() - Xb, 
-          robotPos.getY() - Yb
+          testPos.getX() - Xb, 
+          testPos.getY() - Yb
         )
       );
     }
 
-    // Account for radii
-    return distance - (radius + robotRadius);
+    // Account for radius
+    return distance - radius;
   }
 
   @Override

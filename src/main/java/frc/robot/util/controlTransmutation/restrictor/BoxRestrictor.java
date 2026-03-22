@@ -47,27 +47,27 @@ public class BoxRestrictor extends Restrictor
     {this(Xa, Ya, Xb, Yb, minRadius, minBuffer);}
 
   @Override
-  public double getDistance()
+  public double getDistance(Translation2d testPos)
   {
     double distance = 0;
 
-    if (robotPos.getX() < Xa)
+    if (testPos.getX() < Xa)
     {
-      if (robotPos.getY() < Ya)
-        {distance = Math.hypot(Xa - robotPos.getX(), Ya - robotPos.getY());}
-      else if (robotPos.getY() > Yb)
-        {distance = Math.hypot(Xa - robotPos.getX(), robotPos.getY() - Yb);}
+      if (testPos.getY() < Ya)
+        {distance = Math.hypot(Xa - testPos.getX(), Ya - testPos.getY());}
+      else if (testPos.getY() > Yb)
+        {distance = Math.hypot(Xa - testPos.getX(), testPos.getY() - Yb);}
       else 
-        {distance = Xa - robotPos.getX();}
+        {distance = Xa - testPos.getX();}
     }
-    else if (robotPos.getX() > Xb)
+    else if (testPos.getX() > Xb)
     {
-      if (robotPos.getY() < Ya)
-        {distance = Math.hypot(robotPos.getX() - Xb, Ya - robotPos.getY());}
-      else if (robotPos.getY() > Yb)
-        {distance = Math.hypot(robotPos.getX() - Xb, robotPos.getY() - Yb);}
+      if (testPos.getY() < Ya)
+        {distance = Math.hypot(testPos.getX() - Xb, Ya - testPos.getY());}
+      else if (testPos.getY() > Yb)
+        {distance = Math.hypot(testPos.getX() - Xb, testPos.getY() - Yb);}
       else
-        {distance = robotPos.getX() - Xb;}
+        {distance = testPos.getX() - Xb;}
     }
     else
     {
@@ -75,17 +75,17 @@ public class BoxRestrictor extends Restrictor
       (
         Math.max
         (
-          Xa - robotPos.getX(), 
-          Ya - robotPos.getY()
+          Xa - testPos.getX(), 
+          Ya - testPos.getY()
         ),
         Math.max
         (
-          robotPos.getX() - Xb, 
-          robotPos.getY() - Yb
+          testPos.getX() - Xb, 
+          testPos.getY() - Yb
         )
       );
     }
 
-    return distance - (radius + robotRadius);
+    return distance - radius;
   }
 }

@@ -55,14 +55,14 @@ public class Fence extends GeoFence
   }
 
   @Override
-  public double getDistance()
+  public double getDistance(Translation2d testPos)
   {
     return Math.abs
     (
       Math.min
       (
-        Math.min(robotPos.getX() - (Xa + radius), (Xb - radius) - robotPos.getX()),
-        Math.min((Yb - radius) - robotPos.getY(), robotPos.getY() - (Ya + radius))
+        Math.min(testPos.getX() - (Xa + radius), (Xb - radius) - testPos.getX()),
+        Math.min((Yb - radius) - testPos.getY(), testPos.getY() - (Ya + radius))
       )
     );
   }

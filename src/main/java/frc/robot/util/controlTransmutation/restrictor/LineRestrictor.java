@@ -55,15 +55,15 @@ public class LineRestrictor extends Restrictor
     dotXY = (pointA.getX() * dotX) + (pointA.getY() * dotY);
   }
 
-  public double getDistance()
+  public double getDistance(Translation2d testPos)
   {
-    double dot = (robotPos.getX() * dotX) + (robotPos.getY() * dotY) - dotXY; // Normalised dot product of the two lines
+    double dot = (testPos.getX() * dotX) + (testPos.getY() * dotY) - dotXY; // Normalised dot product of the two lines
     return new Translation2d
     (
       Conversions.clamp(pointA.getX() + dXab * dot, pointA.getX(), pointB.getX()), 
       Conversions.clamp(pointA.getY() + dYab * dot, pointA.getY(), pointB.getY())
     )
-    .getDistance(robotPos) - (radius + robotRadius);
+    .getDistance(testPos) - radius;
   }
 
   /**
