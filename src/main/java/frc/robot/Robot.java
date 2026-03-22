@@ -25,10 +25,11 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
+import frc.robot.autobuilder.AutoBuilder;
 import frc.robot.constants.*;
 import frc.robot.constants.Constants.*;
 import frc.robot.constants.FieldConstants.GeoFencing;
-
+import frc.robot.controlTransmutation.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.generic.*;
 import frc.robot.subsystems.shooter.Shooter;
@@ -36,8 +37,6 @@ import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
 
 import frc.robot.util.*;
-import frc.robot.util.autobuilder.AutoBuilder;
-import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
 
 /**
@@ -66,12 +65,12 @@ import frc.robot.util.libs.Telemetry;
 public class Robot extends TimedRobot 
 {
   /* State */
-  public static enum ClimbPosition { Left, Right }
+  public static enum ClimbPosition { None, Left, Right }
 
   @Logged
   public static class RobotState 
   {
-    public ClimbPosition climbPos = ClimbPosition.Left;
+    public ClimbPosition climbPos = ClimbPosition.None;
     public boolean nudging = true;
   }
   
@@ -210,6 +209,16 @@ public class Robot extends TimedRobot
   /** Set up input modification and fencing systems */
   private void initInputTransmute()
   {
+    DriveBuilder.init
+    (
+      s_Swerve, 
+      driverStick::stickOutput,
+      () -> -driver.getRightX(),
+      driver::getRightTriggerAxis,
+      () -> swerveState.Pose
+    );
+
+
     driverStick
       .rotated(FieldUtils.isAlliance(Alliance.Red))
       .withFieldObjects(GeoFencing.fieldGeoFence)
@@ -268,7 +277,7 @@ public class Robot extends TimedRobot
 
   private void compileAuto()
   {
-    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), () -> swerveState, s_Swerve, s_Intake));
+    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), swerveState.Pose, s_Swerve, s_Intake));
   }
 
   @Logged(name = "CAN Load")

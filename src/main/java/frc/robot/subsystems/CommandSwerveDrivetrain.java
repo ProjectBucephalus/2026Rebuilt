@@ -1,6 +1,14 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.constants.Constants.SwerveConstants.driveKD;
+import static frc.robot.constants.Constants.SwerveConstants.driveKI;
+import static frc.robot.constants.Constants.SwerveConstants.driveKP;
+import static frc.robot.constants.Constants.SwerveConstants.maxAngularVelocity;
+import static frc.robot.constants.Constants.SwerveConstants.maxSpeed;
+import static frc.robot.constants.Constants.SwerveConstants.rotationKD;
+import static frc.robot.constants.Constants.SwerveConstants.rotationKI;
+import static frc.robot.constants.Constants.SwerveConstants.rotationKP;
 
 import java.util.function.Supplier;
 
@@ -11,7 +19,11 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.sendable.Sendable;
@@ -23,8 +35,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.Conversions;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -253,6 +266,67 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) 
     {return m_sysIdRoutineToApply.dynamic(direction);}
+
+  /**
+   * Calculates the required drive input to drive to a pose using a PID control loop, accounting for geofencing
+   * 
+   * @param target Current target pose to drive towards
+   * @param pose Current robot pose
+   * @param brake Speed reduction to apply, [0..1]. Higher is slower
+   * @return Chassis speeds, m/s, m/s, rad/s
+   */
+  public ChassisSpeeds calculateDrivePID(Pose2d target, Pose2d pose, double brakeIn)
+  {
+    final PIDController xController = new PIDController(driveKP, driveKI, driveKD);
+    final PIDController yController = new PIDController(driveKP, driveKI, driveKD);
+    final PIDController thetaController = new PIDController(rotationKP, rotationKI, rotationKD);
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    final double brake = 1 - brakeIn;
+    final var robotPos = pose.getTranslation();
+    final var targetPos = target.getTranslation();
+
+    double speedX = xController.calculate(robotPos.getX(), targetPos.getX());
+    double speedY = yController.calculate(robotPos.getY(), targetPos.getY());
+    double throttleX;
+    double throttleY;
+    
+    if(Math.abs(speedX) > Math.abs(speedY))
+    {
+      double ratio = (speedX==0 || speedY==0) ? 0 : speedY/speedX;
+      throttleX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
+      throttleY = throttleX*ratio;
+    }
+    else
+    {
+      double ratio = (speedX==0 || speedY==0) ? 0 : speedX/speedY;
+      throttleY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
+      throttleX = throttleY*ratio;
+    }
+    final double speedTheta = 
+      Conversions.clamp
+      (
+        thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), 
+        -maxAngularVelocity, 
+        maxAngularVelocity
+      ) * brake;
+    final var throttleXY = FieldConstants.GeoFencing.fieldGeoFence.process(new Translation2d(throttleX, throttleY)).times(brake);
+
+    xController.close();
+    yController.close();
+    thetaController.close();
+
+    return ChassisSpeeds.fromFieldRelativeSpeeds
+    (
+      new ChassisSpeeds
+      (
+        throttleXY.getX() * maxSpeed,
+        throttleXY.getY() * maxSpeed,
+        speedTheta
+      ),
+      pose.getRotation()
+    );
+  }
 
   @Override
   public void periodic()

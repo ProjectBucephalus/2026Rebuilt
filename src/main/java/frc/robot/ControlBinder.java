@@ -11,9 +11,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -21,19 +19,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot.ClimbPosition;
 import frc.robot.Robot.RobotState;
-import frc.robot.commands.swerve.ClimbLockedDrive;
-import frc.robot.commands.swerve.ManualDrive;
-import frc.robot.commands.swerve.NonCardinalDrive;
-import frc.robot.commands.swerve.TrenchNudgeDrive;
 import frc.robot.constants.IDConstants;
 import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.controlTransmutation.Brake;
+import frc.robot.controlTransmutation.JoystickTransmuter;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
-import frc.robot.util.controlTransmutation.Brake;
-import frc.robot.util.controlTransmutation.JoystickTransmuter;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.RollerState;
 import frc.robot.subsystems.generic.LinearExtension;
@@ -103,16 +97,7 @@ public record ControlBinder
     driver.start()
       .onTrue(runOnce(() -> s_Swerve.resetRotation(Rotation2d.kZero)));
 
-    s_Swerve.setDefaultCommand
-    (
-      new ManualDrive
-      (
-        s_Swerve, 
-        driverStick::stickOutput,
-        () -> -driver.getRightX(),
-        driver::getRightTriggerAxis
-      )
-    );
+    s_Swerve.setDefaultCommand(DriveBuilder.manual());
 
     // Bump state.nudging
     bumpTrigger
@@ -120,38 +105,34 @@ public record ControlBinder
       .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
       .onTrue(s_Intake.bumpSafeCommand())
-      .whileTrue
-      (
-        new NonCardinalDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput, 
-          () -> -driver.getRightX(), 
-          driver::getRightTriggerAxis, 
-          () -> swerveStateSup.get().Pose.getRotation(), 
-          bumpRotationTolerance
-        )
-      );
+      .whileTrue(DriveBuilder.nonCardinal(bumpRotationTolerance))
+      .onFalse(s_Intake.deployCommand());
     
     // Trench state.nudging
     trenchTrigger
       .and(PBDash.IO_FENCE::get)
       .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
-      .whileTrue
-      (
-        new TrenchNudgeDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput, 
-          () -> -driver.getRightX(), 
-          driver::getRightTriggerAxis, 
-          () -> swerveStateSup.get().Pose.getRotation()
-        )
-      );
+      .whileTrue(DriveBuilder.trenchNudge());
 
     // Climb heading lock
-    driver.x().onTrue(new ClimbLockedDrive(s_Swerve, driverStick::stickOutput, () -> swerveStateSup.get().Pose, () -> state.climbPos));
+    driver.x()
+      .and(() -> state.climbPos != ClimbPosition.None)
+      .onTrue
+      (
+        DriveBuilder.headingLocked
+        (
+          () -> {
+            var rotation = switch (state.climbPos) 
+            {
+              case Left -> Rotation2d.kCCW_90deg;
+              case Right -> Rotation2d.kCW_90deg;
+              case None -> Rotation2d.kZero; // Shouldn't actually happen due to trigger condition
+            };
+            return FieldUtils.allianceRotateRotation(rotation);
+          }
+        )
+      );
 
     // Update throttle limits
     PBDash.IO_MAX_THROTTLE.asPulse()
@@ -261,16 +242,7 @@ public record ControlBinder
   {
     if (!bound)
     {
-      s_Swerve.setDefaultCommand
-      (
-        new ManualDrive
-        (
-          s_Swerve, 
-          driverStick::stickOutput,
-          () -> -driver.getRightX(),
-          driver::getRightTriggerAxis
-        )
-      );
+      s_Swerve.setDefaultCommand(DriveBuilder.manual());
 
       driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
       driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
