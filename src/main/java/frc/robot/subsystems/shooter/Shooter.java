@@ -249,10 +249,10 @@ public class Shooter extends SubsystemBase
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
 
-    if (target.disabled && (!PBDash.E_STOP.get()))
+    if (target.disabled)
       indexer.setSpeed(IndexerConstants.indexerReverseSpeed);
 
-    if (target.disabled || (PBDash.E_STOP.get() && target.state != TargetState.Manual))
+    if (target.disabled)
       flywheels.setSpeed(0);
     else if (target.flywheelsActive)
       flywheels.setSpeed(target.speed);

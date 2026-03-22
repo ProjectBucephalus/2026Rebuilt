@@ -356,14 +356,11 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    if (!PBDash.E_STOP.get())
-    {
-      s_PortShooter.target.state = TargetState.Manual;
-      s_PortShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
-      s_PortShooter.target.speed = PBDash.TEST_FLYSPEED.get();
-      s_StbdShooter.target.state = TargetState.Manual;
-      s_StbdShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
-      s_StbdShooter.target.speed = PBDash.TEST_FLYSPEED.get();
-    }
+    s_PortShooter.target.state = TargetState.Manual;
+    s_PortShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
+    s_PortShooter.target.speed = PBDash.TEST_FLYSPEED.get();
+    s_StbdShooter.target.state = TargetState.Manual;
+    s_StbdShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
+    s_StbdShooter.target.speed = PBDash.TEST_FLYSPEED.get();
   }
 }

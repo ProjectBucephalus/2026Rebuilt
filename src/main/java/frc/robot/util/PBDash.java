@@ -35,8 +35,6 @@ public class PBDash
   private static final NetworkTable table = NetworkTableInstance.getDefault().getTable(IDConstants.dashTableName);
   private static final Map<String, Sendable> tablesToData = new HashMap<>();
 
-  public static final Key<Boolean> E_STOP           = new Key<>("Mechanism E-Stop", false);
-
   // Auto-builder strings
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "Intake(on), DriveTo(2.5 4)");
   public static final Key<String>  AUTO_ERRS        = new Key<>("Auto String Errors", "");

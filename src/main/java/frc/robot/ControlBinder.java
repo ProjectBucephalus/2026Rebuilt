@@ -207,18 +207,6 @@ public record ControlBinder
     shootActiveTrigger
       .and(s_StbdShooter::shootReady)
       .whileTrue(s_StbdShooter.runIndexerCommand());
-
-    // Manual Flywheel control
-    // Stop
-    PBDash.E_STOP.asTrigger()
-      .onTrue
-      (
-        parallel
-        (
-          bothShootersCmd(shooter -> shooter.setFlySpeedCommand(0)),
-          bothShooters(Shooter::revFlywheels)
-        )      
-      );
   }
 
   private void bindIntake()
@@ -235,7 +223,7 @@ public record ControlBinder
       .and
       (
         operator.a()
-          .or(driver.leftTrigger().and(s_Intake::extended).and(PBDash.E_STOP.asTrigger().negate()))
+          .or(driver.leftTrigger().and(s_Intake::extended))
       )
       .whileTrue(s_Intake.runIntakeCommand())
       .onFalse(s_Intake.stopIntakeCommand());

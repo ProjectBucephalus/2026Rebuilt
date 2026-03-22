@@ -76,7 +76,7 @@ public class Hood
     // Invert the target position if needed
     if (inverted) servoTarget = 1 - servoTarget;
 
-    if (!PBDash.E_STOP.get() || target.state == TargetState.Manual || target.disabled)
+    if (target.state == TargetState.Manual || target.disabled)
       // Set the position of the servo to the calculated target position 
       m_Servo.set(servoTarget);
   }

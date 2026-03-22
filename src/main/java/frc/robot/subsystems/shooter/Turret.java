@@ -219,7 +219,7 @@ public class Turret
       case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
     };
 
-    if (!target.disabled && (!PBDash.E_STOP.get() || target.state == TargetState.Manual))
+    if (!target.disabled)
       m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
   }   
   

@@ -73,11 +73,11 @@ public class Intake extends SubsystemBase
 
   /** @return Command to retract the extension to home */
   public Command stowCommand()
-    {return extension.setTargetCommand(() -> ExtensionConstants.minRotations).unless(PBDash.E_STOP::get);}
+    {return extension.setTargetCommand(() -> ExtensionConstants.minRotations);}
 
   /** @return Command to extend the extension to max */
   public Command deployCommand()
-    {return extension.setTargetCommand(() -> ExtensionConstants.maxRotations).unless(PBDash.E_STOP::get);}
+    {return extension.setTargetCommand(() -> ExtensionConstants.maxRotations);}
 
   /** @return Command to extend the extension to the squish position */
   public Command squishCommand()
@@ -104,8 +104,7 @@ public class Intake extends SubsystemBase
       deployCommand(), 
       Commands.waitSeconds(ExtensionConstants.extensionJostleDelay)
     )
-    .alongWith(runIntakeCommand())
-    .unless(PBDash.E_STOP::get);
+    .alongWith(runIntakeCommand());
   }
 
   @Override
