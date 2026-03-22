@@ -223,7 +223,7 @@ public record ControlBinder
     operator.rightBumper().onTrue(s_Intake.stowCommand());
 
     // Reverse
-    operator.leftTrigger()
+    operator.leftTrigger(ControlConstants.triggerThreshold)
       .whileTrue
       (
         new Command() 

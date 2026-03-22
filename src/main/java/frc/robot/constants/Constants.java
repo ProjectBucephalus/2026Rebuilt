@@ -48,8 +48,8 @@ public final class Constants
     public static final double maxRotThrottle = 1;
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
     public static final double minRotThrottle = 0.3;
-    /** Angle tolerance to consider something as "facing" the drivers, degrees */
-    public static final double driverVisionTolerance = 5;
+    /** How far a trigger must be pressed to be considered on, [0..1] */
+    public static final double triggerThreshold = 0.8;
     /** Translation lineup tolerance, meters */
     public static final double lineupTolerance = 0.1;
     /** Rotation lineup tolerance, degrees */
