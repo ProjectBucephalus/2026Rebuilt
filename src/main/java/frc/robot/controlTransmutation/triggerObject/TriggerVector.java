@@ -1,18 +1,20 @@
-package frc.robot.controlTransmutation;
+package frc.robot.controlTransmutation.triggerObject;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.controlTransmutation.FieldObject;
 import frc.robot.util.Conversions;
 
 import static frc.robot.constants.Constants.ControlConstants.minAngleTolerance;
 import static frc.robot.constants.Constants.ControlConstants.maxAngleTolerance;
 
 /** 
- * Guides the robot towards a point along a given heading 
+ * Trigger based on robot position and control direction 
  * @author 5985
  * @deprecated requires full rework to use PID-to-pose
  */
-public class Attractor extends FieldObject
+public class TriggerVector extends FieldObject
 {
   /** Angle of the robot motion for the final approach, degrees */
   protected double approachHeading;
@@ -29,18 +31,22 @@ public class Attractor extends FieldObject
   /** By standard implementation, checkPosition is always run first, which calculates this value */
   private double distance;
 
+  /** Trigger output: true while input vector is towards target */
+  private boolean onTarget = false;
+  private Trigger trigger = new Trigger(activeSupplier).and(() -> onTarget);
+
   private Rotation2d lastInputAngle = Rotation2d.kZero;
 
 
   /**
-   * Pulls the robot into the target point along the given heading if the control input is within a certain tollerance
+   * Trigger monitoring if the control input is towards the target within a certain tollerance
    * @param X x-coordinate of the target
    * @param Y y-coordinate of the target
    * @param approachHeading direction the robot should move to approach the target, degrees anticlockwise
-   * @param effectRadius distance from target where the robot will start being attracted
-   * @param targetBuffer distance from the target where the robot must be traveling along the approach heading
+   * @param effectRadius distance from target where the trigger will activate
+   * @param targetBuffer distance from the target where the robot is too close to activate the trigger (but can stay active)
    */
-  public Attractor(double X, double Y, double approachHeading, double effectRadius, double targetBuffer)
+  public TriggerVector(double X, double Y, double approachHeading, double effectRadius, double targetBuffer)
   {
     centre = new Translation2d(X, Y);
     this.approachHeading = approachHeading;
@@ -52,6 +58,10 @@ public class Attractor extends FieldObject
     frontCheckpoint = centre.minus(new Translation2d(buffer, approachHeadingRotation));
     backCheckpoint  = centre.plus(new Translation2d(buffer, approachHeadingRotation));
   }
+
+  /** @return Trigger monitoring if the control input is towards the target within a certain tollerance */
+  public Trigger asTrigger()
+    {return trigger;}
 
   @Override
   public Translation2d process(Translation2d controlInput)
@@ -65,24 +75,26 @@ public class Attractor extends FieldObject
     )
     {
       lastInputAngle = controlInput.getAngle();
+      onTarget = true;
 
-      if (distance <= buffer)
-      {
-        // TODO: set up PID controller here
-        Rotation2d angleToTarget = centre.minus(robotPos).getAngle();
+      // if (distance <= buffer)
+      // {
+      //   // TODO: set up PID controller here
+      //   Rotation2d angleToTarget = centre.minus(robotPos).getAngle();
 
-        return new Translation2d(Math.min(distance * leadInScalar, controlInput.getNorm()), angleToTarget);
-      }
-      else
-      {
-        double tangentOffset = Math.abs(centre.minus(robotPos).rotateBy(approachHeadingRotation.times(-1)).getY());
-        Translation2d approachPoint = centre.minus(new Translation2d(buffer + (tangentOffset * approachScalar), approachHeadingRotation));
-        Rotation2d angleToTarget = approachPoint.minus(robotPos).getAngle();
+      //   return new Translation2d(Math.min(distance * leadInScalar, controlInput.getNorm()), angleToTarget);
+      // }
+      // else
+      // {
+      //   double tangentOffset = Math.abs(centre.minus(robotPos).rotateBy(approachHeadingRotation.times(-1)).getY());
+      //   Translation2d approachPoint = centre.minus(new Translation2d(buffer + (tangentOffset * approachScalar), approachHeadingRotation));
+      //   Rotation2d angleToTarget = approachPoint.minus(robotPos).getAngle();
 
-        return new Translation2d(controlInput.getNorm(), angleToTarget);
-      }
+      //   return new Translation2d(controlInput.getNorm(), angleToTarget);
+      // }
     }
 
+    onTarget = false;
     lastInputAngle = Rotation2d.kZero;
     return controlInput;
   }
@@ -96,22 +108,27 @@ public class Attractor extends FieldObject
   {
     if 
     (
+      onTarget &&
       !lastInputAngle.equals(Rotation2d.kZero) && 
       Conversions.nearRotation(lastInputAngle, controlInput.getAngle(), minAngleTolerance)
     )
     {
+      // If the trigger is active and the control input is similar to last cycle, keep the trigger active
       return true;
     }
     
     if (distance <= buffer)
     {
+      // If the robot is within the target buffer (very close to target), just compare input angle to approach heading
       return Conversions.nearRotation(approachHeadingRotation, controlInput.getAngle(), maxAngleTolerance);
     }
 
+    // Calculate current angle from robot to target
     Rotation2d angleToTarget = centre.minus(robotPos).getAngle();
-    
+    // Angle tolerance is the angular size of the target buffer, such that the input angle must be towards the buffer area
     double angleTolerance = Conversions.clamp(2*Math.atan(buffer/distance), minAngleTolerance, maxAngleTolerance);
-
+    
+    // Compare input angle to the current angle to target
     return Conversions.nearRotation(angleToTarget, controlInput.getAngle(), angleTolerance);
   }
 
@@ -121,6 +138,8 @@ public class Attractor extends FieldObject
     distance = getDistance();
     return
     (
+      // Checks if the robot is in the "front" half of the effect radius
+      // or is within the target buffer, to prevent false negatives from overshooting
       distance <= buffer ||
       (
         distance <= radius &&
@@ -132,6 +151,7 @@ public class Attractor extends FieldObject
   @Override
   public double getDistance()
   {
+    // Only need to check distance from robot centre to target centre
     return centre.getDistance(robotPos);
   }
 

@@ -4,7 +4,7 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.controlTransmutation.Attractor;
+import frc.robot.controlTransmutation.triggerObject.TriggerVector;
 import frc.robot.util.Conversions;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
@@ -138,7 +138,7 @@ public class Line extends GeoFence
     Translation2d unitNormal  = pointA.minus(pointB).div(length).rotateBy(antiNormal ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg);
     Translation2d unitTangent = unitNormal.rotateBy(Rotation2d.kCCW_90deg);
     Translation2d attractorCentre = centre.plus(unitNormal.times(normalOffset)).plus(unitTangent.times(tangentOffset));
-    Attractor newAttractor = new Attractor
+    TriggerVector newAttractor = new TriggerVector
       (
         attractorCentre.getX(),
         attractorCentre.getY(),
