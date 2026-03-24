@@ -117,7 +117,7 @@ public record ControlBinder
 
     // Climb heading lock
     driver.x()
-      .and(() -> state.climbPos != ClimbPosition.None)
+      .or(() -> state.climbPos != ClimbPosition.None)
       .onTrue
       (
         DriveBuilder.headingLocked
@@ -132,6 +132,7 @@ public record ControlBinder
             return FieldUtils.allianceRotateRotation(rotation);
           }
         )
+        .unless(() -> state.climbPos == ClimbPosition.None)
       );
 
     // Update throttle limits
