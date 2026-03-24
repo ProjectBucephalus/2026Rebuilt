@@ -231,10 +231,19 @@ public class FieldConstants
     private static final double climbTriggerBuffer = 0.5;
     public static final Translation2d climbStartOffset = new Translation2d(0, 1);
     public static final Translation2d climbEndOffset = new Translation2d(0, 0.4);
+
     public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX, towerPostBlueRightY, -90, climbTriggerRadius, climbTriggerBuffer);
     public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX, towerPostBlueLeftY, 90, climbTriggerRadius, climbTriggerBuffer);
     public static final TriggerVector climbRedRight  = new TriggerVector(towerPostRedX, towerPostRedRightY, 90, climbTriggerRadius, climbTriggerBuffer);
     public static final TriggerVector climbRedLeft   = new TriggerVector(towerPostRedX, towerPostRedLeftY, -90, climbTriggerRadius, climbTriggerBuffer);
+
+    public static final ObjectList climbTriggerVectors = new ObjectList
+    (
+      climbBlueRight,
+      climbBlueLeft,
+      climbRedRight,
+      climbRedLeft
+    );
 
     /* Depot */
     // Speed should be limited in own Depot, must NOT enter opposing
@@ -270,6 +279,8 @@ public class FieldConstants
     (
       towerPostBlueN,
       towerPostBlueS,
+      towerClearBlueLeft,
+      towerClearBlueRight,
       towerRed
     );
 
@@ -277,6 +288,8 @@ public class FieldConstants
     (
       towerPostRedN,
       towerPostRedS,
+      towerClearRedLeft,
+      towerClearRedRight,
       towerBlue
     );
 

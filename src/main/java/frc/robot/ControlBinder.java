@@ -21,9 +21,11 @@ import frc.robot.Robot.ClimbPosition;
 import frc.robot.Robot.RobotState;
 import frc.robot.Robot.ShootersState;
 import frc.robot.constants.IDConstants;
+import frc.robot.constants.Path;
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
+import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.Vision;
@@ -146,6 +148,9 @@ public record ControlBinder
       .onTrue(runOnce(() -> driverBrake.withMaxThrottle(PBDash.IO_MAX_THROTTLE.get())));
     PBDash.IO_MIN_THROTTLE.asPulse()
       .onTrue(runOnce(() -> driverBrake.withMinThrottle(PBDash.IO_MIN_THROTTLE.get())));
+
+    GeoFencing.climbBlueRight.asTrigger()
+      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueRight, () -> 0.7));
   }
 
   private void bindShooters()

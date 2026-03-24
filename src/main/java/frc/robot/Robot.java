@@ -232,9 +232,25 @@ public class Robot extends TimedRobot
     FieldObject.setRobotPosSup(() -> swerveState.Pose.getTranslation());
 
     GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
-
+    
     GeoFencing.fieldRedGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Red));
     GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Blue));
+    
+    GeoFencing.towerClearBlueLeft .setActiveCondition(() -> state.climbPos == ClimbPosition.Right);
+    GeoFencing.towerPostBlueS     .setActiveCondition(() -> state.climbPos != ClimbPosition.Right);
+    GeoFencing.towerClearRedLeft  .setActiveCondition(() -> state.climbPos == ClimbPosition.Right);
+    GeoFencing.towerPostRedN      .setActiveCondition(() -> state.climbPos != ClimbPosition.Right);
+    GeoFencing.towerClearBlueRight.setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
+    GeoFencing.towerPostBlueN     .setActiveCondition(() -> state.climbPos != ClimbPosition.Left);
+    GeoFencing.towerClearRedRight .setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
+    GeoFencing.towerPostRedS      .setActiveCondition(() -> state.climbPos != ClimbPosition.Left);
+    
+    GeoFencing.climbTriggerVectors.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
+
+    GeoFencing.climbBlueLeft .setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
+    GeoFencing.climbRedLeft  .setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
+    GeoFencing.climbBlueRight.setActiveCondition(() -> state.climbPos == ClimbPosition.Right);
+    GeoFencing.climbRedRight .setActiveCondition(() -> state.climbPos == ClimbPosition.Right);
 
  /*   GeoFencing.hubBlueOutput
       .setActiveCondition
@@ -353,6 +369,14 @@ public class Robot extends TimedRobot
         io_driverLeft.timedRumbleCmd("Teleop Start", 1.5), 
         io_driverRight.timedRumbleCmd("Teleop Start", 1.5)
       );
+  }
+
+  @Override
+  public void teleopPeriodic()
+  {
+    // When lining up to climb, send driver stick value to the climb triggerVectors to keep them updated regardless of current drive state
+    if (state.climbPos != ClimbPosition.None)
+      {GeoFencing.climbTriggerVectors.process(driverStick.stickOutput());}
   }
 
   @Override
