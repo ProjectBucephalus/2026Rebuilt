@@ -34,6 +34,8 @@ import frc.robot.constants.ButtonPadConstants;
 import frc.robot.constants.IDConstants;
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.ShooterConstants.FlywheelConstants;
+import frc.robot.controlTransmutation.Brake;
+import frc.robot.controlTransmutation.JoystickTransmuter;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.Vision;
@@ -43,8 +45,6 @@ import frc.robot.util.FieldUtils;
 import frc.robot.util.Launchpad;
 import frc.robot.util.Launchpad.PadColour;
 import frc.robot.util.PBDash;
-import frc.robot.util.controlTransmutation.Brake;
-import frc.robot.util.controlTransmutation.JoystickTransmuter;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.generic.LinearExtension;
 

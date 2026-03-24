@@ -1,11 +1,11 @@
-package frc.robot.util.controlTransmutation.geoFence;
+package frc.robot.controlTransmutation.geoFence;
 
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.controlTransmutation.Attractor;
 import frc.robot.util.Conversions;
-import frc.robot.util.controlTransmutation.Attractor;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 

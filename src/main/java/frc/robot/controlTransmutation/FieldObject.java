@@ -1,4 +1,4 @@
-package frc.robot.util.controlTransmutation;
+package frc.robot.controlTransmutation;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
