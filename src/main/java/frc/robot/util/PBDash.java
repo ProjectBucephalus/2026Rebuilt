@@ -55,7 +55,7 @@ public class PBDash
   public static final Key<Double>  TEST_FLYSPEED    = new Key<>("Test Flyspeed", 0.0);
   public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
-  public static final Key<Double>  TEST_INTAKE_SPEED    = new Key<>("Test Intake Speed", IntakeConstants.RollerConstants.intakeMaxSpeed);
+  public static final Key<Double>  TEST_INTAKE_SPEED= new Key<>("Test Intake Speed", IntakeConstants.RollerConstants.intakeMaxSpeed);
   
   // Manual speed adjustment
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
