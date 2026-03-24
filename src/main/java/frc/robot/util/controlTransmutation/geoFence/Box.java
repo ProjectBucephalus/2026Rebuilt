@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation.geoFence;
+package frc.robot.util.controlTransmutation.geoFence;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;

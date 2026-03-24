@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation.restrictor;
+package frc.robot.util.controlTransmutation.restrictor;
 
 import java.util.Arrays;
 import java.util.Comparator;

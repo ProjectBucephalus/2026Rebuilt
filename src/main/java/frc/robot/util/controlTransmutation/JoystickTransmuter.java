@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation;
+package frc.robot.util.controlTransmutation;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;

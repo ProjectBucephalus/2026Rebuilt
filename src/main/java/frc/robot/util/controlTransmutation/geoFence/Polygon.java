@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation.geoFence;
+package frc.robot.util.controlTransmutation.geoFence;
 
 import java.util.Arrays;
 import java.util.Comparator;

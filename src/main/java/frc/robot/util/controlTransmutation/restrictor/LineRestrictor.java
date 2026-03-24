@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation.restrictor;
+package frc.robot.util.controlTransmutation.restrictor;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;

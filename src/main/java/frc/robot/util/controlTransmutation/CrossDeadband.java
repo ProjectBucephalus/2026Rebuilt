@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation;
+package frc.robot.util.controlTransmutation;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants.ControlConstants;

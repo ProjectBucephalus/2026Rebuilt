@@ -1,10 +1,10 @@
-package frc.robot.controlTransmutation.restrictor;
+package frc.robot.util.controlTransmutation.restrictor;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.controlTransmutation.FieldObject;
+import frc.robot.util.controlTransmutation.FieldObject;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 

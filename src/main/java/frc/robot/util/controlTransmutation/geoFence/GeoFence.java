@@ -1,12 +1,12 @@
-package frc.robot.controlTransmutation.geoFence;
+package frc.robot.util.controlTransmutation.geoFence;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.controlTransmutation.Attractor;
-import frc.robot.controlTransmutation.FieldObject;
 import frc.robot.util.Conversions;
+import frc.robot.util.controlTransmutation.Attractor;
+import frc.robot.util.controlTransmutation.FieldObject;
 
 /** 
  * Derived from video-game collision-detection, GeoFence objects combine field-relative driving and localisation

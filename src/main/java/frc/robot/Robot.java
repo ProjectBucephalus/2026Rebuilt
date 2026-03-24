@@ -29,7 +29,6 @@ import frc.robot.autobuilder.AutoBuilder;
 import frc.robot.constants.*;
 import frc.robot.constants.Constants.*;
 import frc.robot.constants.FieldConstants.GeoFencing;
-import frc.robot.controlTransmutation.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.generic.*;
 import frc.robot.subsystems.shooter.Shooter;
@@ -37,6 +36,7 @@ import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
 
 import frc.robot.util.*;
+import frc.robot.util.controlTransmutation.*;
 import frc.robot.util.libs.Telemetry;
 
 /**
