@@ -4,7 +4,6 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -157,15 +156,13 @@ public record ControlBinder
     operator.x().onTrue(runOnce(() -> state.shoot = ShootersState.Port));
     operator.y().onTrue(runOnce(() -> state.shoot = ShootersState.Manual));
 
+    // Set manual shooting distance
     operator.povUp()
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(bothShooters(s -> s.target.distance = ShooterConstants.closeManualRange));
-
+      .onTrue(bothShooters(s -> s.setDistance(ShooterConstants.closeManualRange)));
     operator.povDown()
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(bothShooters(s -> s.target.distance = ShooterConstants.farManualRange));
-
-    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
+      .onTrue(bothShooters(s -> s.setDistance(ShooterConstants.farManualRange)));
 
     // Tag-Seeking if no Localisation
     new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
@@ -187,8 +184,23 @@ public record ControlBinder
           s.target.azimuth = 0;
         }).ignoringDisable(true)
       );
+
+    // Test (Using dashboard values)
+    new Trigger(() -> state.shoot == ShootersState.Test)
+      .whileTrue
+      (
+        bothShooters(s -> {
+          s.target.state = TargetState.Manual;
+          s.target.azimuth = PBDash.TEST_AZIMUTH.get();
+          s.target.altitude = PBDash.TEST_ALTITUDE.get();
+          s.target.speed = PBDash.TEST_FLYSPEED.get();
+        })
+        .repeatedly()
+        .ignoringDisable(true)
+      );
     
     final Trigger autoAimTrigger = new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test).and(s_Vision::hasLocalisation);
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
 
     // Not Manual, Outside Alliance Zone
     autoAimTrigger
@@ -321,7 +333,7 @@ public record ControlBinder
     s_Climber.setDefaultCommand(s_Climber.adjustTargetCmd(() -> operator.getRightY() * ControlConstants.manualClimberExtensionScale));
   }
 
-  /** Mutually exclusive to {@link Controls#bind bind()} */
+  /** Mutually exclusive to {@link ControlBinder#bind bind()} */
   public void bindSysId()
   {
     if (!bound)
@@ -352,14 +364,5 @@ public record ControlBinder
       action.accept(s_PortShooter);
       action.accept(s_StbdShooter);
     });
-  }
-
-  private Command bothShootersCmd(Function<Shooter, Command> cmd)
-  {
-    return parallel
-    (
-      cmd.apply(s_PortShooter),
-      cmd.apply(s_StbdShooter)
-    );
   }
 }

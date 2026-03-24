@@ -34,7 +34,6 @@ import frc.robot.controlTransmutation.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.generic.*;
 import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
 
 import frc.robot.util.*;
@@ -369,11 +368,5 @@ public class Robot extends TimedRobot
   public void testPeriodic()
   {
     state.shoot = ShootersState.Test;
-    // s_PortShooter.target.state = TargetState.Manual;
-    // s_PortShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
-    // s_PortShooter.target.speed = PBDash.TEST_FLYSPEED.get();
-    // s_StbdShooter.target.state = TargetState.Manual;
-    // s_StbdShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
-    // s_StbdShooter.target.speed = PBDash.TEST_FLYSPEED.get();
   }
 }

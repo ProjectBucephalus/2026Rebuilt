@@ -99,16 +99,6 @@ public class Shooter extends SubsystemBase
     target.azimuth = turret.getAzimuth();
   }
 
-  /**
-   * Construct a command that sets the speed for the Flywheels <p>
-   * NOTE: The provided value is only evaluated when the command is created
-   * 
-   * @param speed the desired Flywheel speed, in rotations per second
-   * @return the {@link Command}
-   */
-  public Command setFlySpeedCmd(double speed)
-    {return runOnce(() -> target.speed = speed);}
-
   public Command adjustDistanceCmd(DoubleSupplier shiftSup)
   {
     return Commands.run(() -> 
@@ -120,11 +110,15 @@ public class Shooter extends SubsystemBase
     }).withName("Manual Distance");
   }
 
+  public void setDistance(double distance)
+  {
+    target.distance = Math.max(distance, 0);
+    target.speed = Interpolation.flywheelSpeedHub.get(target.distance);
+    target.altitude = Interpolation.shooterAltitudeHub.get(target.distance);
+  }
+
   public Command adjustAzimuthCmd(DoubleSupplier shiftSup)
     {return Commands.run(() -> target.azimuth += shiftSup.getAsDouble()).withName("Manual Azimuth");}
-
-  public void setFlySpeed(double speed)
-    {target.speed = speed;}
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
@@ -161,26 +155,11 @@ public class Shooter extends SubsystemBase
       && !GeoFencing.trenchTrigger.getAsBoolean();
   }
 
-  /**
-   * Brings flywheels up to at least idle speed
-   * @return {@code true} when flywheels are at speed
-   */
-  public boolean makeShootSafe()
-  {
-    if (target.speed < FlywheelConstants.idleSpeed)
-      {target.speed = FlywheelConstants.idleSpeed;}
-
-    return flywheels.atSpeed();
-  }
-
   public Command runIndexerCmd()
     {return indexer.runCmd(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed));}
 
   public Command runIndexerCmd(DoubleSupplier speedSup)
     {return indexer.runCmd(speedSup);}
-
-  public Command reverseIndexerCmd()
-    {return indexer.runCmd(() -> IndexerConstants.indexerReverseSpeed);}
 
   public Command stopIndexerCmd()
     {return indexer.runCmd(() -> 0.0);}
