@@ -260,7 +260,7 @@ public class Robot extends TimedRobot
   /** Sets trigger conditions to activate controller rumbles */
   private void bindRumbles()
   {
-    // See teleopInit for rumble on teleop start
+    // See teleopInit/testInit for rumble on teleop start
 
     new Trigger(() -> FieldUtils.hubActiveToleranced(3, 0)) 
       .onChange(io_driverLeft.timedRumbleCmd("Shift Warning", 3));
@@ -370,6 +370,13 @@ public class Robot extends TimedRobot
 
     FieldUtils.updateAlliance();
     initInputTransmute();
+
+    CommandScheduler.getInstance()
+      .schedule
+      (
+        io_driverLeft.timedRumbleCmd("Teleop Start", 1.5), 
+        io_driverRight.timedRumbleCmd("Teleop Start", 1.5)
+      );
   }
 
   @Override
