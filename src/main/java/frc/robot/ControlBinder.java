@@ -21,6 +21,7 @@ import frc.robot.Robot.ClimbPosition;
 import frc.robot.Robot.RobotState;
 import frc.robot.constants.IDConstants;
 import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.Vision;
@@ -31,6 +32,7 @@ import frc.robot.controlTransmutation.JoystickTransmuter;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.RollerState;
 import frc.robot.subsystems.generic.LinearExtension;
+import frc.robot.subsystems.generic.PositionMotor;
 
 public record ControlBinder
 (
@@ -46,6 +48,7 @@ public record ControlBinder
   Shooter s_PortShooter,
   Shooter s_StbdShooter,
   Intake s_Intake,
+  PositionMotor s_Extension,
   LinearExtension s_Climber
 )
 {
@@ -85,17 +88,17 @@ public record ControlBinder
     // Vision
     switchboard.button(IDConstants.visionSwitchID)
       .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(IDConstants.visionSwitchID).getAsBoolean())).ignoringDisable(true));
-
-    // Nudging
-    driver.b().onTrue(runOnce(() -> state.nudging = false).ignoringDisable(true));
-    driver.a().onTrue(runOnce(() -> state.nudging = true).ignoringDisable(true));
   }
 
   private void bindDrive()
   {
+    // Nudging
+    driver.b().onTrue(runOnce(() -> state.nudging = false).ignoringDisable(true));
+    driver.a().onTrue(runOnce(() -> state.nudging = true).ignoringDisable(true));
+
     // Heading reset
     driver.start()
-      .onTrue(runOnce(() -> s_Swerve.resetRotation(Rotation2d.kZero)));
+      .onTrue(runOnce(() -> s_Swerve.resetRotation(Rotation2d.kZero)).ignoringDisable(true));
 
     s_Swerve.setDefaultCommand(DriveBuilder.manual());
 
@@ -104,9 +107,9 @@ public record ControlBinder
       .and(PBDash.IO_FENCE::get)
       .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
-      .onTrue(s_Intake.bumpSafeCommand())
+      .onTrue(s_Extension.setTargetCmd(() -> Math.min(ExtensionConstants.bumpSafeRotations, s_Extension.getAngle())))
       .whileTrue(DriveBuilder.nonCardinal(bumpRotationTolerance))
-      .onFalse(s_Intake.deployCommand());
+      .onFalse(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations));
     
     // Trench state.nudging
     trenchTrigger
@@ -117,7 +120,9 @@ public record ControlBinder
 
     // Climb heading lock
     driver.x()
-      .or(() -> state.climbPos != ClimbPosition.None)
+      .and(() -> state.climbPos != ClimbPosition.None)
+      .or(driver.povLeft())
+      .or(driver.povRight())
       .onTrue
       (
         DriveBuilder.headingLocked
@@ -132,7 +137,6 @@ public record ControlBinder
             return FieldUtils.allianceRotateRotation(rotation);
           }
         )
-        .unless(() -> state.climbPos == ClimbPosition.None)
       );
 
     // Update throttle limits
@@ -186,23 +190,23 @@ public record ControlBinder
     // Shooting when Ready
     shootActiveTrigger
       .and(s_PortShooter::shootReady)
-      .whileTrue(s_PortShooter.runIndexerCommand());
+      .whileTrue(s_PortShooter.runIndexerCmd());
     shootActiveTrigger
       .and(s_StbdShooter::shootReady)
-      .whileTrue(s_StbdShooter.runIndexerCommand());
+      .whileTrue(s_StbdShooter.runIndexerCmd());
   }
 
   private void bindIntake()
   {
     // Off
-    driver.leftBumper().onTrue(s_Intake.stopIntakeCommand());
+    driver.leftBumper().onTrue(s_Intake.setStateCmd(RollerState.Off));
     // On
-    driver.rightBumper().onTrue(s_Intake.startIntakeCommand());
+    driver.rightBumper().onTrue(s_Intake.setStateCmd(RollerState.On));
 
     // Deploy
-    operator.leftBumper().onTrue(s_Intake.deployCommand());
+    operator.leftBumper().onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations));
     // Stow
-    operator.rightBumper().onTrue(s_Intake.stowCommand());
+    operator.rightBumper().onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations));
 
     // Reverse
     operator.leftTrigger(ControlConstants.triggerThreshold)
@@ -230,12 +234,12 @@ public record ControlBinder
     driver.povRight().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Right));
 
     // Retract
-    operator.start().onTrue(s_Climber.retractCommand());
+    operator.start().onTrue(s_Climber.retractCmd());
     // Extend
-    operator.back().onTrue(s_Climber.extendCommand());
+    operator.back().onTrue(s_Climber.extendCmd());
       
     // Manual Control
-    s_Climber.setDefaultCommand(s_Climber.adjustTargetCommand(() -> operator.getRightY() * ControlConstants.manualClimberExtensionScale));
+    s_Climber.setDefaultCommand(s_Climber.adjustTargetCmd(() -> operator.getRightY() * ControlConstants.manualClimberExtensionScale));
   }
 
   /** Mutually exclusive to {@link Controls#bind bind()} */

@@ -49,10 +49,10 @@ public class VelocityMotor extends SubsystemBase
    * @param speedSup A supplier providing the desired speed, in mechanism rotations per second
    * @return the {@link Command}
    */
-  public Command setSpeedCommand(DoubleSupplier speedSup)
+  public Command setSpeedCmd(DoubleSupplier speedSup)
     {return runOnce(() -> setSpeed(speedSup.getAsDouble()));}
 
-  public Command runCommand(DoubleSupplier speedSup)
+  public Command runCmd(DoubleSupplier speedSup)
     {return runEnd(() -> setSpeed(speedSup.getAsDouble()), () -> setSpeed(0));}
 
   /** @return Current speed of the motor, in mechanism rotations per second */

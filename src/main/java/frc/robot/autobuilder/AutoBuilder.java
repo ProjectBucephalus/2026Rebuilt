@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.generic.PositionMotor;
 import frc.robot.util.PBDash;
 
 /**
@@ -30,7 +31,8 @@ public class AutoBuilder
     String source,
     Pose2d currPose,
     CommandSwerveDrivetrain s_Swerve, 
-    Intake s_Intake
+    Intake s_Intake,
+    PositionMotor s_Extension
   )
   {
     // Wipe any previous errors
@@ -40,7 +42,7 @@ public class AutoBuilder
     // [Token(Text, "driveto"), Token(LParen, "("), Token(Num, "1"), Token(Num, "2"), Token(LParen, ")")] 
     // becomes [Instruction(driveto, [Value(Num, 1), Value(Num, 1)])]
     var instrs = new Parser(tokens).parse(); 
-    var command = new CommandGen(instrs, currPose, s_Intake).compile();
+    var command = new CommandGen(instrs, currPose, s_Intake, s_Extension).compile();
     return command;
   }
 

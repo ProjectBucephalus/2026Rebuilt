@@ -77,11 +77,11 @@ public class LimitedMotor extends PositionMotor
   }
 
   /** Sets the target to the maximum limit */
-  public Command extendCommand() 
-    {return setTargetCommand(maxRotations);}
+  public Command extendCmd() 
+    {return setTargetCmd(maxRotations);}
   /** Sets the target to the minimum limit */
-  public Command retractCommand() 
-    {return setTargetCommand(minRotations);}
+  public Command retractCmd() 
+    {return setTargetCmd(minRotations);}
 
   /**
    * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
@@ -90,7 +90,7 @@ public class LimitedMotor extends PositionMotor
    * @return the Command
    */
   @Override
-  public Command adjustTargetCommand(DoubleSupplier shiftSup) 
+  public Command adjustTargetCmd(DoubleSupplier shiftSup) 
     {return run(() -> {if (shiftSup.getAsDouble() != 0) forceSetTarget(getAngle() + shiftSup.getAsDouble());});}
 
   @Override

@@ -106,10 +106,10 @@ public class Shooter extends SubsystemBase
    * @param speed the desired Flywheel speed, in rotations per second
    * @return the {@link Command}
    */
-  public Command setFlySpeedCommand(double speed)
+  public Command setFlySpeedCmd(double speed)
     {return runOnce(() -> target.speed = speed);}
 
-  public Command adjustDistanceCommand(DoubleSupplier shiftSup)
+  public Command adjustDistanceCmd(DoubleSupplier shiftSup)
   {
     return Commands.run(() -> 
     {
@@ -120,7 +120,7 @@ public class Shooter extends SubsystemBase
     }).withName("Manual Distance");
   }
 
-  public Command adjustAzimuthCommand(DoubleSupplier shiftSup)
+  public Command adjustAzimuthCmd(DoubleSupplier shiftSup)
     {return Commands.run(() -> target.azimuth += shiftSup.getAsDouble()).withName("Manual Azimuth");}
 
   public void setFlySpeed(double speed)
@@ -173,20 +173,20 @@ public class Shooter extends SubsystemBase
     return flywheels.atSpeed();
   }
 
-  public Command runIndexerCommand()
-    {return indexer.runCommand(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed));}
+  public Command runIndexerCmd()
+    {return indexer.runCmd(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed));}
 
-  public Command reverseIndexerCommand()
-    {return indexer.runCommand(() -> IndexerConstants.indexerReverseSpeed);}
+  public Command reverseIndexerCmd()
+    {return indexer.runCmd(() -> IndexerConstants.indexerReverseSpeed);}
 
-  public Command stopIndexerCommand()
-    {return indexer.runCommand(() -> 0.0);}
+  public Command stopIndexerCmd()
+    {return indexer.runCmd(() -> 0.0);}
 
   /** Sets the flywheels to rev up to target speed */
   public void revFlywheels() {target.flywheelsActive = true;}
   /** Sets the flywheels to idle speed */
   public void idleFlywheels() {target.flywheelsActive = false;}
-  public Command runFlywheelsCommand() {return Commands.startEnd(this::revFlywheels, this::idleFlywheels);}
+  public Command runFlywheelsCmd() {return Commands.startEnd(this::revFlywheels, this::idleFlywheels);}
 
   private void telemetrise()
   {

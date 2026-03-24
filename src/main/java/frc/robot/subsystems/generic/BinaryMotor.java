@@ -61,27 +61,27 @@ public class BinaryMotor extends SubsystemBase
     {m_Binary.set(0);}
 
   /**
-   * Construct a command that runs the motor at the default speed
-   * 
-   * @return the {@link Command}
-   */
-  public Command startCommand()
-    {return runOnce(this::start);}
-
-  /**
    * Construct a command that runs the motor at the default speed on start, and stops the motor on end
    * 
    * @return the {@link Command}
    */
-  public Command runCommand()
+  public Command runCmd()
     {return startEnd(this::start, this::stop);}
+
+  /**
+   * Construct a command that runs the motor at the default speed
+   * 
+   * @return the {@link Command}
+   */
+  public Command startCmd()
+    {return runOnce(this::start);}
   
   /**
    * Construct a command that runs the motor at negative default speed
    * 
    * @return the {@link Command}
    */
-  public Command reverseCommand()
+  public Command reverseCmd()
     {return runOnce(() -> m_Binary.set(-defaultSpeed));}
 
   /**
@@ -89,7 +89,7 @@ public class BinaryMotor extends SubsystemBase
    * 
    * @return the {@link Command}
    */
-  public Command stopCommand()
+  public Command stopCmd()
     {return runOnce(this::stop);}
 
   /**
@@ -99,6 +99,6 @@ public class BinaryMotor extends SubsystemBase
    * @param speed the duty-cycle speed to run at [-1..1]
    * @return the {@link Command}
    */
-  public Command setSpeedCommand(double speed)
+  public Command setSpeedCmd(double speed)
     {return runOnce(() -> m_Binary.set(speed));}
 }

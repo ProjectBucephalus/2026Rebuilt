@@ -43,7 +43,7 @@ public class PositionMotor extends SubsystemBase
    * @param targetSup mechanism rotations
    * @return the Command
    */
-  public Command setTargetCommand(DoubleSupplier targetSup)
+  public Command setTargetCmd(DoubleSupplier targetSup)
     {return runOnce(() -> setTarget(targetSup.getAsDouble()));}
 
   /**
@@ -52,8 +52,8 @@ public class PositionMotor extends SubsystemBase
    * @param target mechanism rotations
    * @return the Command
    */
-  public Command setTargetCommand(double target)
-    {return setTargetCommand(() -> target);}
+  public Command setTargetCmd(double target)
+    {return setTargetCmd(() -> target);}
 
   /**
    * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
@@ -61,7 +61,7 @@ public class PositionMotor extends SubsystemBase
    * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
    * @return the Command
    */
-  public Command adjustTargetCommand(DoubleSupplier shiftSup) 
+  public Command adjustTargetCmd(DoubleSupplier shiftSup) 
     {return run(() -> {if (shiftSup.getAsDouble() != 0) setTarget(getAngle() + shiftSup.getAsDouble());});}
 
   /** @return Current angle of the motor, in mechanism rotations */

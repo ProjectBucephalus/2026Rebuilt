@@ -28,6 +28,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import frc.robot.autobuilder.AutoBuilder;
 import frc.robot.constants.*;
 import frc.robot.constants.Constants.*;
+import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
 import frc.robot.subsystems.*;
@@ -138,11 +139,10 @@ public class Robot extends TimedRobot
   );
   
   @Logged(name = "Intake")
-  private final Intake s_Intake = new Intake
-  (
-    IDConstants.intakeCAN, 
-    IDConstants.extensionCAN
-  );
+  private final Intake s_Intake = new Intake();
+
+  @Logged(name = "Extension")
+  private final PositionMotor s_Extension = new PositionMotor(IDConstants.extensionCAN, ExtensionConstants.extensionConfig);
 
   /* Rumble */
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
@@ -154,7 +154,7 @@ public class Robot extends TimedRobot
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
-  private final Brake driverBrake = new Brake(() -> Math.max(driver.getRightTriggerAxis(), s_Intake.brakeFromIntake()), ControlConstants.maxThrottle, ControlConstants.minThrottle);
+  private final Brake driverBrake = new Brake(() -> driver.getRightTriggerAxis(), ControlConstants.maxThrottle, ControlConstants.minThrottle);
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
 
@@ -179,6 +179,7 @@ public class Robot extends TimedRobot
       s_PortShooter, 
       s_StbdShooter, 
       s_Intake, 
+      s_Extension,
       s_Climber
     )
     .bind();
@@ -262,7 +263,7 @@ public class Robot extends TimedRobot
   private void bindRumbles()
   {
     new Trigger(() -> FieldUtils.hubActive(FieldUtils.getAlliance())) 
-      .onChange(io_driverLeft.timedRequestCommand("Shift Change", 0.5));
+      .onChange(io_driverLeft.timedRumbleCmd("Shift Change", 0.5));
   }
 
   /* UTIL METHODS */
@@ -277,7 +278,7 @@ public class Robot extends TimedRobot
 
   private void compileAuto()
   {
-    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), swerveState.Pose, s_Swerve, s_Intake));
+    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), swerveState.Pose, s_Swerve, s_Intake, s_Extension));
   }
 
   @Logged(name = "CAN Load")
@@ -348,8 +349,8 @@ public class Robot extends TimedRobot
     CommandScheduler.getInstance()
       .schedule
       (
-        io_driverLeft.timedRequestCommand("Teleop Start", 1.5), 
-        io_driverRight.timedRequestCommand("Teleop Start", 1.5)
+        io_driverLeft.timedRumbleCmd("Teleop Start", 1.5), 
+        io_driverRight.timedRumbleCmd("Teleop Start", 1.5)
       );
   }
 
