@@ -11,6 +11,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -102,7 +103,7 @@ public record ControlBinder
 
     s_Swerve.setDefaultCommand(DriveBuilder.manual());
 
-    // Bump state.nudging
+    // Bump nudging
     bumpTrigger
       .and(PBDash.IO_FENCE::get)
       .and(s_Vision::hasLocalisation)
@@ -111,12 +112,16 @@ public record ControlBinder
       .whileTrue(DriveBuilder.nonCardinal(bumpRotationTolerance))
       .onFalse(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations));
     
-    // Trench state.nudging
+    // Trench nudging
     trenchTrigger
       .and(PBDash.IO_FENCE::get)
       .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
       .whileTrue(DriveBuilder.trenchNudge());
+
+    // Unlock heading
+    driver.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value, ControlConstants.stickDeadband)
+      .onTrue(s_Swerve.getDefaultCommand());
 
     // Climb heading lock
     driver.x()
@@ -136,7 +141,7 @@ public record ControlBinder
             };
             return FieldUtils.allianceRotateRotation(rotation);
           }
-        )
+        ).onlyWhile(() -> state.climbPos != ClimbPosition.None)
       );
 
     // Update throttle limits
@@ -229,9 +234,25 @@ public record ControlBinder
 
   private void bindClimber()
   {
+    final Trigger autoDeployTrigger = new Trigger(() -> state.climbPos != ClimbPosition.None);
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
+
+    // In alliance zone and auto-deploy, extend (only on true so that manual control can still happen while in alliance zone)
+    autoDeployTrigger
+      .and(allianceZoneTrigger)
+      .and(s_Vision::hasLocalisation)
+      .onTrue(s_Climber.extendCmd());
+
+    // Leave alliance zone or enter trench, retract (intentionally regardless of auto-deploy)
+    trenchTrigger
+      .or(allianceZoneTrigger.negate())
+      .and(s_Vision::hasLocalisation)
+      .onTrue(s_Climber.retractCmd());
+
     // Set Climb
     driver.povLeft().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Left));
     driver.povRight().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Right));
+    driver.back().onTrue(runOnce(() -> state.climbPos = ClimbPosition.None));
 
     // Retract
     operator.start().onTrue(s_Climber.retractCmd());
