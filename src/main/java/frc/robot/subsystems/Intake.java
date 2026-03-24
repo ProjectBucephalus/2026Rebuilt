@@ -44,8 +44,8 @@ public class Intake extends SubsystemBase
     {
       case On -> 
       {
-        double rollerSpeed = MathUtil.interpolate(RollerConstants.intakeMinSpeed, RollerConstants.intakeMaxSpeed, (swerveStateSup.get().Speeds.vxMetersPerSecond / RollerConstants.maxSpeedThreshold));
-
+        //double rollerSpeed = MathUtil.interpolate(RollerConstants.intakeMinSpeed, RollerConstants.intakeMaxSpeed, (swerveStateSup.get().Speeds.vxMetersPerSecond / RollerConstants.maxSpeedThreshold));
+        double rollerSpeed = RollerConstants.intakeMaxSpeed;
         roller.setSpeed(rollerSpeed);
       }
       case Off -> 
