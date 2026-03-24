@@ -1,4 +1,4 @@
-package frc.robot.util.controlTransmutation;
+package frc.robot.controlTransmutation;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -63,7 +63,18 @@ public abstract class FieldObject implements InputTransmuter
    */
   public double getDistance()
   {
-    return centre.getDistance(robotPos) - (radius + robotRadius);
+    return getDistance(robotPos) - robotRadius;
+  }
+
+  /**
+   * Calculates the distance between the input point and the field object <p/>
+   * Note: does not account for robot radius
+   * @param testPos Position of robot to test, field coordinates
+   * @return Distance to object, metres
+   */
+  public double getDistance(Translation2d testPos)
+  {
+    return centre.getDistance(testPos) - radius;
   }
 
   /**

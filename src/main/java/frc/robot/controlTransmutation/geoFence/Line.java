@@ -1,11 +1,11 @@
-package frc.robot.util.controlTransmutation.geoFence;
+package frc.robot.controlTransmutation.geoFence;
 
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.controlTransmutation.Attractor;
 import frc.robot.util.Conversions;
-import frc.robot.util.controlTransmutation.Attractor;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
@@ -96,15 +96,15 @@ public class Line extends GeoFence
   }
 
   @Override
-  public double getDistance()
+  public double getDistance(Translation2d testPos)
   {
-    double dot = (robotPos.getX() * dotX) + (robotPos.getY() * dotY) - dotXY; // Normalised dot product of the two lines
+    double dot = (testPos.getX() * dotX) + (testPos.getY() * dotY) - dotXY; // Normalised dot product of the two lines
     return new Translation2d
     (
       Conversions.clamp(pointA.getX() + dXab * dot, pointA.getX(), pointB.getX()), 
       Conversions.clamp(pointA.getY() + dYab * dot, pointA.getY(), pointB.getY())
     )
-    .getDistance(robotPos) - (radius + robotRadius);
+    .getDistance(testPos) - radius;
   }
 
   /** If the robot position is within the projection area of the line, the output will be negative on one side of the line */
