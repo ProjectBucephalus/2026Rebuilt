@@ -52,6 +52,8 @@ public class Shooter extends SubsystemBase
   private final Supplier<SwerveDriveState> swerveStateSup;
   private SwerveDriveState swerveState;
 
+  private Pose2d shooterPose;
+
   @Logged
   /** Current active target for the shooter */
   private final Target target = new Target(TargetState.Manual);
@@ -84,6 +86,7 @@ public class Shooter extends SubsystemBase
     this.swerveStateSup = swerveStateSup;
     this.swerveState = swerveStateSup.get();
     this.shooterOffset = robotToShooter;
+    shooterPose = Pose2d.kZero.plus(shooterOffset);
 
     baseTargetOffset = new Translation2d(0, Math.copySign(ShooterConstants.targetPointOffset, robotToShooter.getY()));
     ntId = idBlock.ntID();
@@ -161,7 +164,9 @@ public class Shooter extends SubsystemBase
       && hood.atAltitude()
       && flywheels.atSpeed()
       && target.distance > ShooterConstants.minRange
-      && !GeoFencing.trenchTrigger.getAsBoolean();
+      && !GeoFencing.trenchTrigger.getAsBoolean()
+      && GeoFencing.towerShadowBlue.getDistance(shooterPose.getTranslation()) > 0
+      && GeoFencing.towerShadowRed.getDistance(shooterPose.getTranslation()) > 0;
   }
 
   /**
@@ -206,7 +211,7 @@ public class Shooter extends SubsystemBase
   public void periodic()
   {
     swerveState = swerveStateSup.get();
-    var shooterPose = swerveState.Pose.plus(shooterOffset);
+    shooterPose = swerveState.Pose.plus(shooterOffset);
 
     // Find distance to current target for calculating leading shots
     double distance = switch (target.state) 
