@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
-import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.*;
 
 /** 
  * Simplified interface for most dashboard/network-table interactions 
@@ -48,13 +48,14 @@ public class PBDash
   public static final Key<Boolean> IO_SHOOT_PASS      = new Key<>("Auto Shoot Pass", true);
   
   // Rumble strengths
-  public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
-  public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", Constants.RumblerConstants.operatorDefault);
+  public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", RumblerConstants.driverDefault);
+  public static final Key<Double>  RUMBLE_OPERATOR  = new Key<>("Operator Rumble", RumblerConstants.operatorDefault);
   
   // Testing values
   public static final Key<Double>  TEST_FLYSPEED    = new Key<>("Test Flyspeed", 0.0);
   public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
+  public static final Key<Double>  TEST_INTAKE_SPEED    = new Key<>("Test Intake Speed", IntakeConstants.RollerConstants.intakeMaxSpeed);
   
   // Manual speed adjustment
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);

@@ -32,6 +32,7 @@ import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Intake.RollerState;
 import frc.robot.subsystems.generic.*;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.*;
@@ -383,5 +384,6 @@ public class Robot extends TimedRobot
   public void testPeriodic()
   {
     state.shoot = ShootersState.Test;
+    s_Intake.state = RollerState.Manual;
   }
 }

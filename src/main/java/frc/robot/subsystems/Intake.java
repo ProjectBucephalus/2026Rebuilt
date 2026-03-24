@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants.IntakeConstants.RollerConstants;
 import frc.robot.constants.IDConstants;
 import frc.robot.subsystems.generic.VelocityMotor;
+import frc.robot.util.PBDash;
 
 import java.util.function.Supplier;
 
@@ -20,10 +21,12 @@ import java.util.function.Supplier;
 @Logged(strategy = Strategy.OPT_IN)
 public class Intake extends SubsystemBase 
 {
-  public static enum RollerState { On, Off, Reversed }
+  public static enum RollerState { On, Off, Reversed, Manual }
 
   public RollerState state = RollerState.Off;
+  
   private final Supplier<SwerveDriveState> swerveStateSup;
+  private double rollerSpeed;
 
   public Intake( Supplier<SwerveDriveState> swerveStateSup)
   {
@@ -40,22 +43,15 @@ public class Intake extends SubsystemBase
   @Override
   public void periodic() 
   {
-    switch (state)  
+    rollerSpeed = switch (state)  
     {
-      case On -> 
-      {
-        //double rollerSpeed = MathUtil.interpolate(RollerConstants.intakeMinSpeed, RollerConstants.intakeMaxSpeed, (swerveStateSup.get().Speeds.vxMetersPerSecond / RollerConstants.maxSpeedThreshold));
-        double rollerSpeed = RollerConstants.intakeMaxSpeed;
-        roller.setSpeed(rollerSpeed);
-      }
-      case Off -> 
-      {
-        roller.setSpeed(0);
-      }
-      case Reversed -> 
-      {
-        roller.setSpeed(-RollerConstants.intakeMinSpeed);
-      }
-    }
+      case On -> RollerConstants.intakeMaxSpeed;
+      //double rollerSpeed = MathUtil.interpolate(RollerConstants.intakeMinSpeed, RollerConstants.intakeMaxSpeed, (swerveStateSup.get().Speeds.vxMetersPerSecond / RollerConstants.maxSpeedThreshold));
+      case Off -> 0;
+      case Reversed -> -RollerConstants.intakeMinSpeed;
+      case Manual -> PBDash.TEST_INTAKE_SPEED.get();
+    };
+
+    roller.setSpeed(rollerSpeed);
   }
 }
