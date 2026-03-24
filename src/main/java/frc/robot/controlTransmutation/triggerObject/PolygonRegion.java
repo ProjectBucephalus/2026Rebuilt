@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation.triggerRegion;
+package frc.robot.controlTransmutation.triggerObject;
 
 import java.util.Arrays;
 import java.util.Comparator;

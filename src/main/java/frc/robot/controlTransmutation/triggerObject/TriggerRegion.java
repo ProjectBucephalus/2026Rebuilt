@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation.triggerRegion;
+package frc.robot.controlTransmutation.triggerObject;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
