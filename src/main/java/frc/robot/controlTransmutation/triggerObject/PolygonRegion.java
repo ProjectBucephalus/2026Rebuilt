@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation.restrictor;
+package frc.robot.controlTransmutation.triggerObject;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,23 +11,23 @@ import frc.robot.util.Conversions;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /** 
- * A polygon shaped restrictor
+ * A polygon shaped region
  * @author 5985
  */
-public class PolygonRestrictor extends Restrictor 
+public class PolygonRegion extends TriggerRegion 
 {
-  private LineRestrictor[] polygonLines;
+  private LineRegion[] polygonLines;
   
   /**
-   * Polygon shaped restrictor
+   * Polygon shaped region
    * @param x X-coordinate of the centre point
    * @param y Y-coordinate of the centre point
-   * @param radius Extra radius of restrictor zone around the polygon (produces a rounded polgyon shape)
+   * @param radius Extra radius of region around the polygon (produces a rounded polgyon shape)
    * @param buffer Buffer around the object over which the speed is reduced
    * @param theta Rotation of the polygon. Zero means a point will be facing north
    * @param sides Side count of the polygon
    */
-  public PolygonRestrictor(double x, double y, double radius, double buffer, double theta, int sides)
+  public PolygonRegion(double x, double y, double radius, double buffer, double theta, int sides)
   {
     // Constraining inputs
     radius = Math.max(radius, minRadius);
@@ -37,7 +37,7 @@ public class PolygonRestrictor extends Restrictor
     // Initialising instance variables
     this.centre = new Translation2d(x, y);
     this.checkRadius = radius + buffer;
-    this.polygonLines = new LineRestrictor[sides];
+    this.polygonLines = new LineRegion[sides];
 
     // The start of the first line/end of the last line
     var initalPoint = new Translation2d(x, y + radius).rotateAround(centre, Rotation2d.fromDegrees(theta));
@@ -52,7 +52,7 @@ public class PolygonRestrictor extends Restrictor
       .toList();
     
     for (int i = 0; i < sides; i++)
-      polygonLines[i] = new LineRestrictor(polygonPoints.get(i), polygonPoints.get(i + 1));
+      polygonLines[i] = new LineRegion(polygonPoints.get(i), polygonPoints.get(i + 1));
 
     /* 
     * Convert the circumscribed radius (centre-corner) to the inscribed radius (centre-edge)
@@ -72,7 +72,7 @@ public class PolygonRestrictor extends Restrictor
     {return nearestLine().getDirectionalDistance();}
 
   /** @return The nearest line of the polygon */
-  private LineRestrictor nearestLine()
+  private LineRegion nearestLine()
   {
     return Arrays
       .stream(polygonLines)

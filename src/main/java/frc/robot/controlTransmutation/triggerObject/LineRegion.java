@@ -1,15 +1,15 @@
-package frc.robot.controlTransmutation.restrictor;
+package frc.robot.controlTransmutation.triggerObject;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
 
 /** 
- * A line shaped restrictor <p>
+ * A line shaped region <p>
  * Defined between two points </p>
  * Due to having no area, has no active zone. Used purely as a distance check
  * @author 5985
  */
-public class LineRestrictor extends Restrictor
+public class LineRegion extends TriggerRegion
 {
   private Translation2d pointA;
   private Translation2d pointB;    
@@ -28,12 +28,12 @@ public class LineRestrictor extends Restrictor
   private double dotXY;
 
   /**
-   * Line shaped restrictor <p>
+   * Line shaped region <p>
    * When looking along the line from point A to B, right is positive distance, left is negative distance
    * @param pointA The first point
    * @param pointB The second point
    */
-  public LineRestrictor(Translation2d pointA, Translation2d pointB)
+  public LineRegion(Translation2d pointA, Translation2d pointB)
   {
     this.pointA = pointA;
     this.pointB = pointB;

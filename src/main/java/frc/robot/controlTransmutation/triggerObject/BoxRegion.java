@@ -1,14 +1,14 @@
-package frc.robot.controlTransmutation.restrictor;
+package frc.robot.controlTransmutation.triggerObject;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /** 
- * A rectangle shaped {@link Restrictor}
+ * A rectangle shaped {@link TriggerRegion}
  * @author 5985
  */
-public class BoxRestrictor extends Restrictor 
+public class BoxRegion extends TriggerRegion 
 {
   private double Xa;
   private double Ya;
@@ -16,15 +16,15 @@ public class BoxRestrictor extends Restrictor
   private double Yb;
 
   /**
-   * Rectangle shaped restrictor
+   * Rectangle shaped region
    * @param xA X-coordinate of the first point
    * @param yA Y-coordinate of the first point
    * @param xB X-coordinate of the second point
    * @param yB Y-coordinate of the second point
-   * @param radius Extra radius of restrictor zone around the box (produces a rounded rectangle shape)
+   * @param radius Extra radius of region around the box (produces a rounded rectangle shape)
    * @param buffer Buffer around the object over which the speed is reduced
    */
-  public BoxRestrictor(double xA, double yA, double xB, double yB, double radius, double buffer)
+  public BoxRegion(double xA, double yA, double xB, double yB, double radius, double buffer)
   {
     super(new Translation2d((xA + xB)/2, (yA + yB)/2), radius, buffer);
 
@@ -37,13 +37,13 @@ public class BoxRestrictor extends Restrictor
   }
 
   /**
-   * Rectangle shaped restrictor with minimum radius and buffer size
+   * Rectangle shaped region with minimum radius and buffer size
    * @param xA X-coordinate of the first point
    * @param yA Y-coordinate of the first point
    * @param xB X-coordinate of the second point
    * @param yB Y-coordinate of the second point
    */
-  public BoxRestrictor(double Xa, double Ya, double Xb, double Yb)
+  public BoxRegion(double Xa, double Ya, double Xb, double Yb)
     {this(Xa, Ya, Xb, Yb, minRadius, minBuffer);}
 
   @Override

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.controlTransmutation.Attractor;
 import frc.robot.controlTransmutation.FieldObject;
+import frc.robot.controlTransmutation.triggerObject.TriggerVector;
 import frc.robot.util.Conversions;
 
 /** 
@@ -19,14 +19,14 @@ public abstract class GeoFence extends FieldObject
   // Inherits from FieldObject: T2D centre, double radius, double buffer, double checkRadius
 
   // A list of object-relative attractors to check
-  protected ArrayList<Attractor> attractors = new ArrayList<Attractor>();
+  protected ArrayList<TriggerVector> attractors = new ArrayList<TriggerVector>();
 
   /**
    * Adds one or more Attractor objects tied to the GeoFence object
    * @param newAttractors list of Attractors in Field coordinates
    * @return the GeoFence object with the new Attractors
    */
-  public GeoFence addAttractors(Attractor ...newAttractors)
+  public GeoFence addAttractors(TriggerVector ...newAttractors)
   {
     for (var attractor : newAttractors)
       attractors.add(attractor);

@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.controlTransmutation.ObjectList;
 import frc.robot.controlTransmutation.geoFence.*;
-import frc.robot.controlTransmutation.restrictor.*;
+import frc.robot.controlTransmutation.triggerObject.*;
 
 import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
 
@@ -124,10 +124,10 @@ public class FieldConstants
     public static final double bumpXa = hubCentreOffset + bumpDepth/2;
     public static final double bumpXb = hubCentreOffset - bumpDepth/2;
 
-    public static final BoxRestrictor bumpSB = new BoxRestrictor(fieldCentre.getX() - bumpXa, bumpYa, fieldCentre.getX() - bumpXb, hubYa);
-    public static final BoxRestrictor bumpNB = new BoxRestrictor(fieldCentre.getX() - bumpXa, hubYb,  fieldCentre.getX() - bumpXb, bumpYb);
-    public static final BoxRestrictor bumpSR = new BoxRestrictor(fieldCentre.getX() + bumpXa, bumpYa, fieldCentre.getX() + bumpXb, hubYa);
-    public static final BoxRestrictor bumpNR = new BoxRestrictor(fieldCentre.getX() + bumpXa, hubYb,  fieldCentre.getX() + bumpXb, bumpYb);
+    public static final BoxRegion bumpSB = new BoxRegion(fieldCentre.getX() - bumpXa, bumpYa, fieldCentre.getX() - bumpXb, hubYa);
+    public static final BoxRegion bumpNB = new BoxRegion(fieldCentre.getX() - bumpXa, hubYb,  fieldCentre.getX() - bumpXb, bumpYb);
+    public static final BoxRegion bumpSR = new BoxRegion(fieldCentre.getX() + bumpXa, bumpYa, fieldCentre.getX() + bumpXb, hubYa);
+    public static final BoxRegion bumpNR = new BoxRegion(fieldCentre.getX() + bumpXa, hubYb,  fieldCentre.getX() + bumpXb, bumpYb);
 
     static 
     {
@@ -150,10 +150,10 @@ public class FieldConstants
     public static final double trenchXa = hubCentreOffset + trenchBarrierDepth/2;
     public static final double trenchXb = hubCentreOffset - trenchBarrierDepth/2;
 
-    public static final BoxRestrictor trenchSB = new BoxRestrictor(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchWidth);
-    public static final BoxRestrictor trenchNB = new BoxRestrictor(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
-    public static final BoxRestrictor trenchSR = new BoxRestrictor(fieldCentre.getX() + trenchXa, 0, fieldCentre.getX() + trenchXb, trenchWidth);
-    public static final BoxRestrictor trenchNR = new BoxRestrictor(fieldCentre.getX() + trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() + trenchXb, fieldWidth);
+    public static final BoxRegion trenchSB = new BoxRegion(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchWidth);
+    public static final BoxRegion trenchNB = new BoxRegion(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
+    public static final BoxRegion trenchSR = new BoxRegion(fieldCentre.getX() + trenchXa, 0, fieldCentre.getX() + trenchXb, trenchWidth);
+    public static final BoxRegion trenchNR = new BoxRegion(fieldCentre.getX() + trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() + trenchXb, fieldWidth);
 
     public static final Trigger trenchTrigger = 
           trenchSB.asTrigger()
@@ -206,8 +206,8 @@ public class FieldConstants
     /** Distance from left edge of Tower base to prevent shooting, m */
     public static final double towerShadowLeft = 0.2;
 
-    public static final BoxRestrictor towerShadowBlue = new BoxRestrictor(0, towerSpacing - towerShadowRight, towerDepth - towerPostFront, towerSpacing + towerWidth + towerShadowLeft);
-    public static final BoxRestrictor towerShadowRed  = new BoxRestrictor(fieldLength, fieldWidth - (towerSpacing - towerShadowRight), fieldLength - (towerDepth - towerPostFront), fieldWidth - (towerSpacing + towerWidth + towerShadowLeft));
+    public static final BoxRegion towerShadowBlue = new BoxRegion(0, towerSpacing - towerShadowRight, towerDepth - towerPostFront, towerSpacing + towerWidth + towerShadowLeft);
+    public static final BoxRegion towerShadowRed  = new BoxRegion(fieldLength, fieldWidth - (towerSpacing - towerShadowRight), fieldLength - (towerDepth - towerPostFront), fieldWidth - (towerSpacing + towerWidth + towerShadowLeft));
     
     // Regions to avoid other climbing robots
     /** Assumed radius for other robots, m */
@@ -228,8 +228,8 @@ public class FieldConstants
     public static final Box depotBlueFence = new Box(0, fieldWidth - depotSpacing, depotDepth, fieldWidth - (depotSpacing + depotWidth), 0.1, 0.25);
     public static final Box depotRedFence  = new Box(fieldLength, depotSpacing, fieldLength - depotDepth, depotSpacing + depotWidth, 0.1, 0.25);
     
-    public static final BoxRestrictor depotBlueZone = new BoxRestrictor(0, fieldWidth - depotSpacing, depotDepth, fieldWidth - (depotSpacing + depotWidth));
-    public static final BoxRestrictor depotRedZone  = new BoxRestrictor(fieldLength, depotSpacing, fieldLength - depotDepth, depotSpacing + depotWidth);
+    public static final BoxRegion depotBlueZone = new BoxRegion(0, fieldWidth - depotSpacing, depotDepth, fieldWidth - (depotSpacing + depotWidth));
+    public static final BoxRegion depotRedZone  = new BoxRegion(fieldLength, depotSpacing, fieldLength - depotDepth, depotSpacing + depotWidth);
 
     public static final ObjectList fieldStaticGeoFence = new ObjectList
     (
