@@ -139,7 +139,7 @@ public class Robot extends TimedRobot
   );
   
   @Logged(name = "Intake")
-  private final Intake s_Intake = new Intake();
+  private final Intake s_Intake = new Intake(() -> swerveState);
 
   @Logged(name = "Extension")
   private final PositionMotor s_Extension = new PositionMotor(IDConstants.extensionCAN, ExtensionConstants.extensionConfig);
