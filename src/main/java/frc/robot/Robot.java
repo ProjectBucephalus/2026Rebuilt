@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -26,18 +25,18 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
+import frc.robot.autobuilder.AutoBuilder;
 import frc.robot.constants.*;
 import frc.robot.constants.Constants.*;
+import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.generic.*;
 import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.*;
 
 import frc.robot.util.*;
-import frc.robot.util.autobuilder.AutoBuilder;
 import frc.robot.util.libs.Telemetry;
 
 /**
@@ -66,28 +65,14 @@ import frc.robot.util.libs.Telemetry;
 public class Robot extends TimedRobot 
 {
   /* State */
-  public static enum ButtonPadState
-  {
-    PassPointSelection,
-    LocalisationOveride,
-    AutoDisplay,
-    ManualControls
-  }
-  public static enum ClimbPosition
-  {
-    OutLeft, OutRight,
-    MidLeft, MidRight,
-    InLeft, InRight
-  }
-  public static enum HeadingLockState { Unlocked, Climb, General }
+  public static enum ClimbPosition { None, Left, Right }
+  public static enum ShootersState { Auto, Stbd, Port, Manual, Test }
 
   @Logged
   public static class RobotState 
   {
-    public ButtonPadState btnSet = ButtonPadState.PassPointSelection;
-    public ClimbPosition climbPos = ClimbPosition.OutLeft;
-    public HeadingLockState headingLock = HeadingLockState.Unlocked;
-
+    public ClimbPosition climbPos = ClimbPosition.None;
+    public ShootersState shoot = ShootersState.Auto;
     public boolean nudging = true;
   }
   
@@ -103,8 +88,7 @@ public class Robot extends TimedRobot
 
   /* Controllers */
   private final CommandXboxController driver = new CommandXboxController(IDConstants.driverPort);
-  private final LockableXboxController debug = new LockableXboxController(IDConstants.debugPort, Button.kY);
-  private final Launchpad buttonPad = new Launchpad(IDConstants.buttonPadPort);
+  private final CommandXboxController operator = new CommandXboxController(IDConstants.debugPort);
   private final CommandGenericHID switchboard = new CommandGenericHID(IDConstants.switchboardPort);
   
   /* Subsystems */
@@ -156,23 +140,22 @@ public class Robot extends TimedRobot
   );
   
   @Logged(name = "Intake")
-  private final Intake s_Intake = new Intake
-  (
-    IDConstants.intakeCAN, 
-    IDConstants.extensionCAN
-  );
+  private final Intake s_Intake = new Intake(() -> swerveState);
+
+  @Logged(name = "Extension")
+  private final PositionMotor s_Extension = new PositionMotor(IDConstants.extensionCAN, ExtensionConstants.extensionConfig);
 
   /* Rumble */
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
   private final RumbleRequester io_driverLeft  = new RumbleRequester(driver, RumbleType.kLeftRumble, PBDash.RUMBLE_DRIVER::get);
   @SuppressWarnings("unused")
-  private final RumbleRequester io_debugRight  = new RumbleRequester(debug, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
+  private final RumbleRequester io_debugRight  = new RumbleRequester(operator, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
   @SuppressWarnings("unused")
-  private final RumbleRequester io_debugLeft   = new RumbleRequester(debug, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
+  private final RumbleRequester io_debugLeft   = new RumbleRequester(operator, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
-  private final Brake driverBrake = new Brake(() -> Math.max(driver.getRightTriggerAxis(), s_Intake.brakeFromIntake()), ControlConstants.maxThrottle, ControlConstants.minThrottle);
+  private final Brake driverBrake = new Brake(() -> driver.getRightTriggerAxis(), ControlConstants.maxThrottle, ControlConstants.minThrottle);
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
 
@@ -183,13 +166,12 @@ public class Robot extends TimedRobot
     initLogging();
     initInputTransmute();
 
-    Controls.bind
+    new ControlBinder
     (
       state, 
       () -> swerveState, 
       driver, 
-      debug, 
-      buttonPad,
+      operator, 
       switchboard, 
       driverStick, 
       driverBrake, 
@@ -198,8 +180,10 @@ public class Robot extends TimedRobot
       s_PortShooter, 
       s_StbdShooter, 
       s_Intake, 
+      s_Extension,
       s_Climber
-    );
+    )
+    .bind();
 
     bindRumbles();
   }
@@ -227,6 +211,16 @@ public class Robot extends TimedRobot
   /** Set up input modification and fencing systems */
   private void initInputTransmute()
   {
+    DriveBuilder.init
+    (
+      s_Swerve, 
+      driverStick::stickOutput,
+      () -> -driver.getRightX(),
+      driver::getRightTriggerAxis,
+      () -> swerveState.Pose
+    );
+
+
     driverStick
       .rotated(FieldUtils.isAlliance(Alliance.Red))
       .withFieldObjects(GeoFencing.fieldGeoFence)
@@ -269,8 +263,8 @@ public class Robot extends TimedRobot
   /** Sets trigger conditions to activate controller rumbles */
   private void bindRumbles()
   {
-    new Trigger(() -> FieldUtils.hubActive(FieldUtils.getAlliance())) 
-      .onChange(io_driverLeft.timedRequestCommand("Shift Change", 0.5));
+    new Trigger(FieldUtils::hubActive) 
+      .onChange(io_driverLeft.timedRumbleCmd("Shift Change", 0.5));
   }
 
   /* UTIL METHODS */
@@ -285,7 +279,7 @@ public class Robot extends TimedRobot
 
   private void compileAuto()
   {
-    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), () -> swerveState, s_Swerve, s_Intake));
+    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), swerveState.Pose, s_Swerve, s_Intake, s_Extension));
   }
 
   @Logged(name = "CAN Load")
@@ -356,8 +350,8 @@ public class Robot extends TimedRobot
     CommandScheduler.getInstance()
       .schedule
       (
-        io_driverLeft.timedRequestCommand("Teleop Start", 1.5), 
-        io_driverRight.timedRequestCommand("Teleop Start", 1.5)
+        io_driverLeft.timedRumbleCmd("Teleop Start", 1.5), 
+        io_driverRight.timedRumbleCmd("Teleop Start", 1.5)
       );
   }
 
@@ -373,14 +367,6 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    if (!PBDash.E_STOP.get())
-    {
-      s_PortShooter.getTarget().state = TargetState.Manual;
-      s_PortShooter.getTarget().altitude = PBDash.TEST_ALTITUDE.get();
-      s_PortShooter.getTarget().speed = PBDash.TEST_FLYSPEED.get();
-      s_StbdShooter.getTarget().state = TargetState.Manual;
-      s_StbdShooter.getTarget().altitude = PBDash.TEST_ALTITUDE.get();
-      s_StbdShooter.getTarget().speed = PBDash.TEST_FLYSPEED.get();
-    }
+    state.shoot = ShootersState.Test;
   }
 }

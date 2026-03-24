@@ -47,6 +47,6 @@ public class LinearExtension extends LimitedMotor
 
   /** @param shiftSup A supplier for the amount to adjust the target by in meters */
   @Override
-  public Command adjustTargetCommand(DoubleSupplier shiftSup) 
-    {return super.adjustTargetCommand(shiftSup);}
+  public Command adjustTargetCmd(DoubleSupplier shiftSup) 
+    {return super.adjustTargetCmd(shiftSup);}
 }

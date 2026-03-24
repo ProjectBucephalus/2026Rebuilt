@@ -5,7 +5,6 @@ import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
-import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
@@ -211,16 +210,12 @@ public class Turret
 
     // Update the azimuth stored in the target based on the target state
     // Ensures that changing to manual mode doesn't cause sudden motion
-    target.azimuth = switch (target.state) 
-    {
-      case Manual -> target.azimuth;
-      case Point -> calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
-      // aim at our alliance's hub
-      case Hub -> calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
-    };
+    if (target.state == TargetState.Hub || target.disabled)
+      target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
+    else if (target.state == TargetState.Point)
+      target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
 
-    if (!target.disabled && (!PBDash.E_STOP.get() || target.state == TargetState.Manual))
-      m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
+    m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
   }   
   
   protected void updateSim()

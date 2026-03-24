@@ -48,8 +48,8 @@ public final class Constants
     public static final double maxRotThrottle = 1;
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
     public static final double minRotThrottle = 0.3;
-    /** Angle tolerance to consider something as "facing" the drivers, degrees */
-    public static final double driverVisionTolerance = 5;
+    /** How far a trigger must be pressed to be considered on, [0..1] */
+    public static final double triggerThreshold = 0.8;
     /** Translation lineup tolerance, meters */
     public static final double lineupTolerance = 0.1;
     /** Rotation lineup tolerance, degrees */
@@ -70,8 +70,8 @@ public final class Constants
     public static final double manualShooterDistanceAmount = 0.03;
     public static final double manualShooterDeadband = 0.25;
 
-    public static final double preShiftShootMargin = 1;
-    public static final double postShiftShootMargin = 2;
+    public static final double preShiftMargin = 1;
+    public static final double postShiftMargin = 2;
 
     public static final double preShiftOutputMargin = 1;
     public static final double postShiftOutputMargin = 2;
@@ -151,6 +151,9 @@ public final class Constants
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
     public static final double leadFactor = 0.5;
     public static final double minRange = 1.1;
+
+    public static final double closeManualRange = 2;
+    public static final double farManualRange = 4.5;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants
@@ -308,7 +311,7 @@ public final class Constants
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
     public static final Transform3d stbdLimelightOffset = new Transform3d(0.25, 0, -0.6745, new Rotation3d(0, -13, 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
-    public static final double visionFrequencyThreshold = 10;
+    public static final double visionFrequencyThreshold = 5;
     /** How many seconds into the past we store turret azimuth readings */
     public static final double azimuthBufLength = 10;
 
@@ -447,7 +450,8 @@ public final class Constants
     public static final class RollerConstants 
     {
       /** Default speed of intake when running, rps */
-      public static final double intakeSpeed = 55;
+      public static final double intakeMinSpeed = 30;
+      public static final double intakeMaxSpeed = 55;
 
       /** Intake speed at which robot throttle starts being applied, rps */
       public static final double brakeSpeedStart = 10;
@@ -455,6 +459,7 @@ public final class Constants
       public static final double brakeSpeedRange = 40 - brakeSpeedStart;
       /** Maximum brake value */
       public static final double intakeBrake = 0.5;
+      public static final double maxSpeedThreshold = 2.5;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static

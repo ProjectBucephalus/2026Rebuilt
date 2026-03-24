@@ -63,7 +63,7 @@ public class RumbleRequester extends SubsystemBase
    * @param rumbleID the ID to use for the request
    * @return the {@link Command}
    */
-  public Command rumbleWhileCommand(String rumbleID)
+  public Command runRumbleCmd(String rumbleID)
     {return Commands.startEnd(() -> add(rumbleID), () -> remove(rumbleID));}
 
   /**
@@ -75,7 +75,7 @@ public class RumbleRequester extends SubsystemBase
    */
   public RumbleRequester addRumbleTrigger(String rumbleID, Trigger trigger)
   {
-    trigger.whileTrue(rumbleWhileCommand(rumbleID));
+    trigger.whileTrue(runRumbleCmd(rumbleID));
     return this;
   }
 
@@ -87,8 +87,8 @@ public class RumbleRequester extends SubsystemBase
    * @param durationSeconds how long to rumble for in seconds, measured from when the command starts
    * @return the {@link Command}
    */
-  public Command timedRequestCommand(String rumbleID, double durationSeconds)
-    {return rumbleWhileCommand(rumbleID).withDeadline(Commands.waitSeconds(durationSeconds));}
+  public Command timedRumbleCmd(String rumbleID, double durationSeconds)
+    {return runRumbleCmd(rumbleID).withDeadline(Commands.waitSeconds(durationSeconds));}
 
   @Override
   public void periodic() 

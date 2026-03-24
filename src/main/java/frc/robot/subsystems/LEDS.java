@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.constants.IDConstants;
 import frc.robot.constants.Constants.LEDConstants;
-import frc.robot.util.LEDs.Sections.LEDSection;
+import frc.robot.leds.Sections.LEDSection;
 
 import java.util.ArrayList;
 import java.util.Comparator;

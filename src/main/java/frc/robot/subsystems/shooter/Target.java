@@ -42,7 +42,7 @@ public class Target
   protected Translation2d offset = Translation2d.kZero;
   /** Distance from shooter to target, used for hood angle and flywheel speed */
   @Logged(name = "distance Meters")
-  protected double distance = 0;
+  public double distance = 0;
   @Logged(name = "speed Rotations per Second")
   public double speed = 0;
   /** Flywheels will maintain speed while {@code true}, will idle when {@code false} */

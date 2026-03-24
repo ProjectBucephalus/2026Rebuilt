@@ -1,8 +1,8 @@
-package frc.robot.util.LEDs.Sections;
+package frc.robot.leds.Sections;
 
-import frc.robot.util.LEDs.Patterns.*;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.leds.Patterns.*;
 
 public class LEDSection {
 

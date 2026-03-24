@@ -1,4 +1,4 @@
-package frc.robot.util.LEDs.Patterns;
+package frc.robot.leds.Patterns;
 
 import java.util.Map;
 import java.util.function.Supplier;

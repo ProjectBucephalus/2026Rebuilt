@@ -1,4 +1,4 @@
-package frc.robot.util.autobuilder;
+package frc.robot.autobuilder;
 
 /** 
  * Represents a single Token extracted from the input text. Roughly analogous to a "word" 

@@ -1,13 +1,11 @@
-package frc.robot.util.autobuilder;
+package frc.robot.autobuilder;
 
-import java.util.function.Supplier;
-
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
-
-import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.generic.PositionMotor;
 import frc.robot.util.PBDash;
 
 /**
@@ -31,9 +29,10 @@ public class AutoBuilder
   public static Command compile
   (
     String source,
-    Supplier<SwerveDriveState> swerveStateSup,
+    Pose2d currPose,
     CommandSwerveDrivetrain s_Swerve, 
-    Intake s_Intake
+    Intake s_Intake,
+    PositionMotor s_Extension
   )
   {
     // Wipe any previous errors
@@ -43,7 +42,7 @@ public class AutoBuilder
     // [Token(Text, "driveto"), Token(LParen, "("), Token(Num, "1"), Token(Num, "2"), Token(LParen, ")")] 
     // becomes [Instruction(driveto, [Value(Num, 1), Value(Num, 1)])]
     var instrs = new Parser(tokens).parse(); 
-    var command = new CommandGen(instrs, swerveStateSup, s_Swerve, s_Intake).compile();
+    var command = new CommandGen(instrs, currPose, s_Intake, s_Extension).compile();
     return command;
   }
 

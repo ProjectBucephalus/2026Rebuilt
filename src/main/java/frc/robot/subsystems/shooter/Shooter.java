@@ -56,7 +56,7 @@ public class Shooter extends SubsystemBase
 
   @Logged
   /** Current active target for the shooter */
-  private final Target target = new Target(TargetState.Manual);
+  public final Target target = new Target(TargetState.Manual);
 
   /**
    * Creates Turreted Shooter master-system, internally creates and manages associated subsystems
@@ -102,17 +102,7 @@ public class Shooter extends SubsystemBase
     target.azimuth = turret.getAzimuth();
   }
 
-  /**
-   * Construct a command that sets the speed for the Flywheels <p>
-   * NOTE: The provided value is only evaluated when the command is created
-   * 
-   * @param speed the desired Flywheel speed, in rotations per second
-   * @return the {@link Command}
-   */
-  public Command setFlySpeedCommand(double speed)
-    {return runOnce(() -> target.speed = speed);}
-
-  public Command adjustDistanceCommand(DoubleSupplier shiftSup)
+  public Command adjustDistanceCmd(DoubleSupplier shiftSup)
   {
     return Commands.run(() -> 
     {
@@ -123,11 +113,15 @@ public class Shooter extends SubsystemBase
     }).withName("Manual Distance");
   }
 
-  public Command adjustAzimuthCommand(DoubleSupplier shiftSup)
-    {return Commands.run(() -> target.azimuth += shiftSup.getAsDouble()).withName("Manual Azimuth");}
+  public void setDistance(double distance)
+  {
+    target.distance = Math.max(distance, 0);
+    target.speed = Interpolation.flywheelSpeedHub.get(target.distance);
+    target.altitude = Interpolation.shooterAltitudeHub.get(target.distance);
+  }
 
-  public void setFlySpeed(double speed)
-    {target.speed = speed;}
+  public Command adjustAzimuthCmd(DoubleSupplier shiftSup)
+    {return Commands.run(() -> target.azimuth += shiftSup.getAsDouble()).withName("Manual Azimuth");}
 
   /** @return Current robot-relative azimuth of the turret, degrees */
   public double getAzimuth()
@@ -140,9 +134,6 @@ public class Shooter extends SubsystemBase
   /** @return Current speed of the flywheels (RPS of the main flywheel) */
   public double getSpeed()
     {return flywheels.getSpeed();}
-
-  /** @return Current Target object for the Shooter system */
-  public Target getTarget() {return target;}
 
   /**
    * Trigger factory for whether we are in a valid state to be shooting. This requires that:
@@ -169,32 +160,20 @@ public class Shooter extends SubsystemBase
       && GeoFencing.towerShadowRed.getDistance(shooterPose.getTranslation()) > 0;
   }
 
-  /**
-   * Brings flywheels up to at least idle speed
-   * @return {@code true} when flywheels are at speed
-   */
-  public boolean makeShootSafe()
-  {
-    if (target.speed < FlywheelConstants.idleSpeed)
-      {target.speed = FlywheelConstants.idleSpeed;}
+  public Command runIndexerCmd()
+    {return indexer.runCmd(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed));}
 
-    return flywheels.atSpeed();
-  }
+  public Command runIndexerCmd(DoubleSupplier speedSup)
+    {return indexer.runCmd(speedSup);}
 
-  public Command runIndexerCommand()
-    {return indexer.runCommand(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed));}
-
-  public Command reverseIndexerCommand()
-    {return indexer.runCommand(() -> IndexerConstants.indexerReverseSpeed);}
-
-  public Command stopIndexerCommand()
-    {return indexer.runCommand(() -> 0.0);}
+  public Command stopIndexerCmd()
+    {return indexer.runCmd(() -> 0.0);}
 
   /** Sets the flywheels to rev up to target speed */
   public void revFlywheels() {target.flywheelsActive = true;}
   /** Sets the flywheels to idle speed */
   public void idleFlywheels() {target.flywheelsActive = false;}
-  public Command runFlywheelsCommand() {return Commands.startEnd(this::revFlywheels, this::idleFlywheels);}
+  public Command runFlywheelsCmd() {return Commands.startEnd(this::revFlywheels, this::idleFlywheels);}
 
   private void telemetrise()
   {
@@ -257,10 +236,7 @@ public class Shooter extends SubsystemBase
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
 
-    if (target.disabled && (!PBDash.E_STOP.get()))
-      indexer.setSpeed(IndexerConstants.indexerReverseSpeed);
-
-    if (target.disabled || (PBDash.E_STOP.get() && target.state != TargetState.Manual))
+    if (target.disabled)
       flywheels.setSpeed(0);
     else if (target.flywheelsActive)
       flywheels.setSpeed(target.speed);

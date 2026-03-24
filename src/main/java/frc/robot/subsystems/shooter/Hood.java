@@ -6,9 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
 import frc.robot.util.Conversions;
-import frc.robot.util.PBDash;
 import frc.robot.constants.FieldConstants.GeoFencing;
-import frc.robot.subsystems.shooter.Target.TargetState;
 
 import static frc.robot.constants.Constants.ShooterConstants.HoodConstants.*;
 
@@ -76,8 +74,7 @@ public class Hood
     // Invert the target position if needed
     if (inverted) servoTarget = 1 - servoTarget;
 
-    if (!PBDash.E_STOP.get() || target.state == TargetState.Manual || target.disabled)
-      // Set the position of the servo to the calculated target position 
-      m_Servo.set(servoTarget);
+    // Set the position of the servo to the calculated target position 
+    m_Servo.set(servoTarget);
   }
 }

@@ -1,8 +1,8 @@
-package frc.robot.util.autobuilder;
+package frc.robot.autobuilder;
 
 import java.util.Arrays;
 
-import frc.robot.util.autobuilder.ParsedRepr.Value.Type;
+import frc.robot.autobuilder.ParsedRepr.Value.Type;
 
 /** A number of types used for representing the parsed form of the auto string */
 public final class ParsedRepr 
