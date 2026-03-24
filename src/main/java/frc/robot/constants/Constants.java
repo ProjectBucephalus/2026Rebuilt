@@ -447,8 +447,6 @@ public final class Constants
     public static final class RollerConstants 
     {
       /** Default speed of intake when running, rps */
-      public static final double intakeSpeed = 55;
-
       public static final double intakeMinSpeed = 30;
       public static final double intakeMaxSpeed = 55;
 
@@ -458,6 +456,7 @@ public final class Constants
       public static final double brakeSpeedRange = 40 - brakeSpeedStart;
       /** Maximum brake value */
       public static final double intakeBrake = 0.5;
+      public static final double maxSpeedThreshold = 2.5;
       
       public static final TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
       static

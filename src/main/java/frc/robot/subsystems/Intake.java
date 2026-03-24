@@ -4,6 +4,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants.IntakeConstants.RollerConstants;
@@ -22,7 +23,6 @@ public class Intake extends SubsystemBase
   public static enum RollerState { On, Off, Reversed }
 
   public RollerState state = RollerState.Off;
-  private double rollerSpeed;
   private final Supplier<SwerveDriveState> swerveStateSup;
 
   public Intake( Supplier<SwerveDriveState> swerveStateSup)
@@ -44,12 +44,7 @@ public class Intake extends SubsystemBase
     {
       case On -> 
       {
-        rollerSpeed = (swerveStateSup.get().Speeds.vxMetersPerSecond * RollerConstants.intakeMinSpeed);
-
-        if (rollerSpeed > RollerConstants.intakeMaxSpeed) 
-        {
-          rollerSpeed = RollerConstants.intakeMaxSpeed;
-        }
+        double rollerSpeed = MathUtil.interpolate(RollerConstants.intakeMinSpeed, RollerConstants.intakeMaxSpeed, (swerveStateSup.get().Speeds.vxMetersPerSecond / RollerConstants.maxSpeedThreshold));
 
         roller.setSpeed(rollerSpeed);
       }
@@ -59,7 +54,7 @@ public class Intake extends SubsystemBase
       }
       case Reversed -> 
       {
-        roller.setSpeed(-RollerConstants.intakeSpeed);
+        roller.setSpeed(-RollerConstants.intakeMinSpeed);
       }
     }
   }
