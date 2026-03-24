@@ -15,7 +15,7 @@ import static frc.robot.constants.FieldConstants.GeoFencing.*;
  */
 public class TriggerRegion extends FieldObject
 {
-  private final Trigger trigger = new Trigger(() -> checkPosition() && getDistance() <= 0);
+  private final Trigger trigger = new Trigger(activeSupplier).and(() -> checkPosition() && getDistance() <= 0);
   protected double localSpeedLimit = 0;
 
   /**
