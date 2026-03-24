@@ -44,9 +44,8 @@ public class PBDash
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
   public static final Key<Boolean> IO_FENCE         = new Key<>("Enable Fencing", true);
-  public static final Key<Boolean> IO_AUTO_AIM      = new Key<>("Auto Aim", true);
-  public static final Key<Boolean> IO_AUTO_PASS     = new Key<>("Auto Pass", false);
-  public static final Key<Boolean> IO_AUTO_REV      = new Key<>("Auto Rev", true);
+  public static final Key<Boolean> IO_SHOOT_HUB     = new Key<>("Auto Shoot Hub", false);
+  public static final Key<Boolean> IO_SHOOT_PASS      = new Key<>("Auto Shoot Pass", true);
   
   // Rumble strengths
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", Constants.RumblerConstants.driverDefault);
@@ -58,7 +57,6 @@ public class PBDash
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
   
   // Manual speed adjustment
-  public static final Key<Double>  IO_INTAKE_SPEED  = new Key<>("Intake Target Speed", Constants.IntakeConstants.RollerConstants.intakeSpeed);
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
   public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
 

@@ -67,11 +67,13 @@ public class Robot extends TimedRobot
 {
   /* State */
   public static enum ClimbPosition { None, Left, Right }
+  public static enum ShootersState { Auto, Stbd, Port, Manual, Test }
 
   @Logged
   public static class RobotState 
   {
     public ClimbPosition climbPos = ClimbPosition.None;
+    public ShootersState shoot = ShootersState.Auto;
     public boolean nudging = true;
   }
   
@@ -262,7 +264,7 @@ public class Robot extends TimedRobot
   /** Sets trigger conditions to activate controller rumbles */
   private void bindRumbles()
   {
-    new Trigger(() -> FieldUtils.hubActive(FieldUtils.getAlliance())) 
+    new Trigger(FieldUtils::hubActive) 
       .onChange(io_driverLeft.timedRumbleCmd("Shift Change", 0.5));
   }
 
@@ -366,11 +368,12 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    s_PortShooter.target.state = TargetState.Manual;
-    s_PortShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
-    s_PortShooter.target.speed = PBDash.TEST_FLYSPEED.get();
-    s_StbdShooter.target.state = TargetState.Manual;
-    s_StbdShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
-    s_StbdShooter.target.speed = PBDash.TEST_FLYSPEED.get();
+    state.shoot = ShootersState.Test;
+    // s_PortShooter.target.state = TargetState.Manual;
+    // s_PortShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
+    // s_PortShooter.target.speed = PBDash.TEST_FLYSPEED.get();
+    // s_StbdShooter.target.state = TargetState.Manual;
+    // s_StbdShooter.target.altitude = PBDash.TEST_ALTITUDE.get();
+    // s_StbdShooter.target.speed = PBDash.TEST_FLYSPEED.get();
   }
 }

@@ -214,7 +214,7 @@ public class CommandGen
         assertArgCount(1);
 
         boolean passState = instr.arg(0).asBool();
-        commands.addCommands(Commands.runOnce(() -> PBDash.IO_AUTO_PASS.put(passState)));
+        commands.addCommands(Commands.runOnce(() -> PBDash.IO_SHOOT_PASS.put(passState)));
       }
     }
   }

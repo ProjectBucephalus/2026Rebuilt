@@ -70,8 +70,8 @@ public final class Constants
     public static final double manualShooterDistanceAmount = 0.03;
     public static final double manualShooterDeadband = 0.25;
 
-    public static final double preShiftShootMargin = 1;
-    public static final double postShiftShootMargin = 2;
+    public static final double preShiftMargin = 1;
+    public static final double postShiftMargin = 2;
 
     public static final double preShiftOutputMargin = 1;
     public static final double postShiftOutputMargin = 2;
@@ -151,6 +151,9 @@ public final class Constants
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
     public static final double leadFactor = 0.5;
     public static final double minRange = 1.1;
+
+    public static final double closeManualRange = 2;
+    public static final double farManualRange = 4.5;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants

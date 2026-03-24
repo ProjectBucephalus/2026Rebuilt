@@ -20,8 +20,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot.ClimbPosition;
 import frc.robot.Robot.RobotState;
+import frc.robot.Robot.ShootersState;
 import frc.robot.constants.IDConstants;
 import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
@@ -70,17 +72,13 @@ public record ControlBinder
 
   private void bindState()
   {
-    // Auto Aim
-    switchboard.button(IDConstants.autoAimSwitchID)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_AIM.put(switchboard.button(IDConstants.autoAimSwitchID).getAsBoolean())).ignoringDisable(true));
-
     // Auto Pass
-    switchboard.button(IDConstants.autoPassSwitchID)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_PASS.put(switchboard.button(IDConstants.autoPassSwitchID).getAsBoolean())).ignoringDisable(true));
+    switchboard.button(IDConstants.shootHubSwitchID)
+      .onChange(runOnce(() -> PBDash.IO_SHOOT_HUB.put(switchboard.button(IDConstants.shootHubSwitchID).getAsBoolean())).ignoringDisable(true));
 
     // Auto Rev
-    switchboard.button(IDConstants.autoRevSwitchID)
-      .onChange(runOnce(() -> PBDash.IO_AUTO_REV.put(switchboard.button(IDConstants.autoRevSwitchID).getAsBoolean())).ignoringDisable(true));
+    switchboard.button(IDConstants.shootPassSwitchID)
+      .onChange(runOnce(() -> PBDash.IO_SHOOT_PASS.put(switchboard.button(IDConstants.shootPassSwitchID).getAsBoolean())).ignoringDisable(true));
 
     // Fencing
     switchboard.button(IDConstants.fencingSwitchID)
@@ -153,52 +151,112 @@ public record ControlBinder
 
   private void bindShooters()
   {
-    final Trigger autoAimTrigger = PBDash.IO_AUTO_AIM.asTrigger().and(s_Vision::hasLocalisation);
+    // Change shooter state
+    operator.a().onTrue(runOnce(() -> state.shoot = ShootersState.Auto));
+    operator.b().onTrue(runOnce(() -> state.shoot = ShootersState.Stbd));
+    operator.x().onTrue(runOnce(() -> state.shoot = ShootersState.Port));
+    operator.y().onTrue(runOnce(() -> state.shoot = ShootersState.Manual));
+
+    operator.povUp()
+      .and(() -> state.shoot == ShootersState.Manual)
+      .onTrue(bothShooters(s -> s.target.distance = ShooterConstants.closeManualRange));
+
+    operator.povDown()
+      .and(() -> state.shoot == ShootersState.Manual)
+      .onTrue(bothShooters(s -> s.target.distance = ShooterConstants.farManualRange));
+
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
 
-    PBDash.IO_AUTO_AIM.asTrigger()
+    // Tag-Seeking if no Localisation
+    new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
       .and(() -> !s_Vision.hasLocalisation())
       .onTrue
       (
         runOnce(() -> {
           s_PortShooter.target.azimuth = -60;
           s_StbdShooter.target.azimuth = 60;
-        })
+        }).ignoringDisable(true)
       );
 
-    // Targetting States
-    autoAimTrigger
-      .onFalse(bothShooters(s -> s.target.state = TargetState.Manual).ignoringDisable(true));
+    // Manual
+    new Trigger(() -> state.shoot == ShootersState.Manual)
+      .onTrue
+      (
+        bothShooters(s -> {
+          s.target.state = TargetState.Manual;
+          s.target.azimuth = 0;
+        }).ignoringDisable(true)
+      );
+    
+    final Trigger autoAimTrigger = new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test).and(s_Vision::hasLocalisation);
+
+    // Not Manual, Outside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger.negate())
-      .onTrue(bothShooters(s -> s.target.state = TargetState.Point).ignoringDisable(true));
+      .onTrue(bothShooters(s -> s.target.state = TargetState.Point).ignoringDisable(true))
+      .whileTrue(bothShooters(s -> s.target.point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
+
+    // Not Manual, Inside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger)
       .onTrue(bothShooters(s -> s.target.state = TargetState.Hub).ignoringDisable(true));
 
-    // Pass Point
-    autoAimTrigger.and(PBDash.IO_AUTO_PASS::get)
-      .whileTrue(bothShooters(s -> s.target.point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
+    // Port-Only
+    new Trigger(() -> state.shoot == ShootersState.Port)
+      .onTrue(s_StbdShooter.runOnce(() -> s_StbdShooter.target.disabled = true).ignoringDisable(true))
+      .onFalse(s_StbdShooter.runOnce(() -> s_StbdShooter.target.disabled = false).ignoringDisable(true))
+      .whileTrue(s_StbdShooter.runIndexerCmd(() -> -s_PortShooter.getSpeed())); // Follow opposing indexer while shooter is disabled
     
-    // Revving/Idleing as Appropriate
-    final Trigger shootActiveTrigger = driver.rightBumper().negate();
-    final Trigger hubActiveTrigger = new Trigger(() -> FieldUtils.hubActiveToleranced(FieldUtils.getAlliance(), ControlConstants.preShiftShootMargin, ControlConstants.postShiftShootMargin));
+    // Stbd-Only
+    new Trigger(() -> state.shoot == ShootersState.Stbd)
+      .onTrue(s_PortShooter.runOnce(() -> s_PortShooter.target.disabled = true).ignoringDisable(true))
+      .onFalse(s_PortShooter.runOnce(() -> s_PortShooter.target.disabled = false).ignoringDisable(true))
+      .whileTrue(s_PortShooter.runIndexerCmd(() -> -s_StbdShooter.getSpeed())); // Follow opposing indexer while shooter is disabled
 
-    // Rev if auto aiming, auto revving, and shooters are active
-    autoAimTrigger
-      .and(PBDash.IO_AUTO_REV::get)
-      .and(shootActiveTrigger)
-      .and(allianceZoneTrigger.and(hubActiveTrigger).or(PBDash.IO_AUTO_PASS::get))
+    final Trigger manualFireTrigger = operator.rightTrigger(ControlConstants.triggerThreshold);
+
+    // Rev if ((not alliance_zone) or shift) and ((not test) or fire)
+    allianceZoneTrigger.negate().or(() -> FieldUtils.hubActiveToleranced(ControlConstants.preShiftMargin, ControlConstants.postShiftMargin))
+      .and(() -> state.shoot != ShootersState.Test || manualFireTrigger.getAsBoolean())
       .onTrue(bothShooters(Shooter::revFlywheels).ignoringDisable(true))
       .onFalse(bothShooters(Shooter::idleFlywheels).ignoringDisable(true));
 
-    // Shooting when Ready
-    shootActiveTrigger
-      .and(s_PortShooter::shootReady)
-      .whileTrue(s_PortShooter.runIndexerCmd());
-    shootActiveTrigger
-      .and(s_StbdShooter::shootReady)
-      .whileTrue(s_StbdShooter.runIndexerCmd());
+    /* Shooting when Ready */
+
+    // (alliance_zone and auto_hub) or ((not alliance_zone) and auto_pass)
+    final Trigger shootZoneTrigger = 
+         (allianceZoneTrigger.and(PBDash.IO_SHOOT_HUB.asTrigger()))
+      .or(allianceZoneTrigger.negate().and(PBDash.IO_SHOOT_PASS.asTrigger()));
+    
+    final Trigger forceStopTrigger = driver.leftTrigger(ControlConstants.triggerThreshold);
+
+    // Port
+    forceStopTrigger.negate()
+    .and
+    (() ->
+      s_PortShooter.shootReady()
+      &&
+      (
+        (state.shoot != ShootersState.Stbd && manualFireTrigger.getAsBoolean())
+        ||
+        ((state.shoot == ShootersState.Auto || state.shoot == ShootersState.Port) && shootZoneTrigger.getAsBoolean())
+      )
+    )
+    .whileTrue(s_PortShooter.runIndexerCmd());
+
+    // Stbd
+    forceStopTrigger.negate()
+    .and
+    (() ->
+      s_StbdShooter.shootReady()
+      &&
+      (
+        (state.shoot != ShootersState.Port && manualFireTrigger.getAsBoolean())
+        ||
+        ((state.shoot == ShootersState.Auto || state.shoot == ShootersState.Stbd) && shootZoneTrigger.getAsBoolean())
+      )
+    )
+    .whileTrue(s_StbdShooter.runIndexerCmd());
   }
 
   private void bindIntake()
@@ -287,7 +345,7 @@ public record ControlBinder
       bound = true;
     }
   }
-
+ 
   private Command bothShooters(Consumer<Shooter> action)
   {
     return runOnce(() -> {

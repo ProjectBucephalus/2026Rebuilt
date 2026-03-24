@@ -66,9 +66,17 @@ public class FieldUtils
     }     
   }
 
+  /** @return whether the our alliance's hub is active, with margin on each side to maximise scoring */
+  public static boolean hubActiveToleranced(double preMargin, double postMargin)
+    {return hubActiveToleranced(getAlliance(), preMargin, postMargin);}
+
   /** @return whether the provided alliance's hub is active */
   public static boolean hubActive(Alliance alliance) 
     {return hubActiveToleranced(alliance, 0, 0);}
+
+  /** @return whether our alliance's hub is active */
+  public static boolean hubActive() 
+    {return hubActiveToleranced(0, 0);}
 
   /**
    * Checks whether we are on the red alliance <p>

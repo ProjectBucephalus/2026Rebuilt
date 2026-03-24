@@ -176,6 +176,9 @@ public class Shooter extends SubsystemBase
   public Command runIndexerCmd()
     {return indexer.runCmd(() -> Math.max(getSpeed(), IndexerConstants.indexerMinSpeed));}
 
+  public Command runIndexerCmd(DoubleSupplier speedSup)
+    {return indexer.runCmd(speedSup);}
+
   public Command reverseIndexerCmd()
     {return indexer.runCmd(() -> IndexerConstants.indexerReverseSpeed);}
 
@@ -248,9 +251,6 @@ public class Shooter extends SubsystemBase
       case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
-
-    if (target.disabled)
-      indexer.setSpeed(IndexerConstants.indexerReverseSpeed);
 
     if (target.disabled)
       flywheels.setSpeed(0);

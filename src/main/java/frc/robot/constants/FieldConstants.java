@@ -138,10 +138,10 @@ public class FieldConstants
     }
 
     public static final Trigger bumpTrigger = 
-      bumpSB.asTrigger()
-        .or(bumpNB.asTrigger())
-        .or(bumpSR.asTrigger())
-        .or(bumpNR.asTrigger());
+          bumpSB.asTrigger()
+      .or(bumpNB.asTrigger())
+      .or(bumpSR.asTrigger())
+      .or(bumpNR.asTrigger());
     
     /* Trench Zone */
     public static final double trenchWidth = 1.28;
@@ -156,10 +156,10 @@ public class FieldConstants
     public static final BoxRestrictor trenchNR = new BoxRestrictor(fieldCentre.getX() + trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() + trenchXb, fieldWidth);
 
     public static final Trigger trenchTrigger = 
-      trenchSB.asTrigger()
-        .or(trenchNB.asTrigger())
-        .or(trenchSR.asTrigger())
-        .or(trenchNR.asTrigger());
+          trenchSB.asTrigger()
+      .or(trenchNB.asTrigger())
+      .or(trenchSR.asTrigger())
+      .or(trenchNR.asTrigger());
 
     /* Trench Column */
     //public static final double trenchColumnWidth = 1.67 - trenchWidth;
