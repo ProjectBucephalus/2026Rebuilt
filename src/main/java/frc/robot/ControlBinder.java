@@ -225,11 +225,17 @@ public record ControlBinder
       .onFalse(s_PortShooter.runOnce(() -> s_PortShooter.target.disabled = false).ignoringDisable(true))
       .whileTrue(s_PortShooter.runIndexerCmd(() -> -s_StbdShooter.getSpeed())); // Follow opposing indexer while shooter is disabled
 
-    final Trigger manualFireTrigger = operator.rightTrigger(ControlConstants.triggerThreshold);
-
-    // Rev if ((not alliance_zone) or shift) and ((not test) or fire)
-    allianceZoneTrigger.negate().or(() -> FieldUtils.hubActiveToleranced(ControlConstants.preShiftMargin, ControlConstants.postShiftMargin))
-      .and(() -> state.shoot != ShootersState.Test || manualFireTrigger.getAsBoolean())
+    // Rev if (test and fire) or (((not alliance_zone) or shift) and not test)
+    new Trigger
+      (() ->
+        (state.shoot == ShootersState.Test && operator.rightTrigger().getAsBoolean())
+        ||
+        (
+          (!allianceZoneTrigger.getAsBoolean() || FieldUtils.hubActiveToleranced(ControlConstants.preShiftMargin, ControlConstants.postShiftMargin))
+          && 
+          state.shoot != ShootersState.Test
+        )
+      )
       .onTrue(bothShooters(Shooter::revFlywheels).ignoringDisable(true))
       .onFalse(bothShooters(Shooter::idleFlywheels).ignoringDisable(true));
 
@@ -240,6 +246,8 @@ public record ControlBinder
          (allianceZoneTrigger.and(PBDash.IO_SHOOT_HUB.asTrigger()))
       .or(allianceZoneTrigger.negate().and(PBDash.IO_SHOOT_PASS.asTrigger()));
     
+    final Trigger manualFireTrigger = operator.rightTrigger(ControlConstants.triggerThreshold);
+
     final Trigger forceStopTrigger = driver.leftTrigger(ControlConstants.triggerThreshold);
 
     // Port
