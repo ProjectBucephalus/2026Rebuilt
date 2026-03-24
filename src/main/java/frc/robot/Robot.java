@@ -384,6 +384,5 @@ public class Robot extends TimedRobot
   public void testPeriodic()
   {
     state.shoot = ShootersState.Test;
-    s_Intake.state = RollerState.Manual;
   }
 }
