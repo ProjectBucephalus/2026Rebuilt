@@ -1,4 +1,4 @@
-package frc.robot.controlTransmutation.restrictor;
+package frc.robot.controlTransmutation.triggerRegion;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,24 +9,23 @@ import frc.robot.controlTransmutation.FieldObject;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 /** 
- * Derived from GeoFence logic, acts as a non-directional speed-limit within the given area <p>
- * Using a local speed limit <= 0 allows it to be used as a position/distance check <p>
- * Can also be used as a trigger determining whether the robot is within the restrictor
+ * Derived from GeoFence logic, acts as a position/distance check and trigger <p>
+ * Can add an optional non-directional speed-limit within the area
  * @author 5985
  */
-public class Restrictor extends FieldObject
+public class TriggerRegion extends FieldObject
 {
   private final Trigger trigger = new Trigger(() -> checkPosition() && getDistance() <= 0);
   protected double localSpeedLimit = 0;
 
   /**
-   * Circle shaped restrictor
+   * Circle shaped region
    * @param x X-coordinate of the centre point
    * @param y Y-coordinate of the centre point
    * @param radius Radius of the circle (0 for point)
    * @param buffer Buffer around the object over which the speed is reduced
    */
-  public Restrictor(double x, double y, double radius, double buffer)
+  public TriggerRegion(double x, double y, double radius, double buffer)
   {
     centre = new Translation2d(x, y);
     this.radius = Math.max(radius, minRadius);
@@ -36,12 +35,12 @@ public class Restrictor extends FieldObject
   }
 
   /**
-   * Circle shaped restrictor
+   * Circle shaped region
    * @param centre The centre point
    * @param radius Radius of the circle (0 for point)
    * @param buffer Buffer around the object over which the speed is reduced
    */
-  public Restrictor(Translation2d centre, double radius, double buffer)
+  public TriggerRegion(Translation2d centre, double radius, double buffer)
   {
     this.centre = centre;
     this.radius = Math.max(radius, minRadius);
@@ -50,29 +49,29 @@ public class Restrictor extends FieldObject
     checkRadius = radius + buffer;
   }
 
-  /** Default constructor for fully zeroed circle-shaped restrictor */
-  public Restrictor()
+  /** Default constructor for fully zeroed circle-shaped region */
+  public TriggerRegion()
     {this(0, 0, 0, 0);}
 
   /**
-   * Sets the speed limit within the restrictor <p>
+   * Sets the speed limit within the region <p>
    * Set the speed limit to zero to use the object as a position/distance check
    * @param localSpeedLimit The new speed limit value
-   * @return This restrictor, for easier chaining
+   * @return This region, for easier chaining
    */
-  public Restrictor withSpeedLimit(double localSpeedLimit)
+  public TriggerRegion withSpeedLimit(double localSpeedLimit)
   {
     this.localSpeedLimit = localSpeedLimit >= minLocalSpeedLimit ? localSpeedLimit : 0;
     return this;
   }
 
-  /** @return A trigger for whether the robot is within the restrictor zone */
+  /** @return A trigger for whether the robot is within the region */
   public Trigger asTrigger()
     {return trigger;}
 
   /**
-   * Caps the maximum speed to the configured speed limit if within the restrictor,
-   * or an intermediate speed proportional to the distance from the restrictor if within the buffer zone
+   * Caps the maximum speed to the configured speed limit if within the region,
+   * or an intermediate speed proportional to the distance from the region if within the buffer zone
    * 
    * @return Speed-limited joystick output [-limit..limit],[-limit..limit]
    */
