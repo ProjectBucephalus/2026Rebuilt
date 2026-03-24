@@ -10,9 +10,9 @@ import static frc.robot.constants.Constants.ControlConstants.minAngleTolerance;
 import static frc.robot.constants.Constants.ControlConstants.maxAngleTolerance;
 
 /** 
- * Trigger based on robot position and control direction 
+ * Trigger based on robot position and control direction <p/>
+ * @note Requires extensive testing 
  * @author 5985
- * @deprecated requires full rework to use PID-to-pose
  */
 public class TriggerVector extends FieldObject
 {
