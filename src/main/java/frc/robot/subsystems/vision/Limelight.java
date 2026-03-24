@@ -2,10 +2,7 @@ package frc.robot.subsystems.vision;
 
 import static frc.robot.constants.Constants.VisionConstants.*;
 
-import java.util.ArrayDeque;
 import java.util.Optional;
-import java.util.Queue;
-import java.util.function.DoubleSupplier;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;

@@ -148,10 +148,8 @@ public class Robot extends TimedRobot
   /* Rumble */
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
   private final RumbleRequester io_driverLeft  = new RumbleRequester(driver, RumbleType.kLeftRumble, PBDash.RUMBLE_DRIVER::get);
-  @SuppressWarnings("unused")
-  private final RumbleRequester io_debugRight  = new RumbleRequester(operator, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
-  @SuppressWarnings("unused")
-  private final RumbleRequester io_debugLeft   = new RumbleRequester(operator, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
+  private final RumbleRequester io_operatorRight  = new RumbleRequester(operator, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
+  private final RumbleRequester io_operatorLeft   = new RumbleRequester(operator, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
@@ -220,7 +218,6 @@ public class Robot extends TimedRobot
       () -> swerveState.Pose
     );
 
-
     driverStick
       .rotated(FieldUtils.isAlliance(Alliance.Red))
       .withFieldObjects(GeoFencing.fieldGeoFence)
@@ -263,8 +260,19 @@ public class Robot extends TimedRobot
   /** Sets trigger conditions to activate controller rumbles */
   private void bindRumbles()
   {
+    // See teleopInit for rumble on teleop start
+
+    new Trigger(() -> FieldUtils.hubActiveToleranced(3, 0)) 
+      .onChange(io_driverLeft.timedRumbleCmd("Shift Warning", 3));
+
     new Trigger(FieldUtils::hubActive) 
-      .onChange(io_driverLeft.timedRumbleCmd("Shift Change", 0.5));
+      .onChange(io_driverRight.timedRumbleCmd("Shift Change", 1.5));
+
+    new Trigger(() -> MatchTime.getGameTimeRemaining() <= 30)
+      .onTrue(io_operatorLeft.timedRumbleCmd("Endgame Start", 3));
+
+    new Trigger(() -> MatchTime.getGameTimeRemaining() <= ControlConstants.lastClimbChance)
+      .onTrue(io_operatorRight.timedRumbleCmd("Last Climb Chance", 1.5));
   }
 
   /* UTIL METHODS */
@@ -305,6 +313,7 @@ public class Robot extends TimedRobot
   public void disabledInit()
   {
     FieldUtils.updateAlliance();
+    
     if (swerveState.Pose.getTranslation().equals(Translation2d.kZero))
       s_Swerve.resetPose
       (
@@ -331,8 +340,7 @@ public class Robot extends TimedRobot
     MatchTime.startAuto();
     FieldUtils.updateAlliance();
     
-    //if (autoCommand.isEmpty())
-      compileAuto();
+    compileAuto();
 
     CommandScheduler.getInstance().schedule(autoCommand.get());
   }

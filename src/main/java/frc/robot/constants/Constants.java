@@ -76,6 +76,8 @@ public final class Constants
     public static final double preShiftOutputMargin = 1;
     public static final double postShiftOutputMargin = 2;
 
+    public static final double lastClimbChance = 10;
+
     @SuppressWarnings("unchecked") // No way to make it work that doesn't give warning afaik
     /** First element is the default */
     public static final Pair<String, String>[] autoPresets = new Pair[]
