@@ -150,7 +150,13 @@ public record ControlBinder
       .onTrue(runOnce(() -> driverBrake.withMinThrottle(PBDash.IO_MIN_THROTTLE.get())));
 
     GeoFencing.climbBlueRight.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueRight, () -> 0.7));
+      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueRight, () -> 0.75));
+    GeoFencing.climbBlueLeft.asTrigger()
+      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueLeft, () -> 0.75));
+    GeoFencing.climbRedRight.asTrigger()
+      .whileTrue(DriveBuilder.pathFollow(Path.climbRedRight, () -> 0.75));
+    GeoFencing.climbRedLeft.asTrigger()
+      .whileTrue(DriveBuilder.pathFollow(Path.climbRedLeft, () -> 0.75));
   }
 
   private void bindShooters()
