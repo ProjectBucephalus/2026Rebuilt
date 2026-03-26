@@ -76,26 +76,13 @@ public class TriggerVector extends FieldObject
     {
       lastInputAngle = controlInput.getAngle();
       onTarget = true;
-
-      // if (distance <= buffer)
-      // {
-      //   // TODO: set up PID controller here
-      //   Rotation2d angleToTarget = centre.minus(robotPos).getAngle();
-
-      //   return new Translation2d(Math.min(distance * leadInScalar, controlInput.getNorm()), angleToTarget);
-      // }
-      // else
-      // {
-      //   double tangentOffset = Math.abs(centre.minus(robotPos).rotateBy(approachHeadingRotation.times(-1)).getY());
-      //   Translation2d approachPoint = centre.minus(new Translation2d(buffer + (tangentOffset * approachScalar), approachHeadingRotation));
-      //   Rotation2d angleToTarget = approachPoint.minus(robotPos).getAngle();
-
-      //   return new Translation2d(controlInput.getNorm(), angleToTarget);
-      // }
+    }
+    else
+    {
+      onTarget = false;
+      lastInputAngle = Rotation2d.kZero;
     }
 
-    onTarget = false;
-    lastInputAngle = Rotation2d.kZero;
     return controlInput;
   }
 
