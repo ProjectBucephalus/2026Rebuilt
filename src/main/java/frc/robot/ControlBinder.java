@@ -138,7 +138,7 @@ public record ControlBinder
               case Right -> Rotation2d.kCW_90deg;
               case None -> Rotation2d.kZero; // Shouldn't actually happen due to trigger condition
             };
-            return FieldUtils.allianceRotateRotation(rotation);
+            return rotation;
           }
         ).onlyWhile(() -> state.climbPos != ClimbPosition.None)
       );
