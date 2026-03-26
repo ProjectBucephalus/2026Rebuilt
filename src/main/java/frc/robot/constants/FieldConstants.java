@@ -218,7 +218,7 @@ public class FieldConstants
     
     // Regions to avoid other climbing robots
     /** Assumed radius for other robots, m */
-    private static final double clearRadius = 0.75;
+    private static final double clearRadius = 0.45;
     private static final double climbAllowance = clearRadius + 0.3;
 
     public static final Box towerClearBlueLeft  = new Box(0, towerPostBlueRightY + climbAllowance, towerPostBlueX + clearRadius, towerPostBlueLeftY + clearRadius, clearRadius, 0.25);
@@ -232,10 +232,10 @@ public class FieldConstants
     public static final Translation2d climbStartOffset = new Translation2d(0, 1);
     public static final Translation2d climbEndOffset = new Translation2d(0, 0.4);
 
-    public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX, towerPostBlueRightY, -90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX, towerPostBlueLeftY, 90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbRedRight  = new TriggerVector(towerPostRedX, towerPostRedRightY, 90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbRedLeft   = new TriggerVector(towerPostRedX, towerPostRedLeftY, -90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX, towerPostBlueRightY, 90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX, towerPostBlueLeftY, -90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbRedRight  = new TriggerVector(towerPostRedX, towerPostRedRightY, -90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbRedLeft   = new TriggerVector(towerPostRedX, towerPostRedLeftY, 90, climbTriggerRadius, climbTriggerBuffer);
 
     public static final ObjectList climbTriggerVectors = new ObjectList
     (
