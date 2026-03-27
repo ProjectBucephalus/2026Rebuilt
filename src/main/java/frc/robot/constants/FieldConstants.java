@@ -145,10 +145,10 @@ public class FieldConstants
     
     /* Trench Zone */
     public static final double trenchWidth = 1.28;
-    /** Depth of region around Trench bar to keep out of */
-    public static final double trenchBarrierDepth = 2.8;
-    public static final double trenchXa = hubCentreOffset + trenchBarrierDepth/2;
-    public static final double trenchXb = hubCentreOffset - trenchBarrierDepth/2;
+    /** Depth of region either side of Trench bar to trigger nudging */
+    public static final double trenchZoneDepth = 1.4;
+    public static final double trenchXa = hubCentreOffset + trenchZoneDepth;
+    public static final double trenchXb = hubCentreOffset - trenchZoneDepth;
 
     public static final BoxRegion trenchSB = new BoxRegion(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchWidth);
     public static final BoxRegion trenchNB = new BoxRegion(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
@@ -194,8 +194,8 @@ public class FieldConstants
     public static final double towerPostBlueRightY = towerSpacing + towerPostEdge;
     public static final double towerPostBlueLeftY = towerSpacing + towerWidth - towerPostEdge;
     public static final double towerPostRedX = fieldLength - (towerDepth - towerPostFront);
-    public static final double towerPostRedRightY = fieldWidth - (towerSpacing + towerWidth - towerPostEdge);
-    public static final double towerPostRedLeftY = fieldWidth - (towerSpacing + towerPostEdge);
+    public static final double towerPostRedRightY = fieldWidth - (towerSpacing + towerPostEdge);
+    public static final double towerPostRedLeftY = fieldWidth - (towerSpacing + towerWidth - towerPostEdge);
 
     public static final Box towerBlue = new Box(0, towerPostBlueRightY, towerPostBlueX, towerPostBlueLeftY, towerBaseRadius, 0.25);
     public static final Point towerPostBlueN = new Point(towerPostBlueX, towerPostBlueLeftY, towerPostRadius, 0.25);
@@ -223,7 +223,7 @@ public class FieldConstants
 
     public static final Box towerClearBlueLeft  = new Box(0, towerPostBlueRightY + climbAllowance, towerPostBlueX + clearRadius, towerPostBlueLeftY + clearRadius, clearRadius, 0.25);
     public static final Box towerClearBlueRight = new Box(0, towerPostBlueRightY - clearRadius, towerPostBlueX + clearRadius, towerPostBlueLeftY - climbAllowance, clearRadius, 0.25);
-    public static final Box towerClearRedLeft   = new Box(fieldLength, towerPostRedLeftY - clearRadius, towerPostRedX + clearRadius, towerPostRedRightY - climbAllowance, clearRadius, 0.25);
+    public static final Box towerClearRedLeft   = new Box(fieldLength, towerPostRedLeftY - clearRadius, towerPostRedX - clearRadius, towerPostRedRightY - climbAllowance, clearRadius, 0.25);
     public static final Box towerClearRedRight  = new Box(fieldLength, towerPostRedLeftY + climbAllowance, towerPostRedX - clearRadius, towerPostRedRightY + clearRadius, clearRadius, 0.25);
 
     // TriggerVectors for climbing
