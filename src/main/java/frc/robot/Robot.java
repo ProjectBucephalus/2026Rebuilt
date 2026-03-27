@@ -374,14 +374,6 @@ public class Robot extends TimedRobot
   }
 
   @Override
-  public void teleopPeriodic()
-  {
-    // When lining up to climb, send driver stick value to the climb triggerVectors to keep them updated regardless of current drive state
-    //if (state.climbPos != ClimbPosition.None)
-    //  {GeoFencing.climbTriggerVectors.process(driverStick.stickOutput());}
-  }
-
-  @Override
   public void testInit() 
   {
     CommandScheduler.getInstance().cancelAll();
