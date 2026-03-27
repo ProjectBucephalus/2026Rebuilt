@@ -360,10 +360,10 @@ public class Robot extends TimedRobot
   {
     MatchTime.startTele();
     FieldUtils.updateAlliance();
+    // Update driver input rotation based on alliance
+    driverStick.rotated(FieldUtils.isAlliance(Alliance.Red));
     
     autoCommand.ifPresent(Command::cancel);
-
-    initInputTransmute();
 
     CommandScheduler.getInstance()
       .schedule
@@ -387,7 +387,8 @@ public class Robot extends TimedRobot
     CommandScheduler.getInstance().cancelAll();
 
     FieldUtils.updateAlliance();
-    initInputTransmute();
+    // Update driver input rotation based on alliance
+    driverStick.rotated(FieldUtils.isAlliance(Alliance.Red));
 
     CommandScheduler.getInstance()
       .schedule
