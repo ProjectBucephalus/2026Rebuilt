@@ -244,35 +244,27 @@ public class Robot extends TimedRobot
     GeoFencing.towerClearRedRight .setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
     GeoFencing.towerPostRedS      .setActiveCondition(() -> state.climbPos != ClimbPosition.Left);
     
-    GeoFencing.climbTriggerVectors.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
-
-    GeoFencing.climbBlueLeft .setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
-    GeoFencing.climbRedLeft  .setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
-    GeoFencing.climbBlueRight.setActiveCondition(() -> state.climbPos == ClimbPosition.Right);
-    GeoFencing.climbRedRight .setActiveCondition(() -> state.climbPos == ClimbPosition.Right);
-
- /*   GeoFencing.hubBlueOutput
-      .setActiveCondition
-      (
-        () -> 
-        FieldUtils.hubActiveToleranced
-        (
-          Alliance.Blue, 
-          ControlConstants.preShiftOutputMargin, 
-          ControlConstants.postShiftOutputMargin
-        ) && !state.nudging
-      );
-    GeoFencing.hubRedOutput
-      .setActiveCondition
-      (
-        () -> 
-        FieldUtils.hubActiveToleranced
-        (
-          Alliance.Red, 
-          ControlConstants.preShiftOutputMargin, 
-          ControlConstants.postShiftOutputMargin
-        ) && !state.nudging
-      ); */
+    // Climb attractor TriggerVector setup
+    GeoFencing.climbBlueLeft 
+      .withControlInput(driverStickRaw::stickOutput)
+      .setActiveCondition(() -> 
+        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
+        && state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Blue));
+    GeoFencing.climbRedLeft  
+      .withControlInput(driverStickRaw::stickOutput)
+      .setActiveCondition(() -> 
+        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
+        && state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Red));
+    GeoFencing.climbBlueRight
+      .withControlInput(driverStickRaw::stickOutput)
+      .setActiveCondition(() -> 
+        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
+        && state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Blue));
+    GeoFencing.climbRedRight 
+      .withControlInput(driverStickRaw::stickOutput)
+      .setActiveCondition(() -> 
+        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
+        && state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Red));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
