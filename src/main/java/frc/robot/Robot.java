@@ -154,6 +154,7 @@ public class Robot extends TimedRobot
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
+  private final JoystickTransmuter driverStickRaw = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
   private final Brake driverBrake = new Brake(() -> driver.getRightTriggerAxis(), ControlConstants.maxThrottle, ControlConstants.minThrottle);
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
@@ -384,8 +385,8 @@ public class Robot extends TimedRobot
   public void teleopPeriodic()
   {
     // When lining up to climb, send driver stick value to the climb triggerVectors to keep them updated regardless of current drive state
-    if (state.climbPos != ClimbPosition.None)
-      {GeoFencing.climbTriggerVectors.process(driverStick.stickOutput());}
+    //if (state.climbPos != ClimbPosition.None)
+    //  {GeoFencing.climbTriggerVectors.process(driverStick.stickOutput());}
   }
 
   @Override

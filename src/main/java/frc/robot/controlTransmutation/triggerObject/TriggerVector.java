@@ -2,11 +2,16 @@ package frc.robot.controlTransmutation.triggerObject;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.controlTransmutation.FieldObject;
 import frc.robot.util.Conversions;
+import frc.robot.util.FieldUtils;
 
 import static frc.robot.constants.Constants.ControlConstants.minAngleTolerance;
+
+import java.util.function.Supplier;
+
 import static frc.robot.constants.Constants.ControlConstants.maxAngleTolerance;
 
 /** 
@@ -24,16 +29,17 @@ public class TriggerVector extends FieldObject
   protected Translation2d frontCheckpoint;
   /** Point opposite where the approach heading intersects the effect radius */
   protected Translation2d backCheckpoint;
-  /** Scalar for how far to back off from the target when approaching from the side */
-  protected double approachScalar = 0.1;
-  /** Input scale for approaching within the buffer based on distance */
-  protected double leadInScalar = 1;
   /** By standard implementation, checkPosition is always run first, which calculates this value */
   private double distance;
 
+  /** Supplier for the controller input to monitor, to allow for use separate from general object list */
+  private Supplier<Translation2d> controlInputSup = () -> Translation2d.kZero;
+  /** Flag to monitor the given input whenever the trigger value is checked */
+  private boolean offlineMonitor = false;
+
   /** Trigger output: true while input vector is towards target */
   private boolean onTarget = false;
-  private Trigger trigger = new Trigger(activeSupplier).and(() -> onTarget);
+  private Trigger trigger = new Trigger(activeSupplier).and(this::checkTrigger);
 
   private Rotation2d lastInputAngle = Rotation2d.kZero;
 
@@ -62,6 +68,28 @@ public class TriggerVector extends FieldObject
   /** @return Trigger monitoring if the control input is towards the target within a certain tollerance */
   public Trigger asTrigger()
     {return trigger;}
+
+  
+  private boolean checkTrigger()
+  {
+    if (offlineMonitor)
+    {
+      process(FieldUtils.isAlliance(Alliance.Red) ? controlInputSup.get().unaryMinus() : controlInputSup.get());
+    }
+    return onTarget;
+  }
+
+  /**
+   * Sets the given control input to be monitored offline, allowing the trigger to function without explicit processing calls
+   * @param controlInputSup Unrotated joystick dual-axis supplier to be checked whenever the trigger is called
+   * @return The modified TriggerVector object
+   */
+  public TriggerVector withControlInput(Supplier<Translation2d> controlInputSup)
+  {
+    this.controlInputSup = controlInputSup;
+    offlineMonitor = true;
+    return this;
+  }
 
   @Override
   public Translation2d process(Translation2d controlInput)
