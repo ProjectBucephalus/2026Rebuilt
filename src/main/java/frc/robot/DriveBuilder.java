@@ -3,8 +3,10 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -44,6 +46,15 @@ public class DriveBuilder
   private static DoubleSupplier brakeSup;
   private static Supplier<Pose2d> robotPoseSup;
 
+  /**
+   * Sets up the persistent internal values. Must be called before any of the other functions are used
+   * 
+   * @param s_Swerve The swerve subsystem
+   * @param joystickSup Supplier for the robot translation input, [-1..1][-1..1]. Follows field relative coordinate standard
+   * @param rotationSup Supplier for the robot rotation input, [-1..1]
+   * @param brakeSup Supplier for the braking input, [0..1]. 0 is no braking, 1 is full braking
+   * @param robotPoseSup Supplier for the robot's pose at any given point in time
+   */
   public static void init
   (
     CommandSwerveDrivetrain s_Swerve,
@@ -60,13 +71,7 @@ public class DriveBuilder
     DriveBuilder.robotPoseSup = robotPoseSup;
   }
 
-  /**
-   * Creates a basic Manual drive command
-   * @param s_Swerve Drivebase subsystem
-   * @param joystickSupplier XY translation input from joystick, [-1..1][-1..1]
-   * @param rotationSup Rotation input from joystick, [-1..1]
-   * @param rotBrakeSup Brake axis input for rotation, [0..1]
-   */
+  /** Creates a basic Manual drive command */
   public static Command manual()
   {
     return s_Swerve.run(() -> {
@@ -76,6 +81,7 @@ public class DriveBuilder
       if (Math.abs(rotationVal) <= ControlConstants.stickDeadband) 
         {rotationVal = 0;}
       else
+        // interpolating FROM max TO min implicitly "flips" the brake value
         {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
 
       var motionXY = joystickSup.get();
@@ -90,6 +96,10 @@ public class DriveBuilder
     });
   }
 
+  /** 
+   * Creates a Manual drive with the robot's centre of rotation offset 
+   * @param centreOffset The amount to offset the robot's centre by, in meters
+   */
   public static Command offset(Translation2d centreOffset)
   {
     return 
@@ -99,7 +109,8 @@ public class DriveBuilder
   }
 
   /**
-   * Creates a basic Heading-locked drive command
+   * Creates a Heading-locked drive command that maintains a (potentially dynamic) desired heading
+   * @param targetHeadingSup A supplier for the target heading, in degrees
    */
   public static Command headingLocked(Supplier<Rotation2d> targetHeadingSup)
   {
@@ -116,7 +127,11 @@ public class DriveBuilder
     });
   }
 
-  public static Command nonCardinal(double tolerance)
+  /**
+   * Creates a Heading-nudged drive command that maintains a (potentially dynamic) desired heading, except while the rotation stick is being used
+   * @param targetHeadingSup A function that takes the robot's current heading, and returns the target heading, both in degrees
+   */
+  public static Command headingNudged(Function<Double, Double> targetHeadingSup) 
   {
     return s_Swerve.run(() -> {
       double rotationVal = rotationSup.getAsDouble();
@@ -124,30 +139,9 @@ public class DriveBuilder
 
       // Rotation stick not being actively controlled
       if (Math.abs(rotationVal) <= ControlConstants.stickDeadband) 
-      {
-        // Wrap the robot's rotation to [0..90) (effectively, clockwise degrees past previous cardinal) 
-        double wrappedRotation = Conversions.mod(robotRotation, 90);
-
-        // If we're less than tolerance past the previous cardinal, rotate to be tolerance past it
-        if (wrappedRotation < tolerance)
-        {
-          double error = tolerance - wrappedRotation;
-          double targetRotation = robotRotation + error;
-          rotationVal = thetaController.calculate(robotRotation, targetRotation);
-        }
-        // If we're less than tolerance before the next cardinal, rotate to be tolerance before it
-        else if (wrappedRotation > 90 - tolerance)
-        {
-          double error = wrappedRotation - (90 - tolerance);
-          double targetRotation = robotRotation - error;
-          rotationVal = thetaController.calculate(robotRotation, targetRotation);
-        }
-        // If not close to cardinal, don't change rotation
-        else
-          rotationVal = 0;
-      }
+        rotationVal = thetaController.calculate(robotRotation, targetHeadingSup.apply(robotRotation));
       else
-        {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
+        rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());
 
       var motionXY = joystickSup.get();
       s_Swerve.setControl
@@ -158,59 +152,74 @@ public class DriveBuilder
           .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
       );
     });
-  }
-
-  public static Command trenchNudge()
-  {
-    return s_Swerve.run(() -> {
-      double rotationVal = rotationSup.getAsDouble();
-      double robotRotation = robotPoseSup.get().getRotation().getDegrees();
-
-      // Rotation stick not being actively controlled
-      if (Math.abs(rotationVal) <= ControlConstants.stickDeadband) 
-      {
-        // Wrap the robot's rotation to [0..180) (effectively, clockwise degrees past previous straight) 
-        double wrappedRotation = Conversions.mod(robotRotation, 180);
-
-        rotationVal = 
-        wrappedRotation > 90 ?
-        // If we're more than halfway to the next straight, rotate to it
-        thetaController.calculate(robotRotation, robotRotation + (180 - wrappedRotation)) :
-        // Less than halfway to next straight, rotate to previous straight
-        thetaController.calculate(robotRotation, robotRotation - wrappedRotation);
-      }
-      else
-        {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
-
-      var motionXY = joystickSup.get();
-      s_Swerve.setControl
-      (
-        fieldCentricRequest
-          .withVelocityX(motionXY.getX() * SwerveConstants.maxSpeed)
-          .withVelocityY(motionXY.getY() * SwerveConstants.maxSpeed)
-          .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
-      );
-    });
-  }
-
-  public static Command pathFollow(Path path)
-    {return pathFollow(path, () -> 0.0);}
-
-  public static Command pathFollow(Pose2d target)
-  {
-    final ArrayList<Pose2d> waypoints = new ArrayList<>();
-    final ArrayList<Double> radiusPerSegment = new ArrayList<>();
-
-    waypoints.add(target);
-    radiusPerSegment.add(0.0);
-
-    return pathFollowInner(waypoints, radiusPerSegment, () -> 0.0);
   }
 
   /**
-   * Creates a new PathFollowDrive to follow the given sequence
-   * @param path           Predefined path for command to follow
-   * @param brakeSup       Speed reduction to apply, [0..1]. Higher is slower
+   * Creates a drive command that nudges the robot's heading to at least a given amount away from the cardinal directions (0, 90, 180, or 270)
+   * @param tolerance How far the robot's heading must be from cardinal, degrees
+   * @see DriveBuilder#headingNudged
+   */
+  public static Command nonCardinal(double tolerance)
+  {
+    return headingNudged(robotRotation -> {
+      // Wrap the robot's rotation to [0..90) (effectively, clockwise degrees past previous cardinal) 
+      double wrappedRotation = Conversions.mod(robotRotation, 90);
+
+      // If we're less than tolerance past the previous cardinal, rotate to be tolerance past it
+      if (wrappedRotation < tolerance)
+      {
+        double error = tolerance - wrappedRotation;
+        return robotRotation + error;
+      }
+      // If we're less than tolerance before the next cardinal, rotate to be tolerance before it
+      else if (wrappedRotation > 90 - tolerance)
+      {
+        double error = wrappedRotation - (90 - tolerance);
+        return robotRotation - error;
+      }
+      // If not close to cardinal, don't change rotation
+      else
+        return robotRotation;
+    });
+  }
+
+  /** 
+   * Creates a drive command that nudges the robot's heading to the closest of 180 and -180 degrees
+   * @see DriveBuilder#headingNudged
+   */
+  public static Command trenchNudge()
+  {
+    return headingNudged(robotRotation -> {
+      // Wrap the robot's rotation to [0..180) (effectively, clockwise degrees past previous straight) 
+      double wrappedRotation = Conversions.mod(robotRotation, 180);
+
+      if (wrappedRotation > 90)
+        // If we're more than halfway to the next straight, rotate to it
+        return robotRotation + (180 - wrappedRotation);
+      else
+        // Less than halfway to next straight, rotate to previous straight
+        return robotRotation - wrappedRotation;       
+    });
+  }
+
+  /**
+   * Creates a PathFollow drive command to navigate to the given target pose
+   * @param target Pose2d for the command to navigate to
+   */
+  public static Command pathFollow(Pose2d target)
+    {return pathFollowInner(Arrays.asList(target), Arrays.asList(0.0), () -> 0.0);}
+
+  /**
+   * Creates a PathFollow drive command to follow the given path
+   * @param path Predefined path for command to follow
+   */
+  public static Command pathFollow(Path path)
+    {return pathFollow(path, () -> 0.0);}
+
+  /**
+   * Creates a PathFollow drive command to follow the given path with braking
+   * @param path     Predefined path for command to follow
+   * @param brakeSup Supplier for the speed reduction to apply, [0..1].  0 is no braking, 1 is full braking
    */
   public static Command pathFollow(Path path, DoubleSupplier brakeSup)
   {
@@ -225,7 +234,7 @@ public class DriveBuilder
       // Find the distance between the current point and the next
       // If the input radius is greater than 1/3 the distance between points, use 1/3 for next step
       final double segmentLength = current.getDistance(next);
-      final double waypointDist = Conversions.clamp(path.pointRadius(), 0, segmentLength / 3);
+      final double waypointDist = Conversions.clamp(path.pointRadius(), ControlConstants.lineupTolerance, segmentLength / 3);
       final double lengthRatio = waypointDist / segmentLength;
 
       // Project additional waypoints using input radius to give a smoother path
@@ -253,7 +262,13 @@ public class DriveBuilder
     return pathFollowInner(waypoints, radiusPerSegment, brakeSup);
   }
 
-  private static Command pathFollowInner(ArrayList<Pose2d> waypoints, ArrayList<Double> radiusPerSegment, DoubleSupplier brakeSup)
+  /**
+   * Internal helper producing the actual path following command, allowing for multiple different external wrapper functions that create the lists used 
+   * @param waypoints A list of all the waypoints the command should follow
+   * @param radiusPerSegment A list of the lineup tolerances for the waypoints of each segment of the path (each segment is 3 waypoints, except the final one which is a single waypoint)
+   * @param brakeSup Supplier for the speed reduction to apply, [0..1].  0 is no braking, 1 is full braking
+   */
+  private static Command pathFollowInner(List<Pose2d> waypoints, List<Double> radiusPerSegment, DoubleSupplier brakeSup)
   {
     return new Command() 
     {
@@ -286,9 +301,8 @@ public class DriveBuilder
             
         // Switch to next waypoint when within the given distance of the current one
         final var currentSegment = Math.floorDiv(currentWaypoint, 3);
-        final double targetDist = radiusPerSegment.get(currentSegment);
 
-        if (Conversions.nearTranslation(robotPose.getTranslation(), targetPose.getTranslation(), targetDist)) 
+        if (Conversions.nearTranslation(robotPose.getTranslation(), targetPose.getTranslation(), radiusPerSegment.get(currentSegment))) 
         {
           currentWaypoint = Math.min(currentWaypoint + 1, waypoints.size());
           onPath = true;

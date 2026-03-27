@@ -5,7 +5,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.PBDash;
 
 /** 
  * A subsystem wrapped around a TalonFX to provide a simple subsystem for any motor mainly intended for binary operation (on or off) 
