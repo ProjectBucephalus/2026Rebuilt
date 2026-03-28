@@ -375,8 +375,8 @@ public class Robot extends TimedRobot
     CommandScheduler.getInstance()
       .schedule
       (
-        io_driverLeft.timedRumbleCmd("Teleop Start", 1.5), 
-        io_driverRight.timedRumbleCmd("Teleop Start", 1.5)
+        io_driverLeft.timedRumbleCmd("Test Start", 0.5), 
+        io_driverRight.timedRumbleCmd("Test Start", 0.5)
       );
   }
 
