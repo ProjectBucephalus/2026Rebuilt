@@ -145,10 +145,10 @@ public class FieldConstants
     
     /* Trench Zone */
     public static final double trenchWidth = 1.28;
-    /** Depth of region around Trench bar to keep out of */
-    public static final double trenchBarrierDepth = 2.8;
-    public static final double trenchXa = hubCentreOffset + trenchBarrierDepth/2;
-    public static final double trenchXb = hubCentreOffset - trenchBarrierDepth/2;
+    /** Depth of region either side of Trench bar to trigger nudging */
+    public static final double trenchZoneDepth = 1.4;
+    public static final double trenchXa = hubCentreOffset + trenchZoneDepth;
+    public static final double trenchXb = hubCentreOffset - trenchZoneDepth;
 
     public static final BoxRegion trenchSB = new BoxRegion(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchWidth);
     public static final BoxRegion trenchNB = new BoxRegion(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
@@ -184,19 +184,26 @@ public class FieldConstants
     /** Radius around the Tower base to avoid, m */
     public static final double towerBaseRadius = 0.3;
     /** Radius to treat Tower uprights as circles, m */
-    public static final double towerPostRadius = 0.1;
+    public static final double towerPostRadius = 0.2;
     /** Distance from edge of Tower base to centre of upright, m */
     public static final double towerPostEdge   = 0.06;
     /** Distance from front of Tower base to centre of upright, m */
     public static final double towerPostFront  = 0.08;
 
-    public static final Box towerBlue = new Box(0, towerSpacing, towerDepth, towerSpacing + towerWidth, towerBaseRadius, 0.25);
-    public static final Point towerPostBlueN = new Point(towerDepth - towerPostFront, towerSpacing + towerWidth - towerPostEdge, towerPostRadius, 0.25);
-    public static final Point towerPostBlueS = new Point(towerDepth - towerPostFront, towerSpacing + towerPostEdge, towerPostRadius, 0.25);
+    public static final double towerPostBlueX = towerDepth - towerPostFront;
+    public static final double towerPostBlueRightY = towerSpacing + towerPostEdge;
+    public static final double towerPostBlueLeftY = towerSpacing + towerWidth - towerPostEdge;
+    public static final double towerPostRedX = fieldLength - (towerDepth - towerPostFront);
+    public static final double towerPostRedRightY = fieldWidth - (towerSpacing + towerPostEdge);
+    public static final double towerPostRedLeftY = fieldWidth - (towerSpacing + towerWidth - towerPostEdge);
+
+    public static final Box towerBlue = new Box(0, towerPostBlueRightY, towerPostBlueX, towerPostBlueLeftY, towerBaseRadius, 0.25);
+    public static final Point towerPostBlueN = new Point(towerPostBlueX, towerPostBlueLeftY, towerPostRadius, 0.25);
+    public static final Point towerPostBlueS = new Point(towerPostBlueX, towerPostBlueRightY, towerPostRadius, 0.25);
     
-    public static final Box towerRed = new Box(fieldLength, fieldWidth - towerSpacing, fieldLength - towerDepth, fieldWidth - (towerSpacing + towerWidth), towerBaseRadius, 0.25);
-    public static final Point towerPostRedN = new Point(fieldLength - (towerDepth - towerPostFront), fieldWidth - (towerSpacing + towerWidth - towerPostEdge), towerPostRadius, 0.25);
-    public static final Point towerPostRedS = new Point(fieldLength - (towerDepth - towerPostFront), fieldWidth - (towerSpacing + towerPostEdge), towerPostRadius, 0.25);
+    public static final Box towerRed = new Box(fieldLength, towerPostRedLeftY, towerPostRedX, towerPostRedRightY, towerBaseRadius, 0.25);
+    public static final Point towerPostRedN = new Point(towerPostRedX, towerPostRedRightY, towerPostRadius, 0.25);
+    public static final Point towerPostRedS = new Point(towerPostRedX, towerPostRedLeftY, towerPostRadius, 0.25);
 
     /* Tower Exclusion Zones */
     // Region in which turrets cannot safely shoot
@@ -206,18 +213,37 @@ public class FieldConstants
     /** Distance from left edge of Tower base to prevent shooting, m */
     public static final double towerShadowLeft = 0.2;
 
-    public static final BoxRegion towerShadowBlue = new BoxRegion(0, towerSpacing - towerShadowRight, towerDepth - towerPostFront, towerSpacing + towerWidth + towerShadowLeft);
-    public static final BoxRegion towerShadowRed  = new BoxRegion(fieldLength, fieldWidth - (towerSpacing - towerShadowRight), fieldLength - (towerDepth - towerPostFront), fieldWidth - (towerSpacing + towerWidth + towerShadowLeft));
+    public static final BoxRegion towerShadowBlue = new BoxRegion(0, towerPostBlueRightY - towerShadowRight, towerPostBlueX, towerPostBlueLeftY + towerShadowLeft);
+    public static final BoxRegion towerShadowRed  = new BoxRegion(fieldLength, towerPostRedRightY + towerShadowRight, towerPostRedX, towerPostRedLeftY - towerShadowLeft);
     
     // Regions to avoid other climbing robots
     /** Assumed radius for other robots, m */
-    public static final double clearRadius = 0.75;
+    private static final double clearRadius = 0.45;
+    private static final double climbAllowance = clearRadius + 0.3;
 
-    public static final Box towerClearBlueLeft  = new Box(0, towerSpacing + clearRadius, towerDepth + clearRadius, towerSpacing + towerWidth + clearRadius, clearRadius, 0.25);
-    public static final Box towerClearBlueRight = new Box(0, towerSpacing - clearRadius, towerDepth + clearRadius, towerSpacing + towerWidth - clearRadius, clearRadius, 0.25);
-    public static final Box towerClearRedLeft   = new Box(fieldLength, fieldWidth - (towerSpacing + clearRadius), fieldLength - (towerDepth + clearRadius), fieldWidth - (towerSpacing + towerWidth + clearRadius), clearRadius, 0.25);
-    public static final Box towerClearRedRight  = new Box(fieldLength, fieldWidth - (towerSpacing - clearRadius), fieldLength - (towerDepth + clearRadius), fieldWidth - (towerSpacing + towerWidth - clearRadius), clearRadius, 0.25);
+    public static final Box towerClearBlueLeft  = new Box(0, towerPostBlueRightY + climbAllowance, towerPostBlueX + clearRadius, towerPostBlueLeftY + clearRadius, clearRadius, 0.25);
+    public static final Box towerClearBlueRight = new Box(0, towerPostBlueRightY - clearRadius, towerPostBlueX + clearRadius, towerPostBlueLeftY - climbAllowance, clearRadius, 0.25);
+    public static final Box towerClearRedLeft   = new Box(fieldLength, towerPostRedLeftY - clearRadius, towerPostRedX - clearRadius, towerPostRedRightY - climbAllowance, clearRadius, 0.25);
+    public static final Box towerClearRedRight  = new Box(fieldLength, towerPostRedLeftY + climbAllowance, towerPostRedX - clearRadius, towerPostRedRightY + clearRadius, clearRadius, 0.25);
 
+    // TriggerVectors for climbing
+    private static final double climbTriggerRadius = 2;
+    private static final double climbTriggerBuffer = 0.5;
+    public static final Translation2d climbStartOffset = new Translation2d(0, 1);
+    public static final Translation2d climbEndOffset = new Translation2d(0, 0.2);
+
+    public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX, towerPostBlueRightY, 90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX, towerPostBlueLeftY, -90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbRedRight  = new TriggerVector(towerPostRedX, towerPostRedRightY, -90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbRedLeft   = new TriggerVector(towerPostRedX, towerPostRedLeftY, 90, climbTriggerRadius, climbTriggerBuffer);
+
+    public static final ObjectList climbTriggerVectors = new ObjectList
+    (
+      climbBlueRight,
+      climbBlueLeft,
+      climbRedRight,
+      climbRedLeft
+    );
 
     /* Depot */
     // Speed should be limited in own Depot, must NOT enter opposing
@@ -253,6 +279,8 @@ public class FieldConstants
     (
       towerPostBlueN,
       towerPostBlueS,
+      towerClearBlueLeft,
+      towerClearBlueRight,
       towerRed
     );
 
@@ -260,6 +288,8 @@ public class FieldConstants
     (
       towerPostRedN,
       towerPostRedS,
+      towerClearRedLeft,
+      towerClearRedRight,
       towerBlue
     );
 
