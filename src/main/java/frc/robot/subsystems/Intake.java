@@ -52,6 +52,6 @@ public class Intake extends SubsystemBase
       case Reversed -> -RollerConstants.intakeMinSpeed;
     };
 
-    roller.setSpeed(rollerSpeed);
+    //roller.setSpeed(rollerSpeed);
   }
 }
