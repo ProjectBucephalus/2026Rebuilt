@@ -176,8 +176,11 @@ public record ControlBinder
       .and(() -> state.shoot == ShootersState.Manual)
       .onTrue(bothShootersCmd(s -> s.setDistance(ShooterConstants.farManualRange)));
 
+    final Trigger manualFireTrigger = operator.rightTrigger(ControlConstants.triggerThreshold);
+
     // Tag-Seeking if no Localisation
     new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
+      .and(manualFireTrigger.negate())
       .and(() -> !s_Vision.hasLocalisation())
       .onTrue
       (
@@ -263,8 +266,6 @@ public record ControlBinder
     final Trigger shootZoneTrigger = 
          (allianceZoneTrigger.and(PBDash.IO_SHOOT_HUB.asTrigger()))
       .or(allianceZoneTrigger.negate().and(PBDash.IO_SHOOT_PASS.asTrigger()));
-    
-    final Trigger manualFireTrigger = operator.rightTrigger(ControlConstants.triggerThreshold);
 
     final Trigger forceStopTrigger = driver.leftTrigger(ControlConstants.triggerThreshold);
 
