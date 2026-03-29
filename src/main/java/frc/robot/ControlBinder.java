@@ -21,9 +21,11 @@ import frc.robot.Robot.ClimbPosition;
 import frc.robot.Robot.RobotState;
 import frc.robot.Robot.ShootersState;
 import frc.robot.constants.IDConstants;
+import frc.robot.constants.Path;
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
+import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.Vision;
@@ -136,7 +138,7 @@ public record ControlBinder
               case Right -> Rotation2d.kCW_90deg;
               case None -> Rotation2d.kZero; // Shouldn't actually happen due to trigger condition
             };
-            return FieldUtils.allianceRotateRotation(rotation);
+            return rotation;
           }
         ).onlyWhile(() -> state.climbPos != ClimbPosition.None)
       );
@@ -146,6 +148,15 @@ public record ControlBinder
       .onTrue(runOnce(() -> driverBrake.withMaxThrottle(PBDash.IO_MAX_THROTTLE.get())));
     PBDash.IO_MIN_THROTTLE.asPulse()
       .onTrue(runOnce(() -> driverBrake.withMinThrottle(PBDash.IO_MIN_THROTTLE.get())));
+
+    GeoFencing.climbBlueRight.asTrigger()
+      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueRight, () -> 0.75));
+    GeoFencing.climbBlueLeft.asTrigger()
+      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueLeft, () -> 0.75));
+    GeoFencing.climbRedRight.asTrigger()
+      .whileTrue(DriveBuilder.pathFollow(Path.climbRedRight, () -> 0.75));
+    GeoFencing.climbRedLeft.asTrigger()
+      .whileTrue(DriveBuilder.pathFollow(Path.climbRedLeft, () -> 0.75));
   }
 
   private void bindShooters()

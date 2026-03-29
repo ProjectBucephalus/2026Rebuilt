@@ -154,6 +154,7 @@ public class Robot extends TimedRobot
   
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
+  private final JoystickTransmuter driverStickRaw = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
   private final Brake driverBrake = new Brake(() -> driver.getRightTriggerAxis(), ControlConstants.maxThrottle, ControlConstants.minThrottle);
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
@@ -230,32 +231,40 @@ public class Robot extends TimedRobot
     FieldObject.setRobotPosSup(() -> swerveState.Pose.getTranslation());
 
     GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
-
+    
     GeoFencing.fieldRedGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Red));
     GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Blue));
-
- /*   GeoFencing.hubBlueOutput
-      .setActiveCondition
-      (
-        () -> 
-        FieldUtils.hubActiveToleranced
-        (
-          Alliance.Blue, 
-          ControlConstants.preShiftOutputMargin, 
-          ControlConstants.postShiftOutputMargin
-        ) && !state.nudging
-      );
-    GeoFencing.hubRedOutput
-      .setActiveCondition
-      (
-        () -> 
-        FieldUtils.hubActiveToleranced
-        (
-          Alliance.Red, 
-          ControlConstants.preShiftOutputMargin, 
-          ControlConstants.postShiftOutputMargin
-        ) && !state.nudging
-      ); */
+    
+    GeoFencing.towerClearBlueLeft .setActiveCondition(() -> state.climbPos == ClimbPosition.Right);
+    GeoFencing.towerPostBlueS     .setActiveCondition(() -> state.climbPos != ClimbPosition.Right);
+    GeoFencing.towerClearRedLeft  .setActiveCondition(() -> state.climbPos == ClimbPosition.Right);
+    GeoFencing.towerPostRedN      .setActiveCondition(() -> state.climbPos != ClimbPosition.Right);
+    GeoFencing.towerClearBlueRight.setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
+    GeoFencing.towerPostBlueN     .setActiveCondition(() -> state.climbPos != ClimbPosition.Left);
+    GeoFencing.towerClearRedRight .setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
+    GeoFencing.towerPostRedS      .setActiveCondition(() -> state.climbPos != ClimbPosition.Left);
+    
+    // Climb attractor TriggerVector setup
+    GeoFencing.climbBlueLeft 
+      .withControlInput(driverStickRaw::stickOutput)
+      .setActiveCondition(() -> 
+        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
+        && state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Blue));
+    GeoFencing.climbRedLeft  
+      .withControlInput(driverStickRaw::stickOutput)
+      .setActiveCondition(() -> 
+        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
+        && state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Red));
+    GeoFencing.climbBlueRight
+      .withControlInput(driverStickRaw::stickOutput)
+      .setActiveCondition(() -> 
+        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
+        && state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Blue));
+    GeoFencing.climbRedRight 
+      .withControlInput(driverStickRaw::stickOutput)
+      .setActiveCondition(() -> 
+        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
+        && state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Red));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
@@ -351,10 +360,10 @@ public class Robot extends TimedRobot
   {
     MatchTime.startTele();
     FieldUtils.updateAlliance();
+    // Update driver input rotation based on alliance
+    driverStick.rotated(FieldUtils.isAlliance(Alliance.Red));
     
     autoCommand.ifPresent(Command::cancel);
-
-    initInputTransmute();
 
     CommandScheduler.getInstance()
       .schedule
@@ -370,7 +379,8 @@ public class Robot extends TimedRobot
     CommandScheduler.getInstance().cancelAll();
 
     FieldUtils.updateAlliance();
-    initInputTransmute();
+    // Update driver input rotation based on alliance
+    driverStick.rotated(FieldUtils.isAlliance(Alliance.Red));
 
     CommandScheduler.getInstance()
       .schedule

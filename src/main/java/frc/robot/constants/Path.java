@@ -5,6 +5,7 @@ import java.util.HashMap;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.util.FieldUtils;
 
 /**
@@ -124,5 +125,37 @@ public record Path(double pointRadius, Rotation2d heading, Translation2d... sequ
     new Translation2d(15, 2),
     new Translation2d(11, 2),
     new Translation2d(11, 6)
+  );
+
+  public static final Path climbBlueRight = new Path
+  (
+    0.3, 
+    Rotation2d.kCW_90deg, 
+    GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbStartOffset),
+    GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbEndOffset)
+  );
+  
+  public static final Path climbBlueLeft = new Path
+  (
+    0.3, 
+    Rotation2d.kCCW_90deg, 
+    GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbStartOffset),
+    GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbEndOffset)
+  );
+
+  public static final Path climbRedRight = new Path
+  (
+    0.3, 
+    Rotation2d.kCCW_90deg, 
+    GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbStartOffset),
+    GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbEndOffset)
+  );
+  
+  public static final Path climbRedLeft = new Path
+  (
+    0.3, 
+    Rotation2d.kCW_90deg, 
+    GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbStartOffset),
+    GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbEndOffset)
   );
 }
