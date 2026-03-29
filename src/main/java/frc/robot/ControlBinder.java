@@ -159,27 +159,29 @@ public record ControlBinder
     // Set manual shooting distance
     operator.povUp()
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(bothShooters(s -> s.setDistance(ShooterConstants.closeManualRange)));
+      .onTrue(bothShootersCmd(s -> s.setDistance(ShooterConstants.closeManualRange)));
     operator.povDown()
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(bothShooters(s -> s.setDistance(ShooterConstants.farManualRange)));
+      .onTrue(bothShootersCmd(s -> s.setDistance(ShooterConstants.farManualRange)));
 
     // Tag-Seeking if no Localisation
     new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
       .and(() -> !s_Vision.hasLocalisation())
       .onTrue
       (
-        runOnce(() -> {
+        runOnce(() -> {          
           s_PortShooter.target.azimuth = -60;
           s_StbdShooter.target.azimuth = 60;
-        }).ignoringDisable(true)
+        })
+        .alongWith(bothShootersCmd(s -> s.target.state = TargetState.Manual))
+        .ignoringDisable(true)
       );
 
     // Manual
     new Trigger(() -> state.shoot == ShootersState.Manual)
       .onTrue
       (
-        bothShooters(s -> {
+        bothShootersCmd(s -> {
           s.target.state = TargetState.Manual;
           s.target.azimuth = 0;
         }).ignoringDisable(true)
@@ -189,7 +191,7 @@ public record ControlBinder
     new Trigger(() -> state.shoot == ShootersState.Test)
       .whileTrue
       (
-        bothShooters(s -> {
+        bothShootersCmd(s -> {
           s.target.state = TargetState.Manual;
           s.target.azimuth = PBDash.TEST_AZIMUTH.get();
           s.target.altitude = PBDash.TEST_ALTITUDE.get();
@@ -205,13 +207,13 @@ public record ControlBinder
     // Not Manual, Outside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger.negate())
-      .onTrue(bothShooters(s -> s.target.state = TargetState.Point).ignoringDisable(true))
-      .whileTrue(bothShooters(s -> s.target.point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
+      .onTrue(bothShootersCmd(s -> s.target.state = TargetState.Point).ignoringDisable(true))
+      .whileTrue(bothShootersCmd(s -> s.target.point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
 
     // Not Manual, Inside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger)
-      .onTrue(bothShooters(s -> s.target.state = TargetState.Hub).ignoringDisable(true));
+      .onTrue(bothShootersCmd(s -> s.target.state = TargetState.Hub).ignoringDisable(true));
 
     // Port-Only
     new Trigger(() -> state.shoot == ShootersState.Port)
@@ -236,8 +238,8 @@ public record ControlBinder
           state.shoot != ShootersState.Test
         )
       )
-      .onTrue(bothShooters(Shooter::revFlywheels).ignoringDisable(true))
-      .onFalse(bothShooters(Shooter::idleFlywheels).ignoringDisable(true));
+      .onTrue(bothShootersCmd(Shooter::revFlywheels).ignoringDisable(true))
+      .onFalse(bothShootersCmd(Shooter::idleFlywheels).ignoringDisable(true));
 
     /* Shooting when Ready */
 
@@ -366,7 +368,7 @@ public record ControlBinder
     }
   }
  
-  private Command bothShooters(Consumer<Shooter> action)
+  private Command bothShootersCmd(Consumer<Shooter> action)
   {
     return runOnce(() -> {
       action.accept(s_PortShooter);

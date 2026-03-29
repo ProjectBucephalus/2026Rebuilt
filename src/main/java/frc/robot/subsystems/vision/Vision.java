@@ -41,7 +41,7 @@ public class Vision extends SubsystemBase
   /** Timestamp of last good pose estimate, seconds, -1 on initialisation */
   @Logged
   double lastGoodPose = -1; 
-  /** True only while there is a recent valid pose estimate */
+  /** True if IO_LL was true last cycle */
   boolean usingVision = true;
 
   /**
@@ -63,7 +63,7 @@ public class Vision extends SubsystemBase
    */
   @Logged
   public boolean hasLocalisation()
-    {return (lastGoodPose > -1 && Timer.getTimestamp() - lastGoodPose < visionFrequencyThreshold) || Robot.isSimulation();}
+    {return (Robot.isSimulation() || (lastGoodPose > -1 && Timer.getTimestamp() - lastGoodPose < visionFrequencyThreshold));}
 
   /**
    * Accepts a given robot pose as if it were a valid localisation estimate
