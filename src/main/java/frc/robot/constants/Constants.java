@@ -177,9 +177,9 @@ public final class Constants
         flywheelConfig.Feedback.SensorToMechanismRatio = mainWheelBeltRatio;
 
         flywheelConfig.Slot0.kS = 0.21;
-        flywheelConfig.Slot0.kV = 0.1613;
+        flywheelConfig.Slot0.kV = 0.162;
         flywheelConfig.Slot0.kA = 0.0;
-        flywheelConfig.Slot0.kP = 0.08;
+        flywheelConfig.Slot0.kP = 0.09;
         flywheelConfig.Slot0.kI = 0.0;
         flywheelConfig.Slot0.kD = 0.0;
 
@@ -208,9 +208,11 @@ public final class Constants
       /** Angle range of servo given input of [0..1], degrees anticlockwise */
       public static final double servoRange = 250;
       /** Range of motion of hood, degrees */
-      public static final double hoodRange = 19;
+      public static final double hoodRange = 23;
 
+      /** Offset for Zero position on port servo (servo degrees) */
       public static final double portHomeAngle = 0;
+      /** Offset for Zero position on starboard servo (servo degrees) */
       public static final double stbdHomeAngle = 26;
 
       public static final double servoGear = 20;
@@ -390,8 +392,11 @@ public final class Constants
       put(2.5, 10.0);
       put(3.0, 13.0);
       put(3.5, 15.0);
+      
       put(4.0, 19.0);
-      put(5.3, 19.0);
+      put(4.5, 22.0);
+      put(5.0, 23.0);
+      put(5.5, 23.0);
     }};
 
     /** Distance to Speed conversion for shooting into the elevated Hub */
@@ -405,39 +410,34 @@ public final class Constants
       put(2.0, 48.0);
       put(2.5, 49.0);
       put(3.0, 50.0);
-      put(3.5, 52.0);
-      put(4.0, 56.0); // TODO: Needs retesting when possible
-
-      put(5.3, 63.0);
-      put(5.4, 63.0);
+      put(3.5, 52.0); // TODO: Needs retesting when possible
+      
+      put(4.0, 52.0); 
+      put(4.5, 52.0);
+      put(5.0, 55.0);
+      put(5.5, 60.0);
     }};
 
     /** Distance to Altitude conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
     {{
-      put(1.0, 0.0);
-      put(1.8575, 0.0); 
-      put(2.715, 0.0); // max range while at 0 degrees hood + staying below lights
-      put(3.9425, 5.4);
-      put(4.97, 10.2);
-      put(5.9975, 14.9); 
-      put(7.025, 19.0); // max range while staying below lights
-      put(7.735, 19.0); // max range while staying below ceiling
+      put(0.5, 23.0);
+      put(7.5, 23.0);
+
     }};
 
     /** Distance to Speed conversion for shooting to a point on the field */
     public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap()
     {{
-      put(0.0, 0.0);
-      put(1.0, 0.0);
-      put(1.2, 36.0);
-      put(2.0575, 42.6); 
-      put(2.915, 47.8);
-      put(3.9425, 52.6);
-      put(4.97, 59.7);
-      put(5.9975, 61.0);
-      put(7.025, 62.5); // max range while staying below lights
-      put(7.735, 64.3); // max range while staying below ceiling
+      put(0.5, 15.0);
+      put(1.5, 22.0);
+      put(2.5, 33.0);
+      put(3.5, 39.0);
+      put(4.5, 46.0);
+      put(5.5, 51.0);
+      put(6.5, 58.0);
+      put(7.5, 68.0);
+
     }};
   }
 
