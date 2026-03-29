@@ -31,6 +31,8 @@ public class Flywheels
   private final TalonFX m_Leader; 
   private final TalonFX m_Follower;
 
+  private boolean speedCheck = false;
+
   private final DCMotorSim motorSim = new DCMotorSim
   (
     LinearSystemId.createDCMotorSystem
@@ -65,14 +67,20 @@ public class Flywheels
     {m_Leader.setControl(request.withVelocity(speed));}
 
   /**
-   * Checks if the current motor speed is within {@link ShooterConstants#flySpeedTolerance flySpeedTolerance} of the requested speed
+   * Checks if the current motor speed is within {@link ShooterConstants#flySpeedTolerance flySpeedTolerance} of the requested speed, using a Schmitt trigger
    * 
    * @return true if the motor is at speed
    */
   @Logged
   public boolean atSpeed() 
   {
-    return MathUtil.isNear(Math.max(request.Velocity, idleSpeed), getSpeed(), flySpeedTolerance);
+    // Use given tolerance for reaching speed, use double tolerance for no longer being at speed
+    if (MathUtil.isNear(Math.max(request.Velocity, idleSpeed), getSpeed(), flySpeedTolerance))
+      speedCheck = true;
+    else if (!MathUtil.isNear(Math.max(request.Velocity, idleSpeed), getSpeed(), flySpeedTolerance * 2))
+      speedCheck = false;
+
+    return speedCheck;
   }
 
   /** @return Current speed of the flywheels (RPS of the main flywheel) */

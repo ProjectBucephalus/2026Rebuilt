@@ -151,7 +151,7 @@ public final class Constants
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.12;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactor = 0.5;
+    public static final double leadFactor = 0.2;
     public static final double minRange = 1.1;
 
     public static final double closeManualRange = 2;
@@ -246,7 +246,7 @@ public final class Constants
       public static final double azimuthMotorRatio = azimuthGearRatio * planetaryRatio;
 
       /** Allowed variation in turret azimuth when targeting, degrees */
-      public static final double azimuthTolerance = 3;
+      public static final double azimuthTolerance = 6;
 
       /** Maximum absolute rotation rate of the turret in field-space to be considered safe to shoot, rps */
       public static final double maxRPS = 1;
