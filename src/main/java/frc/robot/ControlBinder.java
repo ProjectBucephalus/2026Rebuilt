@@ -10,6 +10,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -212,7 +213,9 @@ public record ControlBinder
         .ignoringDisable(true)
       );
     
-    final Trigger autoAimTrigger = new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test).and(s_Vision::hasLocalisation);
+    final Trigger autoAimTrigger = new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
+                                          .and(s_Vision::hasLocalisation)
+                                          .and(DriverStation::isEnabled);
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
 
     // Not Manual, Outside Alliance Zone
@@ -244,6 +247,8 @@ public record ControlBinder
         (state.shoot == ShootersState.Test && operator.rightTrigger().getAsBoolean())
         ||
         (
+          DriverStation.isEnabled()
+          &&
           (!allianceZoneTrigger.getAsBoolean() || FieldUtils.hubActiveToleranced(ControlConstants.preShiftMargin, ControlConstants.postShiftMargin))
           && 
           state.shoot != ShootersState.Test
