@@ -293,8 +293,8 @@ public final class Constants
       {
         indexerConfig.Feedback.SensorToMechanismRatio = gearboxRatio;
 
-        indexerConfig.Slot0.kS = 0.56;
-        indexerConfig.Slot0.kV = 0.127;
+        indexerConfig.Slot0.kS = 0.25;
+        indexerConfig.Slot0.kV = 0.125;
         indexerConfig.Slot0.kA = 0.0;
         indexerConfig.Slot0.kP = 0.16;
         indexerConfig.Slot0.kI = 0.01;
