@@ -214,44 +214,25 @@ public class Conversions
    * @param maxAngle maximum allowed angle from centre, degrees (e.g. 720)
    * @return closest wrapping of target relative angle to current absolute angle within allowed range, degrees (e.g. [-720..720])
    */
-  public static double normaliseAngle(double newAngle, double currentAngle, double maxAngle)
-  {
-    // Ensure allowed range of motion is greater than a rotation
-    if (maxAngle < 180)
-      {return clamp(newAngle, -maxAngle, maxAngle);}
+public static double normaliseAngle(double newAngle, double currentAngle, double maxAngle)
+{
+  // Ensure allowed range of motion is greater than a rotation
+  if (maxAngle < 180) return clamp(newAngle, -maxAngle, maxAngle);
 
-    // Wrap both input angles to be strictly relative within a rotation
-    double newAngleWrapped = Conversions.mod(newAngle, 360);
-    double currentAngleWrapped = Conversions.mod(currentAngle, 360);
-
-    // Find the shortest distance between the relative angles, wrapped [-180..180]
-    double offset = MathUtil.inputModulus(newAngleWrapped - currentAngleWrapped, -180, 180);
-    // Find target absolute angle as current absolute angle plus offset between relative angles
-    double targetAngle = currentAngle + offset;
-    
-    // If the target absolute angle is outside the allowed range, bring it one rotation towards centre
-    if (targetAngle > maxAngle)
-      return targetAngle - 360;
-    else if (targetAngle < -maxAngle)
-      return targetAngle + 360;
-    
-    // When the travel is almost half a rotation, take the longer path if it brings the mechanism closer to centre
-    if (offset > 135)
-    {
-      if (currentAngle > 45)
-        return targetAngle - 360;
-      else
-        return targetAngle;
-    }
-    else if (offset < -135)
-    {
-      if (currentAngle < -45)
-        return targetAngle + 360;
-      else
-        return targetAngle;
-    }
-
-    else 
-      return targetAngle;
-  }
+  // Wrap both input angles to be strictly relative within a rotation
+  // Find the shortest distance between the relative angles, wrapped [-180..180]
+  double offset = MathUtil.inputModulus(mod(newAngle, 360) - mod(currentAngle, 360), -180, 180);
+  
+  // Find target absolute angle as current absolute angle plus offset between relative angles
+  double targetAngle = currentAngle + offset;
+  
+  // If the target absolute angle is outside the allowed range, bring it one rotation towards centre    
+  // When the travel is almost half a rotation, take the longer path if it brings the mechanism closer to centre
+  if (targetAngle > maxAngle || (offset > 135 && currentAngle > 45))
+    return targetAngle - 360;
+  else if (targetAngle < -maxAngle || (offset < -135 && currentAngle < -45))
+    return targetAngle + 360; 
+  else 
+    return targetAngle;
+}
 }
