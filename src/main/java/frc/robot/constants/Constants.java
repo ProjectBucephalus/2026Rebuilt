@@ -144,10 +144,18 @@ public final class Constants
   /** Geometry and tuning data for shooter systems */
   public static final class ShooterConstants
   {
-    /** 2D offset from robot centre to port-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
-    public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg); // -(0.1635 + SwerveConstants.drivebaseOffset), 0.1815
-    /** 2D offset from robot centre to starboard-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
-    public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
+    /** 
+     * 2D offset from robot centre to port-side turret centre, metres fore/port, 
+     * and rotation offset from robot-forward to turret-forward 
+     */
+    public static final Transform2d portShooterOffset = 
+        new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg);
+    /** 
+     * 2D offset from robot centre to starboard-side turret centre, metres fore/port, 
+     * and rotation offset from robot-forward to turret-forward 
+     */
+    public static final Transform2d stbdShooterOffset = 
+        new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.12;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
