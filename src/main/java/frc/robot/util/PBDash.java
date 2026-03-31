@@ -249,10 +249,7 @@ public class PBDash
     /** @return current value of the entry */
     @SuppressWarnings("unchecked")
     public T get()
-    {
-      lastVal = (T)ntEntry.get().getValue();
-      return lastVal;
-    }
+      {return (T)ntEntry.get().getValue();}
 
     /** @param value value to send to network */
     public void put(T value)

@@ -232,31 +232,30 @@ public class DriveBuilder
       final var next = path.sequence()[i + 1];
 
       // Find the distance between the current point and the next
-      // If the input radius is greater than 1/3 the distance between points, use 1/3 for next step
       final double segmentLength = current.getDistance(next);
-      final double waypointDist = Conversions.clamp(path.pointRadius(), ControlConstants.lineupTolerance, segmentLength / 3);
-      final double lengthRatio = waypointDist / segmentLength;
-
-      // Project additional waypoints using input radius to give a smoother path
-      final var waypoint1 = current.interpolate(next, lengthRatio);
-      final var waypoint2 = next.interpolate(current, lengthRatio);
-
+      // Clamp the input radius between our minimum tolerance and 1/3rd of the length of this segment
+      final double clampedRadius = Conversions.clamp(path.pointRadius(), ControlConstants.lineupTolerance, segmentLength / 3);
+      
       // Record distance at which to switch waypoints for this segment
-      radiusPerSegment.add(waypointDist);
-      // Add current waypoint and projected midpoints to path list
+      radiusPerSegment.add(clampedRadius);
+      
+      // Calculate how far along the segment to place the midpoints, as a ratio of the clamped radius to the segment length
+      final double lengthRatio = clampedRadius / segmentLength;
+
+      // Add current waypoint and additional projected midpoints (for smoothing) to path list
       waypoints.addAll
       (
         List.of
         (
           new Pose2d(current, path.heading()), 
-          new Pose2d(waypoint1, path.heading()), 
-          new Pose2d(waypoint2, path.heading())
+          new Pose2d(current.interpolate(next, lengthRatio), path.heading()), 
+          new Pose2d(next.interpolate(current, lengthRatio), path.heading())
         )
       );
     }
 
     // Final waypoint does not trigger until the robot arives at it
-    radiusPerSegment.add(0.0);
+    radiusPerSegment.add(ControlConstants.lineupTolerance);
     waypoints.add(new Pose2d(path.sequence()[path.sequence().length - 1], path.heading()));
 
     return pathFollowInner(waypoints, radiusPerSegment, brakeSup);
