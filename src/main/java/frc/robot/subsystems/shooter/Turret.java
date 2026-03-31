@@ -194,6 +194,12 @@ public class Turret
     return Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance);
   }
 
+  @Logged
+  public double azimuthError()
+  {
+    return Math.abs(Conversions.mod(getAzimuth(), 360) - Conversions.mod(target.azimuth, 360));
+  }
+
   public boolean readyToShoot(ChassisSpeeds swerveSpeeds)
     {return atAzimuth() && safeToShoot(swerveSpeeds);}
 
