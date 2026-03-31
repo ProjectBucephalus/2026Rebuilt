@@ -179,7 +179,7 @@ public class Turret
     // Robot-Relative angle from turret to target
     double robotTarget = fieldTarget - shooterPose.getRotation().getDegrees();
 
-    double robotDegreesPerCycle = robotDegreesPerSecond / 50;
+    double robotDegreesPerCycle = robotDegreesPerSecond / 20;
 
     return robotTarget - robotDegreesPerCycle;
   }
@@ -189,7 +189,8 @@ public class Turret
     return (getSpeed() + (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < TurretConstants.maxRPS;
   }
 
-  private boolean atAzimuth()
+  @Logged
+  public boolean atAzimuth()
   {
     return Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance);
   }
