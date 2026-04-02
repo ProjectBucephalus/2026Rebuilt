@@ -230,7 +230,7 @@ public final class Constants
       /** Position to hold when idle, degrees */
       public static final double turretIdlePosition = 0;
       /** Target rotation rate when moving, rps */
-      public static final double turretTurnSpeed = 3;
+      public static final double turretTurnSpeed = 1;
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
@@ -274,7 +274,7 @@ public final class Constants
         turretConfig.Slot0.kD = 0.01;
 
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
-        turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
+        turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 10;
       }
     }
 
