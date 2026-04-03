@@ -18,8 +18,8 @@ public class LimitedMotor extends PositionMotor
 {
   private final Limit limit;
 
-  private final double maxRotations;
   private final double minRotations;
+  private final double maxRotations;
   private final double homeRotations;
 
   private final boolean slot1Valid;
@@ -61,6 +61,7 @@ public class LimitedMotor extends PositionMotor
   public void setTarget(double target) 
   {
     double clampedRotations = Conversions.clamp(target, minRotations, maxRotations);
+    // If valid, use the second PID slot until the mechanism has been homed
     int slot = (!homed && slot1Valid) ? 1 : 0;
     request.withSlot(slot);
     super.setTarget(clampedRotations);
@@ -76,16 +77,16 @@ public class LimitedMotor extends PositionMotor
     super.setTarget(target);
   }
 
-  /** Sets the target to the maximum limit */
+  /** @return Command to set the target to the maximum limit */
   public Command extendCmd() 
     {return setTargetCmd(maxRotations);}
-  /** Sets the target to the minimum limit */
+  /** @return Command to set the target to the minimum limit */
   public Command retractCmd() 
     {return setTargetCmd(minRotations);}
 
   /**
    * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
-   * Primarily intended for joystick control
+   * Primarily intended for joystick control, ignoring limits
    * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
    * @return the Command
    */

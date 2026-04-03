@@ -327,6 +327,9 @@ public record ControlBinder
           public void end(boolean i) {s_Intake.state = prevState;}
         }
       );
+
+    // Manual Control
+    s_Extension.setDefaultCommand(s_Extension.adjustTargetCmd(() -> operator.getLeftY() * ControlConstants.manualIntakeExtensionScale));
   }
 
   private void bindClimber()

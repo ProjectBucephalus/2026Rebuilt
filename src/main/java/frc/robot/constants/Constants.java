@@ -63,9 +63,8 @@ public final class Constants
     public static final AllianceTranslation2d leftPassPoint = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 2);
     public static final AllianceTranslation2d rightPassPoint = new AllianceTranslation2d(1.5, 2);
 
-    public static final double manualIntakeExtensionAmount = 0.15;
+    public static final double manualIntakeExtensionScale  = 0.15;
     public static final double manualClimberExtensionScale = 0.05;
-    public static final double manualClimberExtensionAmount = 0.05;
     public static final double manualShooterAzimuthAmount = 1.8;
     public static final double manualShooterDistanceAmount = 0.03;
     public static final double manualShooterDeadband = 0.25;
@@ -144,10 +143,18 @@ public final class Constants
   /** Geometry and tuning data for shooter systems */
   public static final class ShooterConstants
   {
-    /** 2D offset from robot centre to port-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
-    public static final Transform2d portShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg); // -(0.1635 + SwerveConstants.drivebaseOffset), 0.1815
-    /** 2D offset from robot centre to starboard-side turret centre of rotation, metres fore/port, and rotation offset from robot-forward to turret-forward */
-    public static final Transform2d stbdShooterOffset = new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
+    /** 
+     * 2D offset from robot centre to port-side turret centre, metres fore/port, 
+     * and rotation offset from robot-forward to turret-forward 
+     */
+    public static final Transform2d portShooterOffset = 
+        new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), 0.1815, Rotation2d.k180deg);
+    /** 
+     * 2D offset from robot centre to starboard-side turret centre, metres fore/port, 
+     * and rotation offset from robot-forward to turret-forward 
+     */
+    public static final Transform2d stbdShooterOffset = 
+        new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.12;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
@@ -514,13 +521,13 @@ public final class Constants
         extensionConfig.Feedback.SensorToMechanismRatio = extensionChainRatio;
 
         extensionConfig.Slot0.kS = 0.2;
-        extensionConfig.Slot0.kG = 0.47;
+        //extensionConfig.Slot0.kG = 0.47;
         extensionConfig.Slot0.kV = 0.0;
         extensionConfig.Slot0.kA = 0.0;
         extensionConfig.Slot0.kP = 60.0;
         extensionConfig.Slot0.kI = 3.0;
         extensionConfig.Slot0.kD = 0.0;
-        extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+        //extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 10;
         extensionConfig.MotionMagic.MotionMagicAcceleration = 50;
@@ -534,7 +541,13 @@ public final class Constants
   public static final class ClimberConstants 
   {
     /** meters */
-    public static final double maxPosition = 0.478;
+    public static final double minPosition  = 0.015;
+    /** meters */
+    public static final double maxPosition  = 0.22;
+    /** Position set when climber calibrates, meters */
+    public static final double homePosition = 0.015;
+    /** Position for full climb, meters */
+    public static final double climbPosition = 0.1;
 
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;
@@ -544,12 +557,21 @@ public final class Constants
     /** meters */
     private static final double winchDiameter = 0.029;
     private static final double cordDiameter = 0.006;
-    public static final double metersPerRotation = (winchDiameter + cordDiameter) * Math.PI;
+    public static final double metersPerRotation = 0.05; //(winchDiameter + cordDiameter) * Math.PI;
 
     public static final TalonFXConfiguration climberConfig = new TalonFXConfiguration(); 
     static 
     {
       climberConfig.Feedback.SensorToMechanismRatio = winchChainRatio * planetaryRatio;
+
+      climberConfig.Slot0.kS = 0.2;
+      climberConfig.Slot0.kV = 0.05;
+      climberConfig.Slot0.kA = 0.0;
+      climberConfig.Slot0.kP = 1.0;
+      climberConfig.Slot0.kI = 0.0;
+      climberConfig.Slot0.kD = 0.0;
+
+      climberConfig.MotionMagic.MotionMagicCruiseVelocity = 1;
     }
   }
 }

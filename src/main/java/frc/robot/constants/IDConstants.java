@@ -69,9 +69,10 @@ public final class IDConstants
   /* Climber, CAN [32] */
   public static final int climberCAN = 32;
 
-  /* Sensors, DIO [1] */
+  /* Sensors, DIO [0..1] */
   /* ------- */
-  public static final int climberLimitDIO = 1;
+  public static final int climberLimitDIO = 0;
+  public static final int climbPostDIO = 1;
   
   /* Network device names */
   /* -------------------- */
@@ -84,8 +85,7 @@ public final class IDConstants
   /* ----------- */
   public static final int driverPort = 0;
   public static final int debugPort = 1;
-  public static final int buttonPadPort = 2;
-  public static final int switchboardPort = 4;
+  public static final int switchboardPort = 2;
 
   /* Switchboard Switches */
   public static final int autoAimSwitchID = 4;
