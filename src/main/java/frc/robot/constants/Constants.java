@@ -230,7 +230,7 @@ public final class Constants
       /** Position to hold when idle, degrees */
       public static final double turretIdlePosition = 0;
       /** Target rotation rate when moving, rps */
-      public static final double turretTurnSpeed = 1.53;
+      public static final double turretTurnSpeed = 1.9;
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
@@ -238,7 +238,7 @@ public final class Constants
       /** Angle offset to give 0 when turret is at centre, degrees */
       public static final double stbdPotOffset = -1819.2;
 
-      private static final double planetaryRatio = 20;
+      private static final double planetaryRatio = 16;
       private static final double driveGear = 15;
       private static final double ringGear = 90;
       public static final double azimuthGearRatio = ringGear / driveGear;
@@ -274,7 +274,7 @@ public final class Constants
         turretConfig.Slot0.kD = 0.01;
 
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
-        turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 10;
+        //turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 10;
       }
     }
 
