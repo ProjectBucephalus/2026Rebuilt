@@ -259,7 +259,7 @@ public final class Constants
       public static final double maxRPS = 1;
 
       /** Maximum expected value from potentiometer, beyond which indicates error, sensor degrees */
-      public static final double potSafeLimit = 280 * azimuthGearRatio;
+      public static final double potSafeLimit = 265 * azimuthGearRatio;
       /** Minimum change in azimuth before recalibrating, sensor degrees */
       public static final double calibrationAngleLimit = 5 * Math.abs(azimuthGearRatio);
       /** Maximum robot-relative rotation rate to calibrate turret, rotations per second */
