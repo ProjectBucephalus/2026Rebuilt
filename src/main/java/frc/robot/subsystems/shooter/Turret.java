@@ -190,16 +190,17 @@ public class Turret
 
   private boolean safeToShoot(ChassisSpeeds swerveSpeeds)
   {
-    return (getSpeed() + (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < TurretConstants.maxRPS;
+    return (getSpeed() + (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < maxRPS
+      && Math.abs(getAzimuth()) < maxTurretAzimuth - limitBufferZone;
   }
 
   @Logged
   public boolean atAzimuth()
   {
     // Use given tolerance for reaching target, use double tolerance for no longer being at target
-    if (Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance))
+    if (Conversions.nearRotation(getAzimuth(), target.azimuth, azimuthTolerance))
       azCheck = true;
-    else if (!Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance * 2))
+    else if (!Conversions.nearRotation(getAzimuth(), target.azimuth, azimuthTolerance * 2))
       azCheck = false;
 
     return azCheck;

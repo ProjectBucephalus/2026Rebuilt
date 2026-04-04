@@ -156,9 +156,9 @@ public final class Constants
     public static final Transform2d stbdShooterOffset = 
         new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
-    public static final double targetPointOffset = 0.12;
+    public static final double targetPointOffset = 0.08;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactor = 0.25;
+    public static final double leadFactor = 0.48;
     public static final double minRange = 1.1;
 
     public static final double closeManualRange = 2;
@@ -396,7 +396,7 @@ public final class Constants
       put(1.1, 1.0);
       put(1.5, 4.0);
       put(2.0, 8.0);
-      put(2.5, 11.5);
+      put(2.5, 11.0);
       put(3.0, 13.0);
       put(3.5, 15.0);
       
