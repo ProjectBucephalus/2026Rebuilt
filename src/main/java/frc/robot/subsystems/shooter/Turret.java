@@ -183,9 +183,9 @@ public class Turret
     // Robot-Relative angle from turret to target
     double robotTarget = fieldTarget - shooterPose.getRotation().getDegrees();
 
-    double robotDegreesPerCycle = robotDegreesPerSecond / 20;
+    double robotDegreesPerCycle = robotDegreesPerSecond / 50;
 
-    return robotTarget - robotDegreesPerCycle;
+    return robotTarget;// - robotDegreesPerCycle;
   }
 
   private boolean safeToShoot(ChassisSpeeds swerveSpeeds)
