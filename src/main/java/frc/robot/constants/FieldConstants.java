@@ -229,8 +229,8 @@ public class FieldConstants
     // TriggerVectors for climbing
     private static final double climbTriggerRadius = 2;
     private static final double climbTriggerBuffer = 0.5;
-    public static final Translation2d climbStartOffset = new Translation2d(0, 1);
-    public static final Translation2d climbEndOffset = new Translation2d(0, 0.2);
+    public static final Translation2d climbStartOffset = new Translation2d(0, 1.0);
+    public static final Translation2d climbEndOffset = new Translation2d(0, 0.5);
 
     public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX, towerPostBlueRightY, 90, climbTriggerRadius, climbTriggerBuffer);
     public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX, towerPostBlueLeftY, -90, climbTriggerRadius, climbTriggerBuffer);

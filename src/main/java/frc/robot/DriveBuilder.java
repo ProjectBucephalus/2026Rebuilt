@@ -5,6 +5,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -19,6 +20,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.constants.Path;
@@ -315,5 +317,25 @@ public class DriveBuilder
         return Conversions.atPose(robotPoseSup.get(), waypoints.get(waypoints.size()-1));
       }
     };
+  }
+
+  /** @return Command that makes the drivebase stop wait until interupted */
+  public static Command waitCommand()
+  {
+    return new Command() 
+    {
+      @Override
+      public void initialize()
+      {
+        s_Swerve.setControl
+        (
+          fieldCentricRequest
+            .withVelocityX(0)
+            .withVelocityY(0)
+            .withRotationalRate(0)
+        );
+      }
+    }
+    .andThen(s_Swerve.run(() -> Commands.waitUntil(() -> false)));
   }
 }
