@@ -192,6 +192,27 @@ public record ControlBinder
         .ignoringDisable(true)
       );
 
+    // Tag-Seeking for climb
+    new Trigger(() -> state.climbPos == ClimbPosition.Right)
+      .onTrue
+      (
+        runOnce(() -> {          
+          s_StbdShooter.target.azimuth = 45;
+          s_StbdShooter.target.state = TargetState.Manual;
+        })
+      )
+      .onFalse(runOnce(() -> s_StbdShooter.target.state = s_PortShooter.target.state));
+
+    new Trigger(() -> state.climbPos == ClimbPosition.Left)
+      .onTrue
+      (
+        runOnce(() -> {          
+          s_PortShooter.target.azimuth = -45;
+          s_PortShooter.target.state = TargetState.Manual;
+        })
+      )
+      .onFalse(runOnce(() -> s_PortShooter.target.state = s_StbdShooter.target.state));
+
     // Manual
     new Trigger(() -> state.shoot == ShootersState.Manual)
       .onTrue
