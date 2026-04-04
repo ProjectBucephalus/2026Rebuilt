@@ -5,6 +5,7 @@ import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
+import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
@@ -159,7 +160,9 @@ public class Turret
       && rawAzimuth <=  potSafeLimit
     )
     {
-      m_Turret.setPosition((rawAzimuth + potLastCycle) / (2 * azimuthPotRatio  * 360.0));
+      double newPos = (rawAzimuth + potLastCycle) / (2 * azimuthPotRatio  * 360.0);
+      PBDash.putDouble(m_Turret.getDeviceID()+" Calibration Error", m_Turret.getPosition().getValueAsDouble() - newPos);
+      m_Turret.setPosition(newPos);
       lastCalibration = rawAzimuth;
     }
 
