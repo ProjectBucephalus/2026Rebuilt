@@ -53,6 +53,7 @@ public class Turret
 
   private double lastCalibration = 0;
   private double potLastCycle = 0;
+  private boolean azCheck = false;
 
   /**
    * Creates a turret controller, to be managed by {@link Shooter} master-system
@@ -192,7 +193,13 @@ public class Turret
   @Logged
   public boolean atAzimuth()
   {
-    return Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance);
+    // Use given tolerance for reaching target, use double tolerance for no longer being at target
+    if (Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance))
+      azCheck = true;
+    else if (!Conversions.nearRotation(getAzimuth(), target.azimuth, TurretConstants.azimuthTolerance * 2))
+      azCheck = false;
+
+    return azCheck;
   }
 
   @Logged
