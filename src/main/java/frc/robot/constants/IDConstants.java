@@ -31,7 +31,7 @@ public final class IDConstants
   /* Mechanism */
   /* --------- */
 
-  public static final int LEDPWDPort = 0;
+  public static final int LEDPWDPort = 2;
 
   public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int indexerCAN, int azimuthAIO, int altitudePWM, int altitudeAIO, String ntID){}
 
@@ -43,8 +43,8 @@ public final class IDConstants
     18,
     19,
     0,
-    1,
-    1,
+    0,
+    2,
     "Port"
   );
 
@@ -55,8 +55,8 @@ public final class IDConstants
     21,
     22,
     23,
-    2,
-    3,
+    1,
+    1,
     3,
     "Stbd"
   );
