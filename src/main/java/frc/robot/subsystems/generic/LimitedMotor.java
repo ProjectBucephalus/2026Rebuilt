@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.util.Conversions;
 /** 
- * Generic subclass for a range-limited motor with a binary switch at the home position 
+ * Generic subclass for a range-limited motor with a binary switch reading {@code true} at the home position 
  * @author 5985
  */
 @Logged(strategy = Strategy.OPT_IN)
@@ -24,9 +24,10 @@ public class LimitedMotor extends PositionMotor
   private final double homeRotations;
 
   private final boolean slot1Valid;
+  private boolean sensorValid = false;
 
   @Logged
-  private boolean homed = false;
+  private boolean calibrated = false;
   @Logged
   private boolean homeLastCycle = false;
 
@@ -43,9 +44,9 @@ public class LimitedMotor extends PositionMotor
   public LimitedMotor(int motorCAN, int limitIO, double minRotations, double maxRotations, double homeRotations, TalonFXConfiguration configs)
   {
     super(motorCAN, configs);
-    this.maxRotations = maxRotations;
-    this.minRotations = minRotations;
-    this.homeRotations = homeRotations;
+    this.maxRotations = Math.max(maxRotations, minRotations);
+    this.minRotations = Math.min(maxRotations, minRotations);
+    this.homeRotations = Conversions.clamp(homeRotations, maxRotations, minRotations);
     slot1Valid = configs.Slot1.kP != 0;
 
     m_Position.setPosition(minRotations);
@@ -65,7 +66,7 @@ public class LimitedMotor extends PositionMotor
   {
     double clampedRotations = Conversions.clamp(target, minRotations, maxRotations);
     // If valid, use the second PID slot until the mechanism has been homed
-    int slot = (!homed && slot1Valid) ? 1 : 0;
+    int slot = (!calibrated && slot1Valid) ? 1 : 0;
     request.withSlot(slot);
     super.setTarget(clampedRotations);
   }
@@ -100,17 +101,59 @@ public class LimitedMotor extends PositionMotor
   @Override
   public void periodic() 
   {
-    if (limit.atLimit())
-    {  
-      if (!homeLastCycle && !homed)
+    if (!sensorValid && active)
+    {
+      // First cycle active becomes true, marking that the sensor is now definitely valid
+      sensorValid = true;
+
+      var range = maxRotations - minRotations;
+      double tolerance = range / 20;
+
+      if (limit.atLimit())
       {
-        homed = true;
-        homeLastCycle = true;
-        m_Position.setPosition(homeRotations);
+        // If the switch is initially true:
+        //  If home poisition is close to an end, set the position to that endpoint
+        //  Otherwise set the position slightly below home
+        if (homeRotations <= minRotations + tolerance) 
+          m_Position.setPosition(minRotations);
+        else if (homeRotations >= maxRotations - tolerance) 
+          m_Position.setPosition(maxRotations);
+        else 
+          m_Position.setPosition(homeRotations - tolerance);
+      }
+      else
+      {
+        // If the switch is initially false:
+        //  If home poisition is close to an end, set the position to the other endpoint
+        //  Otherwise set the position to the midpoint of the range of motion
+        if (homeRotations <= minRotations + tolerance) 
+          m_Position.setPosition(maxRotations);
+        else if (homeRotations >= maxRotations - tolerance) 
+          m_Position.setPosition(minRotations);
+        else
+          m_Position.setPosition((minRotations + maxRotations) / 2);
       }
     }
-    else 
-      homeLastCycle = false;
+
+    if (active)
+    {
+      if (limit.atLimit())
+      {  
+        // Flag when the sensor is true
+        homeLastCycle = true;
+      }
+      else
+      {
+        if (homeLastCycle && !calibrated)
+        {
+          // When the sensor first *becomes* false, calibrate
+          calibrated = true;
+          m_Position.setPosition(homeRotations);
+        }
+
+        homeLastCycle = false;
+      }
+    }
   }
 
   @Logged
@@ -141,3 +184,4 @@ public class LimitedMotor extends PositionMotor
       {return Math.abs(m_Position.getTorqueCurrent().getValueAsDouble()) >= stallCurrent;}
   }
 }
+
