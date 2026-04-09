@@ -548,7 +548,7 @@ public final class Constants
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.015;
     /** Position for full climb, meters */
-    public static final double climbPosition = 0.1;
+    public static final double climbPosition = 0.07; // TODO figure out correct value
 
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;
