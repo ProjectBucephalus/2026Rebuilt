@@ -71,7 +71,7 @@ public class PositionMotor extends SubsystemBase
    */
   public Command adjustTargetCmd(DoubleSupplier shiftSup) 
   {
-    return new Command() 
+    var cmd = new Command() 
     {
       double lastInput;
 
@@ -85,6 +85,8 @@ public class PositionMotor extends SubsystemBase
         }
       }
     };
+    cmd.addRequirements(this);
+    return cmd;
   }
 
   /** @return Current angle of the motor, in mechanism rotations */
