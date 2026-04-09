@@ -36,6 +36,14 @@ public class PositionMotor extends SubsystemBase
    * @param target mechanism rotations
    */
   public void setTarget(double pos)
+    {baseSetTarget(pos);}
+
+  /**
+   * Sets the target point for the motor, can't be overridden
+   * Exists as a sort of hacky solution to get around overriden versions of the method
+   * @param target mechanism rotations
+   */
+  private void baseSetTarget(double pos)
     {m_Position.setControl(request.withPosition(pos));}
 
   /**
@@ -62,7 +70,22 @@ public class PositionMotor extends SubsystemBase
    * @return the Command
    */
   public Command adjustTargetCmd(DoubleSupplier shiftSup) 
-    {return run(() -> {if (shiftSup.getAsDouble() != 0) setTarget(getAngle() + shiftSup.getAsDouble());});}
+  {
+    return new Command() 
+    {
+      double lastInput;
+
+      @Override
+      public void execute() 
+      {
+        if (shiftSup.getAsDouble() != 0 || lastInput != 0) 
+        {
+          lastInput = shiftSup.getAsDouble();
+          baseSetTarget(getAngle() + lastInput);
+        }
+      }
+    };
+  }
 
   /** @return Current angle of the motor, in mechanism rotations */
   @Logged(name = "angle Rotations")

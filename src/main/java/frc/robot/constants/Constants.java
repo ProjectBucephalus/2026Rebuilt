@@ -68,7 +68,7 @@ public final class Constants
     public static final double manualClimberExtensionScale = 0.05;
     public static final double manualShooterAzimuthAmount = 1.8;
     public static final double manualShooterDistanceAmount = 0.03;
-    public static final double manualShooterDeadband = 0.25;
+    public static final double manualControlDeadband = 0.25;
 
     public static final double preShiftMargin = 1;
     public static final double postShiftMargin = 2;
@@ -566,9 +566,7 @@ public final class Constants
       climberConfig.Feedback.SensorToMechanismRatio = winchChainRatio * planetaryRatio;
 
       climberConfig.Slot0.kS = 0.2;
-      climberConfig.Slot0.kV = 0.05;
-      climberConfig.Slot0.kA = 0.0;
-      climberConfig.Slot0.kP = 1.0;
+      climberConfig.Slot0.kP = 10.0;
       climberConfig.Slot0.kI = 0.0;
       climberConfig.Slot0.kD = 0.0;
 

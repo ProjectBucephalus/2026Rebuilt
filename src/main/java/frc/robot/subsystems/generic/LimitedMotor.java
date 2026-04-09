@@ -71,16 +71,6 @@ public class LimitedMotor extends PositionMotor
     super.setTarget(clampedRotations);
   }
 
-  /**
-   * Sets the target point for the motor, ignoring limits
-   * @param target mechanism rotations
-   */
-  public void forceSetTarget(double target)
-  {
-    request.withSlot(0);
-    super.setTarget(target);
-  }
-
   /** @return Command to set the target to the maximum limit */
   public Command extendCmd() 
     {return setTargetCmd(maxRotations);}
@@ -88,15 +78,15 @@ public class LimitedMotor extends PositionMotor
   public Command retractCmd() 
     {return setTargetCmd(minRotations);}
 
-  /**
-   * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
-   * Primarily intended for joystick control, ignoring limits
-   * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
-   * @return the Command
-   */
-  @Override
-  public Command adjustTargetCmd(DoubleSupplier shiftSup) 
-    {return run(() -> {if (shiftSup.getAsDouble() != 0) forceSetTarget(getAngle() + shiftSup.getAsDouble());});}
+  // /**
+  //  * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
+  //  * Primarily intended for joystick control, ignoring limits
+  //  * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
+  //  * @return the Command
+  //  */
+  // @Override
+  // public Command adjustTargetCmd(DoubleSupplier shiftSup) 
+  //   {return run(() -> {if (shiftSup.getAsDouble() != 0) super.setTarget(getAngle() + shiftSup.getAsDouble());});}
 
   @Override
   public void periodic() 

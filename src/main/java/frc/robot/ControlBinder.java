@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
@@ -350,7 +351,7 @@ public record ControlBinder
       );
 
     // Manual Control
-    s_Extension.setDefaultCommand(s_Extension.adjustTargetCmd(() -> operator.getLeftY() * ControlConstants.manualIntakeExtensionScale));
+    s_Extension.setDefaultCommand(s_Extension.adjustTargetCmd(() -> MathUtil.applyDeadband(operator.getLeftY(), ControlConstants.manualControlDeadband) * ControlConstants.manualIntakeExtensionScale));
   }
 
   private void bindClimber()
@@ -381,7 +382,7 @@ public record ControlBinder
     operator.back().onTrue(s_Climber.extendCmd());
       
     // Manual Control
-    s_Climber.setDefaultCommand(s_Climber.adjustTargetCmd(() -> operator.getRightY() * ControlConstants.manualClimberExtensionScale));
+    s_Climber.setDefaultCommand(s_Climber.adjustTargetCmd(() -> MathUtil.applyDeadband(-operator.getRightY(), ControlConstants.manualControlDeadband) * ControlConstants.manualClimberExtensionScale));
   }
 
   /** Mutually exclusive to {@link ControlBinder#bind bind()} */
