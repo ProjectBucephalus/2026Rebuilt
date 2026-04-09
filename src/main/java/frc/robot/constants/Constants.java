@@ -548,7 +548,7 @@ public final class Constants
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.015;
     /** Position for full climb, meters */
-    public static final double climbPosition = 0.07; // TODO figure out correct value
+    public static final double climbPosition = 0.08; // TODO figure out correct value
 
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;
@@ -570,7 +570,7 @@ public final class Constants
       climberConfig.Slot0.kI = 0.0;
       climberConfig.Slot0.kD = 0.0;
 
-      climberConfig.MotionMagic.MotionMagicCruiseVelocity = 3.2;
+      climberConfig.MotionMagic.MotionMagicCruiseVelocity = 2.5;
       climberConfig.MotionMagic.MotionMagicAcceleration = 20;
     }
   }
