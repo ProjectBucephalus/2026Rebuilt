@@ -25,10 +25,9 @@ public class LimitedMotor extends PositionMotor
 
   private final boolean slot1Valid;
   private boolean sensorValid = false;
+  private boolean active = false;
 
-  @Logged
   private boolean calibrated = false;
-  @Logged
   private boolean homeLastCycle = false;
 
   /**
@@ -68,6 +67,7 @@ public class LimitedMotor extends PositionMotor
     // If valid, use the second PID slot until the mechanism has been homed
     int slot = (!calibrated && slot1Valid) ? 1 : 0;
     request.withSlot(slot);
+    active = true;
     super.setTarget(clampedRotations);
   }
 

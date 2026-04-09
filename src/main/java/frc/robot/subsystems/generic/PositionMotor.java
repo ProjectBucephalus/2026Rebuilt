@@ -19,9 +19,6 @@ public class PositionMotor extends SubsystemBase
 
   protected final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
-  /** Flag indicating that the parent system (an thus any sensors) are active */
-  protected boolean active = false;
-
   /**
    * Creates a wrapper around a TalonFX to provide velocity control
    * 
@@ -39,10 +36,7 @@ public class PositionMotor extends SubsystemBase
    * @param target mechanism rotations
    */
   public void setTarget(double pos)
-  {
-    m_Position.setControl(request.withPosition(pos));
-    active = true;
-  }
+    {m_Position.setControl(request.withPosition(pos));}
 
   /**
    * Creates a command to set the target point for the motor <p>
