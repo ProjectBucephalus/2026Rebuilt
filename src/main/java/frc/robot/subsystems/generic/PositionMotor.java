@@ -19,6 +19,9 @@ public class PositionMotor extends SubsystemBase
 
   protected final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
+  @Logged
+  protected boolean active = false;
+
   /**
    * Creates a wrapper around a TalonFX to provide velocity control
    * 
@@ -44,7 +47,10 @@ public class PositionMotor extends SubsystemBase
    * @param target mechanism rotations
    */
   private void baseSetTarget(double pos)
-    {m_Position.setControl(request.withPosition(pos));}
+  {
+    active = true;
+    m_Position.setControl(request.withPosition(pos));
+  }
 
   /**
    * Creates a command to set the target point for the motor <p>
@@ -70,24 +76,7 @@ public class PositionMotor extends SubsystemBase
    * @return the Command
    */
   public Command adjustTargetCmd(DoubleSupplier shiftSup) 
-  {
-    var cmd = new Command() 
-    {
-      double lastInput;
-
-      @Override
-      public void execute() 
-      {
-        if (shiftSup.getAsDouble() != 0 || lastInput != 0) 
-        {
-          lastInput = shiftSup.getAsDouble();
-          baseSetTarget(getAngle() + lastInput);
-        }
-      }
-    };
-    cmd.addRequirements(this);
-    return cmd;
-  }
+    {return run(() -> {if (shiftSup.getAsDouble() != 0) baseSetTarget(getAngle() + shiftSup.getAsDouble());});}
 
   /** @return Current angle of the motor, in mechanism rotations */
   @Logged(name = "angle Rotations")

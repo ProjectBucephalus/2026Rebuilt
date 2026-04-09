@@ -1,7 +1,5 @@
 package frc.robot.subsystems.generic;
 
-import java.util.function.DoubleSupplier;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.epilogue.Logged;
@@ -19,15 +17,17 @@ public class LimitedMotor extends PositionMotor
   @Logged
   private final Limit limit;
 
-  private final double minRotations;
-  private final double maxRotations;
-  private final double homeRotations;
+  protected final double minRotations;
+  protected final double maxRotations;
+  protected final double homeRotations;
 
   private final boolean slot1Valid;
+  @Logged
   private boolean sensorValid = false;
-  private boolean active = false;
 
+  @Logged
   private boolean calibrated = false;
+  @Logged
   private boolean homeLastCycle = false;
 
   /**
@@ -67,7 +67,6 @@ public class LimitedMotor extends PositionMotor
     // If valid, use the second PID slot until the mechanism has been homed
     int slot = (!calibrated && slot1Valid) ? 1 : 0;
     request.withSlot(slot);
-    active = true;
     super.setTarget(clampedRotations);
   }
 
@@ -129,6 +128,11 @@ public class LimitedMotor extends PositionMotor
     {
       if (limit.atLimit())
       {  
+        if (!homeLastCycle && !calibrated)
+        {
+          // When the sensor *becomes* true while not calibrated, set position without flagging as calibrated
+          m_Position.setPosition(homeRotations);
+        }
         // Flag when the sensor is true
         homeLastCycle = true;
       }

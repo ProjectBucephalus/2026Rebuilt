@@ -542,9 +542,9 @@ public final class Constants
   public static final class ClimberConstants 
   {
     /** meters */
-    public static final double minPosition  = 0.015;
+    public static final double minPosition  = 0.01;
     /** meters */
-    public static final double maxPosition  = 0.22;
+    public static final double maxPosition  = 0.23;
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.015;
     /** Position for full climb, meters */
@@ -566,11 +566,12 @@ public final class Constants
       climberConfig.Feedback.SensorToMechanismRatio = winchChainRatio * planetaryRatio;
 
       climberConfig.Slot0.kS = 0.2;
-      climberConfig.Slot0.kP = 10.0;
+      climberConfig.Slot0.kP = 55.0;
       climberConfig.Slot0.kI = 0.0;
       climberConfig.Slot0.kD = 0.0;
 
-      climberConfig.MotionMagic.MotionMagicCruiseVelocity = 1;
+      climberConfig.MotionMagic.MotionMagicCruiseVelocity = 3.2;
+      climberConfig.MotionMagic.MotionMagicAcceleration = 20;
     }
   }
 }

@@ -161,7 +161,6 @@ public class Turret
     )
     {
       double newPos = (rawAzimuth + potLastCycle) / (2 * azimuthPotRatio  * 360.0);
-      PBDash.putDouble(m_Turret.getDeviceID()+" Calibration Error", m_Turret.getPosition().getValueAsDouble() - newPos);
       m_Turret.setPosition(newPos);
       lastCalibration = rawAzimuth;
     }

@@ -24,6 +24,7 @@ import frc.robot.Robot.RobotState;
 import frc.robot.Robot.ShootersState;
 import frc.robot.constants.IDConstants;
 import frc.robot.constants.Path;
+import frc.robot.constants.Constants.ClimberConstants;
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
@@ -377,7 +378,7 @@ public record ControlBinder
     driver.back().onTrue(runOnce(() -> state.climbPos = ClimbPosition.None));
 
     // Retract
-    operator.start().onTrue(s_Climber.retractCmd());
+    operator.start().onTrue(s_Climber.setTargetCmd(ClimberConstants.climbPosition));
     // Extend
     operator.back().onTrue(s_Climber.extendCmd());
       

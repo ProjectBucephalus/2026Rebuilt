@@ -45,6 +45,15 @@ public class LinearExtension extends LimitedMotor
   public void setTarget(double target) 
     {super.setTarget(target / metersPerRotation);}
 
+  /** @return Command to set the target to the maximum limit */
+  @Override
+  public Command extendCmd() 
+    {return runOnce(() -> super.setTarget(maxRotations));}
+  /** @return Command to set the target to the minimum limit */
+  @Override
+  public Command retractCmd() 
+    {return runOnce(() -> super.setTarget(minRotations));}
+
   /** @param shiftSup A supplier for the amount to adjust the target by in meters */
   @Override
   public Command adjustTargetCmd(DoubleSupplier shiftSup) 
