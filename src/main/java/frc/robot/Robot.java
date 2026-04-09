@@ -12,6 +12,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -146,6 +147,9 @@ public class Robot extends TimedRobot
 
   @Logged(name = "Extension")
   private final PositionMotor s_Extension = new PositionMotor(IDConstants.extensionCAN, ExtensionConstants.extensionConfig);
+
+  @Logged(name = "Climb Post Sensor")
+  private final DigitalInput io_ClimberPost = new DigitalInput(IDConstants.climberPostDIO);
 
   /* Rumble */
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);

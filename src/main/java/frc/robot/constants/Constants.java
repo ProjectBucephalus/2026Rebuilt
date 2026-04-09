@@ -10,6 +10,7 @@ import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import frc.robot.util.AllianceTranslation2d;
@@ -502,8 +503,8 @@ public final class Constants
       //public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
       public static final double minRotations = 0.0;
-      public static final double maxRotations = 5.88;
-      public static final double squishRotations = 1.84;
+      public static final double maxRotations = 5.8;
+      public static final double squishRotations = 3.65; // furthest in before hopper retracts
       public static final double bumpSafeRotations = -0.14;
 
       public static final double extendedTolerance = 0.05;
@@ -555,13 +556,13 @@ public final class Constants
     private static final double winchChainRatio = winchPulley / motorPulley;
 
     /** meters */
-    private static final double winchDiameter = 0.029;
-    private static final double cordDiameter = 0.006;
-    public static final double metersPerRotation = 0.05; //(winchDiameter + cordDiameter) * Math.PI;
+    public static final double metersPerRotation = 0.061;
 
     public static final TalonFXConfiguration climberConfig = new TalonFXConfiguration(); 
     static 
     {
+      climberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
       climberConfig.Feedback.SensorToMechanismRatio = winchChainRatio * planetaryRatio;
 
       climberConfig.Slot0.kS = 0.2;

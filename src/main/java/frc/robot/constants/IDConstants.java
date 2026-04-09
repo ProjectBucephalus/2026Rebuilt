@@ -35,7 +35,7 @@ public final class IDConstants
 
   public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int indexerCAN, int azimuthAIO, int altitudePWM, int altitudeAIO, String ntID){}
 
-  /* Port Turret, CAN [16..19], PWM [1], AIO [0..1] */
+  /* Port Turret, CAN [16..19], PWM [0], AIO [0] */
   public static final ShooterIDs portShooterIDs = new ShooterIDs
   (
     16,
@@ -48,7 +48,7 @@ public final class IDConstants
     "Port"
   );
 
-  /* Stbd Turret, CAN [20..23], PWM [3], AIO [2..3] */
+  /* Stbd Turret, CAN [20..23], PWM [1], AIO [1] */
   public static final ShooterIDs stbdShooterIDs = new ShooterIDs
   (
     20,
@@ -61,18 +61,15 @@ public final class IDConstants
     "Stbd"
   );
 
-  /* Processor, CAN [28..30] */
+  /* Intake, CAN [28..30] */
   public static final int extensionEncoderCAN = 28;
   public static final int intakeCAN = 29;
   public static final int extensionCAN = 30;
 
-  /* Climber, CAN [32] */
+  /* Climber, CAN [32], DIO [0..1] */
   public static final int climberCAN = 32;
-
-  /* Sensors, DIO [0..1] */
-  /* ------- */
   public static final int climberLimitDIO = 0;
-  public static final int climbPostDIO = 1;
+  public static final int climberPostDIO = 1;
   
   /* Network device names */
   /* -------------------- */

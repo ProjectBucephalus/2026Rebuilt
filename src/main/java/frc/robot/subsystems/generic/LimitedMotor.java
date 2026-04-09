@@ -16,6 +16,7 @@ import frc.robot.util.Conversions;
 @Logged(strategy = Strategy.OPT_IN)
 public class LimitedMotor extends PositionMotor
 {
+  @Logged
   private final Limit limit;
 
   private final double minRotations;
@@ -24,7 +25,9 @@ public class LimitedMotor extends PositionMotor
 
   private final boolean slot1Valid;
 
+  @Logged
   private boolean homed = false;
+  @Logged
   private boolean homeLastCycle = false;
 
   /**
@@ -110,8 +113,9 @@ public class LimitedMotor extends PositionMotor
       homeLastCycle = false;
   }
 
-  private interface Limit 
-    {boolean atLimit();}
+  @Logged
+  public interface Limit 
+    {public boolean atLimit();}
 
   private class DIOLimit implements Limit 
   {
