@@ -528,11 +528,6 @@ public final class Constants
         extensionConfig.Slot0.kD = 0.0;
         //extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        extensionConfig.Slot1.kS = extensionConfig.Slot0.kS;
-        extensionConfig.Slot1.kP = 20.0;
-        extensionConfig.Slot1.kI = 0.0;
-        extensionConfig.Slot1.kD = 0.0;
-
         extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 10;
         extensionConfig.MotionMagic.MotionMagicAcceleration = 50;
 
