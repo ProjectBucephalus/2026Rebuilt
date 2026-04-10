@@ -124,8 +124,19 @@ public class LimitedMotor extends PositionMotor
         }
         // Flag when the sensor is true
         homeLastCycle = true;
+
+        // If sensor is at endstop, stop
+        if 
+        (
+          (homeRotations == minRotations && request.getPositionMeasure().in(Rotations) <= getAngle())
+          ||
+          (homeRotations == maxRotations && request.getPositionMeasure().in(Rotations) >= getAngle())
+        )
+        {
+          stop();
+        }
       }
-      else
+      else // if not at limit
       {
         if (homeLastCycle && !calibrated)
         {
@@ -135,25 +146,6 @@ public class LimitedMotor extends PositionMotor
         }
 
         homeLastCycle = false;
-      }
-      
-      // If sensor is at endstop, stop
-      if 
-      (
-        (
-          homeRotations == minRotations 
-          && 
-          request.getPositionMeasure().in(Rotations) <= getAngle()
-        )
-        ||
-        (
-          homeRotations == maxRotations 
-          && 
-          request.getPositionMeasure().in(Rotations) >= getAngle()
-        )
-      )
-      {
-        stop();
       }
     }
   }
