@@ -329,7 +329,8 @@ public record ControlBinder
     driver.rightBumper().onTrue(s_Intake.setStateCmd(RollerState.On));
 
     // Deploy
-    operator.leftBumper().onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations));
+    operator.leftBumper().or(driver.rightBumper())
+      .onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations));
     // Stow
     operator.rightBumper().onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations));
 

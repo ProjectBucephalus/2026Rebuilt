@@ -461,7 +461,7 @@ public final class Constants
     {
       /** Default speed of intake when running, rps */
       public static final double intakeMinSpeed = 30;
-      public static final double intakeMaxSpeed = 55;
+      public static final double intakeMaxSpeed = 50;
 
       /** Intake speed at which robot throttle starts being applied, rps */
       public static final double brakeSpeedStart = 10;
