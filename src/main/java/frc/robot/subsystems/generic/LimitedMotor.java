@@ -1,6 +1,7 @@
 package frc.robot.subsystems.generic;
 
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
@@ -8,6 +9,8 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.util.Conversions;
 /** 
  * Generic subclass for a range-limited motor with a binary switch reading {@code true} at the home position 
@@ -75,6 +78,32 @@ public class LimitedMotor extends PositionMotor
   /** @return Command to set the target to the minimum limit */
   public Command retractCmd() 
     {return setTargetCmd(minRotations);}
+
+  /** @return Command to run basic calibration cycle, calibrating on the high edge of the sensor if possible */
+  public Command calibrateCmd()
+  {
+    SequentialCommandGroup calCmd = new SequentialCommandGroup
+    (
+      new SequentialCommandGroup
+      (
+        setTargetCmd(homeRotations),
+        waitUntil(this::atTarget),
+        setTargetCmd((maxRotations + minRotations) / 2),
+        waitUntil(this::atTarget),
+        setTargetCmd(minRotations),
+        waitUntil(this::atTarget),
+        setTargetCmd(maxRotations),
+        waitUntil(this::atTarget)
+      )
+        .until(limit::atLimit),
+      
+      adjustTargetCmd(() -> homeRotations == maxRotations ? -0.05 : 0.05)
+        .until(() -> calibrated),
+      setTargetCmd(homeRotations)
+    );
+
+    return calCmd;
+  }
 
   @Override
   public void periodic() 
