@@ -174,6 +174,8 @@ public class LimitedMotor extends PositionMotor
       {return io_Limit.get();}
   }
 
+  /** @deprecated If mechanical makes you use this, insist that they add a sensor */
+  @Deprecated
   private class StallLimit implements Limit 
   {
     private final double stallCurrent;
