@@ -82,4 +82,8 @@ public class PositionMotor extends SubsystemBase
   @Logged(name = "angle Rotations")
   public double getAngle() 
     {return m_Position.getPosition().getValue().in(Units.Rotations);}
+
+  /** Stops the motor by setting the target to its current position */
+  public void stop()
+    {baseSetTarget(getAngle());}
 }

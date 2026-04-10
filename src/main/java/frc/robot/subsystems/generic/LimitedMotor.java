@@ -1,5 +1,7 @@
 package frc.robot.subsystems.generic;
 
+import static edu.wpi.first.units.Units.Rotations;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.epilogue.Logged;
@@ -133,6 +135,25 @@ public class LimitedMotor extends PositionMotor
         }
 
         homeLastCycle = false;
+      }
+      
+      // If sensor is at endstop, stop
+      if 
+      (
+        (
+          homeRotations == minRotations 
+          && 
+          request.getPositionMeasure().in(Rotations) <= getAngle()
+        )
+        ||
+        (
+          homeRotations == maxRotations 
+          && 
+          request.getPositionMeasure().in(Rotations) >= getAngle()
+        )
+      )
+      {
+        stop();
       }
     }
   }

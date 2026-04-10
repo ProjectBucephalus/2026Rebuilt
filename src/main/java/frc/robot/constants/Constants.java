@@ -539,13 +539,13 @@ public final class Constants
   public static final class ClimberConstants 
   {
     /** meters */
-    public static final double minPosition  = 0.01;
+    public static final double minPosition  = 0.015;
     /** meters */
     public static final double maxPosition  = 0.23;
     /** Position set when climber calibrates, meters */
-    public static final double homePosition = 0.015;
+    public static final double homePosition = minPosition;
     /** Position for full climb, meters */
-    public static final double climbPosition = 0.08; // TODO figure out correct value
+    public static final double climbPosition = 0.15; // TODO figure out minimum valid climb height
 
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;
