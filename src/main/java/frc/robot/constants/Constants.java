@@ -64,7 +64,7 @@ public final class Constants
     public static final AllianceTranslation2d leftPassPoint = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 2);
     public static final AllianceTranslation2d rightPassPoint = new AllianceTranslation2d(1.5, 2);
 
-    public static final double manualIntakeExtensionScale  = 0.15;
+    public static final double manualIntakeExtensionScale  = 0.65;
     public static final double manualClimberExtensionScale = 0.05;
     public static final double manualShooterAzimuthAmount = 1.8;
     public static final double manualShooterDistanceAmount = 0.03;
@@ -503,7 +503,7 @@ public final class Constants
       //public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
       public static final double minRotations = 0.0;
-      public static final double maxRotations = 5.8;
+      public static final double maxRotations = 5.9;
       public static final double squishRotations = 3.65; // furthest in before hopper retracts
       public static final double bumpSafeRotations = -0.14;
 
@@ -522,18 +522,15 @@ public final class Constants
         extensionConfig.Feedback.SensorToMechanismRatio = extensionChainRatio;
 
         extensionConfig.Slot0.kS = 0.2;
-        //extensionConfig.Slot0.kG = 0.47;
-        extensionConfig.Slot0.kV = 0.0;
-        extensionConfig.Slot0.kA = 0.0;
-        extensionConfig.Slot0.kP = 60.0;
-        extensionConfig.Slot0.kI = 3.0;
+        extensionConfig.Slot0.kP = 3.0;
+        extensionConfig.Slot0.kI = 0.0;
         extensionConfig.Slot0.kD = 0.0;
-        //extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 10;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 50;
+        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 100;
 
-        extensionConfig.CurrentLimits.StatorCurrentLimit = 50;
+        extensionConfig.CurrentLimits.StatorCurrentLimit = 35;
+        extensionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
       };
     }
   }   
