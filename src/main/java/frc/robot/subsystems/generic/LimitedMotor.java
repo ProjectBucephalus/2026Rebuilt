@@ -22,12 +22,9 @@ public class LimitedMotor extends PositionMotor
   protected final double homeRotations;
 
   private final boolean slot1Valid;
-  @Logged
-  private boolean sensorValid = false;
 
-  @Logged
+  private boolean sensorValid = false;
   private boolean calibrated = false;
-  @Logged
   private boolean homeLastCycle = false;
 
   /**
@@ -76,16 +73,6 @@ public class LimitedMotor extends PositionMotor
   /** @return Command to set the target to the minimum limit */
   public Command retractCmd() 
     {return setTargetCmd(minRotations);}
-
-  // /**
-  //  * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
-  //  * Primarily intended for joystick control, ignoring limits
-  //  * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
-  //  * @return the Command
-  //  */
-  // @Override
-  // public Command adjustTargetCmd(DoubleSupplier shiftSup) 
-  //   {return run(() -> {if (shiftSup.getAsDouble() != 0) super.setTarget(getAngle() + shiftSup.getAsDouble());});}
 
   @Override
   public void periodic() 
