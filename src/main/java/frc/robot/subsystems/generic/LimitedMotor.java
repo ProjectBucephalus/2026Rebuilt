@@ -1,8 +1,5 @@
 package frc.robot.subsystems.generic;
 
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.wpilibj2.command.Commands.waitUntil;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.epilogue.Logged;
@@ -10,7 +7,6 @@ import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.util.Conversions;
 /** 
  * Generic subclass for a range-limited motor with a binary switch reading {@code true} at the home position 
@@ -45,13 +41,19 @@ public class LimitedMotor extends PositionMotor
   public LimitedMotor(int motorCAN, int limitIO, double minRotations, double maxRotations, double homeRotations, TalonFXConfiguration configs)
   {
     super(motorCAN, configs);
+
+    // Sanitise inputs
     this.maxRotations = Math.max(maxRotations, minRotations);
     this.minRotations = Math.min(maxRotations, minRotations);
     this.homeRotations = Conversions.clamp(homeRotations, maxRotations, minRotations);
-    slot1Valid = configs.Slot1.kP != 0;
 
+    // If a valid Slot1 is provided, we want to use it for moving slower when not clibrated
+    slot1Valid = configs.Slot1.kP != 0 || configs.Slot1.kV != 0;
+
+    // Initialise motor position to a safe guess, will be further refined once we start moving and determined accurately once calibrated
     m_Position.setPosition(minRotations);
 
+    // Allows using motor stall as limit. Deprecated
     if (limitIO == -1)
       limit = new StallLimit(configs.CustomParams.CustomParam0);
     else
@@ -82,51 +84,44 @@ public class LimitedMotor extends PositionMotor
   /** @return Command to run basic calibration cycle, calibrating on the high edge of the sensor if possible */
   public Command calibrateCmd()
   {
-    SequentialCommandGroup calCmd = new SequentialCommandGroup
+    return Commands.sequence
     (
-      new SequentialCommandGroup
+      Commands.sequence
       (
-        setTargetCmd(homeRotations),
-        waitUntil(this::atTarget),
-        setTargetCmd((maxRotations + minRotations) / 2),
-        waitUntil(this::atTarget),
-        setTargetCmd(minRotations),
-        waitUntil(this::atTarget),
-        setTargetCmd(maxRotations),
-        waitUntil(this::atTarget)
-      )
-        .until(limit::atLimit),
-      
-      adjustTargetCmd(() -> homeRotations == maxRotations ? -0.05 : 0.05)
-        .until(() -> calibrated),
+        gotoTargetCmd(homeRotations),
+        gotoTargetCmd((maxRotations + minRotations) / 2),
+        gotoTargetCmd(minRotations),
+        gotoTargetCmd(maxRotations)
+      ).until(limit::atLimit),
+      adjustTargetCmd(() -> homeRotations == maxRotations ? -0.05 : 0.05).until(() -> calibrated),
       setTargetCmd(homeRotations)
     );
-
-    return calCmd;
   }
 
   @Override
   public void periodic() 
   {
+    // Initialise position when we first move
     if (!sensorValid && active)
     {
       // First cycle active becomes true, marking that the sensor is now definitely valid
       sensorValid = true;
 
-      var range = maxRotations - minRotations;
+      double range = maxRotations - minRotations;
       double tolerance = range / 20;
 
+      double position;
       if (limit.atLimit())
       {
         // If the switch is initially true:
         //  If home poisition is close to an end, set the position to that endpoint
         //  Otherwise set the position slightly below home
         if (homeRotations <= minRotations + tolerance) 
-          m_Position.setPosition(minRotations);
+          position = minRotations;
         else if (homeRotations >= maxRotations - tolerance) 
-          m_Position.setPosition(maxRotations);
+          position = maxRotations;
         else 
-          m_Position.setPosition(homeRotations - tolerance);
+          position = homeRotations - tolerance;
       }
       else
       {
@@ -134,14 +129,16 @@ public class LimitedMotor extends PositionMotor
         //  If home poisition is close to an end, set the position to the other endpoint
         //  Otherwise set the position to the midpoint of the range of motion
         if (homeRotations <= minRotations + tolerance) 
-          m_Position.setPosition(maxRotations);
+          position = maxRotations;
         else if (homeRotations >= maxRotations - tolerance) 
-          m_Position.setPosition(minRotations);
+          position = minRotations;
         else
-          m_Position.setPosition((minRotations + maxRotations) / 2);
+          position = (minRotations + maxRotations) / 2;
       }
+      m_Position.setPosition(position);
     }
 
+    // Attempt calibrating once we have started moving
     if (active)
     {
       if (limit.atLimit())
@@ -157,19 +154,16 @@ public class LimitedMotor extends PositionMotor
         // If sensor is at endstop, stop
         if 
         (
-          (homeRotations == minRotations && request.getPositionMeasure().in(Rotations) <= getAngle())
+          (homeRotations == minRotations && request.Position <= getAngle())
           ||
-          (homeRotations == maxRotations && request.getPositionMeasure().in(Rotations) >= getAngle())
-        )
-        {
-          stop();
-        }
+          (homeRotations == maxRotations && request.Position >= getAngle())
+        ) stop();
       }
       else // if not at limit
       {
+        // When the sensor first *becomes* false, calibrate
         if (homeLastCycle && !calibrated)
         {
-          // When the sensor first *becomes* false, calibrate
           calibrated = true;
           m_Position.setPosition(homeRotations);
         }

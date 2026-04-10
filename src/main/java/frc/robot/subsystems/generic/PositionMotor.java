@@ -1,7 +1,5 @@
 package frc.robot.subsystems.generic;
 
-import static edu.wpi.first.units.Units.Rotations;
-
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -13,6 +11,7 @@ import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 @Logged(strategy = Strategy.OPT_IN)
@@ -73,6 +72,23 @@ public class PositionMotor extends SubsystemBase
     {return setTargetCmd(() -> target);}
 
   /**
+   * Creates a command to set the target point for the motor and wait until we reach that target point <p>
+   * @param targetSup mechanism rotations
+   * @return the Command
+   */
+  public Command gotoTargetCmd(DoubleSupplier targetSup)
+    {return setTargetCmd(targetSup).andThen(Commands.waitUntil(this::atTarget));}
+
+    /**
+   * Creates a command to set the target point for the motor and wait until we reach that target point <p>
+   * NOTE: The provided value is only evaluated when the command is created
+   * @param target mechanism rotations
+   * @return the Command
+   */
+  public Command gotoTargetCmd(double target)
+    {return gotoTargetCmd(() -> target);}
+
+  /**
    * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
    * Primarily intended for joystick control
    * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
@@ -86,13 +102,12 @@ public class PositionMotor extends SubsystemBase
   public double getAngle() 
     {return m_Position.getPosition().getValue().in(Units.Rotations);}
 
+    
   /** Stops the motor by setting the target to its current position */
   public void stop()
     {baseSetTarget(getAngle());}
 
   /** @return {@code true} when the motor is close to target */
   public boolean atTarget()
-  {
-    return MathUtil.isNear(request.getPositionMeasure().in(Rotations), getAngle(), 0.1);
-  }
+    {return MathUtil.isNear(request.Position, getAngle(), 0.1);}
 }
