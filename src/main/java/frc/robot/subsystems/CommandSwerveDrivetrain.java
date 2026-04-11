@@ -356,16 +356,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
   }
 
   /** @return {@code true} if all devices are connected */
-  public boolean checkDevices()
+  public boolean drivetrainValid()
   {
-    return checkModule(0)
-        && checkModule(1)
-        && checkModule(2)
-        && checkModule(3)
+    return moduleValid(0)
+        && moduleValid(1)
+        && moduleValid(2)
+        && moduleValid(3)
         && getPigeon2().isConnected();
   }
 
-  private boolean checkModule(int index)
+  private boolean moduleValid(int index)
   {
     var module = getModule(index);
     return module.getEncoder().isConnected()
