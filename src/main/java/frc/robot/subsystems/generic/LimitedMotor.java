@@ -32,13 +32,14 @@ public class LimitedMotor extends PositionMotor
    * Creates generic limited motor system
    * @param motorCAN CAN-ID of underlying motor
    * @param limitIO DIO-ID of home limit-sensor. Set to {@code -1} to use motor stall instead of limit switch
+   * @param invertLimit Whether the limit switch is inverted (i.e. false is at limit). Ignored if using motor stall
    * @param minRotations Minimum position in mechanism rotations
    * @param maxRotations Maximum position in mechanism rotations
    * @param homeRotations Sensor trigger position in mechanism rotations
    * @param configs Motor configuration object, uses Slot1 if present when not calibrated <br>
    *                {@code CustomParam0} is used for the stall current value if using motor stall
    */
-  public LimitedMotor(int motorCAN, int limitIO, double minRotations, double maxRotations, double homeRotations, TalonFXConfiguration configs)
+  public LimitedMotor(int motorCAN, int limitIO, boolean invertLimit, double minRotations, double maxRotations, double homeRotations, TalonFXConfiguration configs)
   {
     super(motorCAN, configs);
 
@@ -57,7 +58,7 @@ public class LimitedMotor extends PositionMotor
     if (limitIO == -1)
       limit = new StallLimit(configs.CustomParams.CustomParam0);
     else
-      limit = new DIOLimit(limitIO);
+      limit = new DIOLimit(limitIO, invertLimit);
   } 
 
   /**
@@ -180,13 +181,17 @@ public class LimitedMotor extends PositionMotor
   private class DIOLimit implements Limit 
   {
     private final DigitalInput io_Limit;
+    private final boolean invert;
 
-    public DIOLimit(int limitIO)
-      {io_Limit = new DigitalInput(limitIO);}
+    public DIOLimit(int limitIO, boolean invert)
+    {
+      io_Limit = new DigitalInput(limitIO);
+      this.invert = invert;
+    }
 
     @Override
     public boolean atLimit() 
-      {return io_Limit.get();}
+      {return io_Limit.get() ^ invert;}
   }
 
   /** @deprecated If mechanical makes you use this, insist that they add a sensor */

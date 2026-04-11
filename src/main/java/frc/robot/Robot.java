@@ -135,6 +135,7 @@ public class Robot extends TimedRobot
   (
     IDConstants.climberCAN, 
     IDConstants.climberLimitDIO, 
+    false,
     ClimberConstants.minPosition, 
     ClimberConstants.maxPosition, 
     ClimberConstants.homePosition, 
