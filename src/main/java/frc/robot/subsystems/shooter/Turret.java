@@ -216,6 +216,16 @@ public class Turret
     return Math.abs(Conversions.mod(getAzimuth(), 360) - Conversions.mod(target.azimuth, 360));
   }
 
+  /** 
+   * Checks that the turret system is in a safe and valid state to begin shooting. This requires that:
+   * <ul>
+   * <li> The turret is within {@link TurretConstants#azimuthTolerance azimuthTolerance} of it's target azimuth
+   * <li> The combined rotational velocity of the turret and the drivebase is less than {@link TurretConstants#maxRPS maxRPS}  
+   * <li> The turret is not within {@link TurretConstants#limitBufferZone limitBufferZone} of it's max azimuth
+   * </ul>
+   * 
+   * @return True if all above conditions are true
+   */
   public boolean readyToShoot(ChassisSpeeds swerveSpeeds)
     {return atAzimuth() && safeToShoot(swerveSpeeds);}
 
