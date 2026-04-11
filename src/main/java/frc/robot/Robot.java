@@ -135,7 +135,7 @@ public class Robot extends TimedRobot
   (
     IDConstants.climberCAN, 
     IDConstants.climberLimitDIO, 
-    false,
+    true,
     ClimberConstants.minPosition, 
     ClimberConstants.maxPosition, 
     ClimberConstants.homePosition, 
@@ -321,7 +321,7 @@ public class Robot extends TimedRobot
 
     if (!s_Climber.devicesValid()) PBDash.DEVICE_ERRORS.append("Climber Motor, ");
     if (!s_Climber.atLimit()) PBDash.DEVICE_ERRORS.append("Climber Limit Sensor, ");
-    if (!io_ClimberPost.get()) PBDash.DEVICE_ERRORS.append("Climber Post Sensor, ");
+    if (io_ClimberPost.get()) PBDash.DEVICE_ERRORS.append("Climber Post Sensor, ");
     
     if (!s_Intake.devicesValid()) PBDash.DEVICE_ERRORS.append("Intake Roller, ");
     if (!s_Extension.devicesValid()) PBDash.DEVICE_ERRORS.append("Extension, ");

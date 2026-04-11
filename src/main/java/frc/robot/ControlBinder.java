@@ -389,7 +389,7 @@ public record ControlBinder
         (
           s_Climber.setTargetCmd(ClimberConstants.climbPosition), 
           s_Climber.retractCmd(), 
-          () -> s_Climber.atMax() && io_ClimberPost.get()
+          () -> s_Climber.atMax() && !io_ClimberPost.get()
         )
       );
     // Extend
