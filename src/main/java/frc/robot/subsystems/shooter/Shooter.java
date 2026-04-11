@@ -136,15 +136,17 @@ public class Shooter extends SubsystemBase
     {return flywheels.getSpeed();}
 
   /**
-   * Trigger factory for whether we are in a valid state to be shooting. This requires that:
+   * Checks whether we are in a valid state to be shooting. This requires that:
    * <ul>
-   * <li> The turret is within {@link TurretConstants#azimuthTolerance azimuthTolerance} of it's target azimuth
-   * <li> The hood is within {@link HoodConstants#altTolerance altTolerance} of it's target altitude
+   * <li> The flywheels have been set to active
+   * <li> The turret is ready, as per {@link Turret#readyToShoot()}
    * <li> The flywheels are at target speed, as per {@link Flywheels#atSpeed()}
-   * <li> The combined rotational velocity of the turret and the drivebase is less than {@link TurretConstants#maxRPS maxRPS}
+   * <li> The distance to the target is at least {@link ShooterConstants#minRange minRange}
+   * <li> The robot is not within a trench
+   * <li> The robot is not within the "shadow" of either tower
    * </ul>
    * 
-   * @return A {@link Trigger} encoding the above behaviour
+   * @return True if all above conditions are true
    */
   @Logged
   public boolean shootReady()
