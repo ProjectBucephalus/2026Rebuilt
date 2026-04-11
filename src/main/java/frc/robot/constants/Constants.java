@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
@@ -504,12 +505,12 @@ public final class Constants
 
       //public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = 0.0;
-      public static final double maxRotations = 5.9;
-      public static final double squishRotations = 3.65; // furthest in before hopper retracts
+      public static final double minRotations = -0.31;
+      public static final double maxRotations = 0.0;
+      public static final double squishRotations = -0.1; // furthest in before hopper retracts
       public static final double bumpSafeRotations = -0.14;
 
-      public static final double extendedTolerance = 0.05;
+      public static final double extendedTolerance = 0.02;
 
       /** Duration and interval of retraction/extension pulses when agitating, seconds */
       public static final double extensionJostleDelay = 0.25;
@@ -520,16 +521,17 @@ public final class Constants
         extensionConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         extensionConfig.Feedback.FeedbackRemoteSensorID = IDConstants.extensionEncoderCAN;
+        extensionConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         extensionConfig.Feedback.RotorToSensorRatio = extensionPlanetaryRatio * extensionGearRatio;
         extensionConfig.Feedback.SensorToMechanismRatio = extensionChainRatio;
 
         extensionConfig.Slot0.kS = 0.2;
-        extensionConfig.Slot0.kP = 3.0;
+        extensionConfig.Slot0.kP = 30.0;
         extensionConfig.Slot0.kI = 0.0;
         extensionConfig.Slot0.kD = 0.0;
 
-        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 100;
+        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.8;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 10;
 
         extensionConfig.CurrentLimits.StatorCurrentLimit = 35;
         extensionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
