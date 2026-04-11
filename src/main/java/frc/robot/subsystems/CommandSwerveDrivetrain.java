@@ -355,8 +355,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
   }
 
-  /** @return {@code true} if all devices are connected */
-  public boolean drivetrainValid()
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
   {
     return moduleValid(0)
         && moduleValid(1)

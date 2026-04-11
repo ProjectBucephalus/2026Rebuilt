@@ -110,4 +110,8 @@ public class PositionMotor extends SubsystemBase
   /** @return {@code true} when the motor is close to target */
   public boolean atTarget()
     {return MathUtil.isNear(request.Position, getAngle(), 0.1);}
+
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+    {return m_Position.isConnected();}
 }

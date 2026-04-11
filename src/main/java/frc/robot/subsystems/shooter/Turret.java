@@ -142,11 +142,16 @@ public class Turret
   public void home()
     {m_Turret.setControl(request.withPosition(0));}
 
+  /** @return {@code true} if potentiometer is in valid range */
   public boolean potValid() 
   {
     double rawAzimuth = io_Azimuth.get();
     return rawAzimuth >= -potSafeLimit && rawAzimuth <= potSafeLimit;
   }
+
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+    {return m_Turret.isConnected();}
 
   /**
    * If the turret is not moving, resets the motor's internal position to the current potentiometer reading

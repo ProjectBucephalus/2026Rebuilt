@@ -311,9 +311,20 @@ public class Robot extends TimedRobot
 
   private void checkDevices()
   {
-    if (!s_PortShooter.potValid()) PBDash.DEVICE_ERRORS.append("Port Pot");
-    if (!s_StbdShooter.potValid()) PBDash.DEVICE_ERRORS.append("Stbd Pot");
-    if (!s_Climber.atLimit()) PBDash.DEVICE_ERRORS.append("Climber Limit Sensor");
+    PBDash.DEVICE_ERRORS.init();
+    if (!s_Swerve.devicesValid()) PBDash.DEVICE_ERRORS.append("Drivebase, ");
+
+    if (!s_PortShooter.devicesValid()) PBDash.DEVICE_ERRORS.append("Port Shooter, ");
+    if (!s_PortShooter.potValid()) PBDash.DEVICE_ERRORS.append("Port Pot, ");
+    if (!s_StbdShooter.devicesValid()) PBDash.DEVICE_ERRORS.append("Stbd Shooter, ");
+    if (!s_StbdShooter.potValid()) PBDash.DEVICE_ERRORS.append("Stbd Pot, ");
+
+    if (!s_Climber.devicesValid()) PBDash.DEVICE_ERRORS.append("Climber Motor, ");
+    if (!s_Climber.atLimit()) PBDash.DEVICE_ERRORS.append("Climber Limit Sensor, ");
+    if (!io_ClimberPost.get()) PBDash.DEVICE_ERRORS.append("Climber Post Sensor, ");
+    
+    if (!s_Intake.devicesValid()) PBDash.DEVICE_ERRORS.append("Intake Roller, ");
+    if (!s_Extension.devicesValid()) PBDash.DEVICE_ERRORS.append("Extension, ");
   }
 
   @Logged(name = "CAN Load")

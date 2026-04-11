@@ -41,4 +41,8 @@ public class Intake extends SubsystemBase
 
     roller.setSpeed(rollerSpeed);
   }
+
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+    {return roller.devicesValid();}
 }

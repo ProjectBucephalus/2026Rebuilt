@@ -100,4 +100,8 @@ public class BinaryMotor extends SubsystemBase
    */
   public Command setSpeedCmd(double speed)
     {return runOnce(() -> m_Binary.set(speed));}
+
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+    {return m_Binary.isConnected();}
 }

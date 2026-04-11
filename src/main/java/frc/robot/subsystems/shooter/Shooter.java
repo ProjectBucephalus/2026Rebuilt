@@ -189,6 +189,14 @@ public class Shooter extends SubsystemBase
     PBDash.putFieldObject(ntId + "Target", new Pose2d(targetPoint.plus(target.offset), Rotation2d.kZero));
   }
 
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+  {
+    return flywheels.devicesValid()
+        && turret.devicesValid()
+        && indexer.devicesValid();
+  }
+
   @Override
   public void periodic()
   {

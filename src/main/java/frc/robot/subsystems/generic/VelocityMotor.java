@@ -67,4 +67,8 @@ public class VelocityMotor extends SubsystemBase
   @Logged(name = "Current Amps")
   public double getMotorCurrent()
     {return m_Velocity.getStatorCurrent().getValue().in(Units.Amps);}
+
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+    {return m_Velocity.isConnected();}
 }

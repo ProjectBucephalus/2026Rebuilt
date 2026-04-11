@@ -111,6 +111,10 @@ public class Flywheels
       return m_Leader.getStatorCurrent().getValue().in(Units.Amps);
   }
 
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+    {return m_Leader.isConnected() && m_Follower.isConnected();}
+
   public void update()
   {
 
