@@ -355,6 +355,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
   }
 
+  /** @return {@code true} if all devices are connected */
+  public boolean checkDevices()
+  {
+    return checkModule(0)
+        && checkModule(1)
+        && checkModule(2)
+        && checkModule(3)
+        && getPigeon2().isConnected();
+  }
+
+  private boolean checkModule(int index)
+  {
+    var module = getModule(index);
+    return module.getEncoder().isConnected()
+        && module.getDriveMotor().isConnected()
+        && module.getSteerMotor().isConnected();
+  }
+
   private void startSimThread() 
   {
     m_lastSimTime = Utils.getCurrentTimeSeconds();
