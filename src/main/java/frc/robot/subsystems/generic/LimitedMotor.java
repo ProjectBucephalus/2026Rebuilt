@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -23,6 +24,8 @@ public class LimitedMotor extends PositionMotor
   protected final double homeRotations;
 
   private final boolean slot1Valid;
+  /** Tolerance to be considered at a position, calculated as 5% of travel range */
+  private final double tolerance;
 
   private boolean sensorValid = false;
   private boolean calibrated = false;
@@ -48,6 +51,8 @@ public class LimitedMotor extends PositionMotor
     this.minRotations = Math.min(maxRotations, minRotations);
     this.homeRotations = Conversions.clamp(homeRotations, maxRotations, minRotations);
 
+    tolerance = (this.maxRotations - this.minRotations) / 20;
+
     // If a valid Slot1 is provided, we want to use it for moving slower when not clibrated
     slot1Valid = configs.Slot1.kP != 0 || configs.Slot1.kV != 0;
 
@@ -63,6 +68,12 @@ public class LimitedMotor extends PositionMotor
 
   public boolean atLimit()
     {return limit.atLimit();}
+
+  public boolean atMax()
+    {return MathUtil.isNear(maxRotations, getAngle(), tolerance);}
+
+  public boolean atMin()
+    {return MathUtil.isNear(minRotations, getAngle(), tolerance);}
 
   /**
    * Sets the target point for the motor 
@@ -110,9 +121,6 @@ public class LimitedMotor extends PositionMotor
     {
       // First cycle active becomes true, marking that the sensor is now definitely valid
       sensorValid = true;
-
-      double range = maxRotations - minRotations;
-      double tolerance = range / 20;
 
       double position;
       if (atLimit())

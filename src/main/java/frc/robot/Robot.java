@@ -187,7 +187,8 @@ public class Robot extends TimedRobot
       s_StbdShooter, 
       s_Intake, 
       s_Extension,
-      s_Climber
+      s_Climber,
+      io_ClimberPost
     )
     .bind();
 

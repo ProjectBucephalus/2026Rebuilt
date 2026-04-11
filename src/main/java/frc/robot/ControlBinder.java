@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,7 +58,8 @@ public record ControlBinder
   Shooter s_StbdShooter,
   Intake s_Intake,
   PositionMotor s_Extension,
-  LinearExtension s_Climber
+  LinearExtension s_Climber,
+  DigitalInput io_ClimberPost
 )
 {
   private static boolean bound = false;
@@ -380,7 +382,16 @@ public record ControlBinder
     driver.back().onTrue(runOnce(() -> state.climbPos = ClimbPosition.None));
 
     // Retract
-    operator.start().onTrue(s_Climber.setTargetCmd(ClimberConstants.climbPosition));
+    operator.start()
+      .onTrue
+      (
+        Commands.either
+        (
+          s_Climber.setTargetCmd(ClimberConstants.climbPosition), 
+          s_Climber.retractCmd(), 
+          () -> s_Climber.atMax() && io_ClimberPost.get()
+        )
+      );
     // Extend
     operator.back().onTrue(s_Climber.extendCmd());
       
