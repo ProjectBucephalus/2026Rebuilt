@@ -266,6 +266,7 @@ public class FieldUtils
     };
 
     var point = ShooterConstants.passPoint.get();
+    
     if (inLeftHalf) point = new Translation2d(point.getX(), fieldWidth - point.getY());
 
     double maxRangeSqrd = ShooterConstants.maxPassRange * ShooterConstants.maxPassRange;
@@ -287,7 +288,12 @@ public class FieldUtils
       // |
       // point
 
-      point = new Translation2d(pos.getX() - dx, point.getY());
+      double newX = switch (getAlliance())
+      {
+        case Blue -> pos.getX() - dx;
+        case Red -> pos.getX() + dx;
+      };
+      point = new Translation2d(newX, point.getY());
     }
 
     return point;
