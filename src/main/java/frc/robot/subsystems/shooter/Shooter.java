@@ -152,7 +152,6 @@ public class Shooter extends SubsystemBase
     return 
       target.flywheelsActive
       && turret.readyToShoot(swerveState.Speeds)
-      && hood.atAltitude()
       && flywheels.atSpeed()
       && target.distance > ShooterConstants.minRange
       && !GeoFencing.trenchTrigger.getAsBoolean()
@@ -246,7 +245,7 @@ public class Shooter extends SubsystemBase
       flywheels.setSpeed(FlywheelConstants.idleSpeed);
 
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
-    hood.update(shooterPose);
+    hood.update();
 
     telemetrise();
   }
