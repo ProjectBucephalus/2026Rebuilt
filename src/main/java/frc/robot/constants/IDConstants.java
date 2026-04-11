@@ -33,7 +33,7 @@ public final class IDConstants
 
   public static final int LEDPWDPort = 2;
 
-  public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int indexerCAN, int azimuthAIO, int altitudePWM, int altitudeAIO, String ntID){}
+  public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int indexerCAN, int azimuthAIO, int altitudePWM, String ntID){}
 
   /* Port Turret, CAN [16..19], PWM [0], AIO [0] */
   public static final ShooterIDs portShooterIDs = new ShooterIDs
@@ -44,7 +44,6 @@ public final class IDConstants
     19,
     0,
     0,
-    2,
     "Port"
   );
 
@@ -57,7 +56,6 @@ public final class IDConstants
     23,
     1,
     1,
-    3,
     "Stbd"
   );
 

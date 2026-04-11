@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
 import frc.robot.util.Conversions;
 import frc.robot.constants.FieldConstants.GeoFencing;
@@ -18,8 +17,6 @@ import static frc.robot.constants.Constants.ShooterConstants.HoodConstants.*;
 public class Hood 
 {
   private final Servo m_Servo;
-  @SuppressWarnings("unused") // May be used in future
-  private final AnalogInput io_Altitude;
   
   private final Target target;
 
@@ -33,10 +30,9 @@ public class Hood
    * @param inverted Inverts the range and direction of motion of the servo
    * @param targetSup Supplier for current Target object
    */
-  public Hood(int servoID, int feedbackID, boolean inverted, double homeAngle, Target target)
+  public Hood(int servoID, boolean inverted, double homeAngle, Target target)
   {
     m_Servo = new Servo(servoID);
-    io_Altitude = new AnalogInput(feedbackID);
     this.inverted = inverted;
     this.target = target;
     this.homeAngle = homeAngle;
@@ -61,16 +57,14 @@ public class Hood
    */
   protected void update(Pose2d shooterPose)
   {
-    // Limit the target altitude to within the hood's range of motion
-    double altitude = Conversions.clamp(target.altitude, 0, hoodRange);
-      
-    if (target.disabled || GeoFencing.trenchTrigger.getAsBoolean())
-      altitude = 0;
+    // Limit the target altitude to within the hood's range of motion     
+    double altitude = (target.disabled || GeoFencing.trenchTrigger.getAsBoolean()) 
+      ? 0 
+      : Conversions.clamp(target.altitude, 0, hoodRange);
 
     // Convert hood target in degrees to servo position from [0..1]
     double servoTarget = ((altitude * hoodRatio) + homeAngle) / servoRange;
 
-    
     // Invert the target position if needed
     if (inverted) servoTarget = 1 - servoTarget;
 

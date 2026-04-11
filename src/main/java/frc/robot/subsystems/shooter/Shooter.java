@@ -93,7 +93,7 @@ public class Shooter extends SubsystemBase
 
     flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, target);
-    hood = new Hood(idBlock.altitudePWM(), idBlock.altitudeAIO(), invertedHood, hoodHomeAngle, target);
+    hood = new Hood(idBlock.altitudePWM(), invertedHood, hoodHomeAngle, target);
     
     var indexerDir = invertedFeeder ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
     IndexerConstants.indexerConfig.MotorOutput.Inverted = indexerDir;
@@ -174,6 +174,8 @@ public class Shooter extends SubsystemBase
   /** Sets the flywheels to idle speed */
   public void idleFlywheels() {target.flywheelsActive = false;}
   public Command runFlywheelsCmd() {return Commands.startEnd(this::revFlywheels, this::idleFlywheels);}
+
+  public boolean potValid() {return turret.potValid();}
 
   private void telemetrise()
   {
