@@ -61,6 +61,9 @@ public class LimitedMotor extends PositionMotor
       limit = new DIOLimit(limitIO, invertLimit);
   } 
 
+  public boolean atLimit()
+    {return limit.atLimit();}
+
   /**
    * Sets the target point for the motor 
    * @param target mechanism rotations
@@ -93,7 +96,7 @@ public class LimitedMotor extends PositionMotor
         gotoTargetCmd((maxRotations + minRotations) / 2),
         gotoTargetCmd(minRotations),
         gotoTargetCmd(maxRotations)
-      ).until(limit::atLimit),
+      ).until(this::atLimit),
       adjustTargetCmd(() -> homeRotations == maxRotations ? -0.05 : 0.05).until(() -> calibrated),
       setTargetCmd(homeRotations)
     );
@@ -112,7 +115,7 @@ public class LimitedMotor extends PositionMotor
       double tolerance = range / 20;
 
       double position;
-      if (limit.atLimit())
+      if (atLimit())
       {
         // If the switch is initially true:
         //  If home poisition is close to an end, set the position to that endpoint
@@ -142,7 +145,7 @@ public class LimitedMotor extends PositionMotor
     // Attempt calibrating once we have started moving
     if (active)
     {
-      if (limit.atLimit())
+      if (atLimit())
       {  
         if (!homeLastCycle && !calibrated)
         {

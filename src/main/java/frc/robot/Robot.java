@@ -308,6 +308,13 @@ public class Robot extends TimedRobot
     autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), swerveState.Pose, s_Swerve, s_Intake, s_Extension));
   }
 
+  private void checkDevices()
+  {
+    if (!s_PortShooter.potValid()) PBDash.DEVICE_ERRORS.append("Port Pot");
+    if (!s_StbdShooter.potValid()) PBDash.DEVICE_ERRORS.append("Stbd Pot");
+    if (!s_Climber.atLimit()) PBDash.DEVICE_ERRORS.append("Climber Limit Sensor");
+  }
+
   @Logged(name = "CAN Load")
   public float getCanLoad() 
     {return canBus.getStatus().BusUtilization;}
@@ -350,6 +357,8 @@ public class Robot extends TimedRobot
 
     if (PBDash.AUTO_STRING.hasChanged()) 
       compileAuto();
+
+    checkDevices();
   }
 
   @Override

@@ -41,6 +41,8 @@ public class PBDash
 
   public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", false);
   
+  public static final Key<String> DEVICE_ERRORS = new Key<>("Device Errors", "");
+
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
   public static final Key<Boolean> IO_FENCE         = new Key<>("Enable Fencing", true);
@@ -303,11 +305,11 @@ public class PBDash
     public Trigger asTrigger()
       {return mainTrigger;}
     
-    @SuppressWarnings("unchecked")
     /**
      * Appends the provided text to the current value of the key, or does nothing if this is not a Key<String>
      * @param text The text to append
      */
+    @SuppressWarnings("unchecked")
     public void append(String text)
     {
       // The cast from String to T will only ever happen is T is already String

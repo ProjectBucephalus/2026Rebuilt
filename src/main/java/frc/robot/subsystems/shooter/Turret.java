@@ -142,6 +142,12 @@ public class Turret
   public void home()
     {m_Turret.setControl(request.withPosition(0));}
 
+  public boolean potValid() 
+  {
+    double rawAzimuth = io_Azimuth.get();
+    return rawAzimuth >= -potSafeLimit && rawAzimuth <= potSafeLimit;
+  }
+
   /**
    * If the turret is not moving, resets the motor's internal position to the current potentiometer reading
    */
@@ -156,8 +162,7 @@ public class Turret
       Robot.isReal() 
       && Math.abs(getSpeed()) < calibrationSpeedLimit // Only calibrate when turret is moving slowly
       && !MathUtil.isNear(rawAzimuth, lastCalibration, calibrationAngleLimit) // Only calibrate after moving ~10 degrees
-      && rawAzimuth >= -potSafeLimit // Discard extreme values that occur when sensor is disconnected
-      && rawAzimuth <=  potSafeLimit
+      && potValid() // Discard extreme values that occur when sensor is disconnected
     )
     {
       double newPos = (rawAzimuth + potLastCycle) / (2 * azimuthPotRatio  * 360.0);
