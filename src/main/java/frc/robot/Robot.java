@@ -325,6 +325,8 @@ public class Robot extends TimedRobot
     
     if (!s_Intake.devicesValid()) PBDash.DEVICE_ERRORS.append("Intake Roller, ");
     if (!s_Extension.devicesValid()) PBDash.DEVICE_ERRORS.append("Extension, ");
+    
+    if (!s_Vision.hasLocalisation()) PBDash.DEVICE_ERRORS.append("Vision, ");
   }
 
   @Logged(name = "CAN Load")
