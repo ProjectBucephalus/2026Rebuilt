@@ -61,9 +61,6 @@ public final class Constants
     /** Attractor maximum angle tolerance, degrees */
     public static final double maxAngleTolerance = 60;
 
-    public static final AllianceTranslation2d leftPassPoint = new AllianceTranslation2d(1.5, FieldConstants.fieldWidth - 2);
-    public static final AllianceTranslation2d rightPassPoint = new AllianceTranslation2d(1.5, 2);
-
     public static final double manualIntakeExtensionScale  = 0.65;
     public static final double manualClimberExtensionScale = 0.05;
     public static final double manualShooterAzimuthAmount = 1.8;
@@ -159,11 +156,16 @@ public final class Constants
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.08;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactor = 0.48;
+    public static final double leadFactor = 0.0;
     public static final double minRange = 1.1;
 
     public static final double closeManualRange = 2;
     public static final double farManualRange = 4.5;
+
+    /** Target pass point, blue origin (right side) */
+    public static final AllianceTranslation2d passPoint = new AllianceTranslation2d(1.5, 2);
+
+    public static final double maxPassRange = 7.5;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants

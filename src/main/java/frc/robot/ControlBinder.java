@@ -4,6 +4,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -173,10 +174,10 @@ public record ControlBinder
     // Set manual shooting distance
     operator.povUp()
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(bothShootersCmd(s -> s.setDistance(ShooterConstants.closeManualRange)));
+      .onTrue(bothShooters(Commands::runOnce, s -> s.setDistance(ShooterConstants.closeManualRange)));
     operator.povDown()
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(bothShootersCmd(s -> s.setDistance(ShooterConstants.farManualRange)));
+      .onTrue(bothShooters(Commands::runOnce, s -> s.setDistance(ShooterConstants.farManualRange)));
 
     final Trigger manualFireTrigger = operator.rightTrigger(ControlConstants.triggerThreshold);
 
@@ -190,7 +191,7 @@ public record ControlBinder
           s_PortShooter.target.azimuth = -60;
           s_StbdShooter.target.azimuth = 60;
         })
-        .alongWith(bothShootersCmd(s -> s.target.state = TargetState.Manual))
+        .alongWith(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Manual))
         .ignoringDisable(true)
       );
 
@@ -219,7 +220,7 @@ public record ControlBinder
     new Trigger(() -> state.shoot == ShootersState.Manual)
       .onTrue
       (
-        bothShootersCmd(s -> {
+        bothShooters(Commands::runOnce, s -> {
           s.target.state = TargetState.Manual;
           s.target.azimuth = 0;
         }).ignoringDisable(true)
@@ -229,7 +230,7 @@ public record ControlBinder
     new Trigger(() -> state.shoot == ShootersState.Test)
       .whileTrue
       (
-        bothShootersCmd(s -> {
+        bothShooters(Commands::runOnce, s -> {
           s.target.state = TargetState.Manual;
           s.target.azimuth = PBDash.TEST_AZIMUTH.get();
           s.target.altitude = PBDash.TEST_ALTITUDE.get();
@@ -247,13 +248,13 @@ public record ControlBinder
     // Not Manual, Outside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger.negate())
-      .onTrue(bothShootersCmd(s -> s.target.state = TargetState.Point).ignoringDisable(true))
-      .whileTrue(bothShootersCmd(s -> s.target.point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
+      .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Point).ignoringDisable(true))
+      .whileTrue(bothShooters(Commands::run, s -> s.target.point = FieldUtils.getPassPoint(swerveStateSup.get().Pose.getTranslation())));
 
     // Not Manual, Inside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger)
-      .onTrue(bothShootersCmd(s -> s.target.state = TargetState.Hub).ignoringDisable(true));
+      .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Hub).ignoringDisable(true));
 
     // Port-Only
     new Trigger(() -> state.shoot == ShootersState.Port)
@@ -280,8 +281,8 @@ public record ControlBinder
           state.shoot != ShootersState.Test
         )
       )
-      .onTrue(bothShootersCmd(Shooter::revFlywheels).ignoringDisable(true))
-      .onFalse(bothShootersCmd(Shooter::idleFlywheels).ignoringDisable(true));
+      .onTrue(bothShooters(Commands::runOnce, Shooter::revFlywheels).ignoringDisable(true))
+      .onFalse(bothShooters(Commands::runOnce, Shooter::idleFlywheels).ignoringDisable(true));
 
     /* Shooting when Ready */
 
@@ -412,9 +413,9 @@ public record ControlBinder
     }
   }
  
-  private Command bothShootersCmd(Consumer<Shooter> action)
+  private Command bothShooters(Function<Runnable, Command> cmd, Consumer<Shooter> action)
   {
-    return runOnce(() -> {
+    return cmd.apply(() -> {
       action.accept(s_PortShooter);
       action.accept(s_StbdShooter);
     });

@@ -9,7 +9,8 @@ import static frc.robot.constants.FieldConstants.*;
 
 import java.util.Optional;
 
-import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.ShooterConstants;
+
 import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
 
 /** 
@@ -256,7 +257,7 @@ public class FieldUtils
     };
   }
 
-  public static Translation2d getClosestPassPoint(Translation2d pos)
+  public static Translation2d getPassPoint(Translation2d pos)
   {
     boolean inLeftHalf = switch (getAlliance())
     {
@@ -264,6 +265,31 @@ public class FieldUtils
       case Red -> pos.getY() < fieldCentre.getY();
     };
 
-    return inLeftHalf ? ControlConstants.leftPassPoint.get() : ControlConstants.rightPassPoint.get();
+    var point = ShooterConstants.passPoint.get();
+    if (inLeftHalf) point = new Translation2d(point.getX(), fieldWidth - point.getY());
+
+    double maxRangeSqrd = ShooterConstants.maxPassRange * ShooterConstants.maxPassRange;
+    // Behaviour is the same as `pos.getDistance(point) > maxPassRange`, 
+    // but avoids computationally expensive square root function
+    if (pos.getSquaredDistance(point) > maxRangeSqrd)
+    {
+      double dy = point.getY() - pos.getY();
+      double dx = Math.sqrt(maxRangeSqrd - (dy * dy));
+      //        pos
+      // =--dy--/
+      // |     /
+      // |   maxRange
+      // dx  /
+      // |  /
+      // | /
+      // =/
+      // |
+      // |
+      // point
+
+      point = new Translation2d(pos.getX() - dx, point.getY());
+    }
+
+    return point;
   }  
 }
