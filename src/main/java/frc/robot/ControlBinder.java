@@ -66,15 +66,14 @@ public record ControlBinder
 
   public void bind()
   {
-    if (!bound) 
-    {
-      bindState();
-      bindDrive();
-      bindShooters();
-      bindIntake();
-      bindClimber();
-      bound = true;
-    }
+    if (bound) return; // Guard against being called multiple times
+    bound = true;
+
+    bindState();
+    bindDrive();
+    bindShooters();
+    bindIntake();
+    bindClimber();
   }
 
   private void bindState()
@@ -402,26 +401,24 @@ public record ControlBinder
   /** Mutually exclusive to {@link ControlBinder#bind bind()} */
   public void bindSysId()
   {
-    if (!bound)
-    {
-      s_Swerve.setDefaultCommand(DriveBuilder.manual());
+    if (bound) return; // Guard against being called multiple times
+    bound = true;
 
-      driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-      driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+    s_Swerve.setDefaultCommand(DriveBuilder.manual());
 
-      /*
-      * Joystick Y = quasistatic forward
-      * Joystick A = quasistatic reverse
-      * Joystick B = dynamic forward
-      * Joystick X = dyanmic reverse
-      */
-      driver.y().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      driver.a().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      driver.b().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      driver.x().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
 
-      bound = true;
-    }
+    /*
+    * Joystick Y = quasistatic forward
+    * Joystick A = quasistatic reverse
+    * Joystick B = dynamic forward
+    * Joystick X = dyanmic reverse
+    */
+    driver.y().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    driver.a().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    driver.b().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    driver.x().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
  
   private Command bothShooters(Function<Runnable, Command> cmd, Consumer<Shooter> action)

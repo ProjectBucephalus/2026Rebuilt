@@ -154,7 +154,7 @@ public class CommandGen
         // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
         commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose)));
       }
-      // driveby(x y) - Relative drive TODO document
+      // driveby(x y) - Relative drive
       case driveby -> 
       {
         assertArgCount(2);
