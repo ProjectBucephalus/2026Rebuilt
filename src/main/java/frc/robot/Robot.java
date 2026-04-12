@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import frc.robot.autobuilder.AutoBuilder;
@@ -151,6 +152,9 @@ public class Robot extends TimedRobot
 
   @Logged(name = "Climb Post Sensor")
   private final DigitalInput io_ClimberPost = new DigitalInput(IDConstants.climberPostDIO);
+
+  @Logged(name = "Extension Encoder")
+  private final CANcoder io_ExtensionEncoder = new CANcoder(IntakeConstants.ExtensionConstants.extensionConfig.Feedback.FeedbackRemoteSensorID);
 
   /* Rumble */
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
@@ -325,7 +329,8 @@ public class Robot extends TimedRobot
     
     if (!s_Intake.devicesValid()) PBDash.DEVICE_ERRORS.append("Intake Roller, ");
     if (!s_Extension.devicesValid()) PBDash.DEVICE_ERRORS.append("Extension, ");
-    
+    if (!io_ExtensionEncoder.isConnected()) PBDash.DEVICE_ERRORS.append("Extension Encoder, ");
+
     if (!s_Vision.hasLocalisation()) PBDash.DEVICE_ERRORS.append("Vision, ");
   }
 
