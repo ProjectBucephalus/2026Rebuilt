@@ -505,7 +505,7 @@ public final class Constants
 
       //public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = -0.31;
+      public static final double minRotations = -0.3;
       public static final double maxRotations = 0.0;
       public static final double squishRotations = -0.1; // furthest in before hopper retracts
       public static final double bumpSafeRotations = -0.14;
@@ -530,8 +530,8 @@ public final class Constants
         extensionConfig.Slot0.kI = 0.0;
         extensionConfig.Slot0.kD = 0.0;
 
-        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.6;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.5;
+        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.0;
 
         extensionConfig.CurrentLimits.StatorCurrentLimit = 35;
         extensionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -547,9 +547,9 @@ public final class Constants
     /** meters */
     public static final double maxPosition  = 0.23;
     /** Position set when climber calibrates, meters */
-    public static final double homePosition = minPosition;
+    public static final double homePosition = 0.02;
     /** Position for full climb, meters */
-    public static final double climbPosition = 0.15; // TODO figure out minimum valid climb height
+    public static final double climbPosition = 0.08; // TODO figure out minimum valid climb height
 
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;
@@ -558,6 +558,9 @@ public final class Constants
 
     /** meters */
     public static final double metersPerRotation = 0.061;
+
+    private static final double cruiseVelocity = 3.2;
+    private static final double cruiseVelocityUncalibrated = 0.5;
 
     public static final TalonFXConfiguration climberConfig = new TalonFXConfiguration(); 
     static 
@@ -570,9 +573,11 @@ public final class Constants
       climberConfig.Slot0.kP = 55.0;
       climberConfig.Slot0.kI = 0.0;
       climberConfig.Slot0.kD = 0.0;
-
-      climberConfig.MotionMagic.MotionMagicCruiseVelocity = 2.5;
+      
+      climberConfig.MotionMagic.MotionMagicCruiseVelocity = cruiseVelocity; // Mechanical maximum 3.2
       climberConfig.MotionMagic.MotionMagicAcceleration = 20;
+      
+      climberConfig.CustomParams.CustomParam0 = (int) (cruiseVelocityUncalibrated * 100); // Cruise velocity to use when not calibrated, 1/100 mechanism rotations per second
     }
   }
 }

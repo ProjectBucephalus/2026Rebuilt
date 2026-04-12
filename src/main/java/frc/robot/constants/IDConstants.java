@@ -66,8 +66,8 @@ public final class IDConstants
 
   /* Climber, CAN [32], DIO [0..1] */
   public static final int climberCAN = 32;
-  public static final int climberLimitDIO = 0;
-  public static final int climberPostDIO = 1;
+  public static final int climberLimitDIO = 1;
+  public static final int climberPostDIO = 0;
   
   /* Network device names */
   /* -------------------- */
