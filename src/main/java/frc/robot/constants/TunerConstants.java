@@ -55,8 +55,8 @@ public class TunerConstants
   private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.RemoteCANcoder;
 
   // The stator current at which the wheels start to slip; 
-  // This needs to be tuned to your individual robot TODO
-  private static final Current kSlipCurrent = Amps.of(45);
+  // This needs to be tuned to your individual robot
+  private static final Current kSlipCurrent = Amps.of(60);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -80,8 +80,8 @@ public class TunerConstants
   public static final CANBus kCANBus = new CANBus("", "./logs/example.hoot");
 
   // Theoretical free speed (m/s) at 12 V applied output;
-  // This needs to be tuned to your individual robot TODO
-  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.73);
+  // This needs to be tuned to your individual robot
+  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.23);
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot
