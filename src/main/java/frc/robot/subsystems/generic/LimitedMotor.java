@@ -1,5 +1,7 @@
 package frc.robot.subsystems.generic;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import edu.wpi.first.epilogue.Logged;
@@ -23,13 +25,15 @@ public class LimitedMotor extends PositionMotor
   protected final double maxRotations;
   protected final double homeRotations;
 
-  private final boolean slot1Valid;
+  private final boolean safeSpeedValid;
   /** Tolerance to be considered at a position, calculated as 5% of travel range */
   private final double tolerance;
 
   private boolean sensorValid = false;
   private boolean calibrated = false;
   private boolean homeLastCycle = false;
+
+  private TalonFXConfiguration motorConfig;
 
   /**
    * Creates generic limited motor system
@@ -46,6 +50,8 @@ public class LimitedMotor extends PositionMotor
   {
     super(motorCAN, configs);
 
+    motorConfig = configs;
+
     // Sanitise inputs
     this.maxRotations = Math.max(maxRotations, minRotations);
     this.minRotations = Math.min(maxRotations, minRotations);
@@ -53,15 +59,22 @@ public class LimitedMotor extends PositionMotor
 
     tolerance = (this.maxRotations - this.minRotations) / 20;
 
-    // If a valid Slot1 is provided, we want to use it for moving slower when not clibrated
-    slot1Valid = configs.Slot1.kP != 0 || configs.Slot1.kV != 0;
+    // If a valid CustomParam0 is provided, we want to use it for moving slower when not clibrated
+    safeSpeedValid = configs.CustomParams.CustomParam0 != 0;
+
+    if (safeSpeedValid)
+    {
+      var uncalibratedConfig = motorConfig.clone();
+      uncalibratedConfig.MotionMagic.MotionMagicCruiseVelocity = uncalibratedConfig.CustomParams.CustomParam0 / 100.0;
+      m_Position.getConfigurator().apply(uncalibratedConfig);
+    }
 
     // Initialise motor position to a safe guess, will be further refined once we start moving and determined accurately once calibrated
     m_Position.setPosition(minRotations);
 
     // Allows using motor stall as limit. Deprecated
     if (limitIO == -1)
-      limit = new StallLimit(configs.CustomParams.CustomParam0);
+      limit = new StallLimit(configs.CustomParams.CustomParam1);
     else
       limit = new DIOLimit(limitIO, invertLimit);
   } 
@@ -83,9 +96,6 @@ public class LimitedMotor extends PositionMotor
   public void setTarget(double target) 
   {
     double clampedRotations = Conversions.clamp(target, minRotations, maxRotations);
-    // If valid, use the second PID slot until the mechanism has been homed
-    int slot = (!calibrated && slot1Valid) ? 1 : 0;
-    request.withSlot(slot);
     super.setTarget(clampedRotations);
   }
 
@@ -200,6 +210,8 @@ public class LimitedMotor extends PositionMotor
         {
           calibrated = true;
           m_Position.setPosition(homeRotations);
+          if (safeSpeedValid)
+            {m_Position.getConfigurator().apply(motorConfig);}
         }
 
         homeLastCycle = false;
