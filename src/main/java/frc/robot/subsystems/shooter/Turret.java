@@ -199,7 +199,7 @@ public class Turret
 
   private boolean safeToShoot(ChassisSpeeds swerveSpeeds)
   {
-    return (getSpeed() + (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < maxRPS
+    return (getSpeed() - (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < maxRPS
       && Math.abs(getAzimuth()) < maxTurretAzimuth - limitBufferZone;
   }
 
