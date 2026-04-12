@@ -62,7 +62,7 @@ public final class Constants
     /** Attractor maximum angle tolerance, degrees */
     public static final double maxAngleTolerance = 60;
 
-    public static final double manualIntakeExtensionScale  = 0.65;
+    public static final double manualIntakeExtensionScale  = 0.08;
     public static final double manualClimberExtensionScale = 0.05;
     public static final double manualShooterAzimuthAmount = 1.8;
     public static final double manualShooterDistanceAmount = 0.03;
@@ -526,12 +526,12 @@ public final class Constants
         extensionConfig.Feedback.SensorToMechanismRatio = extensionChainRatio;
 
         extensionConfig.Slot0.kS = 0.2;
-        extensionConfig.Slot0.kP = 30.0;
+        extensionConfig.Slot0.kP = 55.0;
         extensionConfig.Slot0.kI = 0.0;
         extensionConfig.Slot0.kD = 0.0;
 
-        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.8;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 10;
+        extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.6;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.5;
 
         extensionConfig.CurrentLimits.StatorCurrentLimit = 35;
         extensionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
