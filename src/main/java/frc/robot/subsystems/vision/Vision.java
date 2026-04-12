@@ -98,8 +98,8 @@ public class Vision extends SubsystemBase
 
             // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
             double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-            double linearStdDev = linearStdDevBaseline * stdDevFactor;
-            double rotStdDev = rotStdDevBaseline * stdDevFactor;
+            double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 1;
+            double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 1;
             var stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev);
 
             double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
