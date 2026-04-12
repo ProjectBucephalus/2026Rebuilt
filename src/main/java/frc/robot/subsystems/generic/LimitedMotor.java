@@ -114,6 +114,28 @@ public class LimitedMotor extends PositionMotor
   }
 
   @Override
+  public Command adjustTargetCmd(DoubleSupplier shiftSup) 
+  {return run(() -> 
+    {
+      if 
+      (
+        shiftSup.getAsDouble() != 0
+        && 
+        !(
+          atLimit()
+          &&
+          (
+            (homeRotations <= minRotations + tolerance && shiftSup.getAsDouble() <= 0)
+            ||
+            (homeRotations >= maxRotations - tolerance && shiftSup.getAsDouble() >= 0)
+          )
+        )
+      ) 
+        baseSetTarget(getAngle() + shiftSup.getAsDouble());
+    }
+  );}
+
+  @Override
   public void periodic() 
   {
     // Initialise position when we first move
@@ -166,9 +188,9 @@ public class LimitedMotor extends PositionMotor
         // If sensor is at endstop, stop
         if 
         (
-          (homeRotations == minRotations && request.Position <= getAngle())
+          (homeRotations <= minRotations + tolerance && request.Position <= getAngle())
           ||
-          (homeRotations == maxRotations && request.Position >= getAngle())
+          (homeRotations >= maxRotations - tolerance && request.Position >= getAngle())
         ) stop();
       }
       else // if not at limit

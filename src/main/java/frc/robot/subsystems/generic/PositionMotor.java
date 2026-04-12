@@ -48,7 +48,7 @@ public class PositionMotor extends SubsystemBase
    * Exists as a sort of hacky solution to get around overriden versions of the method
    * @param target mechanism rotations
    */
-  private void baseSetTarget(double pos)
+  protected final void baseSetTarget(double pos)
   {
     active = true;
     m_Position.setControl(request.withPosition(pos));
@@ -105,7 +105,7 @@ public class PositionMotor extends SubsystemBase
     
   /** Stops the motor by setting the target to its current position */
   public void stop()
-    {baseSetTarget(getAngle());}
+    {m_Position.set(0);}
 
   /** @return {@code true} when the motor is close to target */
   public boolean atTarget()
