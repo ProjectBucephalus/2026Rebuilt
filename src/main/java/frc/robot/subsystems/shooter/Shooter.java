@@ -230,12 +230,9 @@ public class Shooter extends SubsystemBase
       double distanceY = targetPoint.getY() - shooterPose.getY();
     
       // Calculates the robot's motion normal and tangent to the point; i.e., towards and away from the point, and from side to side relative to the point
-      double motionN   = ((distanceX * fieldRelativeSpeeds.vxMetersPerSecond) + (distanceY * fieldRelativeSpeeds.vyMetersPerSecond)) / distance;
-      double motionT   = ((distanceX * fieldRelativeSpeeds.vyMetersPerSecond) - (distanceY * fieldRelativeSpeeds.vxMetersPerSecond)) / distance;
+      double motionN   = (((distanceX * fieldRelativeSpeeds.vxMetersPerSecond) + (distanceY * fieldRelativeSpeeds.vyMetersPerSecond)) + target.speed * ShooterConstants.leadFactorV) * ShooterConstants.leadFactorN;
+      double motionT   = ((distanceX * fieldRelativeSpeeds.vyMetersPerSecond) - (distanceY * fieldRelativeSpeeds.vxMetersPerSecond)) * ShooterConstants.leadFactorT;
 
-      motionN *= (distance * ShooterConstants.leadFactorN);
-      motionT *= (distance * ShooterConstants.leadFactorT);
-      
       // Converts scaled motion from normal back to X and Y
       double motionX   = ((motionN * distanceX) - (motionT * distanceY)) / distance;
       double motionY   = ((motionN * distanceY) + (motionT * distanceX)) / distance;

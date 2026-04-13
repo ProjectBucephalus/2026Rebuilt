@@ -193,7 +193,7 @@ public class Turret
 
     double robotDegreesPerCycle = robotDegreesPerSecond / 50;
 
-    return robotTarget;// - robotDegreesPerCycle;
+    return robotTarget - robotDegreesPerCycle;
   }
 
   private boolean safeToShoot(ChassisSpeeds swerveSpeeds)

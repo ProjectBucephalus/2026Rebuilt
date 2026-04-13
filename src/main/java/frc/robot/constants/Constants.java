@@ -47,7 +47,7 @@ public final class Constants
     /** Minimum robot speed when braking, relative to maximum uncapped speed */
     public static final double minThrottle = 0.2;
     /** Normal maximum rotational robot speed, relative to maximum uncapped rotational speed */
-    public static final double maxRotThrottle = 1;
+    public static final double maxRotThrottle = 0.8;
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
     public static final double minRotThrottle = 0.3;
     /** Maximum brake value when intake is running at full speed */
@@ -164,6 +164,7 @@ public final class Constants
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
     public static final double leadFactorN = 0.5;
     public static final double leadFactorT = 0.0;
+    public static final double leadFactorV = 0.15;
     public static final double minRange = 1.1;
 
     public static final double closeManualRange = 2;
@@ -420,8 +421,8 @@ public final class Constants
     public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
     {{
       put(0.0, 0.0);
-      put(0.9, 0.0);
-      put(0.1, 45.0); // below min range
+      put(0.1, 0.0);
+      put(0.9, 45.0); // below min range
       put(1.1, 45.0);
       put(1.5, 46.5);
       put(2.0, 48.0);
@@ -511,7 +512,7 @@ public final class Constants
 
       //public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = -0.3;
+      public static final double minRotations = -0.31;
       public static final double maxRotations = 0.0;
       public static final double squishRotations = -0.1; // furthest in before hopper retracts
       public static final double bumpSafeRotations = -0.14;
@@ -537,7 +538,7 @@ public final class Constants
         extensionConfig.Slot0.kD = 0.0;
 
         extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.0;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 1.5;
 
         extensionConfig.CurrentLimits.StatorCurrentLimit = 35;
         extensionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
