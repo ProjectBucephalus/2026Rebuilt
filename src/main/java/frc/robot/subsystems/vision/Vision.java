@@ -72,7 +72,7 @@ public class Vision extends SubsystemBase
   public void setPose(Pose2d pose)
   {
     lastGoodPose = Timer.getTimestamp();
-    estimateConsumer.accept(pose, Utils.getCurrentTimeSeconds(), VecBuilder.fill(0, 0, 1000));
+    estimateConsumer.accept(pose, Utils.getCurrentTimeSeconds(), VecBuilder.fill(0, 0, Double.POSITIVE_INFINITY));
   }
 
   @Override
@@ -98,8 +98,8 @@ public class Vision extends SubsystemBase
 
             // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
             double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-            double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 1;
-            double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 1;
+            double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 0;
+            double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 0;
             var stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev);
 
             double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
