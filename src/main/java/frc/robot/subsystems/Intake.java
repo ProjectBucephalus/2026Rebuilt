@@ -29,6 +29,14 @@ public class Intake extends SubsystemBase
   public Command setStateCmd(RollerState state)
     {return runOnce(() -> this.state = state);}
 
+  /** @return Current motor speed, mechanism rotations per second */
+  public double getSpeed()
+    {return roller.getSpeed();}
+
+  /** @return Current motor speed relative to max speed, nominally [-1..1] */
+  public double getRelativeSpeed()
+    {return getSpeed() / RollerConstants.intakeMaxSpeed;}
+
   @Override
   public void periodic() 
   {

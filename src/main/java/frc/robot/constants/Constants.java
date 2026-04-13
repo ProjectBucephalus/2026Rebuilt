@@ -50,6 +50,8 @@ public final class Constants
     public static final double maxRotThrottle = 1;
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
     public static final double minRotThrottle = 0.3;
+    /** Maximum brake value when intake is running at full speed */
+    public static final double throttleFromIntake = 0.5;
     /** How far a trigger must be pressed to be considered on, [0..1] */
     public static final double triggerThreshold = 0.8;
     /** Translation lineup tolerance, meters */
