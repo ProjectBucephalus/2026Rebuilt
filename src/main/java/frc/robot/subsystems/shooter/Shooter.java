@@ -212,17 +212,62 @@ public class Shooter extends SubsystemBase
       case Hub -> FieldUtils.getAllianceHubCentre().minus(shooterPose.getTranslation()).getNorm();
     };
 
+     Translation2d targetPoint = switch (target.state) 
+    {
+      case Manual -> Translation2d.kZero;
+      case Point -> target.point;
+      // aim at our alliance's hub
+      case Hub -> FieldUtils.getAllianceHubCentre();
+    };
+
+
     var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
     // Calculate target offset to avoid balls from each shooter colliding before reaching target
     // and accounting for robot motion
-    target.offset = 
+
+        // Calculates X and Y distances to the point
+    double distanceX = targetPoint.getX() - shooterPose.getX(); 
+    double distanceY = targetPoint.getY() - shooterPose.getY();
+  
+    // Calculates the robot's motion normal and tangent to the point; i.e., towards and away from the point, and from side to side relative to the point
+    double motionN   = ((distanceX * fieldRelativeSpeeds.vxMetersPerSecond) + (distanceY * fieldRelativeSpeeds.vyMetersPerSecond)) / distance;
+    double motionT   = ((distanceX * fieldRelativeSpeeds.vyMetersPerSecond) - (distanceY * fieldRelativeSpeeds.vxMetersPerSecond)) / distance;
+
+    motionN *= (distance * ShooterConstants.leadFactorN);
+    motionT *= (distance * ShooterConstants.leadFactorT);
+    
+    // Converts clamped motion from normal back to X and Y
+    double motionX   = ((motionN * distanceX) - (motionT * distanceY)) / distance;
+    double motionY   = ((motionN * distanceY) + (motionT * distanceX)) / distance;
+    var leadOffsets = new Translation2d(motionX, motionY);
+    
+          target.offset = 
       baseTargetOffset
         .rotateBy(swerveState.Pose.getRotation().unaryMinus())
         .minus
         (
-          new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond)
-          .times(distance * ShooterConstants.leadFactor) // distance * leadFactor
+          leadOffsets
+        //  new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond)
+        //  .times(distance * ShooterConstants.leadFactorN) // distance * leadFactor
         );
+
+/*  // Calculates X and Y distances to the point
+    double distanceX = pointX - shooterPose.getX(); 
+    double distanceY = pointY - shooterPose.getY();
+    // Calculates the normal distance to the corner through pythagoras; this is the actual distance between the robot and point
+    double distanceN = Math.hypot(distanceX, distanceY);
+    // Calculates the robot's motion normal and tangent to the point; i.e., towards and away from the point, and from side to side relative to the point
+    double motionN   = ((distanceX * motionXY.getX()) + (distanceY * motionXY.getY())) / distanceN;
+    double motionT   = ((distanceX * motionXY.getY()) - (distanceY * motionXY.getX())) / distanceN;
+
+    motionN *= (distance * ShooterConstants.leadFactorN)
+    motionT *= (distance * ShooterConstants.leadFactorT)
+    
+    // Converts clamped motion from normal back to X and Y
+    double motionX   = ((motionN * distanceX) - (motionT * distanceY)) / distanceN;
+    double motionY   = ((motionN * distanceY) + (motionT * distanceX)) / distanceN;
+    var leadOffsets = new Translation2d(motionX, motionY); */
+
 
     // Find distance to current target for calculating leading shots
     target.distance = switch (target.state) 
