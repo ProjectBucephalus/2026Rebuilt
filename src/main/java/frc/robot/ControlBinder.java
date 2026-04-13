@@ -186,6 +186,7 @@ public record ControlBinder
     new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
       .and(manualFireTrigger.negate())
       .and(() -> !s_Vision.hasLocalisation())
+      .and(PBDash.IO_LL::get)
       .onTrue
       (
         runOnce(() -> {          
