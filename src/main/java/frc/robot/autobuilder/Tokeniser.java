@@ -50,8 +50,6 @@ public class Tokeniser
       case ' ', '\t', '\n', '\r' -> {}
       // Simple handling for single-character punctuation tokens
       case ',' -> addToken(Token.Type.Comma);
-      case '(' -> addToken(Token.Type.LParen);
-      case ')' -> addToken(Token.Type.RParen);
       default -> 
       {
         // Numbers can start with a negative sign or a digit

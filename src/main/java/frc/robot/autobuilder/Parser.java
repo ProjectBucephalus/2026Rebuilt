@@ -51,19 +51,6 @@ public class Parser
       return;
     }
     String name = tok.text();
-
-    // Consume the next token, ensuring that it's either the start of the argument list, or the end of the instruction
-    // This allows 0-argument instructions to not need parentheses
-    tok = advance();
-    if (tok.type() != Token.Type.LParen)
-    {
-      if (!endOfInstr(tok))
-        err("expected `(` to begin arguments or `,` to end instruction but found " + tok);
-      else 
-        // If we are at the end of the instruction, add the 0-argument instruction to the list
-        addInstr(name, List.of());
-      return;
-    }
     
     // Iterate through tokens and construct a list of arguments from them
     ArrayList<Value> args = new ArrayList<>();
@@ -78,26 +65,15 @@ public class Parser
         case Num -> args.add(new Value(Type.Num, Double.parseDouble(tok.text())));
         case Bool -> args.add(new Value(Type.Bool, tok.text()));
         case Text -> args.add(new Value(Type.Text, tok.text()));
-        // Exit the loop if we've reached the end of the argument list
-        case RParen -> {break loop;}
-        // Error if the token isn't an argument or the end of the argument list
-        default -> 
-        {
-          err("expected argument or `)` to end arguments but found " + tok);
-          return;
+        // Exit the loop if we've reached the end of the instruction, consuming the token that signified the end of instruction
+        // Consuming it now ensures that the next instruction we parse doesn't have to worry about leading commas
+        case Comma, Eof -> {
+          advance(); 
+          break loop;
         }
       }
     }
 
-    // Consume the next token, ensuring it properly terminates this instruction. 
-    // Consuming it now ensures that the next instruction we parse doesn't have to worry about leading commas
-    tok = advance();
-    if (!endOfInstr(tok))
-    {
-      err("expected `,` to end instruction but found " + tok);
-      return;
-    }
-    
     // Add the parsed instruction to the list
     addInstr(name, args);
   }
@@ -133,14 +109,6 @@ public class Parser
   }
 
   /**
-   * Helper to check whether the provided token signals the end of an instruction
-   * @param tok The token to check
-   * @return True if the provided token signals the end of an instruction (it's either {@link Token.Type#Comma Comma} or {@link Token.Type#Eof Eof})
-   */
-  private boolean endOfInstr(Token tok)
-    {return (tok.type() == Token.Type.Comma || tok.type() == Token.Type.Eof);}
-
-  /**
    * Helper to report an error and skip to the next instruction, ensuring we don't attempt to use an invalid instruction
    * @param message The error message to report
    */
@@ -157,13 +125,13 @@ public class Parser
    */
   private void addInstr(String name, List<Value> args) 
   {
-    try 
-    {
-      instrs.add(new Instruction(Instruction.Type.valueOf(name), args.toArray(Value[]::new)));
-    }
+    Instruction.Type instr;
+    try {instr = Instruction.Type.valueOf(name);}
     catch (IllegalArgumentException e)
     {
       AutoBuilder.error(name + " is not a valid instruction");
+      return;
     }
+    instrs.add(new Instruction(instr, args.toArray(Value[]::new)));
   }
 }

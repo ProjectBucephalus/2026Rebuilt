@@ -12,10 +12,6 @@ public record Token(Token.Type type, String text)
   {
     /** {@code ,} */
     Comma, 
-    /** {@code (} */
-    LParen, 
-    /** {@code )} */
-    RParen,
     /** {@code hello_world}. Alphanumeric + underscores only. Case insensitive */
     Text, 
     /** {@code 1}, {@code -3}, {@code 3.14159} */
@@ -31,8 +27,6 @@ public record Token(Token.Type type, String text)
       return switch (this) 
       {
         case Comma -> "`,`";
-        case LParen -> "`(`";
-        case RParen -> "`)`";
         case Text -> "text";
         case Num -> "number";
         case Bool -> "`on`/`off`";
@@ -46,7 +40,7 @@ public record Token(Token.Type type, String text)
   {
     return switch (this.type())
     {
-      case Comma, LParen, RParen, Eof -> this.type().toString();
+      case Comma, Eof -> this.type().toString();
       case Text, Num, Bool -> '`' + this.text() + '`';
     };
   }
