@@ -10,8 +10,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.util.Conversions;
+
 /** 
  * Generic subclass for a range-limited motor with a binary switch reading {@code true} at the home position 
  * @author 5985
@@ -247,12 +247,7 @@ public class LimitedMotor extends PositionMotor
     private final double stallCurrent;
 
     public StallLimit(double stallCurrent)
-    {
-      this.stallCurrent = stallCurrent;
-
-      // Set the frequency of important signals to match robot clock cycle
-      m_Position.getTorqueCurrent().setUpdateFrequency(ControlConstants.signalFrequency);
-    }
+      {this.stallCurrent = stallCurrent;}
 
     @Override
     public boolean atLimit() 

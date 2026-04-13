@@ -29,10 +29,6 @@ public class BiMotor extends VelocityMotor
     m_Follower.getConfigurator().apply(config);
 
     m_Follower.setControl(new Follower(leaderCAN, flipped ? MotorAlignmentValue.Opposed : MotorAlignmentValue.Aligned));
-
-    // Set the frequency of important signals to match robot clock cycle
-    // Reduce the frequency of all other signals from the device to reduce CAN load
-    m_Follower.optimizeBusUtilization();
   }
 
   @Override

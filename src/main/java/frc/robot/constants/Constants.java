@@ -43,7 +43,7 @@ public final class Constants
   {
     public static final double stickDeadband = 0.15;
     /** Normal maximum robot speed, relative to maximum uncapped speed */
-    public static final double maxThrottle = 0.7;
+    public static final double maxThrottle = 0.8;
     /** Minimum robot speed when braking, relative to maximum uncapped speed */
     public static final double minThrottle = 0.2;
     /** Normal maximum rotational robot speed, relative to maximum uncapped rotational speed */
@@ -51,7 +51,7 @@ public final class Constants
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
     public static final double minRotThrottle = 0.3;
     /** Maximum brake value when intake is running at full speed */
-    public static final double throttleFromIntake = 0.5;
+    public static final double throttleFromIntake = 0.3;
     /** How far a trigger must be pressed to be considered on, [0..1] */
     public static final double triggerThreshold = 0.8;
     /** Translation lineup tolerance, meters */
@@ -162,7 +162,7 @@ public final class Constants
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.08;
     /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactorN = 0.0;
+    public static final double leadFactorN = 0.5;
     public static final double leadFactorT = 0.0;
     public static final double minRange = 1.1;
 

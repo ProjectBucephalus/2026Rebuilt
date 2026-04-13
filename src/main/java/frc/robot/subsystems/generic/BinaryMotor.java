@@ -5,7 +5,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.ControlConstants;
 
 /** 
  * A subsystem wrapped around a TalonFX to provide a simple subsystem for any motor mainly intended for binary operation (on or off) 
@@ -26,11 +25,6 @@ public class BinaryMotor extends SubsystemBase
   {
     this.defaultSpeed = defaultSpeed;
     m_Binary = new TalonFX(id);
-
-    // Set the frequency of important signals to match robot clock cycle
-    // Reduce the frequency of all other signals from the device to reduce CAN load
-    m_Binary.getVelocity().setUpdateFrequency(ControlConstants.signalFrequency);
-    m_Binary.optimizeBusUtilization();
   }
 
   public double getSpeed()
