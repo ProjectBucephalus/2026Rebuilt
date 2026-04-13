@@ -54,8 +54,6 @@ public final class ParsedRepr
     {
       /** Number type, represented as a double */
       Num,
-      /** Boolean type, which uses {@code on} and {@code off} as it's literals */
-      Bool,
       /** String type, limited to {@code a..z}, {@code 0..9}, and {@code _}. Cannot start with a digit */
       Text
     }
@@ -70,13 +68,16 @@ public final class ParsedRepr
       };
     }
 
-    /** @return The underlying boolean value, or throws a {@link ParsedRepr.TypeMismatchException TypeMismatchException} if this value is not a Bool */
+    /** 
+     * @return The text treated as a boolean value, or throws a {@link ParsedRepr.TypeMismatchException TypeMismatchException} if this value is not Text.
+     * Produces a warning if the value is Text, but not {@code on} or {@code off}
+     */
     public boolean asBool() throws TypeMismatchException
     {
       return switch (type)
       {
-        case Bool -> value == "on" ? true : false; 
-        default -> throw new TypeMismatchException(Type.Bool, this);
+        case Text -> value == "on" ? true : false; 
+        default -> throw new TypeMismatchException(Type.Text, this);
       };
     }
 
@@ -108,7 +109,8 @@ public final class ParsedRepr
       driveto, driveby, follow, 
       waitfor, waituntil, 
       intake, 
-      passing
+      passing,
+      climb
     }
 
     /** @return The argument at index {@code i} */

@@ -78,20 +78,13 @@ public class Tokeniser
     addToken(Token.Type.Num);
   }
 
-  /** Handles text tokens, as well as booleans */
+  /** Handles text tokens */
   private void text() 
   {
     // Consume all consecutive alphanumeric characters
     while (match(this::isAlphaNumeric));
 
-    // Check if the text is a boolean literal, creating a bool token if so or a text token if not.
-    String text = source.substring(start, current);
-    Token.Type type = switch (text) 
-    {
-      case "on", "off" -> Token.Type.Bool;
-      default -> Token.Type.Text; 
-    };
-    addToken(type);
+    addToken(Token.Type.Text);
   }
 
   /** Helper for checking if a character is 0..9 */

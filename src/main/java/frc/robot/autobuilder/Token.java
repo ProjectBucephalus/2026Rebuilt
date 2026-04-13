@@ -16,8 +16,6 @@ public record Token(Token.Type type, String text)
     Text, 
     /** {@code 1}, {@code -3}, {@code 3.14159} */
     Num, 
-    /** {@code on} or {@code off} */
-    Bool,
     /** Sentinel for end of input */
     Eof;
 
@@ -29,7 +27,6 @@ public record Token(Token.Type type, String text)
         case Comma -> "`,`";
         case Text -> "text";
         case Num -> "number";
-        case Bool -> "`on`/`off`";
         case Eof -> "end of input";
       };
     }
@@ -41,7 +38,7 @@ public record Token(Token.Type type, String text)
     return switch (this.type())
     {
       case Comma, Eof -> this.type().toString();
-      case Text, Num, Bool -> '`' + this.text() + '`';
+      case Text, Num -> '`' + this.text() + '`';
     };
   }
 }

@@ -63,7 +63,6 @@ public class Parser
         // Bools are stored as their literal `on` or `off` value, and converted into Java booleans when accessed. 
         // This is used for better diagnostics
         case Num -> args.add(new Value(Type.Num, Double.parseDouble(tok.text())));
-        case Bool -> args.add(new Value(Type.Bool, tok.text()));
         case Text -> args.add(new Value(Type.Text, tok.text()));
         // Exit the loop if we've reached the end of the instruction, consuming the token that signified the end of instruction
         // Consuming it now ensures that the next instruction we parse doesn't have to worry about leading commas
