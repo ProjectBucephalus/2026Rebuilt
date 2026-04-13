@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Robot;
+import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
@@ -79,6 +80,12 @@ public class Turret
     potLastCycle = io_Azimuth.get();
 
     calibrate();
+
+    // Set the frequency of important signals to match robot clock cycle
+    // Reduce the frequency of all other signals from the device to reduce CAN load
+    m_Turret.getVelocity().setUpdateFrequency(ControlConstants.signalFrequency);
+    m_Turret.getPosition().setUpdateFrequency(ControlConstants.signalFrequency);
+    m_Turret.optimizeBusUtilization();
   }
 
   /**

@@ -13,6 +13,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.ControlConstants;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class PositionMotor extends SubsystemBase
@@ -34,6 +35,11 @@ public class PositionMotor extends SubsystemBase
   {
     m_Position = new TalonFX(id);
     m_Position.getConfigurator().apply(config);
+
+    // Set the frequency of important signals to match robot clock cycle
+    // Reduce the frequency of all other signals from the device to reduce CAN load
+    m_Position.getPosition().setUpdateFrequency(ControlConstants.signalFrequency);
+    m_Position.optimizeBusUtilization();
   }
 
   /**

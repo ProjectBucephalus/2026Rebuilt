@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.*;
 
 import frc.robot.Robot;
+import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 
 /**
@@ -56,6 +57,13 @@ public class Flywheels
     m_Follower.getConfigurator().apply(flywheelConfig);
 
     m_Follower.setControl(new Follower(leaderCAN, MotorAlignmentValue.Opposed));
+
+    // Set the frequency of important signals to match robot clock cycle
+    // Reduce the frequency of all other signals from the device to reduce CAN load
+    m_Leader.getVelocity().setUpdateFrequency(ControlConstants.signalFrequency);
+    m_Leader.getStatorCurrent().setUpdateFrequency(ControlConstants.signalFrequency);
+    m_Leader.optimizeBusUtilization();
+    m_Follower.optimizeBusUtilization();
   }
 
   /**

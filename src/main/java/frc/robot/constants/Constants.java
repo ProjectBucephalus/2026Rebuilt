@@ -78,6 +78,9 @@ public final class Constants
 
     public static final double lastClimbChance = 10;
 
+    /** Frequency for CAN device status signals that are needed, Hz */
+    public static final double signalFrequency = 50;
+
     @SuppressWarnings("unchecked") // No way to make it work that doesn't give warning afaik
     /** First element is the default */
     public static final Pair<String, String>[] autoPresets = new Pair[]
