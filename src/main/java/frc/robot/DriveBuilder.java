@@ -26,6 +26,8 @@ import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.constants.Path;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
+import frc.robot.util.MatchTime;
+import frc.robot.util.PBDash;
 
 public class DriveBuilder
 {
@@ -209,7 +211,15 @@ public class DriveBuilder
    * @param target Pose2d for the command to navigate to
    */
   public static Command pathFollow(Pose2d target)
-    {return pathFollowInner(Arrays.asList(target), Arrays.asList(0.0), () -> 0.0);}
+    {return pathFollow(target, () -> 0.0);}
+
+  /**
+   * Creates a PathFollow drive command to navigate to the given target pose with braking
+   * @param target Pose2d for the command to navigate to
+   * @param brakeSup Supplier for the speed reduction to apply, [0..1].  0 is no braking, 1 is full braking
+   */
+  public static Command pathFollow(Pose2d target, DoubleSupplier brakeSup)
+    {return pathFollowInner(Arrays.asList(target), Arrays.asList(0.0), brakeSup);}
 
   /**
    * Creates a PathFollow drive command to follow the given path
@@ -228,6 +238,7 @@ public class DriveBuilder
     final ArrayList<Pose2d> waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
     final ArrayList<Double> radiusPerSegment = new ArrayList<>(path.sequence().length);
 
+    PBDash.putString("drive", "init");
     for (int i = 0; i < path.sequence().length - 1; i++) 
     {
       final var current = path.sequence()[i];
@@ -297,9 +308,9 @@ public class DriveBuilder
         // If the robot is close to the path, follow one point ahead to give smoother cornering
         final var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
         final var targetPose = waypoints.get(targetIndex);
-        
         s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetPose, robotPose, brakeSup.getAsDouble())));
-            
+        PBDash.putDouble("executing", MatchTime.currentTime());    
+
         // Switch to next waypoint when within the given distance of the current one
         final var currentSegment = Math.floorDiv(currentWaypoint, 3);
 

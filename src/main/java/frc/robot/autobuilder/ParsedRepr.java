@@ -39,6 +39,13 @@ public final class ParsedRepr
     }
   }
 
+  public static class GeneralException extends Exception
+  {
+    public final Object[] msg;
+
+    public GeneralException(Object... msg) {this.msg = msg;}
+  }
+
   /** 
    * A value with an attached type <p>
    * The value itself is stored as an Object, which is cast appropriately depending on the type.
@@ -76,7 +83,16 @@ public final class ParsedRepr
     {
       return switch (type)
       {
-        case Text -> value == "on" ? true : false; 
+        case Text -> switch ((String)value)
+        {
+          case "on" -> true;
+          case "off" -> false;
+          default -> 
+          {
+            AutoBuilder.error("warning: value ", value, " was interpreted as a boolean but is not `on` or `off` (treated it as false/`off`)");
+            yield false;
+          }
+        };
         default -> throw new TypeMismatchException(Type.Text, this);
       };
     }

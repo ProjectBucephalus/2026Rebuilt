@@ -7,6 +7,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,7 +16,9 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 
 import frc.robot.DriveBuilder;
 import frc.robot.autobuilder.ParsedRepr.*;
+import frc.robot.constants.Constants.ClimberConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
+import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Path;
 import frc.robot.subsystems.Intake;
@@ -32,6 +35,7 @@ public class CommandGen
   private final Intake s_Intake;
   private final PositionMotor s_Extension;
   private final LinearExtension s_Climber;
+  private final DigitalInput io_ClimberPost;
   private final Supplier<Pose2d> poseSup;
 
   /** The final command group that gets built from the instructions */
@@ -44,21 +48,25 @@ public class CommandGen
   /**
    * Creates a new command generator, storing all the provided robot values internally for use in the produced command
    * @param instrs The instructions to be compiled
-   * @param swerveStateSup Swerve state supplier, used to get the robot's starting position and provided to driving-related commands
    * @param s_Swerve The swerve subsystem
    * @param s_Intake The intake subsystem
+   * @param s_Climber The climber subsystem
+   * @param swerveStateSup Swerve state supplier, used to get the robot's starting position and provided to driving-related commands
+   * @param robotState The robot's state object
    */
   public CommandGen
   (
     Intake s_Intake,
     PositionMotor s_Extension,
     LinearExtension s_Climber,
+    DigitalInput io_ClimberPost,
     Supplier<Pose2d> poseSup
   )
   {
     this.s_Intake = s_Intake;
     this.s_Extension = s_Extension;
     this.s_Climber = s_Climber;
+    this.io_ClimberPost = io_ClimberPost;
     this.poseSup = poseSup;
   }
 
@@ -113,6 +121,10 @@ public class CommandGen
           " arguments"
         );
       }
+      catch (GeneralException e) 
+      {
+        AutoBuilder.error(e.msg);
+      }
     }
 
     return commands.withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
@@ -124,7 +136,7 @@ public class CommandGen
    * Most of the errors are handled as exceptions, which are thrown by helper methods
    * and implicitly get rethrown by this to be caught in {@link #compile()}
    */
-  private void compileInstr() throws TypeMismatchException, ArgCountException
+  private void compileInstr() throws TypeMismatchException, ArgCountException, GeneralException
   {
     switch (instr.type())
     {
@@ -224,7 +236,29 @@ public class CommandGen
       {
         assertArgCount(1);
 
-        //commands.addCommands(s_Climber.);
+        String text = instr.arg(0).asText();
+        boolean isLeft = switch (text)
+        {
+          case "left" -> true;
+          case "right" -> false;
+          default -> throw new GeneralException("expected the argument to be `left` or `right`, but it was ", text);
+        };
+
+        Pose2d climbStartPose = isLeft ? GeoFencing.climbStartPoseLeft.get() : GeoFencing.climbStartPoseRight.get();
+        Pose2d climbEndPose = isLeft ? GeoFencing.climbEndPoseLeft.get() : GeoFencing.climbEndPoseRight.get();
+
+        commands.addCommands
+        (
+          Commands.parallel
+          (
+            DriveBuilder.pathFollow(climbStartPose),
+            s_Climber.extendCmd()
+          ),
+          Commands.waitUntil(() -> !io_ClimberPost.get()),
+          DriveBuilder.pathFollow(climbEndPose, () -> 0.75),
+          Commands.waitUntil(io_ClimberPost::get),
+          s_Climber.setTargetCmd(ClimberConstants.climbPosition)
+        );
       }
     }
   }

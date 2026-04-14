@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.Conversions;
+import frc.robot.util.PBDash;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -311,6 +312,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         maxAngularVelocity
       ) * brake;
     final var throttleXY = FieldConstants.GeoFencing.fieldGeoFence.process(new Translation2d(throttleX, throttleY)).times(brake);
+    PBDash.putString("throttleXY", throttleXY.toString());
 
     xController.close();
     yController.close();

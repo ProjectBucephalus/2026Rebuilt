@@ -170,7 +170,7 @@ public class Robot extends TimedRobot
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
 
-  private final AutoBuilder autoBuilder = new AutoBuilder(s_Intake, s_Extension, s_Climber, this::getPose);
+  private final AutoBuilder autoBuilder = new AutoBuilder(s_Intake, s_Extension, s_Climber, io_ClimberPost, this::getPose);
 
   public Robot() 
   {
