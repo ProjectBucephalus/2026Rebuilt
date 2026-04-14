@@ -5,7 +5,6 @@ import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -289,6 +288,8 @@ public class DriveBuilder
       private boolean onPath = false;
       private int currentWaypoint = 0;
       
+      {addRequirements(s_Swerve);}
+
       @Override
       public InterruptionBehavior getInterruptionBehavior() 
         {return InterruptionBehavior.kCancelIncoming;}
@@ -308,8 +309,7 @@ public class DriveBuilder
         // If the robot is close to the path, follow one point ahead to give smoother cornering
         final var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
         final var targetPose = waypoints.get(targetIndex);
-        s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetPose, robotPose, brakeSup.getAsDouble())));
-        PBDash.putDouble("executing", MatchTime.currentTime());    
+        s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetPose, robotPose, brakeSup.getAsDouble()))); 
 
         // Switch to next waypoint when within the given distance of the current one
         final var currentSegment = Math.floorDiv(currentWaypoint, 3);
