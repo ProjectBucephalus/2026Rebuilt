@@ -10,6 +10,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -169,6 +170,8 @@ public class Robot extends TimedRobot
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
 
+  private final AutoBuilder autoBuilder = new AutoBuilder(s_Intake, s_Extension, s_Climber, this::getPose);
+
   public Robot() 
   {
     updateSwerveState();
@@ -179,7 +182,7 @@ public class Robot extends TimedRobot
     new ControlBinder
     (
       state, 
-      () -> swerveState, 
+      this::getPose, 
       driver, 
       operator, 
       switchboard, 
@@ -230,7 +233,7 @@ public class Robot extends TimedRobot
       driverStick::stickOutput,
       () -> -driver.getRightX(),
       driver::getRightTriggerAxis,
-      () -> swerveState.Pose
+      this::getPose
     );
 
     driverBrake.withBrakeAxis(() -> Math.max(driver.getRightTriggerAxis(), s_Intake.getRelativeSpeed() * PBDash.getDouble("Intake Throttle")));
@@ -310,9 +313,12 @@ public class Robot extends TimedRobot
     PBDash.FIELD.setRobotPose(swerveState.Pose);
   }
 
+  private Pose2d getPose()
+    {return swerveState.Pose;}
+
   private void compileAuto()
   {
-    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), swerveState.Pose, s_Swerve, s_Intake, s_Extension));
+    autoCommand = Optional.of(autoBuilder.compile(PBDash.AUTO_STRING.get()));
   }
 
   private void checkDevices()

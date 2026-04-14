@@ -8,9 +8,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -46,7 +46,7 @@ import frc.robot.subsystems.generic.PositionMotor;
 public record ControlBinder
 (
   RobotState state,
-  Supplier<SwerveDriveState> swerveStateSup,
+  Supplier<Pose2d> poseSup,
   CommandXboxController driver,
   CommandXboxController operator,
   CommandGenericHID switchboard,
@@ -245,13 +245,13 @@ public record ControlBinder
     final Trigger autoAimTrigger = new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
                                           .and(s_Vision::hasLocalisation)
                                           .and(DriverStation::isEnabled);
-    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(poseSup.get().getTranslation()));
 
     // Not Manual, Outside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger.negate())
       .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Point).ignoringDisable(true))
-      .whileTrue(bothShooters(Commands::run, s -> s.target.point = FieldUtils.getPassPoint(swerveStateSup.get().Pose.getTranslation())));
+      .whileTrue(bothShooters(Commands::run, s -> s.target.point = FieldUtils.getPassPoint(poseSup.get().getTranslation())));
 
     // Not Manual, Inside Alliance Zone
     autoAimTrigger
@@ -362,7 +362,7 @@ public record ControlBinder
   private void bindClimber()
   {
     final Trigger autoDeployTrigger = new Trigger(() -> state.climbPos != ClimbPosition.None);
-    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(poseSup.get().getTranslation()));
 
     // In alliance zone and auto-deploy, extend (only on true so that manual control can still happen while in alliance zone)
     autoDeployTrigger

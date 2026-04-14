@@ -1,72 +1,65 @@
 package frc.robot.autobuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
-/** Converts raw source text into a structured list of {@link Token Tokens}, handling any invalid characters */
+/** Lazily converts raw source text into a series of {@link Token Tokens}, handling any invalid characters */
 public class Tokeniser 
 {
   /** The source text */
-  private final String source;
-  /** The list that the tokens are placed into as they're read */
-  private final ArrayList<Token> tokens = new ArrayList<>();
-
+  private String source;
   /** The start index of the token currently being read */
-  private int start = 0;
+  private int start;
   /** The current position we're up to in the source. Never less than {@link Tokeniser#start start} */
-  private int current = 0;
-
-  /** @param input The source text for this tokeniser to read */
-  public Tokeniser(String input)
-  {
-    source = input.toLowerCase();
-  }
+  private int current;
 
   /**
-   * Runs the actual tokenising process, iterating through the source text and creating tokens as they are read
-   * @return The list of tokens
+   * Resets the tokeniser, storing the new source text and resetting the indices <p>
+   * Must be have been called at least once prior to any {@link Tokeniser#nextToken nextToken()} calls
+   * @param source The source text for the tokeniser to read in future {@link Tokeniser#nextToken nextToken()} calls
    */
-  public List<Token> tokenise()
+  public void reset(String source)
   {
-    // The null byte \0 is used to signal the end of the source text
-    while (peek() != '\0')
-    {
-      // Set the start of the new token to our current position, then read the token
-      start = current;
-      nextToken();
-    }
-
-    return tokens;
+    this.source = source.toLowerCase();
+    start = 0;
+    current = 0;
   }
 
-  /** Reads one token from the current position and adds it to the list */
-  private void nextToken()
+  /** 
+   * Produces the next token
+   * @return The next token, or empty if the end of the source text has been reached
+   */
+  public Optional<Token> nextToken()
   {
+    start = current;
     char c = advance();
-    switch (c)
+    return switch (c)
     {
+      // End of source text, return empty
+      case '\0' -> Optional.empty();
       // Ignore whitespace
-      case ' ', '\t', '\n', '\r' -> {}
+      case ' ', '\t', '\n', '\r' -> nextToken();
       // Simple handling for single-character punctuation tokens
-      case ',' -> addToken(Token.Type.Comma);
+      case ',' -> Optional.of(createToken(Token.Type.Comma));
+      // Numbers can start with a negative sign or a digit
+      case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> Optional.of(number());
       default -> 
       {
-        // Numbers can start with a negative sign or a digit
-        if (c == '-' || isDigit(c))
-          number();
         // Text must start with a..z or _
-        else if (isAlpha(c))
-          text();
+        if (isAlpha(c)) 
+          yield Optional.of(text());
         // Print an error if we don't recognise the character
-        else
+        else 
+        {
           AutoBuilder.error("unexpected character " + c);
+          yield nextToken();
+        }
       }
-    }
+    };
   }
 
   /** Handles number tokens */
-  private void number() 
+  private Token number() 
   {
     // Consume all consecutive digits
     while (match(this::isDigit));
@@ -75,16 +68,16 @@ public class Tokeniser
     if (match('.')) 
       while (match(this::isDigit));
 
-    addToken(Token.Type.Num);
+    return createToken(Token.Type.Num);
   }
 
   /** Handles text tokens */
-  private void text() 
+  private Token text() 
   {
     // Consume all consecutive alphanumeric characters
     while (match(this::isAlphaNumeric));
 
-    addToken(Token.Type.Text);
+    return createToken(Token.Type.Text);
   }
 
   /** Helper for checking if a character is 0..9 */
@@ -134,11 +127,12 @@ public class Tokeniser
     {return match(c -> c == expected);}
 
   /**
-   * Adds a new token to the list, using {@link Tokeniser#start start} and {@link Tokeniser#current current} to get it's source text
+   * Creates a new token, using {@link Tokeniser#start start} and {@link Tokeniser#current current} to get it's source text
    * @param type The type of the new token
+   * @return The new token
    */
-  private void addToken(Token.Type type) 
+  private Token createToken(Token.Type type) 
   {
-    tokens.add(new Token(type, source.substring(start, current)));
+    return new Token(type, source.substring(start, current));
   }
 }

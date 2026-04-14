@@ -1,10 +1,12 @@
 package frc.robot.autobuilder;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.generic.LinearExtension;
 import frc.robot.subsystems.generic.PositionMotor;
 import frc.robot.util.PBDash;
 
@@ -14,36 +16,37 @@ import frc.robot.util.PBDash;
  */
 public class AutoBuilder 
 {
+  private final Parser parser;
+  private final CommandGen commandGen;
+
   /**
-   * Compiles an auto string into a sequential command
+   * Constructs the autobuilder, storing all the values that will be later needed
+   * @param s_Intake
+   * @param s_Extension
+   * @param s_Climber
+   * @param poseSup
+   */
+  public AutoBuilder(Intake s_Intake, PositionMotor s_Extension, LinearExtension s_Climber, Supplier<Pose2d> poseSup)
+  {
+    parser = new Parser();
+    commandGen = new CommandGen(s_Intake, s_Extension, s_Climber, poseSup);
+  }
+
+  /**
+   * Compiles an auto string into a command
    * 
    * @param commandInput The auto string, comprised of instructions seperated by commas.
-   *                     Each instruction is a name followed by parenthesis-delimited arguments. Whitespace is ignored. 
-   *                     For example, {@code driveto(1 2), waitfor(3), driveto(4 5 6)}
-   * @param swerveStateSup Swerve state supplier, used for instructions involving driving or the robot's position
-   * @param state The robot's state object, used for instructions such as setting auto-passing
-   * @param s_Swerve The swerve subsystem
-   * @param s_Intake The intake subsystem
+   *                     Each instruction is a name followed by arguments. Whitespace is ignored. 
+   *                     For example, {@code driveto 1 2, waitfor 3, driveto 4 5 6}
    * @return A command that executes the auto string's instructions in sequence
    */
-  public static Command compile
-  (
-    String source,
-    Pose2d currPose,
-    CommandSwerveDrivetrain s_Swerve, 
-    Intake s_Intake,
-    PositionMotor s_Extension
-  )
+  public Command compile(String source)
   {
     // Wipe any previous errors
     PBDash.AUTO_ERRS.init();
-    // driveto(1 2) becomes [Token(Text, "driveto"), Token(LParen, "("), Token(Num, "1"), Token(Num, "2"), Token(LParen, ")")]
-    var tokens = new Tokeniser(PBDash.AUTO_STRING.get()).tokenise(); 
-    // [Token(Text, "driveto"), Token(LParen, "("), Token(Num, "1"), Token(Num, "2"), Token(LParen, ")")] 
-    // becomes [Instruction(driveto, [Value(Num, 1), Value(Num, 1)])]
-    var instrs = new Parser(tokens).parse(); 
-    var command = new CommandGen(instrs, currPose, s_Intake, s_Extension).compile();
-    return command;
+    // driveto 1 2 becomes [Instruction(driveto, [Value(Num, 1), Value(Num, 1)])]
+    var instrs = parser.parse(source); 
+    return commandGen.compile(instrs);
   }
 
   /** 
