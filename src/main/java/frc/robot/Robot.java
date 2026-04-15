@@ -319,8 +319,12 @@ public class Robot extends TimedRobot
   private void checkDevices()
   {
     PBDash.DEVICE_ERRORS.init();
+
     double batteryVoltage = Math.round(100 * RobotController.getBatteryVoltage()) / 100.0;
     if (batteryVoltage < 12.5) PBDash.DEVICE_ERRORS.append("Battery " + batteryVoltage + "v, ");
+
+    if (!driver.isConnected() || !operator.isConnected() || !switchboard.isConnected()) PBDash.DEVICE_ERRORS.append("Controller, ");
+
     if (!s_Swerve.devicesValid()) PBDash.DEVICE_ERRORS.append("Drivebase, ");
 
     if (!s_PortShooter.devicesValid()) PBDash.DEVICE_ERRORS.append("Port Shooter, ");

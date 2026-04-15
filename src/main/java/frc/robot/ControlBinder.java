@@ -229,7 +229,8 @@ public record ControlBinder
       );
 
     // Test (Using dashboard values)
-    new Trigger(() -> state.shoot == ShootersState.Test)
+    switchboard.button(IDConstants.testManualSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
       .whileTrue
       (
         bothShooters(Commands::runOnce, s -> {
@@ -239,6 +240,35 @@ public record ControlBinder
           s.target.speed = PBDash.TEST_FLYSPEED.get();
         })
         .repeatedly()
+        .ignoringDisable(true)
+      );
+
+    switchboard.button(IDConstants.testHubSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
+      .whileTrue
+      (
+        bothShooters(Commands::runOnce, s -> {
+          s.target.state = TargetState.Hub;
+        })
+        .repeatedly()
+        .ignoringDisable(true)
+      );
+
+    switchboard.button(IDConstants.testIdleSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
+      .whileTrue
+      (
+        bothShooters(Commands::runOnce, s -> {
+          s.target.state = TargetState.Manual;
+        })
+        .repeatedly()
+        .ignoringDisable(true)
+      );
+
+    switchboard.button(10)
+      .onTrue
+      (
+        bothShooters(Commands::runOnce, s -> {s.calibrate();})
         .ignoringDisable(true)
       );
     

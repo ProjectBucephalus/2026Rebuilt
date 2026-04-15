@@ -51,7 +51,7 @@ public final class Constants
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
     public static final double minRotThrottle = 0.3;
     /** Maximum brake value when intake is running at full speed */
-    public static final double throttleFromIntake = 0.3;
+    public static final double brakeFromIntake = 0.25;
     /** How far a trigger must be pressed to be considered on, [0..1] */
     public static final double triggerThreshold = 0.8;
     /** Translation lineup tolerance, meters */
@@ -209,7 +209,7 @@ public final class Constants
       }
 
       /** Target flywheel speed when idle, mechanism rps */
-      public static final double idleSpeed = 0;
+      public static final double idleSpeed = 10;
       /** Allowed variation in flywheel speed for shooting, rps */
       public static final double flySpeedTolerance = 2;
 
@@ -318,7 +318,7 @@ public final class Constants
         indexerConfig.Slot0.kI = 0.01;
         indexerConfig.Slot0.kD = 0.0;
 
-        indexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
+        indexerConfig.MotionMagic.MotionMagicAcceleration = 80.0;
 
         indexerConfig.CurrentLimits.StatorCurrentLimit = 30;
       }
@@ -464,6 +464,15 @@ public final class Constants
       put(6.5, 58.0);
       put(7.5, 68.0);
 
+    }};
+
+    public static final InterpolatingDoubleTreeMap leadFactor = new InterpolatingDoubleTreeMap()
+    {{
+      put(1.0, 1.15 * ShooterConstants.leadFactorV);
+      put(2.0, 1.21 * ShooterConstants.leadFactorV);
+      put(3.0, 1.23 * ShooterConstants.leadFactorV);
+      put(4.0, 1.22 * ShooterConstants.leadFactorV);
+      put(5.0, 1.35 * ShooterConstants.leadFactorV);
     }};
   }
 

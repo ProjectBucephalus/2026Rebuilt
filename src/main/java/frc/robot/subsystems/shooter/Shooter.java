@@ -229,26 +229,12 @@ public class Shooter extends SubsystemBase
 
       var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
 
-      // Calculates X and Y distances to the point
-      double distanceX = targetPoint.getX() - shooterPose.getX(); 
-      double distanceY = targetPoint.getY() - shooterPose.getY();
-    
-      // Calculates the robot's motion normal and tangent to the point; i.e., towards and away from the point, and from side to side relative to the point
-      double motionN   = (((distanceX * fieldRelativeSpeeds.vxMetersPerSecond) + (distanceY * fieldRelativeSpeeds.vyMetersPerSecond)) + target.speed * ShooterConstants.leadFactorV) * ShooterConstants.leadFactorN;
-      double motionT   = ((distanceX * fieldRelativeSpeeds.vyMetersPerSecond) - (distanceY * fieldRelativeSpeeds.vxMetersPerSecond)) * ShooterConstants.leadFactorT;
-
-      // Converts scaled motion from normal back to X and Y
-      double motionX   = ((motionN * distanceX) - (motionT * distanceY)) / distance;
-      double motionY   = ((motionN * distanceY) + (motionT * distanceX)) / distance;
-      var leadOffsets = new Translation2d(motionX, motionY);
-      
-
       // Calculate target offset to avoid balls from each shooter colliding before reaching target
       // and accounting for robot motion
       target.offset = 
         baseTargetOffset
           .rotateBy(swerveState.Pose.getRotation().unaryMinus())
-          .minus(leadOffsets);
+          .minus(new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond).times(ShooterConstants.leadFactorV));
 
       // Find distance to current target for calculating leading shots
       target.distance = switch (target.state) 
