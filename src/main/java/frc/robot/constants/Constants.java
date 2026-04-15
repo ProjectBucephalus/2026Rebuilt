@@ -252,9 +252,9 @@ public final class Constants
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double portPotOffset = -1802.4;
+      public static final double portPotOffset = -1790.79;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double stbdPotOffset = -1816.1;
+      public static final double stbdPotOffset = -1741.33;
 
       private static final double planetaryRatio = 13.03; // MaxPlanetary gearbox marked 4:1 is actually 3.6:1, 5:1 is actually 5.2:1
       private static final double driveGear = 15;
@@ -438,10 +438,11 @@ public final class Constants
       put(3.0, 50.0);
       put(3.5, 52.0); // TODO: Needs retesting when possible
       
-      put(4.0, 52.0); 
-      put(4.5, 52.0);
-      put(5.0, 55.0);
-      put(5.5, 60.0);
+      put(4.0, 53.0); 
+      put(4.5, 56.0);
+      put(5.0, 59.0);
+      put(5.5, 61.0);
+      put(6.0, 62.0);
     }};
 
     /** Distance to Altitude conversion for shooting to a point on the field */
@@ -472,7 +473,7 @@ public final class Constants
       put(2.0, 1.21 * ShooterConstants.leadFactorV);
       put(3.0, 1.23 * ShooterConstants.leadFactorV);
       put(4.0, 1.22 * ShooterConstants.leadFactorV);
-      put(5.0, 1.35 * ShooterConstants.leadFactorV);
+      put(5.0, 1.44 * ShooterConstants.leadFactorV);
     }};
   }
 
@@ -549,10 +550,13 @@ public final class Constants
         extensionConfig.Feedback.RotorToSensorRatio = extensionPlanetaryRatio * extensionGearRatio;
         extensionConfig.Feedback.SensorToMechanismRatio = extensionChainRatio;
 
-        extensionConfig.Slot0.kS = 0.2;
+        extensionConfig.Slot0.kS = 0.125;
         extensionConfig.Slot0.kP = 55.0;
         extensionConfig.Slot0.kI = 0.0;
         extensionConfig.Slot0.kD = 0.0;
+        extensionConfig.Slot0.kG = 0.375;
+
+        extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5;
         extensionConfig.MotionMagic.MotionMagicAcceleration = 1.5;
