@@ -246,7 +246,7 @@ public class Robot extends TimedRobot
     FieldObject.setRobotRadiusSup(() -> SwerveConstants.robotRadiusExpanded);
     FieldObject.setRobotPosSup(() -> swerveState.Pose.getTranslation());
 
-    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
+    FieldObject.setGlobalActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
     
     GeoFencing.fieldRedGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Red));
     GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Blue));
@@ -263,24 +263,16 @@ public class Robot extends TimedRobot
     // Climb attractor TriggerVector setup
     GeoFencing.climbBlueLeft 
       .withControlInput(driverStickRaw::stickOutput)
-      .setActiveCondition(() -> 
-        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
-        && state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Blue));
+      .setActiveCondition(() -> state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Blue));
     GeoFencing.climbRedLeft  
       .withControlInput(driverStickRaw::stickOutput)
-      .setActiveCondition(() -> 
-        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
-        && state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Red));
+      .setActiveCondition(() -> state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Red));
     GeoFencing.climbBlueRight
       .withControlInput(driverStickRaw::stickOutput)
-      .setActiveCondition(() -> 
-        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
-        && state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Blue));
+      .setActiveCondition(() -> state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Blue));
     GeoFencing.climbRedRight 
       .withControlInput(driverStickRaw::stickOutput)
-      .setActiveCondition(() -> 
-        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
-        && state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Red));
+      .setActiveCondition(() -> state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Red));
   }
 
   /** Sets trigger conditions to activate controller rumbles */

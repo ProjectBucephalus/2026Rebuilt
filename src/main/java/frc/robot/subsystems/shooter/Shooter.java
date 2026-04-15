@@ -157,8 +157,8 @@ public class Shooter extends SubsystemBase
       && flywheels.atSpeed()
       && target.distance > ShooterConstants.minRange
       && !GeoFencing.trenchTrigger.getAsBoolean()
-      && GeoFencing.towerShadowBlue.getDistance(shooterPose.getTranslation()) > 0
-      && GeoFencing.towerShadowRed.getDistance(shooterPose.getTranslation()) > 0;
+      && !GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
+      && !GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation());
   }
 
   public Command runIndexerCmd()

@@ -30,8 +30,11 @@ public abstract class FieldObject implements InputTransmuter
   protected double buffer;
   /** Distance at which further processing is required, metres */
   protected double checkRadius;
+
   /** Condition for the object to be active, if the return is false the object will return the input */
   protected BooleanSupplier activeSupplier = () -> true;
+  /** Condition for ALL objects to be active, if the return is false the object will return the input */
+  protected static BooleanSupplier globalActiveSupplier = () -> true;
 
   /**
    * Sets the global robot position supplier for all field objects
@@ -94,13 +97,30 @@ public abstract class FieldObject implements InputTransmuter
   }
 
   /**
+   * Tests if the given point is touching or inside the active object
+   * @param testPos Position of robot to test, field coordinates
+   * @return {@code true} if the object is active and the distance to point is <= 0
+   */
+  public boolean checkPosition(Translation2d testPos)
+  {
+    return activeSupplier.getAsBoolean() && getDistance(testPos) <= 0;
+  }
+
+  /**
    * Sets the condition for which the object is active
    * @param newActiveCondition Any BooleanSupplier, if true the object will be processed
    * @return The FieldObject with the new active condition
    */
   public FieldObject setActiveCondition(BooleanSupplier newActiveCondition)
   {
-    activeSupplier = newActiveCondition;
+    activeSupplier = () -> globalActiveSupplier.getAsBoolean() && newActiveCondition.getAsBoolean();
     return this;
   }
+
+  /**
+   * Sets the condition for which ALL field objects are active
+   * @param newActiveCondition Any BooleanSupplier, if true field objects will be processed
+   */
+  public static void setGlobalActiveCondition(BooleanSupplier newActiveCondition)
+    {globalActiveSupplier = newActiveCondition;}
 }

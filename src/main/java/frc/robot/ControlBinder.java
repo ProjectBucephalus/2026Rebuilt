@@ -109,8 +109,6 @@ public record ControlBinder
 
     // Bump nudging
     bumpTrigger
-      .and(PBDash.IO_FENCE::get)
-      .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
       .onTrue(s_Extension.setTargetCmd(() -> Math.min(ExtensionConstants.bumpSafeRotations, s_Extension.getAngle())))
       .whileTrue(DriveBuilder.nonCardinal(bumpRotationTolerance))
@@ -118,8 +116,6 @@ public record ControlBinder
     
     // Trench nudging
     trenchTrigger
-      .and(PBDash.IO_FENCE::get)
-      .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
       .whileTrue(DriveBuilder.trenchNudge());
 
