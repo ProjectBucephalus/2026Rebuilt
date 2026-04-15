@@ -197,6 +197,10 @@ public class Shooter extends SubsystemBase
         && indexer.devicesValid();
   }
 
+  /** Calibrates the turret to match the potentiometer */
+  public void calibrate()
+    {turret.calibrate(true);}
+
   @Override
   public void periodic()
   {
