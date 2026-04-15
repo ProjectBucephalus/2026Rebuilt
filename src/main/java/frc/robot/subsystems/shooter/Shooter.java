@@ -228,13 +228,24 @@ public class Shooter extends SubsystemBase
 
 
       var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
+      var fieldRelativeMotion = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
+
+      double motionNormal = (((targetPoint.getX() - shooterPose.getX()) * fieldRelativeMotion.getX()) + ((targetPoint.getY() - shooterPose.getY()) * fieldRelativeMotion.getY())) / distance; 
+      double normalFactor = motionNormal / fieldRelativeMotion.getNorm();
+
+      double leadProcessing = Interpolation.leadFactor.get(distance);
+
+      for (int i = 0; i < 2; i++)
+      {
+        leadProcessing = Interpolation.leadFactor.get(distance + (leadProcessing * normalFactor * motionNormal));
+      }
 
       // Calculate target offset to avoid balls from each shooter colliding before reaching target
       // and accounting for robot motion
       target.offset = 
         baseTargetOffset
           .rotateBy(swerveState.Pose.getRotation().unaryMinus())
-          .minus(new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond).times(ShooterConstants.leadFactorV));
+          .minus(fieldRelativeMotion.times(leadProcessing));
 
       // Find distance to current target for calculating leading shots
       target.distance = switch (target.state) 

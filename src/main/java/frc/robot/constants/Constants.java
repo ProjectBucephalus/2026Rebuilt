@@ -417,8 +417,7 @@ public final class Constants
       put(2.0, 8.0);
       put(2.5, 11.0);
       put(3.0, 13.0);
-      put(3.5, 15.0);
-      
+      put(3.5, 16.0);
       put(4.0, 19.0);
       put(4.5, 22.0);
       put(5.0, 23.0);
@@ -436,8 +435,7 @@ public final class Constants
       put(2.0, 48.0);
       put(2.5, 49.0);
       put(3.0, 50.0);
-      put(3.5, 52.0); // TODO: Needs retesting when possible
-      
+      put(3.5, 52.0);
       put(4.0, 53.0); 
       put(4.5, 56.0);
       put(5.0, 59.0);
@@ -467,13 +465,20 @@ public final class Constants
 
     }};
 
+    /** Distance to Time-of-Flight multiplied by lead factor for Shoot-on-the-Move */
     public static final InterpolatingDoubleTreeMap leadFactor = new InterpolatingDoubleTreeMap()
     {{
-      put(1.0, 1.15 * ShooterConstants.leadFactorV);
-      put(2.0, 1.21 * ShooterConstants.leadFactorV);
-      put(3.0, 1.23 * ShooterConstants.leadFactorV);
-      put(4.0, 1.22 * ShooterConstants.leadFactorV);
-      put(5.0, 1.44 * ShooterConstants.leadFactorV);
+      put(1.0, 1.17 * ShooterConstants.leadFactorV);
+      put(1.5, 1.21 * ShooterConstants.leadFactorV);
+      put(2.0, 1.23 * ShooterConstants.leadFactorV);
+      put(2.5, 1.24 * ShooterConstants.leadFactorV);
+      put(3.0, 1.25 * ShooterConstants.leadFactorV);
+      put(3.5, 1.29 * ShooterConstants.leadFactorV);
+      put(4.0, 1.27 * ShooterConstants.leadFactorV);
+      put(4.5, 1.31 * ShooterConstants.leadFactorV);
+      put(5.0, 1.37 * ShooterConstants.leadFactorV);
+      put(5.5, 1.43 * ShooterConstants.leadFactorV);
+      put(6.0, 1.45 * ShooterConstants.leadFactorV);
     }};
   }
 
