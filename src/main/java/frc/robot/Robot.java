@@ -122,14 +122,30 @@ public class Robot extends TimedRobot
     ShooterConstants.HoodConstants.stbdHomeAngle,
     false
   );
+
+  private final Limelight s_PhotonStbd = new Limelight
+  (
+    IDConstants.portLimelightName, 
+    VisionConstants.flatCameraToTurret, 
+    s_PortShooter::getAzimuthTimestamped, 
+    ShooterConstants.portShooterOffset
+  );
+
+  private final Limelight s_PhotonPort = new Limelight
+  (
+    IDConstants.stbdLimelightName, 
+    VisionConstants.flatCameraToTurret, 
+    s_StbdShooter::getAzimuthTimestamped, 
+    ShooterConstants.stbdShooterOffset
+  );
   
   @Logged(name = "Vision")
   private final Vision s_Vision = new Vision
   (
     s_Swerve::addVisionMeasurement,
     () -> swerveState.Speeds.omegaRadiansPerSecond,
-    new Limelight(IDConstants.portLimelightName, VisionConstants.flatCameraToTurret, s_PortShooter::getAzimuthTimestamped, ShooterConstants.portShooterOffset), 
-    new Limelight(IDConstants.stbdLimelightName, VisionConstants.flatCameraToTurret, s_StbdShooter::getAzimuthTimestamped, ShooterConstants.stbdShooterOffset)
+    s_PhotonStbd,
+    s_PhotonPort
   );
   
   @Logged(name = "Climber")
