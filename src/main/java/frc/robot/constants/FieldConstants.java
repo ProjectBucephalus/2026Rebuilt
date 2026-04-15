@@ -188,7 +188,7 @@ public class FieldConstants
     /** Distance from edge of Tower base to centre of upright, m */
     public static final double towerPostEdge   = 0.06;
     /** Distance from front of Tower base to centre of upright, m */
-    public static final double towerPostFront  = 0.08;
+    public static final double towerPostFront  = 0.07;
 
     public static final double towerPostBlueX = towerDepth - towerPostFront;
     public static final double towerPostBlueRightY = towerSpacing + towerPostEdge;
@@ -229,8 +229,8 @@ public class FieldConstants
     // TriggerVectors for climbing
     private static final double climbTriggerRadius = 2;
     private static final double climbTriggerBuffer = 0.5;
-    public static final Translation2d climbStartOffset = new Translation2d(0, 1.0);
-    public static final Translation2d climbEndOffset = new Translation2d(0, 0.37);
+    public static final Translation2d climbStartOffset = new Translation2d(0, 7.0);
+    public static final Translation2d climbEndOffset = new Translation2d(0, 0.35);
 
     public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX, towerPostBlueRightY, 90, climbTriggerRadius, climbTriggerBuffer);
     public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX, towerPostBlueLeftY, -90, climbTriggerRadius, climbTriggerBuffer);
