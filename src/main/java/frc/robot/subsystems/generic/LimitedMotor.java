@@ -141,6 +141,16 @@ public class LimitedMotor extends PositionMotor
             (homeRotations >= maxRotations - tolerance && shiftSup.getAsDouble() >= 0)
           )
         )
+        && 
+        !(
+          calibrated 
+          && 
+          (
+            (shiftSup.getAsDouble() >= 0 && getAngle() >= maxRotations)
+            ||
+            (shiftSup.getAsDouble() <= 0 && getAngle() <= minRotations)
+          )
+        )
       ) 
         baseSetTarget(getAngle() + shiftSup.getAsDouble());
     }
