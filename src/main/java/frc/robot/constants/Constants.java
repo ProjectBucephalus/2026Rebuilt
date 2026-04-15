@@ -465,20 +465,20 @@ public final class Constants
 
     }};
 
-    /** Distance to Time-of-Flight multiplied by lead factor for Shoot-on-the-Move */
-    public static final InterpolatingDoubleTreeMap leadFactor = new InterpolatingDoubleTreeMap()
+    /** Distance to Time-of-Flight for Shoot-on-the-Move */
+    public static final InterpolatingDoubleTreeMap shotTime = new InterpolatingDoubleTreeMap()
     {{
-      put(1.0, 1.17 * ShooterConstants.leadFactorV);
-      put(1.5, 1.21 * ShooterConstants.leadFactorV);
-      put(2.0, 1.23 * ShooterConstants.leadFactorV);
-      put(2.5, 1.24 * ShooterConstants.leadFactorV);
-      put(3.0, 1.25 * ShooterConstants.leadFactorV);
-      put(3.5, 1.29 * ShooterConstants.leadFactorV);
-      put(4.0, 1.27 * ShooterConstants.leadFactorV);
-      put(4.5, 1.31 * ShooterConstants.leadFactorV);
-      put(5.0, 1.37 * ShooterConstants.leadFactorV);
-      put(5.5, 1.43 * ShooterConstants.leadFactorV);
-      put(6.0, 1.45 * ShooterConstants.leadFactorV);
+      put(1.0, 1.17);
+      put(1.5, 1.21);
+      put(2.0, 1.23);
+      put(2.5, 1.24);
+      put(3.0, 1.25);
+      put(3.5, 1.29);
+      put(4.0, 1.27);
+      put(4.5, 1.31);
+      put(5.0, 1.37);
+      put(5.5, 1.43);
+      put(6.0, 1.45);
     }};
   }
 

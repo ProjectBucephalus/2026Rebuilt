@@ -53,6 +53,12 @@ public class Shooter extends SubsystemBase
   private SwerveDriveState swerveState;
 
   private Pose2d shooterPose;
+  private Translation2d velocity;
+  private Translation2d acceleration;
+
+  private Translation2d lastPose = Translation2d.kZero;
+  private Translation2d lastVelocity = Translation2d.kZero;
+  private double timeOfFlight = 0;
 
   @Logged
   /** Current active target for the shooter */
@@ -207,6 +213,12 @@ public class Shooter extends SubsystemBase
     swerveState = swerveStateSup.get();
     shooterPose = swerveState.Pose.plus(shooterOffset);
 
+    // Calculate the instantaneous velocity and acceleration of the shooter
+    //velocity = shooterPose.getTranslation().minus(lastPose).times(50);
+    var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
+    velocity = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
+    acceleration = velocity.minus(lastVelocity);
+
     // Find distance to current target for calculating leading shots
     double distance = switch (target.state) 
     {
@@ -216,7 +228,7 @@ public class Shooter extends SubsystemBase
       case Hub -> FieldUtils.getAllianceHubCentre().minus(shooterPose.getTranslation()).getNorm();
     };
 
-    if (target.state != TargetState.Manual)
+    if (target.state != TargetState.Manual && velocity.getNorm() > 0.15)
     {
       Translation2d targetPoint = switch (target.state) 
       {
@@ -226,26 +238,20 @@ public class Shooter extends SubsystemBase
         case Hub -> FieldUtils.getAllianceHubCentre();
       };
 
+      // Calculate the component of the velocity that is towards the target
+      double motionNormal = (((targetPoint.getX() - shooterPose.getX()) * velocity.getX()) + ((targetPoint.getY() - shooterPose.getY()) * velocity.getY())) / distance; 
+      double normalFactor = motionNormal / velocity.getNorm();
 
-      var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
-      var fieldRelativeMotion = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
-
-      double motionNormal = (((targetPoint.getX() - shooterPose.getX()) * fieldRelativeMotion.getX()) + ((targetPoint.getY() - shooterPose.getY()) * fieldRelativeMotion.getY())) / distance; 
-      double normalFactor = motionNormal / fieldRelativeMotion.getNorm();
-
-      double leadProcessing = Interpolation.leadFactor.get(distance);
-
-      for (int i = 0; i < 2; i++)
-      {
-        leadProcessing = Interpolation.leadFactor.get(distance + (leadProcessing * normalFactor * motionNormal));
-      }
+      // Multiply ToF from last cycle by velocity towards target to give the change in distance from shot leading
+      // Use this new distance to calculate the new ToF
+      timeOfFlight = Interpolation.shotTime.get(distance + (timeOfFlight * normalFactor * motionNormal));
 
       // Calculate target offset to avoid balls from each shooter colliding before reaching target
-      // and accounting for robot motion
+      // and accounting for turret velocity and (half) acceleration
       target.offset = 
         baseTargetOffset
           .rotateBy(swerveState.Pose.getRotation().unaryMinus())
-          .minus(fieldRelativeMotion.times(leadProcessing));
+          .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.getDouble("Lead Factor") * timeOfFlight * timeOfFlight)));
 
       // Find distance to current target for calculating leading shots
       target.distance = switch (target.state) 
@@ -255,6 +261,11 @@ public class Shooter extends SubsystemBase
         // aim at our alliance's hub
         case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
       };
+    }
+    else
+    {
+      target.offset = Translation2d.kZero;
+      target.distance = distance;
     }
 
     target.altitude = switch (target.state)
@@ -282,6 +293,10 @@ public class Shooter extends SubsystemBase
     hood.update();
 
     telemetrise();
+    
+    // Store pose and velocity to be used next cycle
+    lastPose = shooterPose.getTranslation();
+    lastVelocity = velocity;
   }
 
   @Override
