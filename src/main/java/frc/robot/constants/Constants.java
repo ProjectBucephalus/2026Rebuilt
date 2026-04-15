@@ -328,10 +328,18 @@ public final class Constants
   /** Geometry, tag, and tuning data for Vision system */
   public static final class VisionConstants
   {
-    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d portLimelightOffset = new Transform3d(0.25, 0, -0.6745, new Rotation3d(0, -13, 0));
-    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d stbdLimelightOffset = new Transform3d(0.25, 0, -0.6745, new Rotation3d(0, -13, 0));
+    /** X/Y offset of camera in turret space, metres aft/stbd */
+    public static final Transform2d flatCameraToTurret = new Transform2d(-0.156, 0, Rotation2d.kZero);
+    private static final Translation2d baseTurretToCamera = new Translation2d(0.156, 0.195);
+    /** Pitch of camera in turret space, degrees */
+    private static final double turretPitch = -12.9;
+    /** X/Z offset of camera in camera space, metres fore/up */
+    private static final Translation2d turretToCamera = baseTurretToCamera.rotateBy(Rotation2d.fromDegrees(turretPitch));
+
+    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore*2/port/down, degrees roll/pitch/yaw */
+    public static final Transform3d portLimelightOffset = new Transform3d(turretToCamera.getX(), 0, turretToCamera.getY(), new Rotation3d(0, Math.toRadians(turretPitch), 0));
+    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore*2/port/down, degrees roll/pitch/yaw */
+    public static final Transform3d stbdLimelightOffset = new Transform3d(turretToCamera.getX(), 0, turretToCamera.getY(), new Rotation3d(0, Math.toRadians(turretPitch), 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
     public static final double visionFrequencyThreshold = 5;
     /** How many seconds into the past we store turret azimuth readings */

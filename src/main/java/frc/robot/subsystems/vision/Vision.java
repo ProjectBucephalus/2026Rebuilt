@@ -14,7 +14,10 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.constants.Constants.VisionConstants;
 import frc.robot.util.PBDash;
+
+import static edu.wpi.first.units.Units.Degrees;
 import static frc.robot.constants.Constants.VisionConstants.*;
 
 /** 
@@ -107,9 +110,11 @@ public class Vision extends SubsystemBase
             // If the camera is mounted on a turret, apply additional offset processing
             Pose2d poseOut = 
               ll.isOnTurret() 
-              ? est.estimatedPose.toPose2d().transformBy(ll.getTurretToRobot(timestamp))
-              : est.estimatedPose.toPose2d();
+              ? est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure()).transformBy(ll.getTurretToRobot(timestamp))
+              : est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure());
             
+            PBDash.putString("Processed Pose", poseOut.toString());
+
             // Update time since last good pose estimate
             lastGoodPose = Timer.getTimestamp();
 

@@ -128,8 +128,8 @@ public class Robot extends TimedRobot
   (
     s_Swerve::addVisionMeasurement,
     () -> swerveState.Speeds.omegaRadiansPerSecond,
-    new Limelight(IDConstants.portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuthTimestamped, ShooterConstants.portShooterOffset), 
-    new Limelight(IDConstants.stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuthTimestamped, ShooterConstants.stbdShooterOffset)
+    new Limelight(IDConstants.portLimelightName, VisionConstants.flatCameraToTurret, s_PortShooter::getAzimuthTimestamped, ShooterConstants.portShooterOffset), 
+    new Limelight(IDConstants.stbdLimelightName, VisionConstants.flatCameraToTurret, s_StbdShooter::getAzimuthTimestamped, ShooterConstants.stbdShooterOffset)
   );
   
   @Logged(name = "Climber")
