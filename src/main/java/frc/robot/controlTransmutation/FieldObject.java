@@ -113,7 +113,7 @@ public abstract class FieldObject implements InputTransmuter
    */
   public FieldObject setActiveCondition(BooleanSupplier newActiveCondition)
   {
-    activeSupplier = () -> globalActiveSupplier.getAsBoolean() && newActiveCondition.getAsBoolean();
+    activeSupplier = newActiveCondition;
     return this;
   }
 
