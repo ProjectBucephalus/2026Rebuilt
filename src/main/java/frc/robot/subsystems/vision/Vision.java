@@ -87,6 +87,8 @@ public class Vision extends SubsystemBase
 
       for (var ll : lls)
       {
+        if (ll.isActive())
+        {
         // Pose estimate returns Optional, so may or may not be present
         ll.getPhotonEst().ifPresent(est -> {
           // Reject update if it contains no tags, or if the robot is rotating too fast         
@@ -120,10 +122,12 @@ public class Vision extends SubsystemBase
 
             // Send pose estimate to consumer
             estimateConsumer.accept(poseOut, timestamp, stdDevs);
+          
           }
         });
       }
     } 
+  }
     else if (usingVision)
     {
       usingVision = false;

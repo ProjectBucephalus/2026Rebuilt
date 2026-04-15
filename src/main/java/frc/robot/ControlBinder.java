@@ -34,6 +34,7 @@ import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.Limelight;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 import frc.robot.controlTransmutation.Brake;
@@ -54,6 +55,8 @@ public record ControlBinder
   Brake driverBrake,
   CommandSwerveDrivetrain s_Swerve,
   Vision s_Vision,
+  Limelight s_PhotonStbd,
+  Limelight s_PhotonPort,
   Shooter s_PortShooter,
   Shooter s_StbdShooter,
   Intake s_Intake,
@@ -200,6 +203,7 @@ public record ControlBinder
         runOnce(() -> {          
           s_StbdShooter.target.azimuth = 45;
           s_StbdShooter.target.state = TargetState.Manual;
+          s_PhotonPort.setActive(false);
         })
       )
       .onFalse(runOnce(() -> s_StbdShooter.target.state = s_PortShooter.target.state));
@@ -210,6 +214,7 @@ public record ControlBinder
         runOnce(() -> {          
           s_PortShooter.target.azimuth = -45;
           s_PortShooter.target.state = TargetState.Manual;
+          s_PhotonStbd.setActive(false);
         })
       )
       .onFalse(runOnce(() -> s_PortShooter.target.state = s_StbdShooter.target.state));
