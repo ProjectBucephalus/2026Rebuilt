@@ -34,6 +34,7 @@ public class Limelight
   private final PhotonPoseEstimator photonEstimator;
 
   private final boolean onTurret;
+  private boolean isActive = true;
 
   private final Transform2d robotToTurret;
   private final Transform2d turretToRobot;
@@ -145,4 +146,10 @@ public class Limelight
   /** @return Transform to convert from Camera to Structure */
   public Transform2d getCameraToStructure()
     {return cameraToStructure;}
+
+  public boolean isActive()
+  {return isActive;}
+
+  public void setActive(boolean activeState)
+  {isActive = activeState;}
 }
