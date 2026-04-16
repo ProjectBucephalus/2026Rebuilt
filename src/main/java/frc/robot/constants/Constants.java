@@ -86,12 +86,12 @@ public final class Constants
     public static final Pair<String, String>[] autoPresets = new Pair[]
     {
       new Pair<>("Blank", ""),
-      new Pair<>("Drive Back", "Intake(on), DriveBy(-1 0)"),
-      new Pair<>("Aussie's Auto", "Follow(r_trench_a2m), Intake(on), Follow(r_balls), Follow(r_trench_m2a), DriveTo(1.5 1)"),
+      new Pair<>("Drive Back", "Intake on, DriveBy -1 0"),
+      new Pair<>("Aussie's Auto", "Follow r_trench_a2m, Intake on, Follow r_balls, Follow r_trench_m2a, DriveTo 1.5 1"),
       new Pair<>
       (
         "Aussie's Auto v2", 
-        "Follow(r_trench_a2m), Intake(on), Follow(r_balls), Follow(r_trench_m2a), DriveTo(3 1), WaitFor(4), Follow(r_trench_a2m), DriveTo(5.75 5 90), Follow(r_trench_m2a), DriveTo(3 1)"
+        "Follow r_trench_a2m, Intake on, Follow r_balls, Follow r_trench_m2a, DriveTo 3 1, WaitFor 4, Follow r_trench_a2m, DriveTo 5.75 5 90, Follow r_trench_m2a, DriveTo 3 1"
       )
     };
   }
@@ -123,8 +123,8 @@ public final class Constants
     public static final double driveKI = 0.0;
     public static final double driveKD = 0.2;
 
-    /* Rotation Control PID Values */
-    public static final double rotationKP = 0.1;
+    /* Rotation Control PID Values, in Degrees */
+    public static final double rotationKP = 5.7;
     public static final double rotationKI = 0;
     public static final double rotationKD = 0.01;
 

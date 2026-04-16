@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.util.FieldUtils;
+import frc.robot.util.PBDash;
 
 /**
  * Defines a path to be used by PathFollowDrive commands <p>
@@ -53,6 +54,12 @@ public record Path(Node... sequence)
     return new Path(concatSequence);
   }
 
+  public void display(String fieldObject)
+  {
+    var poses = Arrays.stream(sequence).map(node -> node.pose()).toArray(Pose2d[]::new);
+    PBDash.addToFieldObject(fieldObject, poses);
+  }
+
   public static final HashMap<String, Path> autoPaths = new HashMap<>();
   static
   {
@@ -62,7 +69,7 @@ public record Path(Node... sequence)
       "r_trench_a2m", 
       new Path
       (
-        0.75, 
+        0.25, 
         new Pose2d(2.5, 0.625, Rotation2d.kZero),
         new Pose2d(6.25, 0.625, Rotation2d.kZero)
       )
@@ -73,7 +80,7 @@ public record Path(Node... sequence)
       "l_trench_a2m", 
       new Path
       (
-        0.75, 
+        0.25, 
         new Pose2d(2.5, 7.4, Rotation2d.kZero),
         new Pose2d(6.25, 7.4, Rotation2d.kZero)
       )
@@ -84,7 +91,7 @@ public record Path(Node... sequence)
       "r_trench_m2a", 
       new Path
       (
-        0.5, 
+        0.25, 
         new Pose2d(6.75, 0.625, Rotation2d.k180deg),
         new Pose2d(3, 0.625, Rotation2d.k180deg)
       )
@@ -95,7 +102,7 @@ public record Path(Node... sequence)
       "l_trench_m2a", 
       new Path
       (
-        0.5, 
+        0.25, 
         new Pose2d(6.75, 7.4, Rotation2d.k180deg),
         new Pose2d(3, 7.4, Rotation2d.k180deg)
       )
@@ -106,7 +113,7 @@ public record Path(Node... sequence)
       "r_balls", 
       new Path
       (
-        1, 
+        0.5, 
         new Pose2d(7.75, 0.625, Rotation2d.kCCW_90deg),
         new Pose2d(7.75, 5, Rotation2d.kCCW_90deg)
       )
@@ -117,7 +124,7 @@ public record Path(Node... sequence)
       "l_balls", 
       new Path
       (
-        1, 
+        0.5, 
         new Pose2d(7.75, 0.625, Rotation2d.kCW_90deg),
         new Pose2d(7.75, 5.58, Rotation2d.kCW_90deg)
       )

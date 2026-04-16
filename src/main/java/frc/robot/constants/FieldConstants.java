@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.controlTransmutation.ObjectList;
 import frc.robot.controlTransmutation.geoFence.*;
 import frc.robot.controlTransmutation.triggerObject.*;
+import frc.robot.util.AlliancePose2d;
 
 import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
 
@@ -245,6 +246,11 @@ public class FieldConstants
       climbRedRight,
       climbRedLeft
     );
+
+    public static final AlliancePose2d climbStartPoseRight = new AlliancePose2d(towerPostBlueS.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCW_90deg);
+    public static final AlliancePose2d climbEndPoseRight = new AlliancePose2d(towerPostBlueS.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCW_90deg);
+    public static final AlliancePose2d climbStartPoseLeft = new AlliancePose2d(towerPostBlueN.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCCW_90deg);
+    public static final AlliancePose2d climbEndPoseLeft = new AlliancePose2d(towerPostBlueN.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCCW_90deg);
 
     /* Depot */
     // Speed should be limited in own Depot, must NOT enter opposing

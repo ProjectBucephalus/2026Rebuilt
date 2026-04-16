@@ -26,6 +26,7 @@ import frc.robot.constants.Path;
 import frc.robot.constants.Path.Node;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
+import frc.robot.util.PBDash;
 
 public class DriveBuilder
 {
@@ -141,7 +142,7 @@ public class DriveBuilder
 
       // Rotation stick not being actively controlled
       if (Math.abs(rotationVal) <= ControlConstants.stickDeadband) 
-        rotationVal = thetaController.calculate(robotRotation, targetHeadingSup.apply(robotRotation));
+        rotationVal = Math.toRadians(thetaController.calculate(robotRotation, targetHeadingSup.apply(robotRotation)));
       else
         rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());
 
@@ -209,14 +210,22 @@ public class DriveBuilder
    * @param target Pose2d for the command to navigate to
    */
   public static Command pathFollow(Pose2d target)
-    {return pathFollowInner(Arrays.asList(new Node(target, 0.0)), () -> 0.0);}
+    {return pathFollow(target, () -> 1.0);}
+
+  /**
+   * Creates a PathFollow drive command to navigate to the given target pose with braking
+   * @param target Pose2d for the command to navigate to
+   * @param throttleSup Supplier for the throttle to apply, [0..1]. 1 is full speed, 0 is stopped
+   */
+  public static Command pathFollow(Pose2d target, DoubleSupplier throttleSup)
+    {return pathFollowInner(Arrays.asList(new Node(target, 0.0)), throttleSup);}
 
   /**
    * Creates a PathFollow drive command to follow the given path
    * @param path Predefined path for command to follow
    */
   public static Command pathFollow(Path path)
-    {return pathFollow(path, () -> 0.0);}
+    {return pathFollow(path, () -> 1.0);}
 
   /**
    * Creates a PathFollow drive command to follow the given path with braking
@@ -273,6 +282,8 @@ public class DriveBuilder
       private boolean onPath = false;
       private int currentWaypoint = 0;
       
+      {addRequirements(s_Swerve);}
+
       @Override
       public InterruptionBehavior getInterruptionBehavior() 
         {return InterruptionBehavior.kCancelIncoming;}
