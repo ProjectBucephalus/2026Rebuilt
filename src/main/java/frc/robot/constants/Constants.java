@@ -124,9 +124,9 @@ public final class Constants
     public static final double driveKD = 0.2;
 
     /* Rotation Control PID Values */
-    public static final double rotationKP = 6;
+    public static final double rotationKP = 0.1;
     public static final double rotationKI = 0;
-    public static final double rotationKD = 0;
+    public static final double rotationKD = 0.01;
 
     /* Swerve Limit Values */
     /** Mechanical maximum staright-line robot speed, Meters per Second */
