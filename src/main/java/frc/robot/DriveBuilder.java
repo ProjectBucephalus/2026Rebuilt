@@ -40,7 +40,7 @@ public class DriveBuilder
     .withSteerRequestType(SteerRequestType.MotionMagicExpo)
     .withHeadingPID(SwerveConstants.rotationKP, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
 
-  private final static PIDController thetaController = new PIDController(0.02, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
+  private final static PIDController thetaController = new PIDController(SwerveConstants.rotationKP, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
 
   private static CommandSwerveDrivetrain s_Swerve;
   private static Supplier<Translation2d> joystickSup;

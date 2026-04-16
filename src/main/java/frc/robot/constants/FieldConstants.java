@@ -67,7 +67,7 @@ public class FieldConstants
     /** Buffer zone around field walls, metres */
     public static final double wallBuffer = 1;
     /** Radius around field walls, metres */
-    public static final double wallRadius = -0.1;
+    public static final double wallRadius = 0.1;
     
     /** Radius around hubs, metres */
     public static final double hubRadius = 0.15;
@@ -115,7 +115,7 @@ public class FieldConstants
     // Rotation must NOT be square when traversing
     /** Throttle limit when within bump zone */
     public static final double bumpSpeedLimit = 0.4;
-    public static final double bumpRotationTolerance = 30;
+    public static final double bumpRotationTolerance = 40;
     public static final double bumpWidth = 1.85;
     public static final double bumpYa = hubYa - bumpWidth;
     public static final double bumpYb = hubYb + bumpWidth;
@@ -145,15 +145,16 @@ public class FieldConstants
     
     /* Trench Zone */
     public static final double trenchWidth = 1.28;
+    public static final double trenchEffectWidth = trenchWidth / 2;
     /** Depth of region either side of Trench bar to trigger nudging */
     public static final double trenchZoneDepth = 1.4;
     public static final double trenchXa = hubCentreOffset + trenchZoneDepth;
     public static final double trenchXb = hubCentreOffset - trenchZoneDepth;
 
-    public static final BoxRegion trenchSB = new BoxRegion(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchWidth);
-    public static final BoxRegion trenchNB = new BoxRegion(fieldCentre.getX() - trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() - trenchXb, fieldWidth);
-    public static final BoxRegion trenchSR = new BoxRegion(fieldCentre.getX() + trenchXa, 0, fieldCentre.getX() + trenchXb, trenchWidth);
-    public static final BoxRegion trenchNR = new BoxRegion(fieldCentre.getX() + trenchXa, fieldWidth - trenchWidth, fieldCentre.getX() + trenchXb, fieldWidth);
+    public static final BoxRegion trenchSB = new BoxRegion(fieldCentre.getX() - trenchXa, 0, fieldCentre.getX() - trenchXb, trenchEffectWidth);
+    public static final BoxRegion trenchNB = new BoxRegion(fieldCentre.getX() - trenchXa, fieldWidth - trenchEffectWidth, fieldCentre.getX() - trenchXb, fieldWidth);
+    public static final BoxRegion trenchSR = new BoxRegion(fieldCentre.getX() + trenchXa, 0, fieldCentre.getX() + trenchXb, trenchEffectWidth);
+    public static final BoxRegion trenchNR = new BoxRegion(fieldCentre.getX() + trenchXa, fieldWidth - trenchEffectWidth, fieldCentre.getX() + trenchXb, fieldWidth);
 
     public static final Trigger trenchTrigger = 
           trenchSB.asTrigger()
