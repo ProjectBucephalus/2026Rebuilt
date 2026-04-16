@@ -98,7 +98,7 @@ public class Shooter extends SubsystemBase
     baseTargetOffset = new Translation2d(0, Math.copySign(ShooterConstants.targetPointOffset, robotToShooter.getY()));
     ntId = idBlock.ntID();
 
-    flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN());
+    flywheels = new Flywheels(idBlock.flywheelLeadCAN(), idBlock.flywheelFollowCAN(), target);
     turret = new Turret(idBlock.azimuthCAN(), idBlock.azimuthAIO(), azimuthOffset, target);
     hood = new Hood(idBlock.altitudePWM(), invertedHood, hoodHomeAngle, target);
     
@@ -181,6 +181,7 @@ public class Shooter extends SubsystemBase
   public void revFlywheels() {target.flywheelsActive = true;}
   /** Sets the flywheels to idle speed */
   public void idleFlywheels() {target.flywheelsActive = false;}
+
   public Command runFlywheelsCmd() {return Commands.startEnd(this::revFlywheels, this::idleFlywheels);}
 
   public boolean potValid() {return turret.potValid();}
@@ -288,13 +289,7 @@ public class Shooter extends SubsystemBase
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
     };
 
-    if (target.disabled)
-      flywheels.setSpeed(0);
-    else if (target.flywheelsActive)
-      flywheels.setSpeed(target.speed);
-    else
-      flywheels.setSpeed(FlywheelConstants.idleSpeed);
-
+    flywheels.update();
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update();
 

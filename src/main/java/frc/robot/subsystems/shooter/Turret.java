@@ -65,7 +65,7 @@ public class Turret
    * @param motorID CAN-ID of azimuth motor
    * @param potID AIO-ID of azimuth potentiometer
    * @param potOffset Potentiometer reading for centre of rotation
-   * @param targetSup Supplier for current Target object
+   * @param target Target object for the shooter
    */
   public Turret(int motorID, int potID, double potOffset, Target target) 
   {
@@ -185,7 +185,7 @@ public class Turret
 
       double newPos = avg / (azimuthPotRatio * 360.0);
       m_Turret.setPosition(newPos);
-      lastCalibration = rawAzimuth;
+      lastCalibration = avg;
     }
   }
 
@@ -256,14 +256,22 @@ public class Turret
   {
     calibrate();
 
-    // Update the azimuth stored in the target based on the target state
-    // Ensures that changing to manual mode doesn't cause sudden motion
-    if (target.state == TargetState.Hub || target.disabled)
-      target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
-    else if (target.state == TargetState.Point)
-      target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
+    if (target.disabled)
+    {
+      target.azimuth = getAzimuth();
+      m_Turret.set(0);
+    }
+    else
+    {
+      // Update the azimuth stored in the target based on the target state
+      // Ensures that changing to manual mode doesn't cause sudden motion
+      if (target.state == TargetState.Hub)
+        target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
+      else if (target.state == TargetState.Point)
+        target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
 
-    m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
+      m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
+    }
   }   
   
   protected void updateSim()
