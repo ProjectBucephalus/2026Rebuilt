@@ -45,6 +45,8 @@ public class AutoBuilder
   {
     // Wipe any previous errors
     PBDash.AUTO_ERRS.init();
+    // Clear the field object we use to display the trajectory
+    PBDash.removeFieldObject("Auto Path");
     // driveto 1 2 becomes [Instruction(driveto, [Value(Num, 1), Value(Num, 1)])]
     var instrs = parser.parse(source); 
     return commandGen.compile(instrs);

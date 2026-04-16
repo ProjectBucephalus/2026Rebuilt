@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.util.FieldUtils;
+import frc.robot.util.PBDash;
 
 /**
  * Defines a path to be used by PathFollowDrive commands <p>
@@ -51,6 +52,12 @@ public record Path(Node... sequence)
     Node[] concatSequence = Arrays.copyOf(sequence, sequence.length + other.sequence.length);
     System.arraycopy(other.sequence, 0, concatSequence, sequence.length, other.sequence.length);
     return new Path(concatSequence);
+  }
+
+  public void display(String fieldObject)
+  {
+    var poses = Arrays.stream(sequence).map(node -> node.pose()).toArray(Pose2d[]::new);
+    PBDash.addToFieldObject(fieldObject, poses);
   }
 
   public static final HashMap<String, Path> autoPaths = new HashMap<>();

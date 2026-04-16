@@ -411,6 +411,8 @@ public class Robot extends TimedRobot
     
     autoCommand.ifPresent(Command::cancel);
 
+    PBDash.removeFieldObject("Auto Path");
+
     CommandScheduler.getInstance()
       .schedule
       (

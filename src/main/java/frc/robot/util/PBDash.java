@@ -80,14 +80,19 @@ public class PBDash
     putSendable("Auto Presets", AUTO_PRESETS);
   }
 
-  public static void putFieldObject(String name, Pose2d pose)
-    {FIELD.getObject(name).setPose(pose);}
+  public static void putFieldObject(String name, Translation2d point)
+    {FIELD.getObject(name).setPose(new Pose2d(point, Rotation2d.kZero));}
 
   public static void putFieldObject(String name, Pose2d... poses)
     {FIELD.getObject(name).setPoses(poses);}
 
-  public static void putFieldObject(String name, Translation2d point)
-    {FIELD.getObject(name).setPose(new Pose2d(point, Rotation2d.kZero));}
+  public static void addToFieldObject(String name, Pose2d... newPoses)
+  {
+    var object = FIELD.getObject(name);
+    var poses = object.getPoses();
+    for (var pose : newPoses) poses.add(pose);
+    object.setPoses(poses);
+  }
 
   public static void putFieldPath(String name, Pose2d start, Pose2d end)
   {
@@ -104,6 +109,9 @@ public class PBDash
 
     FIELD.getObject(name).setPoses(poses);
   }
+
+  public static void removeFieldObject(String name)
+    {FIELD.getObject(name).setPoses(new Pose2d[0]);}
 
   /**
    * Publishes a Sendable to the table {@value IDConstants#dashTableName} <p>

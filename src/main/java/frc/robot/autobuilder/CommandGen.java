@@ -166,6 +166,9 @@ public class CommandGen
         if (y != yArg) {AutoBuilder.error("warning: y value `", yArg, "` was clamped to `", y, "`");}
 
         currPose = new Pose2d(new Translation2d(x, y), rotationTarget);
+        Pose2d targetPose = FieldUtils.allianceRotatePose(currPose);
+
+        PBDash.addToFieldObject("Auto Path", targetPose);
 
         // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
         commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose)));
@@ -176,11 +179,13 @@ public class CommandGen
         assertArgCount(2);
 
         Translation2d offset = new Translation2d(instr.arg(0).asNum(), instr.arg(1).asNum());
-
         currPose = new Pose2d(currPose.getTranslation().plus(offset), currPose.getRotation());
+        Pose2d targetPose = FieldUtils.allianceRotatePose(currPose);
+
+        PBDash.addToFieldObject("Auto Path", targetPose);
 
         // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
-        commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose)));
+        commands.addCommands(DriveBuilder.pathFollow(targetPose));
       }
       // follow n - Follow the path with name `n` in Path.autoPaths
       case follow -> 
@@ -190,11 +195,9 @@ public class CommandGen
         var pathName = instr.arg(0).asText();
         var path = Path.autoPaths.get(pathName);
 
-        if (path == null)
-        {
-          AutoBuilder.error("no path `" + pathName + "`");
-          return;
-        }
+        if (path == null) throw new GeneralException("no path `" + pathName + "`");
+
+        path.display("Auto Path");
 
         currPose = path.targetPose();
         commands.addCommands(DriveBuilder.pathFollow(path.allianceRotated()));
