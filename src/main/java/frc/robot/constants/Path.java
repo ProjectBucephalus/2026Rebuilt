@@ -125,8 +125,8 @@ public record Path(Node... sequence)
       new Path
       (
         0.5, 
-        new Pose2d(7.75, 0.625, Rotation2d.kCW_90deg),
-        new Pose2d(7.75, 5.58, Rotation2d.kCW_90deg)
+        new Pose2d(7.75, 7.455, Rotation2d.kCW_90deg),
+        new Pose2d(7.75, 3.08, Rotation2d.kCW_90deg)
       )
     );
   };
