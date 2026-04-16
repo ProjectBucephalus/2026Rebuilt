@@ -296,7 +296,9 @@ public class DriveBuilder
         var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
         var targetNode = waypoints.get(targetIndex);
         
-        s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetNode.pose(), robotPose, throttleSup.getAsDouble())));
+        double throttle = throttleSup.getAsDouble();
+        double rotThrottle = throttle + (1 - throttle) / 2;
+        s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetNode.pose(), robotPose, throttle, rotThrottle)));
 
         if (Conversions.nearTranslation(robotPose.getTranslation(), targetNode.pose().getTranslation(), targetNode.radius())) 
         {

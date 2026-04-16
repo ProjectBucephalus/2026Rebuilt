@@ -275,7 +275,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
    * @param brake Throttle to apply, [0..1]. 1 is full speed, 0 is stopped
    * @return Chassis speeds, m/s, m/s, rad/s
    */
-  public ChassisSpeeds calculateDrivePID(Pose2d target, Pose2d pose, double throttle)
+  public ChassisSpeeds calculateDrivePID(Pose2d target, Pose2d pose, double translationThrottle, double rotationThrottle)
   {
     final PIDController xController = new PIDController(driveKP, driveKI, driveKD);
     final PIDController yController = new PIDController(driveKP, driveKI, driveKD);
@@ -308,8 +308,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), 
         -maxAngularVelocity, 
         maxAngularVelocity
-      ) * throttle;
-    final var throttleXY = FieldConstants.GeoFencing.fieldGeoFence.process(new Translation2d(throttleX, throttleY)).times(throttle);
+      ) * rotationThrottle;
+    final var throttleXY = FieldConstants.GeoFencing.fieldGeoFence.process(new Translation2d(throttleX, throttleY)).times(translationThrottle);
 
     xController.close();
     yController.close();

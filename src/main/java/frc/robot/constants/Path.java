@@ -70,9 +70,11 @@ public record Path(double throttle, Node... sequence)
       new Path
       (
         0.5,
-        0.1, 
-        new Pose2d(2.5, 0.55, Rotation2d.kZero),
-        new Pose2d(6.25, 0.55, Rotation2d.kZero)
+        0.2, 
+        new Pose2d(2.25, 0.8, Rotation2d.kZero),
+        new Pose2d(3.25, 0.55, Rotation2d.kZero),
+        new Pose2d(5.5, 0.55, Rotation2d.kZero),
+        new Pose2d(6.5, 0.8, Rotation2d.kZero)
       )
     );
     // 2: Left side trench, alliance zone -> mid zone
@@ -94,9 +96,11 @@ public record Path(double throttle, Node... sequence)
       new Path
       (
         0.5,
-        0.1, 
-        new Pose2d(6.75, 0.55, Rotation2d.k180deg),
-        new Pose2d(3, 0.55, Rotation2d.k180deg)
+        0.2, 
+        new Pose2d(6.5, 0.8, Rotation2d.k180deg),
+        new Pose2d(5.5, 0.55, Rotation2d.k180deg),
+        new Pose2d(3.25, 0.55, Rotation2d.k180deg),
+        new Pose2d(2.25, 0.8, Rotation2d.k180deg)
       )
     );
     // 4: Left side trench, mid zone -> alliance zone
