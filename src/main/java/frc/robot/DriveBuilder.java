@@ -142,7 +142,7 @@ public class DriveBuilder
 
       // Rotation stick not being actively controlled
       if (Math.abs(rotationVal) <= ControlConstants.stickDeadband) 
-        rotationVal = thetaController.calculate(robotRotation, targetHeadingSup.apply(robotRotation));
+        rotationVal = Math.toRadians(thetaController.calculate(robotRotation, targetHeadingSup.apply(robotRotation)));
       else
         rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());
 
@@ -210,7 +210,7 @@ public class DriveBuilder
    * @param target Pose2d for the command to navigate to
    */
   public static Command pathFollow(Pose2d target)
-    {return pathFollow(target, () -> 0.0);}
+    {return pathFollow(target, () -> 1.0);}
 
   /**
    * Creates a PathFollow drive command to navigate to the given target pose with braking
@@ -225,7 +225,7 @@ public class DriveBuilder
    * @param path Predefined path for command to follow
    */
   public static Command pathFollow(Path path)
-    {return pathFollow(path, () -> 0.0);}
+    {return pathFollow(path, () -> 1.0);}
 
   /**
    * Creates a PathFollow drive command to follow the given path with braking
@@ -236,7 +236,6 @@ public class DriveBuilder
   {
     final ArrayList<Node> waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
 
-    PBDash.putString("drive", "init");
     for (int i = 0; i < path.sequence().length - 1; i++) 
     {
       final var current = path.sequence()[i];

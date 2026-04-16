@@ -123,8 +123,8 @@ public final class Constants
     public static final double driveKI = 0.0;
     public static final double driveKD = 0.2;
 
-    /* Rotation Control PID Values */
-    public static final double rotationKP = 0.1;
+    /* Rotation Control PID Values, in Degrees */
+    public static final double rotationKP = 5.7;
     public static final double rotationKI = 0;
     public static final double rotationKD = 0.01;
 

@@ -91,6 +91,8 @@ public class PBDash
     var object = FIELD.getObject(name);
     var poses = object.getPoses();
     for (var pose : newPoses) poses.add(pose);
+    // Elastic only displays a trajectory for objects with 8+ poses, so we add the first pose a bunch of times to force it
+    for (int i = 0; i < (9 - newPoses.length); i++) poses.add(newPoses[0]);
     object.setPoses(poses);
   }
 
