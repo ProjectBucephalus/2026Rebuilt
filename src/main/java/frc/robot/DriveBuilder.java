@@ -262,9 +262,9 @@ public class DriveBuilder
    * Internal helper producing the actual path following command, allowing for multiple different external wrapper functions that create the lists used 
    * @param waypoints A list of all the waypoints the command should follow
    * @param radiusPerSegment A list of the lineup tolerances for the waypoints of each segment of the path (each segment is 3 waypoints, except the final one which is a single waypoint)
-   * @param brakeSup Supplier for the speed reduction to apply, [0..1].  0 is no braking, 1 is full braking
+   * @param throttleSup Supplier for the throttle to apply, [0..1]. 1 is full speed, 0 is stopped
    */
-  private static Command pathFollowInner(List<Node> waypoints, DoubleSupplier brakeSup)
+  private static Command pathFollowInner(List<Node> waypoints, DoubleSupplier throttleSup)
   {
     return new Command() 
     {
@@ -293,7 +293,7 @@ public class DriveBuilder
         var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
         var targetNode = waypoints.get(targetIndex);
         
-        s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetNode.pose(), robotPose, brakeSup.getAsDouble())));
+        s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetNode.pose(), robotPose, throttleSup.getAsDouble())));
 
         if (Conversions.nearTranslation(robotPose.getTranslation(), targetNode.pose().getTranslation(), targetNode.radius())) 
         {
