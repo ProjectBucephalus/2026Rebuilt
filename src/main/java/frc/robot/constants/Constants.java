@@ -43,15 +43,15 @@ public final class Constants
   {
     public static final double stickDeadband = 0.15;
     /** Normal maximum robot speed, relative to maximum uncapped speed */
-    public static final double maxThrottle = 0.7;
+    public static final double maxThrottle = 0.8;
     /** Minimum robot speed when braking, relative to maximum uncapped speed */
     public static final double minThrottle = 0.2;
     /** Normal maximum rotational robot speed, relative to maximum uncapped rotational speed */
-    public static final double maxRotThrottle = 1;
+    public static final double maxRotThrottle = 0.8;
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
     public static final double minRotThrottle = 0.3;
     /** Maximum brake value when intake is running at full speed */
-    public static final double throttleFromIntake = 0.5;
+    public static final double brakeFromIntake = 0.25;
     /** How far a trigger must be pressed to be considered on, [0..1] */
     public static final double triggerThreshold = 0.8;
     /** Translation lineup tolerance, meters */
@@ -124,9 +124,9 @@ public final class Constants
     public static final double driveKD = 0.2;
 
     /* Rotation Control PID Values */
-    public static final double rotationKP = 6;
+    public static final double rotationKP = 0.1;
     public static final double rotationKI = 0;
-    public static final double rotationKD = 0;
+    public static final double rotationKD = 0.01;
 
     /* Swerve Limit Values */
     /** Mechanical maximum staright-line robot speed, Meters per Second */
@@ -161,18 +161,15 @@ public final class Constants
         new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.08;
-    /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactorN = 0.0;
-    public static final double leadFactorT = 0.0;
-    public static final double minRange = 1.1;
+    public static final double accelLeadFactor = 0.8;
 
+    public static final double minRange = 1.1;
     public static final double closeManualRange = 2;
     public static final double farManualRange = 4.5;
+    public static final double maxPassRange = 7.5;
 
     /** Target pass point, blue origin (right side) */
     public static final AllianceTranslation2d passPoint = new AllianceTranslation2d(1.5, 2);
-
-    public static final double maxPassRange = 7.5;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants
@@ -208,7 +205,7 @@ public final class Constants
       }
 
       /** Target flywheel speed when idle, mechanism rps */
-      public static final double idleSpeed = 0;
+      public static final double idleSpeed = 10;
       /** Allowed variation in flywheel speed for shooting, rps */
       public static final double flySpeedTolerance = 2;
 
@@ -251,9 +248,9 @@ public final class Constants
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double portPotOffset = -1810.2;
+      public static final double portPotOffset = -1790.79;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double stbdPotOffset = -1819.2;
+      public static final double stbdPotOffset = -1741.33;
 
       private static final double planetaryRatio = 13.03; // MaxPlanetary gearbox marked 4:1 is actually 3.6:1, 5:1 is actually 5.2:1
       private static final double driveGear = 15;
@@ -317,7 +314,7 @@ public final class Constants
         indexerConfig.Slot0.kI = 0.01;
         indexerConfig.Slot0.kD = 0.0;
 
-        indexerConfig.MotionMagic.MotionMagicAcceleration = 50.0;
+        indexerConfig.MotionMagic.MotionMagicAcceleration = 80.0;
 
         indexerConfig.CurrentLimits.StatorCurrentLimit = 30;
       }
@@ -327,10 +324,18 @@ public final class Constants
   /** Geometry, tag, and tuning data for Vision system */
   public static final class VisionConstants
   {
-    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d portLimelightOffset = new Transform3d(0.25, 0, -0.6745, new Rotation3d(0, -13, 0));
-    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore/port/up, degrees roll/pitch/yaw */
-    public static final Transform3d stbdLimelightOffset = new Transform3d(0.25, 0, -0.6745, new Rotation3d(0, -13, 0));
+    /** X/Y offset of camera in turret space, metres aft/stbd */
+    public static final Transform2d flatCameraToTurret = new Transform2d(-0.156, 0, Rotation2d.kZero);
+    private static final Translation2d baseTurretToCamera = new Translation2d(0.156, 0.195);
+    /** Pitch of camera in turret space, degrees */
+    private static final double turretPitch = -12.9;
+    /** X/Z offset of camera in camera space, metres fore/up */
+    private static final Translation2d turretToCamera = baseTurretToCamera.rotateBy(Rotation2d.fromDegrees(turretPitch));
+
+    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore*2/port/down, degrees roll/pitch/yaw */
+    public static final Transform3d portLimelightOffset = new Transform3d(turretToCamera.getX(), 0, turretToCamera.getY(), new Rotation3d(0, Math.toRadians(turretPitch), 0));
+    /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore*2/port/down, degrees roll/pitch/yaw */
+    public static final Transform3d stbdLimelightOffset = new Transform3d(turretToCamera.getX(), 0, turretToCamera.getY(), new Rotation3d(0, Math.toRadians(turretPitch), 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
     public static final double visionFrequencyThreshold = 5;
     /** How many seconds into the past we store turret azimuth readings */
@@ -408,8 +413,7 @@ public final class Constants
       put(2.0, 8.0);
       put(2.5, 11.0);
       put(3.0, 13.0);
-      put(3.5, 15.0);
-      
+      put(3.5, 16.0);
       put(4.0, 19.0);
       put(4.5, 22.0);
       put(5.0, 23.0);
@@ -420,19 +424,19 @@ public final class Constants
     public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
     {{
       put(0.0, 0.0);
-      put(0.9, 0.0);
-      put(0.1, 45.0); // below min range
+      put(0.1, 0.0);
+      put(0.9, 45.0); // below min range
       put(1.1, 45.0);
       put(1.5, 46.5);
       put(2.0, 48.0);
       put(2.5, 49.0);
       put(3.0, 50.0);
-      put(3.5, 52.0); // TODO: Needs retesting when possible
-      
-      put(4.0, 52.0); 
-      put(4.5, 52.0);
-      put(5.0, 55.0);
-      put(5.5, 60.0);
+      put(3.5, 52.0);
+      put(4.0, 53.0); 
+      put(4.5, 56.0);
+      put(5.0, 59.0);
+      put(5.5, 61.0);
+      put(6.0, 62.0);
     }};
 
     /** Distance to Altitude conversion for shooting to a point on the field */
@@ -455,6 +459,22 @@ public final class Constants
       put(6.5, 58.0);
       put(7.5, 68.0);
 
+    }};
+
+    /** Distance to Time-of-Flight for Shoot-on-the-Move */
+    public static final InterpolatingDoubleTreeMap shotTime = new InterpolatingDoubleTreeMap()
+    {{
+      put(1.0, 1.17);
+      put(1.5, 1.21);
+      put(2.0, 1.23);
+      put(2.5, 1.24);
+      put(3.0, 1.25);
+      put(3.5, 1.29);
+      put(4.0, 1.27);
+      put(4.5, 1.31);
+      put(5.0, 1.37);
+      put(5.5, 1.43);
+      put(6.0, 1.45);
     }};
   }
 
@@ -511,7 +531,7 @@ public final class Constants
 
       //public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
 
-      public static final double minRotations = -0.3;
+      public static final double minRotations = -0.31;
       public static final double maxRotations = 0.0;
       public static final double squishRotations = -0.1; // furthest in before hopper retracts
       public static final double bumpSafeRotations = -0.14;
@@ -531,13 +551,16 @@ public final class Constants
         extensionConfig.Feedback.RotorToSensorRatio = extensionPlanetaryRatio * extensionGearRatio;
         extensionConfig.Feedback.SensorToMechanismRatio = extensionChainRatio;
 
-        extensionConfig.Slot0.kS = 0.2;
+        extensionConfig.Slot0.kS = 0.125;
         extensionConfig.Slot0.kP = 55.0;
         extensionConfig.Slot0.kI = 0.0;
         extensionConfig.Slot0.kD = 0.0;
+        extensionConfig.Slot0.kG = 0.375;
+
+        extensionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         extensionConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5;
-        extensionConfig.MotionMagic.MotionMagicAcceleration = 2.0;
+        extensionConfig.MotionMagic.MotionMagicAcceleration = 1.5;
 
         extensionConfig.CurrentLimits.StatorCurrentLimit = 35;
         extensionConfig.CurrentLimits.StatorCurrentLimitEnable = true;

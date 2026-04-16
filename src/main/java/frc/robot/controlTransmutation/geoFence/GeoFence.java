@@ -37,7 +37,7 @@ public abstract class GeoFence extends FieldObject
   @Override
   public Translation2d process(Translation2d controlInput)
   {
-    if (activeSupplier.getAsBoolean())
+    if (globalActiveSupplier.getAsBoolean() && activeSupplier.getAsBoolean())
     {
       if (checkAttractors())
       {

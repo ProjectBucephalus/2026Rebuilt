@@ -11,7 +11,6 @@ import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.ControlConstants;
 
 /** 
  * A subsystem wrapped around a TalonFX to provide a simple subsystem for controlling a motor with mechanism ratio
@@ -34,11 +33,6 @@ public class VelocityMotor extends SubsystemBase
   {
     m_Velocity = new TalonFX(id);
     m_Velocity.getConfigurator().apply(config);
-
-    // Set the frequency of important signals to match robot clock cycle
-    // Reduce the frequency of all other signals from the device to reduce CAN load
-    m_Velocity.getVelocity().setUpdateFrequency(ControlConstants.signalFrequency);
-    m_Velocity.optimizeBusUtilization();
   }
 
   /**

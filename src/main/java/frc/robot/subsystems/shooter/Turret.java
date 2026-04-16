@@ -1,14 +1,15 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.Robot;
-import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
-import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
+
+import java.nio.Buffer;
+import java.util.ArrayList;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -25,6 +26,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -54,8 +56,9 @@ public class Turret
   private final Target target;
 
   private double lastCalibration = 0;
-  private double potLastCycle = 0;
   private boolean azCheck = false;
+
+  private CircularBuffer<Double> potBuffer = new CircularBuffer<>(5);
 
   /**
    * Creates a turret controller, to be managed by {@link Shooter} master-system
@@ -77,15 +80,9 @@ public class Turret
     simState.MotorOrientation = ChassisReference.Clockwise_Positive;
     simState.ExtSensorOrientation = ChassisReference.CounterClockwise_Positive;
 
-    potLastCycle = io_Azimuth.get();
+    potBuffer.addFirst(io_Azimuth.get());
 
     calibrate();
-
-    // Set the frequency of important signals to match robot clock cycle
-    // Reduce the frequency of all other signals from the device to reduce CAN load
-    m_Turret.getVelocity().setUpdateFrequency(ControlConstants.signalFrequency);
-    m_Turret.getPosition().setUpdateFrequency(ControlConstants.signalFrequency);
-    m_Turret.optimizeBusUtilization();
   }
 
   /**
@@ -163,9 +160,10 @@ public class Turret
   /**
    * If the turret is not moving, resets the motor's internal position to the current potentiometer reading
    */
-  public void calibrate()
+  public void calibrate(boolean... force)
   {
     double rawAzimuth = io_Azimuth.get();
+    potBuffer.addFirst(rawAzimuth);
 
     // If the turret is not moving fast and has moved since last calibration,
     // pull the value from the pot, convert to mechanism angle, and send to motor
@@ -173,16 +171,22 @@ public class Turret
     (
       Robot.isReal() 
       && Math.abs(getSpeed()) < calibrationSpeedLimit // Only calibrate when turret is moving slowly
-      && !MathUtil.isNear(rawAzimuth, lastCalibration, calibrationAngleLimit) // Only calibrate after moving ~10 degrees
+      && (
+        force.length != 0
+        || !MathUtil.isNear(rawAzimuth, lastCalibration, calibrationAngleLimit) // Only calibrate after moving ~10 degrees
+      )
       && potValid() // Discard extreme values that occur when sensor is disconnected
     )
     {
-      double newPos = (rawAzimuth + potLastCycle) / (2 * azimuthPotRatio  * 360.0);
+      double avg = 0;
+      for (int i = 0; i < potBuffer.size(); i++)
+        {avg += potBuffer.get(i);}
+      avg /= potBuffer.size();
+
+      double newPos = avg / (azimuthPotRatio * 360.0);
       m_Turret.setPosition(newPos);
       lastCalibration = rawAzimuth;
     }
-
-    potLastCycle = rawAzimuth;
   }
 
   /**
@@ -201,7 +205,7 @@ public class Turret
 
     double robotDegreesPerCycle = robotDegreesPerSecond / 50;
 
-    return robotTarget;// - robotDegreesPerCycle;
+    return robotTarget - robotDegreesPerCycle;
   }
 
   private boolean safeToShoot(ChassisSpeeds swerveSpeeds)

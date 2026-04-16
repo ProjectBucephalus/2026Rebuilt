@@ -107,6 +107,12 @@ public class Conversions
       return value;
   }
 
+  public static double round(double value, int places)
+  {
+    double factor = Math.pow(10, places);
+    return Math.round(value * factor) / factor;
+  }
+
   /**
    * Pose2d constructor wrapper to use raw doubles for all values <p>
    * NOTE: This is marginally inefficient for right-angles (0, 90, 180, etc), 

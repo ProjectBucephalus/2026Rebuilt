@@ -109,8 +109,6 @@ public record ControlBinder
 
     // Bump nudging
     bumpTrigger
-      .and(PBDash.IO_FENCE::get)
-      .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
       .onTrue(s_Extension.setTargetCmd(() -> Math.min(ExtensionConstants.bumpSafeRotations, s_Extension.getAngle())))
       .whileTrue(DriveBuilder.nonCardinal(bumpRotationTolerance))
@@ -118,8 +116,6 @@ public record ControlBinder
     
     // Trench nudging
     trenchTrigger
-      .and(PBDash.IO_FENCE::get)
-      .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
       .whileTrue(DriveBuilder.trenchNudge());
 
@@ -155,13 +151,13 @@ public record ControlBinder
       .onTrue(runOnce(() -> driverBrake.withMinThrottle(PBDash.IO_MIN_THROTTLE.get())));
 
     GeoFencing.climbBlueRight.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueRight, () -> 0.75).andThen(DriveBuilder.waitCommand()));
+      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueRight, () -> 0.2).andThen(DriveBuilder.waitCommand()));
     GeoFencing.climbBlueLeft.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueLeft, () -> 0.75).andThen(DriveBuilder.waitCommand()));
+      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueLeft, () -> 0.2).andThen(DriveBuilder.waitCommand()));
     GeoFencing.climbRedRight.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbRedRight, () -> 0.75).andThen(DriveBuilder.waitCommand()));
+      .whileTrue(DriveBuilder.pathFollow(Path.climbRedRight, () -> 0.2).andThen(DriveBuilder.waitCommand()));
     GeoFencing.climbRedLeft.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbRedLeft, () -> 0.75).andThen(DriveBuilder.waitCommand()));
+      .whileTrue(DriveBuilder.pathFollow(Path.climbRedLeft, () -> 0.2).andThen(DriveBuilder.waitCommand()));
   }
 
   private void bindShooters()
@@ -229,7 +225,8 @@ public record ControlBinder
       );
 
     // Test (Using dashboard values)
-    new Trigger(() -> state.shoot == ShootersState.Test)
+    switchboard.button(IDConstants.testManualSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
       .whileTrue
       (
         bothShooters(Commands::runOnce, s -> {
@@ -239,6 +236,35 @@ public record ControlBinder
           s.target.speed = PBDash.TEST_FLYSPEED.get();
         })
         .repeatedly()
+        .ignoringDisable(true)
+      );
+
+    switchboard.button(IDConstants.testHubSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
+      .whileTrue
+      (
+        bothShooters(Commands::runOnce, s -> {
+          s.target.state = TargetState.Hub;
+        })
+        .repeatedly()
+        .ignoringDisable(true)
+      );
+
+    switchboard.button(IDConstants.testIdleSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
+      .whileTrue
+      (
+        bothShooters(Commands::runOnce, s -> {
+          s.target.state = TargetState.Manual;
+        })
+        .repeatedly()
+        .ignoringDisable(true)
+      );
+
+    switchboard.button(10)
+      .onTrue
+      (
+        bothShooters(Commands::runOnce, s -> {s.calibrate();})
         .ignoringDisable(true)
       );
     
