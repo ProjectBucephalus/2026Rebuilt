@@ -19,6 +19,7 @@ import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.constants.IDConstants.ShooterIDs;
 import frc.robot.subsystems.generic.VelocityMotor;
 import frc.robot.subsystems.shooter.Target.TargetState;
+import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 
@@ -56,7 +57,7 @@ public class Shooter extends SubsystemBase
   private Translation2d velocity;
   private Translation2d acceleration;
 
-  private Translation2d lastPose = Translation2d.kZero;
+  private Translation2d lastPos = Translation2d.kZero;
   private Translation2d lastVelocity = Translation2d.kZero;
   private double timeOfFlight = 0;
 
@@ -214,10 +215,15 @@ public class Shooter extends SubsystemBase
     shooterPose = swerveState.Pose.plus(shooterOffset);
 
     // Calculate the instantaneous velocity and acceleration of the shooter
-    //velocity = shooterPose.getTranslation().minus(lastPose).times(50);
+    var trimmedPos = new Translation2d(Conversions.round(shooterPose.getX(), 1), Conversions.round(shooterPose.getY(), 1));
+    //velocity = trimmedPos.minus(lastPos).times(50);
     var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
     velocity = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
     acceleration = velocity.minus(lastVelocity);
+
+    // Store pose and velocity to be used next cycle
+    lastPos = trimmedPos;
+    lastVelocity = velocity;
 
     // Find distance to current target for calculating leading shots
     double distance = switch (target.state) 
@@ -251,7 +257,7 @@ public class Shooter extends SubsystemBase
       target.offset = 
         baseTargetOffset
           .rotateBy(swerveState.Pose.getRotation().unaryMinus())
-          .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.getDouble("Lead Factor") * timeOfFlight * timeOfFlight)));
+          .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.TEST_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight)));
 
       // Find distance to current target for calculating leading shots
       target.distance = switch (target.state) 
@@ -293,10 +299,6 @@ public class Shooter extends SubsystemBase
     hood.update();
 
     telemetrise();
-    
-    // Store pose and velocity to be used next cycle
-    lastPose = shooterPose.getTranslation();
-    lastVelocity = velocity;
   }
 
   @Override

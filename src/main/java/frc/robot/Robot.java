@@ -311,19 +311,17 @@ public class Robot extends TimedRobot
   private void checkDevices()
   {
     PBDash.DEVICE_ERRORS.init();
-
-    double batteryVoltage = Math.round(100 * RobotController.getBatteryVoltage()) / 100.0;
-    if (batteryVoltage < 12.5) PBDash.DEVICE_ERRORS.append("Battery " + batteryVoltage + "v, ");
-
-    if (!driver.isConnected() || !operator.isConnected() || !switchboard.isConnected()) PBDash.DEVICE_ERRORS.append("Controller, ");
+    
+    if (!driver.isConnected() || !operator.isConnected()) PBDash.DEVICE_ERRORS.append("Controller, ");
+    if (!(switchboard.button(1)).or(switchboard.button(2)).or(switchboard.button(3)).getAsBoolean()) PBDash.DEVICE_ERRORS.append("Switchboard, ");
 
     if (!s_Swerve.devicesValid()) PBDash.DEVICE_ERRORS.append("Drivebase, ");
-
+    
     if (!s_PortShooter.devicesValid()) PBDash.DEVICE_ERRORS.append("Port Shooter, ");
     if (!s_PortShooter.potValid()) PBDash.DEVICE_ERRORS.append("Port Pot, ");
     if (!s_StbdShooter.devicesValid()) PBDash.DEVICE_ERRORS.append("Stbd Shooter, ");
     if (!s_StbdShooter.potValid()) PBDash.DEVICE_ERRORS.append("Stbd Pot, ");
-
+    
     if (!s_Climber.devicesValid()) PBDash.DEVICE_ERRORS.append("Climber Motor, ");
     if (!s_Climber.atLimit()) PBDash.DEVICE_ERRORS.append("Climber Limit Sensor, ");
     if (io_ClimberPost.get()) PBDash.DEVICE_ERRORS.append("Climber Post Sensor, ");
@@ -331,8 +329,11 @@ public class Robot extends TimedRobot
     if (!s_Intake.devicesValid()) PBDash.DEVICE_ERRORS.append("Intake Roller, ");
     if (!s_Extension.devicesValid()) PBDash.DEVICE_ERRORS.append("Extension, ");
     if (!io_ExtensionEncoder.isConnected()) PBDash.DEVICE_ERRORS.append("Extension Encoder, ");
-
+    
     if (!s_Vision.hasLocalisation()) PBDash.DEVICE_ERRORS.append("Vision, ");
+
+    double batteryVoltage = Math.round(100 * RobotController.getBatteryVoltage()) / 100.0;
+    if (batteryVoltage < 12.5) PBDash.DEVICE_ERRORS.append("Battery " + batteryVoltage + "v, ");
   }
 
   @Logged(name = "CAN Load")
@@ -368,6 +369,8 @@ public class Robot extends TimedRobot
           case Red -> FieldConstants.redStartLine;
         }
       );
+
+    s_Intake.state = RollerState.Off;
   }
 
   @Override

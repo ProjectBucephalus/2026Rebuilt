@@ -39,7 +39,7 @@ public class PBDash
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "Intake(on), DriveTo(2.5 4)");
   public static final Key<String>  AUTO_ERRS        = new Key<>("Auto String Errors", "");
 
-  public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", false);
+  public static final Key<Boolean> LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", false);
   
   public static final Key<String> DEVICE_ERRORS = new Key<>("Device Errors", "");
 
@@ -58,7 +58,8 @@ public class PBDash
   public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
   public static final Key<Double>  TEST_INTAKE_SPEED= new Key<>("Test Intake Speed", IntakeConstants.RollerConstants.intakeMaxSpeed);
-  
+  public static final Key<Double>  TEST_LEAD_FACTOR = new Key<>("Acceleration Lead Factor", ShooterConstants.accelLeadFactor);
+
   // Manual speed adjustment
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
   public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
