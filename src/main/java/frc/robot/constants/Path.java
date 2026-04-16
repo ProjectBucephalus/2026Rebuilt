@@ -16,13 +16,13 @@ import frc.robot.util.PBDash;
  * @param heading Rotation for robot to face, applies over entire path
  * @param sequence List of Pose2d to navigate through, start to end
  */
-public record Path(Node... sequence)
+public record Path(double throttle, Node... sequence)
 {
   public record Node(Pose2d pose, double radius) {}
 
-  public Path(double pointRadius, Pose2d... poseSequence)
+  public Path(double throttle, double pointRadius, Pose2d... poseSequence)
   {
-    this(new Node[poseSequence.length]);
+    this(throttle, new Node[poseSequence.length]);
 
     for (int i = 0; i < poseSequence.length; i++)
       sequence[i] = new Node(poseSequence[i], pointRadius);
@@ -38,7 +38,7 @@ public record Path(Node... sequence)
     for (int i = 0; i < sequence.length; i++)
       rotatedSequence[i] = new Node(FieldUtils.rotatePose(sequence[i].pose()), sequence[i].radius());
 
-    return new Path(rotatedSequence);
+    return new Path(throttle, rotatedSequence);
   }
 
   /** Creates a Red Alliance clone of the original Blue Alliance path */
@@ -51,7 +51,7 @@ public record Path(Node... sequence)
   {
     Node[] concatSequence = Arrays.copyOf(sequence, sequence.length + other.sequence.length);
     System.arraycopy(other.sequence, 0, concatSequence, sequence.length, other.sequence.length);
-    return new Path(concatSequence);
+    return new Path(throttle, concatSequence);
   }
 
   public void display(String fieldObject)
@@ -69,9 +69,10 @@ public record Path(Node... sequence)
       "r_trench_a2m", 
       new Path
       (
-        0.25, 
-        new Pose2d(2.5, 0.625, Rotation2d.kZero),
-        new Pose2d(6.25, 0.625, Rotation2d.kZero)
+        0.5,
+        0.1, 
+        new Pose2d(2.5, 0.55, Rotation2d.kZero),
+        new Pose2d(6.25, 0.55, Rotation2d.kZero)
       )
     );
     // 2: Left side trench, alliance zone -> mid zone
@@ -80,9 +81,10 @@ public record Path(Node... sequence)
       "l_trench_a2m", 
       new Path
       (
-        0.25, 
-        new Pose2d(2.5, 7.4, Rotation2d.kZero),
-        new Pose2d(6.25, 7.4, Rotation2d.kZero)
+        0.5,
+        0.1, 
+        new Pose2d(2.5, 7.53, Rotation2d.kZero),
+        new Pose2d(6.25, 7.53, Rotation2d.kZero)
       )
     );
     // 3: Right side trench, mid zone -> alliance zone
@@ -91,9 +93,10 @@ public record Path(Node... sequence)
       "r_trench_m2a", 
       new Path
       (
-        0.25, 
-        new Pose2d(6.75, 0.625, Rotation2d.k180deg),
-        new Pose2d(3, 0.625, Rotation2d.k180deg)
+        0.5,
+        0.1, 
+        new Pose2d(6.75, 0.55, Rotation2d.k180deg),
+        new Pose2d(3, 0.55, Rotation2d.k180deg)
       )
     );
     // 4: Left side trench, mid zone -> alliance zone
@@ -102,9 +105,10 @@ public record Path(Node... sequence)
       "l_trench_m2a", 
       new Path
       (
-        0.25, 
-        new Pose2d(6.75, 7.4, Rotation2d.k180deg),
-        new Pose2d(3, 7.4, Rotation2d.k180deg)
+        0.5,
+        0.1, 
+        new Pose2d(6.75, 7.53, Rotation2d.k180deg),
+        new Pose2d(3, 7.53, Rotation2d.k180deg)
       )
     );
     // 5: Right side mid zone ball collection
@@ -113,6 +117,7 @@ public record Path(Node... sequence)
       "r_balls", 
       new Path
       (
+        1.0,
         0.5, 
         new Pose2d(7.75, 0.625, Rotation2d.kCCW_90deg),
         new Pose2d(7.75, 5, Rotation2d.kCCW_90deg)
@@ -124,6 +129,7 @@ public record Path(Node... sequence)
       "l_balls", 
       new Path
       (
+        1.0,
         0.5, 
         new Pose2d(7.75, 7.455, Rotation2d.kCW_90deg),
         new Pose2d(7.75, 3.08, Rotation2d.kCW_90deg)
@@ -133,6 +139,7 @@ public record Path(Node... sequence)
 
   public static final Path climbBlueRight = new Path
   (
+    0.2,
     0.3, 
     new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCW_90deg),
     new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCW_90deg)
@@ -140,6 +147,7 @@ public record Path(Node... sequence)
   
   public static final Path climbBlueLeft = new Path
   (
+    0.2,
     0.3, 
     new Pose2d(GeoFencing.towerPostBlueN.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCCW_90deg),
     new Pose2d(GeoFencing.towerPostBlueN.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCCW_90deg)
@@ -147,6 +155,7 @@ public record Path(Node... sequence)
 
   public static final Path climbRedRight = new Path
   (
+    0.2,
     0.3, 
     new Pose2d(GeoFencing.towerPostRedN.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCCW_90deg),
     new Pose2d(GeoFencing.towerPostRedN.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCCW_90deg)
@@ -154,6 +163,7 @@ public record Path(Node... sequence)
   
   public static final Path climbRedLeft = new Path
   (
+    0.2,
     0.3, 
     new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCW_90deg),
     new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCW_90deg)

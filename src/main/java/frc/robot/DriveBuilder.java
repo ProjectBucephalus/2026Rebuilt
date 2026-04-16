@@ -221,18 +221,10 @@ public class DriveBuilder
     {return pathFollowInner(Arrays.asList(new Node(target, 0.0)), throttleSup);}
 
   /**
-   * Creates a PathFollow drive command to follow the given path
-   * @param path Predefined path for command to follow
-   */
-  public static Command pathFollow(Path path)
-    {return pathFollow(path, () -> 1.0);}
-
-  /**
    * Creates a PathFollow drive command to follow the given path with braking
    * @param path        Predefined path for command to follow
-   * @param throttleSup Supplier for the throttle to apply, [0..1]. 1 is full speed, 0 is stopped
    */
-  public static Command pathFollow(Path path, DoubleSupplier throttleSup)
+  public static Command pathFollow(Path path)
   {
     final ArrayList<Node> waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
 
@@ -264,7 +256,7 @@ public class DriveBuilder
     // Final waypoint does not trigger until the robot arives at it
     waypoints.add(new Node(path.sequence()[path.sequence().length - 1].pose(), ControlConstants.lineupTolerance));
 
-    return pathFollowInner(waypoints, throttleSup);
+    return pathFollowInner(waypoints, path::throttle);
   }
 
   /**
