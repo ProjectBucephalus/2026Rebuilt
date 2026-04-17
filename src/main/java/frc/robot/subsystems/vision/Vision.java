@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.util.PBDash;
+
 import static frc.robot.constants.Constants.VisionConstants.*;
 
 /** 
@@ -72,7 +73,7 @@ public class Vision extends SubsystemBase
   public void setPose(Pose2d pose)
   {
     lastGoodPose = Timer.getTimestamp();
-    estimateConsumer.accept(pose, Utils.getCurrentTimeSeconds(), VecBuilder.fill(0, 0, 1000));
+    estimateConsumer.accept(pose, Utils.getCurrentTimeSeconds(), VecBuilder.fill(0, 0, Double.POSITIVE_INFINITY));
   }
 
   @Override
@@ -84,6 +85,8 @@ public class Vision extends SubsystemBase
 
       for (var ll : lls)
       {
+        if (ll.isActive())
+        {
         // Pose estimate returns Optional, so may or may not be present
         ll.getPhotonEst().ifPresent(est -> {
           // Reject update if it contains no tags, or if the robot is rotating too fast         
@@ -98,8 +101,8 @@ public class Vision extends SubsystemBase
 
             // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
             double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-            double linearStdDev = linearStdDevBaseline * stdDevFactor;
-            double rotStdDev = rotStdDevBaseline * stdDevFactor;
+            double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 0;
+            double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 0;
             var stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev);
 
             double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
@@ -107,18 +110,22 @@ public class Vision extends SubsystemBase
             // If the camera is mounted on a turret, apply additional offset processing
             Pose2d poseOut = 
               ll.isOnTurret() 
-              ? est.estimatedPose.toPose2d().transformBy(ll.getTurretToRobot(timestamp))
-              : est.estimatedPose.toPose2d();
+              ? est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure()).transformBy(ll.getTurretToRobot(timestamp))
+              : est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure());
             
+            PBDash.putString("Processed Pose", poseOut.toString());
+
             // Update time since last good pose estimate
             lastGoodPose = Timer.getTimestamp();
 
             // Send pose estimate to consumer
             estimateConsumer.accept(poseOut, timestamp, stdDevs);
+          
           }
         });
       }
     } 
+  }
     else if (usingVision)
     {
       usingVision = false;

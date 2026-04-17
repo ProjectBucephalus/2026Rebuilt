@@ -4,13 +4,15 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,6 +34,7 @@ import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.Limelight;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 import frc.robot.controlTransmutation.Brake;
@@ -44,7 +47,7 @@ import frc.robot.subsystems.generic.PositionMotor;
 public record ControlBinder
 (
   RobotState state,
-  Supplier<SwerveDriveState> swerveStateSup,
+  Supplier<Pose2d> poseSup,
   CommandXboxController driver,
   CommandXboxController operator,
   CommandGenericHID switchboard,
@@ -52,26 +55,28 @@ public record ControlBinder
   Brake driverBrake,
   CommandSwerveDrivetrain s_Swerve,
   Vision s_Vision,
+  Limelight s_PhotonStbd,
+  Limelight s_PhotonPort,
   Shooter s_PortShooter,
   Shooter s_StbdShooter,
   Intake s_Intake,
   PositionMotor s_Extension,
-  LinearExtension s_Climber
+  LinearExtension s_Climber,
+  DigitalInput io_ClimberPost
 )
 {
   private static boolean bound = false;
 
   public void bind()
   {
-    if (!bound) 
-    {
-      bindState();
-      bindDrive();
-      bindShooters();
-      bindIntake();
-      bindClimber();
-      bound = true;
-    }
+    if (bound) return; // Guard against being called multiple times
+    bound = true;
+
+    bindState();
+    bindDrive();
+    bindShooters();
+    bindIntake();
+    bindClimber();
   }
 
   private void bindState()
@@ -107,8 +112,6 @@ public record ControlBinder
 
     // Bump nudging
     bumpTrigger
-      .and(PBDash.IO_FENCE::get)
-      .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
       .onTrue(s_Extension.setTargetCmd(() -> Math.min(ExtensionConstants.bumpSafeRotations, s_Extension.getAngle())))
       .whileTrue(DriveBuilder.nonCardinal(bumpRotationTolerance))
@@ -116,8 +119,6 @@ public record ControlBinder
     
     // Trench nudging
     trenchTrigger
-      .and(PBDash.IO_FENCE::get)
-      .and(s_Vision::hasLocalisation)
       .and(() -> state.nudging)
       .whileTrue(DriveBuilder.trenchNudge());
 
@@ -153,13 +154,13 @@ public record ControlBinder
       .onTrue(runOnce(() -> driverBrake.withMinThrottle(PBDash.IO_MIN_THROTTLE.get())));
 
     GeoFencing.climbBlueRight.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueRight, () -> 0.75).andThen(DriveBuilder.waitCommand()));
+      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueRight).andThen(DriveBuilder.waitCommand()));
     GeoFencing.climbBlueLeft.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueLeft, () -> 0.75).andThen(DriveBuilder.waitCommand()));
+      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueLeft).andThen(DriveBuilder.waitCommand()));
     GeoFencing.climbRedRight.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbRedRight, () -> 0.75).andThen(DriveBuilder.waitCommand()));
+      .whileTrue(DriveBuilder.pathFollow(Path.climbRedRight).andThen(DriveBuilder.waitCommand()));
     GeoFencing.climbRedLeft.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbRedLeft, () -> 0.75).andThen(DriveBuilder.waitCommand()));
+      .whileTrue(DriveBuilder.pathFollow(Path.climbRedLeft).andThen(DriveBuilder.waitCommand()));
   }
 
   private void bindShooters()
@@ -173,10 +174,10 @@ public record ControlBinder
     // Set manual shooting distance
     operator.povUp()
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(bothShootersCmd(s -> s.setDistance(ShooterConstants.closeManualRange)));
+      .onTrue(bothShooters(Commands::runOnce, s -> s.setDistance(ShooterConstants.closeManualRange)));
     operator.povDown()
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(bothShootersCmd(s -> s.setDistance(ShooterConstants.farManualRange)));
+      .onTrue(bothShooters(Commands::runOnce, s -> s.setDistance(ShooterConstants.farManualRange)));
 
     final Trigger manualFireTrigger = operator.rightTrigger(ControlConstants.triggerThreshold);
 
@@ -184,13 +185,14 @@ public record ControlBinder
     new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
       .and(manualFireTrigger.negate())
       .and(() -> !s_Vision.hasLocalisation())
+      .and(PBDash.IO_LL::get)
       .onTrue
       (
         runOnce(() -> {          
           s_PortShooter.target.azimuth = -60;
           s_StbdShooter.target.azimuth = 60;
         })
-        .alongWith(bothShootersCmd(s -> s.target.state = TargetState.Manual))
+        .alongWith(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Manual))
         .ignoringDisable(true)
       );
 
@@ -201,6 +203,7 @@ public record ControlBinder
         runOnce(() -> {          
           s_StbdShooter.target.azimuth = 45;
           s_StbdShooter.target.state = TargetState.Manual;
+          s_PhotonPort.setActive(false);
         })
       )
       .onFalse(runOnce(() -> s_StbdShooter.target.state = s_PortShooter.target.state));
@@ -211,6 +214,7 @@ public record ControlBinder
         runOnce(() -> {          
           s_PortShooter.target.azimuth = -45;
           s_PortShooter.target.state = TargetState.Manual;
+          s_PhotonStbd.setActive(false);
         })
       )
       .onFalse(runOnce(() -> s_PortShooter.target.state = s_StbdShooter.target.state));
@@ -219,17 +223,18 @@ public record ControlBinder
     new Trigger(() -> state.shoot == ShootersState.Manual)
       .onTrue
       (
-        bothShootersCmd(s -> {
+        bothShooters(Commands::runOnce, s -> {
           s.target.state = TargetState.Manual;
           s.target.azimuth = 0;
         }).ignoringDisable(true)
       );
 
     // Test (Using dashboard values)
-    new Trigger(() -> state.shoot == ShootersState.Test)
+    switchboard.button(IDConstants.testManualSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
       .whileTrue
       (
-        bothShootersCmd(s -> {
+        bothShooters(Commands::runOnce, s -> {
           s.target.state = TargetState.Manual;
           s.target.azimuth = PBDash.TEST_AZIMUTH.get();
           s.target.altitude = PBDash.TEST_ALTITUDE.get();
@@ -238,22 +243,51 @@ public record ControlBinder
         .repeatedly()
         .ignoringDisable(true)
       );
+
+    switchboard.button(IDConstants.testHubSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
+      .whileTrue
+      (
+        bothShooters(Commands::runOnce, s -> {
+          s.target.state = TargetState.Hub;
+        })
+        .repeatedly()
+        .ignoringDisable(true)
+      );
+
+    switchboard.button(IDConstants.testIdleSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
+      .whileTrue
+      (
+        bothShooters(Commands::runOnce, s -> {
+          s.target.state = TargetState.Manual;
+        })
+        .repeatedly()
+        .ignoringDisable(true)
+      );
+
+    switchboard.button(10)
+      .onTrue
+      (
+        bothShooters(Commands::runOnce, s -> {s.calibrate();})
+        .ignoringDisable(true)
+      );
     
     final Trigger autoAimTrigger = new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
                                           .and(s_Vision::hasLocalisation)
                                           .and(DriverStation::isEnabled);
-    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(poseSup.get().getTranslation()));
 
     // Not Manual, Outside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger.negate())
-      .onTrue(bothShootersCmd(s -> s.target.state = TargetState.Point).ignoringDisable(true))
-      .whileTrue(bothShootersCmd(s -> s.target.point = FieldUtils.getClosestPassPoint(swerveStateSup.get().Pose.getTranslation())));
+      .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Point).ignoringDisable(true))
+      .whileTrue(bothShooters(Commands::run, s -> s.target.point = FieldUtils.getPassPoint(poseSup.get().getTranslation())));
 
     // Not Manual, Inside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger)
-      .onTrue(bothShootersCmd(s -> s.target.state = TargetState.Hub).ignoringDisable(true));
+      .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Hub).ignoringDisable(true));
 
     // Port-Only
     new Trigger(() -> state.shoot == ShootersState.Port)
@@ -280,8 +314,8 @@ public record ControlBinder
           state.shoot != ShootersState.Test
         )
       )
-      .onTrue(bothShootersCmd(Shooter::revFlywheels).ignoringDisable(true))
-      .onFalse(bothShootersCmd(Shooter::idleFlywheels).ignoringDisable(true));
+      .onTrue(bothShooters(Commands::runOnce, Shooter::revFlywheels).ignoringDisable(true))
+      .onFalse(bothShooters(Commands::runOnce, Shooter::idleFlywheels).ignoringDisable(true));
 
     /* Shooting when Ready */
 
@@ -324,14 +358,18 @@ public record ControlBinder
   private void bindIntake()
   {
     // Off
-    driver.leftBumper().onTrue(s_Intake.setStateCmd(RollerState.Off));
+    driver.rightBumper().onTrue(s_Intake.setStateCmd(RollerState.Off));
     // On
-    driver.rightBumper().onTrue(s_Intake.setStateCmd(RollerState.On));
+    driver.leftBumper().onTrue(s_Intake.setStateCmd(RollerState.On));
 
     // Deploy
-    operator.leftBumper().onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations));
+    operator.leftBumper().or(driver.leftBumper())
+      .onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations))
+      .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Deployed")));
     // Stow
-    operator.rightBumper().onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations));
+    operator.rightBumper()
+      .onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations))
+      .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Stowed")));
 
     // Reverse
     operator.leftTrigger(ControlConstants.triggerThreshold)
@@ -339,26 +377,38 @@ public record ControlBinder
       (
         new Command() 
         {
+          {addRequirements(s_Extension);}
+          
           private RollerState prevState;
 
           public void initialize()
           {
             prevState = s_Intake.state;
             s_Intake.state = RollerState.Reversed;
+            if (s_Extension.getTarget() == ExtensionConstants.maxRotations) 
+              s_Extension.setTarget(ExtensionConstants.jostleRotations);
           }
 
-          public void end(boolean i) {s_Intake.state = prevState;}
+          public void end(boolean i) 
+          {
+            s_Intake.state = prevState;
+            if (s_Extension.getTarget() == ExtensionConstants.jostleRotations) 
+              s_Extension.setTarget(ExtensionConstants.maxRotations);
+          }
         }
       );
 
     // Manual Control
     s_Extension.setDefaultCommand(s_Extension.adjustTargetCmd(() -> MathUtil.applyDeadband(operator.getLeftY(), ControlConstants.manualControlDeadband) * ControlConstants.manualIntakeExtensionScale));
+    operator
+      .axisMagnitudeGreaterThan(XboxController.Axis.kLeftY.value, ControlConstants.manualControlDeadband)
+      .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Manual")));
   }
 
   private void bindClimber()
   {
     final Trigger autoDeployTrigger = new Trigger(() -> state.climbPos != ClimbPosition.None);
-    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(swerveStateSup.get().Pose.getTranslation()));
+    final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(poseSup.get().getTranslation()));
 
     // In alliance zone and auto-deploy, extend (only on true so that manual control can still happen while in alliance zone)
     autoDeployTrigger
@@ -378,42 +428,54 @@ public record ControlBinder
     driver.back().onTrue(runOnce(() -> state.climbPos = ClimbPosition.None));
 
     // Retract
-    operator.start().onTrue(s_Climber.setTargetCmd(ClimberConstants.climbPosition));
+    operator.start()
+      .onTrue
+      (
+        Commands.either
+        (
+          s_Climber.setTargetCmd(ClimberConstants.climbPosition).alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Climb"))), 
+          s_Climber.retractCmd().alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Home"))), 
+          () -> s_Climber.atMax() && !io_ClimberPost.get()
+        )
+      );
     // Extend
-    operator.back().onTrue(s_Climber.extendCmd());
+    operator.back()
+      .onTrue(s_Climber.extendCmd())
+      .onTrue(runOnce(() -> PBDash.CLIMBER_STATE.put("Extended")));
       
     // Manual Control
     s_Climber.setDefaultCommand(s_Climber.adjustTargetCmd(() -> MathUtil.applyDeadband(-operator.getRightY(), ControlConstants.manualControlDeadband) * ControlConstants.manualClimberExtensionScale));
+    operator
+      .axisMagnitudeGreaterThan(XboxController.Axis.kRightY.value, ControlConstants.manualControlDeadband)
+      .onTrue(runOnce(() -> PBDash.CLIMBER_STATE.put("Manual")));
   }
 
   /** Mutually exclusive to {@link ControlBinder#bind bind()} */
   public void bindSysId()
   {
-    if (!bound)
-    {
-      s_Swerve.setDefaultCommand(DriveBuilder.manual());
+    if (bound) return; // Guard against being called multiple times
+    bound = true;
 
-      driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-      driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+    s_Swerve.setDefaultCommand(DriveBuilder.manual());
 
-      /*
-      * Joystick Y = quasistatic forward
-      * Joystick A = quasistatic reverse
-      * Joystick B = dynamic forward
-      * Joystick X = dyanmic reverse
-      */
-      driver.y().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      driver.a().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      driver.b().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      driver.x().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    driver.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    driver.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
 
-      bound = true;
-    }
+    /*
+    * Joystick Y = quasistatic forward
+    * Joystick A = quasistatic reverse
+    * Joystick B = dynamic forward
+    * Joystick X = dyanmic reverse
+    */
+    driver.y().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    driver.a().whileTrue(s_Swerve.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    driver.b().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    driver.x().whileTrue(s_Swerve.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
  
-  private Command bothShootersCmd(Consumer<Shooter> action)
+  private Command bothShooters(Function<Runnable, Command> cmd, Consumer<Shooter> action)
   {
-    return runOnce(() -> {
+    return cmd.apply(() -> {
       action.accept(s_PortShooter);
       action.accept(s_StbdShooter);
     });

@@ -272,17 +272,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
    * 
    * @param target Current target pose to drive towards
    * @param pose Current robot pose
-   * @param brake Speed reduction to apply, [0..1]. Higher is slower
+   * @param brake Throttle to apply, [0..1]. 1 is full speed, 0 is stopped
    * @return Chassis speeds, m/s, m/s, rad/s
    */
-  public ChassisSpeeds calculateDrivePID(Pose2d target, Pose2d pose, double brakeIn)
+  public ChassisSpeeds calculateDrivePID(Pose2d target, Pose2d pose, double translationThrottle, double rotationThrottle)
   {
     final PIDController xController = new PIDController(driveKP, driveKI, driveKD);
     final PIDController yController = new PIDController(driveKP, driveKI, driveKD);
     final PIDController thetaController = new PIDController(rotationKP, rotationKI, rotationKD);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    final double brake = 1 - brakeIn;
     final var robotPos = pose.getTranslation();
     final var targetPos = target.getTranslation();
 
@@ -309,8 +308,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         thetaController.calculate(pose.getRotation().getRadians(), target.getRotation().getRadians()), 
         -maxAngularVelocity, 
         maxAngularVelocity
-      ) * brake;
-    final var throttleXY = FieldConstants.GeoFencing.fieldGeoFence.process(new Translation2d(throttleX, throttleY)).times(brake);
+      ) * rotationThrottle;
+    final var throttleXY = FieldConstants.GeoFencing.fieldGeoFence.process(new Translation2d(throttleX, throttleY)).times(translationThrottle);
 
     xController.close();
     yController.close();
@@ -353,6 +352,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
       );
     }
+  }
+
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+  {
+    return moduleValid(0)
+        && moduleValid(1)
+        && moduleValid(2)
+        && moduleValid(3)
+        && getPigeon2().isConnected();
+  }
+
+  private boolean moduleValid(int index)
+  {
+    var module = getModule(index);
+    return module.getEncoder().isConnected()
+        && module.getDriveMotor().isConnected()
+        && module.getSteerMotor().isConnected();
   }
 
   private void startSimThread() 

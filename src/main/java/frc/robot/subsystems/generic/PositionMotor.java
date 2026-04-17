@@ -8,8 +8,10 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 @Logged(strategy = Strategy.OPT_IN)
@@ -46,7 +48,7 @@ public class PositionMotor extends SubsystemBase
    * Exists as a sort of hacky solution to get around overriden versions of the method
    * @param target mechanism rotations
    */
-  private void baseSetTarget(double pos)
+  protected final void baseSetTarget(double pos)
   {
     active = true;
     m_Position.setControl(request.withPosition(pos));
@@ -70,6 +72,23 @@ public class PositionMotor extends SubsystemBase
     {return setTargetCmd(() -> target);}
 
   /**
+   * Creates a command to set the target point for the motor and wait until we reach that target point <p>
+   * @param targetSup mechanism rotations
+   * @return the Command
+   */
+  public Command gotoTargetCmd(DoubleSupplier targetSup)
+    {return setTargetCmd(targetSup).andThen(Commands.waitUntil(this::atTarget));}
+
+    /**
+   * Creates a command to set the target point for the motor and wait until we reach that target point <p>
+   * NOTE: The provided value is only evaluated when the command is created
+   * @param target mechanism rotations
+   * @return the Command
+   */
+  public Command gotoTargetCmd(double target)
+    {return gotoTargetCmd(() -> target);}
+
+  /**
    * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
    * Primarily intended for joystick control
    * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
@@ -82,4 +101,21 @@ public class PositionMotor extends SubsystemBase
   @Logged(name = "angle Rotations")
   public double getAngle() 
     {return m_Position.getPosition().getValue().in(Units.Rotations);}
+
+  /** @return Current angle of the motor, in mechanism rotations */
+  @Logged(name = "target Rotations")
+  public double getTarget() 
+    {return request.Position;}
+
+  /** Stops the motor by setting the target to its current position */
+  public void stop()
+    {m_Position.set(0);}
+
+  /** @return {@code true} when the motor is close to target */
+  public boolean atTarget()
+    {return MathUtil.isNear(getTarget(), getAngle(), 0.1);}
+
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+    {return m_Position.isConnected();}
 }

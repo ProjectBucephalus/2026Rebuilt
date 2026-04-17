@@ -10,10 +10,12 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -25,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import frc.robot.autobuilder.AutoBuilder;
@@ -120,14 +123,30 @@ public class Robot extends TimedRobot
     ShooterConstants.HoodConstants.stbdHomeAngle,
     false
   );
+
+  private final Limelight s_PhotonStbd = new Limelight
+  (
+    IDConstants.portLimelightName, 
+    VisionConstants.flatCameraToTurret, 
+    s_PortShooter::getAzimuthTimestamped, 
+    ShooterConstants.portShooterOffset
+  );
+
+  private final Limelight s_PhotonPort = new Limelight
+  (
+    IDConstants.stbdLimelightName, 
+    VisionConstants.flatCameraToTurret, 
+    s_StbdShooter::getAzimuthTimestamped, 
+    ShooterConstants.stbdShooterOffset
+  );
   
   @Logged(name = "Vision")
   private final Vision s_Vision = new Vision
   (
     s_Swerve::addVisionMeasurement,
     () -> swerveState.Speeds.omegaRadiansPerSecond,
-    new Limelight(IDConstants.portLimelightName, VisionConstants.portLimelightOffset, s_PortShooter::getAzimuthTimestamped, ShooterConstants.portShooterOffset), 
-    new Limelight(IDConstants.stbdLimelightName, VisionConstants.stbdLimelightOffset, s_StbdShooter::getAzimuthTimestamped, ShooterConstants.stbdShooterOffset)
+    s_PhotonStbd,
+    s_PhotonPort
   );
   
   @Logged(name = "Climber")
@@ -135,6 +154,7 @@ public class Robot extends TimedRobot
   (
     IDConstants.climberCAN, 
     IDConstants.climberLimitDIO, 
+    true,
     ClimberConstants.minPosition, 
     ClimberConstants.maxPosition, 
     ClimberConstants.homePosition, 
@@ -143,13 +163,16 @@ public class Robot extends TimedRobot
   );
   
   @Logged(name = "Intake")
-  private final Intake s_Intake = new Intake(() -> swerveState);
+  private final Intake s_Intake = new Intake();
 
   @Logged(name = "Extension")
   private final PositionMotor s_Extension = new PositionMotor(IDConstants.extensionCAN, ExtensionConstants.extensionConfig);
 
   @Logged(name = "Climb Post Sensor")
   private final DigitalInput io_ClimberPost = new DigitalInput(IDConstants.climberPostDIO);
+
+  @Logged(name = "Extension Encoder")
+  private final CANcoder io_ExtensionEncoder = new CANcoder(IntakeConstants.ExtensionConstants.extensionConfig.Feedback.FeedbackRemoteSensorID);
 
   /* Rumble */
   private final RumbleRequester io_driverRight = new RumbleRequester(driver, RumbleType.kRightRumble, PBDash.RUMBLE_DRIVER::get);
@@ -160,9 +183,18 @@ public class Robot extends TimedRobot
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
   private final JoystickTransmuter driverStickRaw = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
-  private final Brake driverBrake = new Brake(() -> driver.getRightTriggerAxis(), ControlConstants.maxThrottle, ControlConstants.minThrottle);
+  private final Brake driverBrake = new Brake
+  (
+    () -> driver.leftBumper().getAsBoolean() 
+      ? ControlConstants.brakeFromIntake 
+      : driver.getRightTriggerAxis(), 
+    ControlConstants.maxThrottle, 
+    ControlConstants.minThrottle
+  );
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
+
+  private final AutoBuilder autoBuilder = new AutoBuilder(s_Intake, s_Extension, s_Climber, io_ClimberPost, this::getPose);
 
   public Robot() 
   {
@@ -174,19 +206,22 @@ public class Robot extends TimedRobot
     new ControlBinder
     (
       state, 
-      () -> swerveState, 
+      this::getPose, 
       driver, 
       operator, 
       switchboard, 
       driverStick, 
       driverBrake, 
       s_Swerve, 
-      s_Vision, 
+      s_Vision,
+      s_PhotonStbd,
+      s_PhotonPort, 
       s_PortShooter, 
       s_StbdShooter, 
       s_Intake, 
       s_Extension,
-      s_Climber
+      s_Climber,
+      io_ClimberPost
     )
     .bind();
 
@@ -224,7 +259,7 @@ public class Robot extends TimedRobot
       driverStick::stickOutput,
       () -> -driver.getRightX(),
       driver::getRightTriggerAxis,
-      () -> swerveState.Pose
+      this::getPose
     );
 
     driverStick
@@ -237,7 +272,7 @@ public class Robot extends TimedRobot
     FieldObject.setRobotRadiusSup(() -> SwerveConstants.robotRadiusExpanded);
     FieldObject.setRobotPosSup(() -> swerveState.Pose.getTranslation());
 
-    GeoFencing.fieldGeoFence.setActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
+    FieldObject.setGlobalActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
     
     GeoFencing.fieldRedGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Red));
     GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Blue));
@@ -254,24 +289,16 @@ public class Robot extends TimedRobot
     // Climb attractor TriggerVector setup
     GeoFencing.climbBlueLeft 
       .withControlInput(driverStickRaw::stickOutput)
-      .setActiveCondition(() -> 
-        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
-        && state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Blue));
+      .setActiveCondition(() -> state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Blue));
     GeoFencing.climbRedLeft  
       .withControlInput(driverStickRaw::stickOutput)
-      .setActiveCondition(() -> 
-        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
-        && state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Red));
+      .setActiveCondition(() -> state.climbPos == ClimbPosition.Left  && FieldUtils.isAlliance(Alliance.Red));
     GeoFencing.climbBlueRight
       .withControlInput(driverStickRaw::stickOutput)
-      .setActiveCondition(() -> 
-        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
-        && state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Blue));
+      .setActiveCondition(() -> state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Blue));
     GeoFencing.climbRedRight 
       .withControlInput(driverStickRaw::stickOutput)
-      .setActiveCondition(() -> 
-        s_Vision.hasLocalisation() && PBDash.IO_FENCE.get() 
-        && state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Red));
+      .setActiveCondition(() -> state.climbPos == ClimbPosition.Right && FieldUtils.isAlliance(Alliance.Red));
   }
 
   /** Sets trigger conditions to activate controller rumbles */
@@ -302,9 +329,40 @@ public class Robot extends TimedRobot
     PBDash.FIELD.setRobotPose(swerveState.Pose);
   }
 
+  private Pose2d getPose()
+    {return swerveState.Pose;}
+
   private void compileAuto()
   {
-    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), swerveState.Pose, s_Swerve, s_Intake, s_Extension));
+    autoCommand = Optional.of(autoBuilder.compile(PBDash.AUTO_STRING.get()));
+  }
+
+  private void checkDevices()
+  {
+    PBDash.DEVICE_ERRORS.init();
+    
+    if (!driver.isConnected() || !operator.isConnected()) PBDash.DEVICE_ERRORS.append("Controller, ");
+    if (!(switchboard.button(1)).or(switchboard.button(2)).or(switchboard.button(3)).getAsBoolean()) PBDash.DEVICE_ERRORS.append("Switchboard, ");
+
+    if (!s_Swerve.devicesValid()) PBDash.DEVICE_ERRORS.append("Drivebase, ");
+    
+    if (!s_PortShooter.devicesValid()) PBDash.DEVICE_ERRORS.append("Port Shooter, ");
+    if (!s_PortShooter.potValid()) PBDash.DEVICE_ERRORS.append("Port Pot, ");
+    if (!s_StbdShooter.devicesValid()) PBDash.DEVICE_ERRORS.append("Stbd Shooter, ");
+    if (!s_StbdShooter.potValid()) PBDash.DEVICE_ERRORS.append("Stbd Pot, ");
+    
+    if (!s_Climber.devicesValid()) PBDash.DEVICE_ERRORS.append("Climber Motor, ");
+    if (!s_Climber.atLimit()) PBDash.DEVICE_ERRORS.append("Climber Limit Sensor, ");
+    if (io_ClimberPost.get()) PBDash.DEVICE_ERRORS.append("Climber Post Sensor, ");
+    
+    if (!s_Intake.devicesValid()) PBDash.DEVICE_ERRORS.append("Intake Roller, ");
+    if (!s_Extension.devicesValid()) PBDash.DEVICE_ERRORS.append("Extension, ");
+    if (!io_ExtensionEncoder.isConnected()) PBDash.DEVICE_ERRORS.append("Extension Encoder, ");
+    
+    if (!s_Vision.hasLocalisation()) PBDash.DEVICE_ERRORS.append("Vision, ");
+
+    double batteryVoltage = Math.round(100 * RobotController.getBatteryVoltage()) / 100.0;
+    if (batteryVoltage < 12.5) PBDash.DEVICE_ERRORS.append("Battery " + batteryVoltage + "v, ");
   }
 
   @Logged(name = "CAN Load")
@@ -340,6 +398,8 @@ public class Robot extends TimedRobot
           case Red -> FieldConstants.redStartLine;
         }
       );
+
+    s_Intake.state = RollerState.Off;
   }
 
   @Override
@@ -349,6 +409,8 @@ public class Robot extends TimedRobot
 
     if (PBDash.AUTO_STRING.hasChanged()) 
       compileAuto();
+
+    checkDevices();
   }
 
   @Override
@@ -371,6 +433,8 @@ public class Robot extends TimedRobot
     driverStick.rotated(FieldUtils.isAlliance(Alliance.Red));
     
     autoCommand.ifPresent(Command::cancel);
+
+    PBDash.removeFieldObject("Auto Path");
 
     CommandScheduler.getInstance()
       .schedule

@@ -34,10 +34,11 @@ public class Limelight
   private final PhotonPoseEstimator photonEstimator;
 
   private final boolean onTurret;
+  private boolean isActive = true;
 
   private final Transform2d robotToTurret;
   private final Transform2d turretToRobot;
-  private final Transform3d structureToCamera;
+  private final Transform2d cameraToStructure;
 
   private final TimeInterpolatableBuffer<Double> azimuthBuf = TimeInterpolatableBuffer.createDoubleBuffer(azimuthBufLength);
   private final TurretAzimuthSupplier azimuthSup;
@@ -45,17 +46,17 @@ public class Limelight
   /**
    * Creates a new static Limelight vision camera
    * @param name Device name as published to network
-   * @param robotToCamera Transform3d from robot-centre at floor level to the centre of the camera lens
+   * @param cameraToRobot Transform2d from the centre of the camera body to robot-centre
    */
-  public Limelight(String name, Transform3d robotToCamera) 
+  public Limelight(String name, Transform2d cameraToRobot) 
   {
     camera = new PhotonCamera(name);
 
     robotToTurret = Transform2d.kZero;
     turretToRobot = Transform2d.kZero;
-    structureToCamera = robotToCamera;
+    cameraToStructure = cameraToRobot;
 
-    photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
+    photonEstimator = new PhotonPoseEstimator(kTagLayout, Transform3d.kZero);
 
     azimuthSup = () -> new Pair<>(0.0, 0.0);
     onTurret = false;
@@ -65,19 +66,19 @@ public class Limelight
  /**
   * Creates a new turret-mounted Limelight vision camera
   * @param name Device name as published to network
-  * @param turretToCamera Transform3d from turret-centre at floor level to the centre of the camera lens
+  * @param cameraToTurret Transform2d from the centre of the camera body to turret-centre
   * @param turretAngleSup Supplier for the current robot-relative azimuth of the turret, degrees
   * @param robotToTurret Transform2d from robot-centre to turret-centre
   */
-  public Limelight(String name, Transform3d turretToCamera, TurretAzimuthSupplier turretAzimuthSup, Transform2d robotToTurret) 
+  public Limelight(String name, Transform2d cameraToTurret, TurretAzimuthSupplier turretAzimuthSup, Transform2d robotToTurret) 
   {
     camera = new PhotonCamera(name);
 
     this.robotToTurret = robotToTurret;
     turretToRobot = robotToTurret.inverse();
-    structureToCamera = turretToCamera;
+    cameraToStructure = cameraToTurret;
 
-    photonEstimator = new PhotonPoseEstimator(kTagLayout, structureToCamera);
+    photonEstimator = new PhotonPoseEstimator(kTagLayout, Transform3d.kZero);
 
     this.azimuthSup = turretAzimuthSup;
     onTurret = true;
@@ -141,4 +142,14 @@ public class Limelight
     var rotation = turretToRobot.getRotation().minus(turretRotation);
     return new Transform2d(translation, rotation);
   }
+
+  /** @return Transform to convert from Camera to Structure */
+  public Transform2d getCameraToStructure()
+    {return cameraToStructure;}
+
+  public boolean isActive()
+  {return isActive;}
+
+  public void setActive(boolean activeState)
+  {isActive = activeState;}
 }

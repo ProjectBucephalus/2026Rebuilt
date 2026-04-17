@@ -29,14 +29,14 @@ public class TunerConstants
   // The steer motor uses any SwerveModule.SteerRequestType control request with the
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
   private static final Slot0Configs steerGains = new Slot0Configs()
-    .withKP(13.544).withKI(0).withKD(0.09)
-    .withKS(0.274).withKV(2.2078).withKA(0)
+    .withKP(12.332).withKI(0).withKD(0.38469)
+    .withKS(0.25).withKV(1.7827).withKA(0.065426)
     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
   private static final Slot0Configs driveGains = new Slot0Configs()
-    .withKP(0.183).withKI(0).withKD(0)
-    .withKS(0.1445).withKV(0.1184); // TODO: Confirm kP, it seems unreasonably low
+    .withKP(0.0695).withKI(0).withKD(0)
+    .withKS(0.17612).withKV(0.11902);
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
@@ -55,8 +55,8 @@ public class TunerConstants
   private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.RemoteCANcoder;
 
   // The stator current at which the wheels start to slip; 
-  // This needs to be tuned to your individual robot TODO
-  private static final Current kSlipCurrent = Amps.of(45);
+  // This needs to be tuned to your individual robot
+  private static final Current kSlipCurrent = Amps.of(50);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -68,7 +68,7 @@ public class TunerConstants
         new CurrentLimitsConfigs()
           // Swerve azimuth does not require much torque output, so we can set a relatively low
           // stator current limit to help avoid brownouts without impacting performance.
-          .withStatorCurrentLimit(Amps.of(60))
+          .withStatorCurrentLimit(Amps.of(30))
           .withStatorCurrentLimitEnable(true)
       );
   private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
@@ -80,8 +80,8 @@ public class TunerConstants
   public static final CANBus kCANBus = new CANBus("", "./logs/example.hoot");
 
   // Theoretical free speed (m/s) at 12 V applied output;
-  // This needs to be tuned to your individual robot TODO
-  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.73);
+  // This needs to be tuned to your individual robot
+  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.23);
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot

@@ -30,4 +30,10 @@ public class BiMotor extends VelocityMotor
 
     m_Follower.setControl(new Follower(leaderCAN, flipped ? MotorAlignmentValue.Opposed : MotorAlignmentValue.Aligned));
   }
+
+  @Override
+  public boolean devicesValid()
+  {
+    return super.devicesValid() && m_Follower.isConnected();
+  }
 }

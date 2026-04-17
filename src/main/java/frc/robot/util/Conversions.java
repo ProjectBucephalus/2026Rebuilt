@@ -107,6 +107,12 @@ public class Conversions
       return value;
   }
 
+  public static double round(double value, int places)
+  {
+    double factor = Math.pow(10, places);
+    return Math.round(value * factor) / factor;
+  }
+
   /**
    * Pose2d constructor wrapper to use raw doubles for all values <p>
    * NOTE: This is marginally inefficient for right-angles (0, 90, 180, etc), 
@@ -149,8 +155,8 @@ public class Conversions
   /**
    * Checks if two translations are within {@link Constants.ControlConstants#lineupTolerance lineupTolerance} of each other 
    * 
-   * @param robotPose the first translation
-   * @param targetPose the second translation
+   * @param robotPos the first translation
+   * @param targetPos the second translation
    * @return true if the two translations are within tolerance of each other
    */
   public static boolean atTranslation(Translation2d robotPos, Translation2d targetPos)
@@ -159,8 +165,8 @@ public class Conversions
   /**
    * Checks if two translations are within a provided tolerance of each other
    * 
-   * @param robotPose the first translation
-   * @param targetPose the second translation
+   * @param robotPos the first translation
+   * @param targetPos the second translation
    * @param distanceTolerance the tolerance, meters
    * @return true if the translations are within tolerance of each other
    */

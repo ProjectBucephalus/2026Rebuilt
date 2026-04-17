@@ -5,7 +5,6 @@ import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
-import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
@@ -24,6 +23,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -53,15 +53,16 @@ public class Turret
   private final Target target;
 
   private double lastCalibration = 0;
-  private double potLastCycle = 0;
   private boolean azCheck = false;
+
+  private CircularBuffer<Double> potBuffer = new CircularBuffer<>(5);
 
   /**
    * Creates a turret controller, to be managed by {@link Shooter} master-system
    * @param motorID CAN-ID of azimuth motor
    * @param potID AIO-ID of azimuth potentiometer
    * @param potOffset Potentiometer reading for centre of rotation
-   * @param targetSup Supplier for current Target object
+   * @param target Target object for the shooter
    */
   public Turret(int motorID, int potID, double potOffset, Target target) 
   {
@@ -76,7 +77,7 @@ public class Turret
     simState.MotorOrientation = ChassisReference.Clockwise_Positive;
     simState.ExtSensorOrientation = ChassisReference.CounterClockwise_Positive;
 
-    potLastCycle = io_Azimuth.get();
+    potBuffer.addFirst(io_Azimuth.get());
 
     calibrate();
   }
@@ -142,12 +143,24 @@ public class Turret
   public void home()
     {m_Turret.setControl(request.withPosition(0));}
 
+  /** @return {@code true} if potentiometer is in valid range */
+  public boolean potValid() 
+  {
+    double rawAzimuth = io_Azimuth.get();
+    return rawAzimuth >= -potSafeLimit && rawAzimuth <= potSafeLimit;
+  }
+
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+    {return m_Turret.isConnected();}
+
   /**
    * If the turret is not moving, resets the motor's internal position to the current potentiometer reading
    */
-  public void calibrate()
+  public void calibrate(boolean... force)
   {
     double rawAzimuth = io_Azimuth.get();
+    potBuffer.addFirst(rawAzimuth);
 
     // If the turret is not moving fast and has moved since last calibration,
     // pull the value from the pot, convert to mechanism angle, and send to motor
@@ -155,17 +168,22 @@ public class Turret
     (
       Robot.isReal() 
       && Math.abs(getSpeed()) < calibrationSpeedLimit // Only calibrate when turret is moving slowly
-      && !MathUtil.isNear(rawAzimuth, lastCalibration, calibrationAngleLimit) // Only calibrate after moving ~10 degrees
-      && rawAzimuth >= -potSafeLimit // Discard extreme values that occur when sensor is disconnected
-      && rawAzimuth <=  potSafeLimit
+      && (
+        force.length != 0
+        || !MathUtil.isNear(rawAzimuth, lastCalibration, calibrationAngleLimit) // Only calibrate after moving ~10 degrees
+      )
+      && potValid() // Discard extreme values that occur when sensor is disconnected
     )
     {
-      double newPos = (rawAzimuth + potLastCycle) / (2 * azimuthPotRatio  * 360.0);
-      m_Turret.setPosition(newPos);
-      lastCalibration = rawAzimuth;
-    }
+      double avg = 0;
+      for (int i = 0; i < potBuffer.size(); i++)
+        {avg += potBuffer.get(i);}
+      avg /= potBuffer.size();
 
-    potLastCycle = rawAzimuth;
+      double newPos = avg / (azimuthPotRatio * 360.0);
+      m_Turret.setPosition(newPos);
+      lastCalibration = avg;
+    }
   }
 
   /**
@@ -184,12 +202,12 @@ public class Turret
 
     double robotDegreesPerCycle = robotDegreesPerSecond / 50;
 
-    return robotTarget;// - robotDegreesPerCycle;
+    return robotTarget - robotDegreesPerCycle;
   }
 
   private boolean safeToShoot(ChassisSpeeds swerveSpeeds)
   {
-    return (getSpeed() + (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < maxRPS
+    return (getSpeed() - (Math.toDegrees(swerveSpeeds.omegaRadiansPerSecond)/360)) < maxRPS
       && Math.abs(getAzimuth()) < maxTurretAzimuth - limitBufferZone;
   }
 
@@ -211,6 +229,16 @@ public class Turret
     return Math.abs(Conversions.mod(getAzimuth(), 360) - Conversions.mod(target.azimuth, 360));
   }
 
+  /** 
+   * Checks that the turret system is in a safe and valid state to begin shooting. This requires that:
+   * <ul>
+   * <li> The turret is within {@link TurretConstants#azimuthTolerance azimuthTolerance} of it's target azimuth
+   * <li> The combined rotational velocity of the turret and the drivebase is less than {@link TurretConstants#maxRPS maxRPS}  
+   * <li> The turret is not within {@link TurretConstants#limitBufferZone limitBufferZone} of it's max azimuth
+   * </ul>
+   * 
+   * @return True if all above conditions are true
+   */
   public boolean readyToShoot(ChassisSpeeds swerveSpeeds)
     {return atAzimuth() && safeToShoot(swerveSpeeds);}
 
@@ -225,14 +253,22 @@ public class Turret
   {
     calibrate();
 
-    // Update the azimuth stored in the target based on the target state
-    // Ensures that changing to manual mode doesn't cause sudden motion
-    if (target.state == TargetState.Hub || target.disabled)
-      target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
-    else if (target.state == TargetState.Point)
-      target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
+    if (target.disabled)
+    {
+      target.azimuth = getAzimuth();
+      m_Turret.set(0);
+    }
+    else
+    {
+      // Update the azimuth stored in the target based on the target state
+      // Ensures that changing to manual mode doesn't cause sudden motion
+      if (target.state == TargetState.Hub)
+        target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
+      else if (target.state == TargetState.Point)
+        target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
 
-    m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
+      m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
+    }
   }   
   
   protected void updateSim()

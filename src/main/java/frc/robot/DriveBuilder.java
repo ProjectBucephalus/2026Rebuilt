@@ -5,7 +5,6 @@ import static edu.wpi.first.wpilibj2.command.Commands.runOnce;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -24,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.constants.Path;
+import frc.robot.constants.Path.Node;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
 
@@ -40,7 +40,7 @@ public class DriveBuilder
     .withSteerRequestType(SteerRequestType.MotionMagicExpo)
     .withHeadingPID(SwerveConstants.rotationKP, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
 
-  private final static PIDController thetaController = new PIDController(0.02, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
+  private final static PIDController thetaController = new PIDController(SwerveConstants.rotationKP, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
 
   private static CommandSwerveDrivetrain s_Swerve;
   private static Supplier<Translation2d> joystickSup;
@@ -141,7 +141,7 @@ public class DriveBuilder
 
       // Rotation stick not being actively controlled
       if (Math.abs(rotationVal) <= ControlConstants.stickDeadband) 
-        rotationVal = thetaController.calculate(robotRotation, targetHeadingSup.apply(robotRotation));
+        rotationVal = Math.toRadians(thetaController.calculate(robotRotation, targetHeadingSup.apply(robotRotation)));
       else
         rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());
 
@@ -209,24 +209,23 @@ public class DriveBuilder
    * @param target Pose2d for the command to navigate to
    */
   public static Command pathFollow(Pose2d target)
-    {return pathFollowInner(Arrays.asList(target), Arrays.asList(0.0), () -> 0.0);}
+    {return pathFollow(target, () -> 1.0);}
 
   /**
-   * Creates a PathFollow drive command to follow the given path
-   * @param path Predefined path for command to follow
+   * Creates a PathFollow drive command to navigate to the given target pose with braking
+   * @param target Pose2d for the command to navigate to
+   * @param throttleSup Supplier for the throttle to apply, [0..1]. 1 is full speed, 0 is stopped
    */
-  public static Command pathFollow(Path path)
-    {return pathFollow(path, () -> 0.0);}
+  public static Command pathFollow(Pose2d target, DoubleSupplier throttleSup)
+    {return pathFollowInner(Arrays.asList(new Node(target, 0.0)), throttleSup);}
 
   /**
    * Creates a PathFollow drive command to follow the given path with braking
-   * @param path     Predefined path for command to follow
-   * @param brakeSup Supplier for the speed reduction to apply, [0..1].  0 is no braking, 1 is full braking
+   * @param path        Predefined path for command to follow
    */
-  public static Command pathFollow(Path path, DoubleSupplier brakeSup)
+  public static Command pathFollow(Path path)
   {
-    final ArrayList<Pose2d> waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
-    final ArrayList<Double> radiusPerSegment = new ArrayList<>(path.sequence().length);
+    final ArrayList<Node> waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
 
     for (int i = 0; i < path.sequence().length - 1; i++) 
     {
@@ -234,12 +233,9 @@ public class DriveBuilder
       final var next = path.sequence()[i + 1];
 
       // Find the distance between the current point and the next
-      final double segmentLength = current.getDistance(next);
+      final double segmentLength = current.pose().getTranslation().getDistance(next.pose().getTranslation());
       // Clamp the input radius between our minimum tolerance and 1/3rd of the length of this segment
-      final double clampedRadius = Conversions.clamp(path.pointRadius(), ControlConstants.lineupTolerance, segmentLength / 3);
-      
-      // Record distance at which to switch waypoints for this segment
-      radiusPerSegment.add(clampedRadius);
+      final double clampedRadius = Conversions.clamp(current.radius(), ControlConstants.lineupTolerance, segmentLength / 3);
       
       // Calculate how far along the segment to place the midpoints, as a ratio of the clamped radius to the segment length
       final double lengthRatio = clampedRadius / segmentLength;
@@ -249,27 +245,26 @@ public class DriveBuilder
       (
         List.of
         (
-          new Pose2d(current, path.heading()), 
-          new Pose2d(current.interpolate(next, lengthRatio), path.heading()), 
-          new Pose2d(next.interpolate(current, lengthRatio), path.heading())
+          new Node(current.pose(), clampedRadius), 
+          new Node(current.pose().interpolate(next.pose(), lengthRatio), clampedRadius),
+          new Node(next.pose().interpolate(current.pose(), lengthRatio), clampedRadius)
         )
       );
     }
 
     // Final waypoint does not trigger until the robot arives at it
-    radiusPerSegment.add(ControlConstants.lineupTolerance);
-    waypoints.add(new Pose2d(path.sequence()[path.sequence().length - 1], path.heading()));
+    waypoints.add(new Node(path.sequence()[path.sequence().length - 1].pose(), ControlConstants.lineupTolerance));
 
-    return pathFollowInner(waypoints, radiusPerSegment, brakeSup);
+    return pathFollowInner(waypoints, path::throttle);
   }
 
   /**
    * Internal helper producing the actual path following command, allowing for multiple different external wrapper functions that create the lists used 
    * @param waypoints A list of all the waypoints the command should follow
    * @param radiusPerSegment A list of the lineup tolerances for the waypoints of each segment of the path (each segment is 3 waypoints, except the final one which is a single waypoint)
-   * @param brakeSup Supplier for the speed reduction to apply, [0..1].  0 is no braking, 1 is full braking
+   * @param throttleSup Supplier for the throttle to apply, [0..1]. 1 is full speed, 0 is stopped
    */
-  private static Command pathFollowInner(List<Pose2d> waypoints, List<Double> radiusPerSegment, DoubleSupplier brakeSup)
+  private static Command pathFollowInner(List<Node> waypoints, DoubleSupplier throttleSup)
   {
     return new Command() 
     {
@@ -278,6 +273,8 @@ public class DriveBuilder
       private boolean onPath = false;
       private int currentWaypoint = 0;
       
+      {addRequirements(s_Swerve);}
+
       @Override
       public InterruptionBehavior getInterruptionBehavior() 
         {return InterruptionBehavior.kCancelIncoming;}
@@ -295,15 +292,14 @@ public class DriveBuilder
         var robotPose = robotPoseSup.get();
 
         // If the robot is close to the path, follow one point ahead to give smoother cornering
-        final var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
-        final var targetPose = waypoints.get(targetIndex);
+        var targetIndex = Math.min(onPath ? currentWaypoint + 1 : currentWaypoint, waypoints.size() - 1);
+        var targetNode = waypoints.get(targetIndex);
         
-        s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetPose, robotPose, brakeSup.getAsDouble())));
-            
-        // Switch to next waypoint when within the given distance of the current one
-        final var currentSegment = Math.floorDiv(currentWaypoint, 3);
+        double throttle = throttleSup.getAsDouble();
+        double rotThrottle = throttle + (1 - throttle) / 2;
+        s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetNode.pose(), robotPose, throttle, rotThrottle)));
 
-        if (Conversions.nearTranslation(robotPose.getTranslation(), targetPose.getTranslation(), radiusPerSegment.get(currentSegment))) 
+        if (Conversions.nearTranslation(robotPose.getTranslation(), targetNode.pose().getTranslation(), targetNode.radius())) 
         {
           currentWaypoint = Math.min(currentWaypoint + 1, waypoints.size());
           onPath = true;
@@ -314,7 +310,7 @@ public class DriveBuilder
       public boolean isFinished() 
       {
         // Finish when robot is at the final waypoint
-        return Conversions.atPose(robotPoseSup.get(), waypoints.get(waypoints.size()-1));
+        return Conversions.atPose(robotPoseSup.get(), waypoints.get(waypoints.size()-1).pose());
       }
     };
   }

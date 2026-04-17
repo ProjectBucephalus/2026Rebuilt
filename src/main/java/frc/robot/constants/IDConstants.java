@@ -33,7 +33,7 @@ public final class IDConstants
 
   public static final int LEDPWDPort = 2;
 
-  public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int indexerCAN, int azimuthAIO, int altitudePWM, int altitudeAIO, String ntID){}
+  public record ShooterIDs(int flywheelLeadCAN, int flywheelFollowCAN, int azimuthCAN, int indexerCAN, int azimuthAIO, int altitudePWM, String ntID){}
 
   /* Port Turret, CAN [16..19], PWM [0], AIO [0] */
   public static final ShooterIDs portShooterIDs = new ShooterIDs
@@ -44,7 +44,6 @@ public final class IDConstants
     19,
     0,
     0,
-    2,
     "Port"
   );
 
@@ -57,7 +56,6 @@ public final class IDConstants
     23,
     1,
     1,
-    3,
     "Stbd"
   );
 
@@ -68,8 +66,8 @@ public final class IDConstants
 
   /* Climber, CAN [32], DIO [0..1] */
   public static final int climberCAN = 32;
-  public static final int climberLimitDIO = 0;
-  public static final int climberPostDIO = 1;
+  public static final int climberLimitDIO = 1;
+  public static final int climberPostDIO = 0;
   
   /* Network device names */
   /* -------------------- */
@@ -85,6 +83,9 @@ public final class IDConstants
   public static final int switchboardPort = 2;
 
   /* Switchboard Switches */
+  public static final int testHubSwitchID = 1;
+  public static final int testIdleSwitchID = 2;
+  public static final int testManualSwitchID = 3;
   public static final int autoAimSwitchID = 4;
   public static final int shootHubSwitchID = 6;
   public static final int shootPassSwitchID = 5;

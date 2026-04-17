@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.constants.Constants.ShooterConstants;
 
 /** 
  * A target for the shooter to track, containing the specific state and a set of values to be used across the states 
@@ -42,7 +43,7 @@ public class Target
   protected Translation2d offset = Translation2d.kZero;
   /** Distance from shooter to target, used for hood angle and flywheel speed */
   @Logged(name = "distance Meters")
-  public double distance = 0;
+  public double distance = ShooterConstants.minRange;
   @Logged(name = "speed Rotations per Second")
   public double speed = 0;
   /** Flywheels will maintain speed while {@code true}, will idle when {@code false} */

@@ -39,7 +39,7 @@ public class TriggerVector extends FieldObject
 
   /** Trigger output: true while input vector is towards target */
   private boolean onTarget = false;
-  private Trigger trigger = new Trigger(activeSupplier).and(this::checkTrigger);
+  private Trigger trigger = new Trigger(activeSupplier).and(globalActiveSupplier).and(this::checkTrigger);
 
   private Rotation2d lastInputAngle = Rotation2d.kZero;
 
@@ -96,6 +96,7 @@ public class TriggerVector extends FieldObject
   {
     if 
     (
+      globalActiveSupplier.getAsBoolean() &&
       activeSupplier.getAsBoolean() && 
       !controlInput.equals(Translation2d.kZero) && 
       checkPosition() && 

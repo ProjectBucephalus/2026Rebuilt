@@ -1,10 +1,7 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
-
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,8 +10,6 @@ import frc.robot.constants.IDConstants;
 import frc.robot.subsystems.generic.VelocityMotor;
 import frc.robot.util.PBDash;
 
-import java.util.function.Supplier;
-
 /**
  * Ball processing master-system with extendable intake, internally creates and manages associated subsystems
  * @author 5985
@@ -22,36 +17,38 @@ import java.util.function.Supplier;
 @Logged(strategy = Strategy.OPT_IN)
 public class Intake extends SubsystemBase 
 {
+  @Logged
   public static enum RollerState { On, Off, Reversed }
-
+  @Logged
   public RollerState state = RollerState.Off;
-  
-  private final Supplier<SwerveDriveState> swerveStateSup;
-  private double rollerSpeed;
-
-  public Intake( Supplier<SwerveDriveState> swerveStateSup)
-  {
-    this.swerveStateSup = swerveStateSup;
-  }
 
   @Logged
   private final VelocityMotor roller = new VelocityMotor(IDConstants.intakeCAN, RollerConstants.intakeConfig);
 
+  public Intake() {}
+
   /** @return Command to stop the intake */
   public Command setStateCmd(RollerState state)
-    {return roller.runOnce(() -> this.state = state);}
+    {return runOnce(() -> this.state = state);}
+
+  /** @return Current motor speed, mechanism rotations per second */
+  public double getSpeed()
+    {return roller.getSpeed();}
 
   @Override
   public void periodic() 
   {
-    rollerSpeed = switch (state)  
+    double rollerSpeed = switch (state)  
     {
       case On -> DriverStation.isTest() ? PBDash.TEST_INTAKE_SPEED.get() : RollerConstants.intakeMaxSpeed;
-      //double rollerSpeed = MathUtil.interpolate(RollerConstants.intakeMinSpeed, RollerConstants.intakeMaxSpeed, (swerveStateSup.get().Speeds.vxMetersPerSecond / RollerConstants.maxSpeedThreshold));
       case Off -> 0;
       case Reversed -> -RollerConstants.intakeMinSpeed;
     };
 
     roller.setSpeed(rollerSpeed);
   }
+
+  /** @return {@code true} if all CAN devices are connected */
+  public boolean devicesValid()
+    {return roller.devicesValid();}
 }

@@ -39,6 +39,13 @@ public final class ParsedRepr
     }
   }
 
+  public static class GeneralException extends Exception
+  {
+    public final Object[] msg;
+
+    public GeneralException(Object... msg) {this.msg = msg;}
+  }
+
   /** 
    * A value with an attached type <p>
    * The value itself is stored as an Object, which is cast appropriately depending on the type.
@@ -54,8 +61,6 @@ public final class ParsedRepr
     {
       /** Number type, represented as a double */
       Num,
-      /** Boolean type, which uses {@code on} and {@code off} as it's literals */
-      Bool,
       /** String type, limited to {@code a..z}, {@code 0..9}, and {@code _}. Cannot start with a digit */
       Text
     }
@@ -70,13 +75,25 @@ public final class ParsedRepr
       };
     }
 
-    /** @return The underlying boolean value, or throws a {@link ParsedRepr.TypeMismatchException TypeMismatchException} if this value is not a Bool */
+    /** 
+     * @return The text treated as a boolean value, or throws a {@link ParsedRepr.TypeMismatchException TypeMismatchException} if this value is not Text.
+     * Produces a warning if the value is Text, but not {@code on} or {@code off}
+     */
     public boolean asBool() throws TypeMismatchException
     {
       return switch (type)
       {
-        case Bool -> value == "on" ? true : false; 
-        default -> throw new TypeMismatchException(Type.Bool, this);
+        case Text -> switch ((String)value)
+        {
+          case "on" -> true;
+          case "off" -> false;
+          default -> 
+          {
+            AutoBuilder.error("warning: value ", value, " was interpreted as a boolean but is not `on` or `off` (treated it as false/`off`)");
+            yield false;
+          }
+        };
+        default -> throw new TypeMismatchException(Type.Text, this);
       };
     }
 
@@ -108,7 +125,8 @@ public final class ParsedRepr
       driveto, driveby, follow, 
       waitfor, waituntil, 
       intake, 
-      passing
+      passing,
+      climb
     }
 
     /** @return The argument at index {@code i} */

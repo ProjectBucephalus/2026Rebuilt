@@ -19,16 +19,19 @@ public class LinearExtension extends LimitedMotor
 
   /**
    * Creates generic linear extension system
-   * @param motorCAN CAN-ID of extension motor
-   * @param limitIO DIO-ID of home limit-sensor
+   * @param motorCAN CAN-ID of underlying motor
+   * @param limitIO DIO-ID of home limit-sensor. Set to {@code -1} to use motor stall instead of limit switch
+   * @param invertLimit Whether the limit switch is inverted (i.e. false is at limit). Ignored if using motor stall
    * @param minPosition Minimum position in meters
    * @param maxPosition Maximum position in meters
+   * @param homePosition Sensor trigger position in meters
    * @param metersPerRotation Meters of extension per mechanism rotation
-   * @param configs Motor configuration object, uses Slot1 if present when not calibrated
+   * @param configs Motor configuration object, uses Slot1 if present when not calibrated <br>
+   *                {@code CustomParam0} is used for the stall current value if using motor stall
    */
-  public LinearExtension(int motorCAN, int limitIO, double minPosition, double maxPosition, double homePosition, double metersPerRotation, TalonFXConfiguration configs)
+  public LinearExtension(int motorCAN, int limitIO, boolean invertLimit, double minPosition, double maxPosition, double homePosition, double metersPerRotation, TalonFXConfiguration configs)
   {
-    super(motorCAN, limitIO, minPosition / metersPerRotation, maxPosition / metersPerRotation, homePosition / metersPerRotation, configs);
+    super(motorCAN, limitIO, invertLimit, minPosition / metersPerRotation, maxPosition / metersPerRotation, homePosition / metersPerRotation, configs);
     this.metersPerRotation = metersPerRotation;
   } 
 
