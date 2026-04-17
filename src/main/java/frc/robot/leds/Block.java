@@ -3,7 +3,7 @@ package frc.robot.leds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
-import frc.robot.leds.patterns.*;
+import frc.robot.leds.patterns_tempname.*;
 
 public class Block
 {
