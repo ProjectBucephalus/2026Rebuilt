@@ -126,7 +126,7 @@ public class Turret
   /** @return turret degrees as reported by potentiometer */
   @Logged(name = "potentiometer Degrees")
   public double getRawAzimuth()
-    {return io_Azimuth.get() / TurretConstants.azimuthPotRatio;}
+    {return Conversions.round(io_Azimuth.get() / TurretConstants.azimuthPotRatio, 2);}
 
   /**
    * Unwind the turret by driving it one rotation towards zero

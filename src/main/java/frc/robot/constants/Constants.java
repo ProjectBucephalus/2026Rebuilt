@@ -484,7 +484,7 @@ public final class Constants
 
   public static final class LEDConstants 
   {
-    public static final int block0Length = 60;
+    public static final int block0Length = 120;
     public static final int block1Length = 60;
   }
 
