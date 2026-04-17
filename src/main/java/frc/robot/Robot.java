@@ -11,11 +11,9 @@ import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.util.Color;
@@ -23,7 +21,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -40,7 +37,7 @@ import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
 import frc.robot.leds.Block;
-import frc.robot.leds.patterns.AlternatingPattern;
+import frc.robot.leds.patterns.Patterns;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.RollerState;
 import frc.robot.subsystems.generic.*;
@@ -186,7 +183,21 @@ public class Robot extends TimedRobot
   private final LEDStrip io_LEDs = new LEDStrip
   (
     IDConstants.LEDPWDPort, 
-    new Block(LEDConstants.block0Length), 
+    new Block
+    (
+      LEDConstants.block0Length, 
+      Patterns.supplied(() -> 
+        switch (s_PortShooter.shootStatus()) 
+        {
+          case Idling -> Color.kPurple;
+          case BadLocation -> Color.kRed;
+          case Aiming -> Color.kYellow;
+          case Revving -> Color.kWhite;
+          case AwaitingInput -> Color.kBlue;
+          case Fire -> Color.kGreen;
+        }
+      )
+    ), 
     new Block(LEDConstants.block1Length)
   ); 
 
@@ -329,18 +340,7 @@ public class Robot extends TimedRobot
 
   private void bindLEDs()
   {
-    Commands.run(() -> {
-      Color colour = switch (s_PortShooter.shootStatus()) {
-        case Idling -> Color.kPurple;
-        case BadLocation -> Color.kRed;
-        case Aiming -> Color.kYellow;
-        case Revving -> Color.kWhite;
-        case AwaitingInput -> Color.kBlue;
-        case Fire -> Color.kGreen;
-      };
 
-      io_LEDs.getBlock(0).setPattern(LEDPattern.solid(colour));
-    });
   }
 
   /* UTIL METHODS */
