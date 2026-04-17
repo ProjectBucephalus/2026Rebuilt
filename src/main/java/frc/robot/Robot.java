@@ -10,7 +10,6 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -43,7 +42,6 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.vision.*;
 
 import frc.robot.util.*;
-import frc.robot.util.libs.Telemetry;
 
 /**
  * 5985 Robot Super-Structure
@@ -80,16 +78,16 @@ public class Robot extends TimedRobot
     public ClimbPosition climbPos = ClimbPosition.None;
     public ShootersState shoot = ShootersState.Auto;
     public boolean nudging = true;
+    public SwerveDriveState swerve = new SwerveDriveState();
   }
   
   @Logged
   private final RobotState state = new RobotState();
 
-  private SwerveDriveState swerveState = new SwerveDriveState();
+  //private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
 
   /* Telemetry and SD */
-  private final Telemetry ctreLogger = new Telemetry();
   private final CANBus canBus = new CANBus();
 
   /* Controllers */
@@ -103,7 +101,7 @@ public class Robot extends TimedRobot
   @Logged(name = "Port Shooter")
   private final Shooter s_PortShooter = new Shooter
   (
-    () -> swerveState,
+    () -> state.swerve,
     ShooterConstants.portShooterOffset,
     IDConstants.portShooterIDs,
     ShooterConstants.TurretConstants.portPotOffset,
@@ -115,7 +113,7 @@ public class Robot extends TimedRobot
   @Logged(name = "Stbd Shooter")
   private final Shooter s_StbdShooter = new Shooter
   (
-    () -> swerveState,
+    () -> state.swerve,
     ShooterConstants.stbdShooterOffset,
     IDConstants.stbdShooterIDs,
     ShooterConstants.TurretConstants.stbdPotOffset,
@@ -144,7 +142,7 @@ public class Robot extends TimedRobot
   private final Vision s_Vision = new Vision
   (
     s_Swerve::addVisionMeasurement,
-    () -> swerveState.Speeds.omegaRadiansPerSecond,
+    () -> state.swerve.Speeds.omegaRadiansPerSecond,
     s_PhotonStbd,
     s_PhotonPort
   );
@@ -194,19 +192,16 @@ public class Robot extends TimedRobot
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
 
-  private final AutoBuilder autoBuilder = new AutoBuilder(s_Intake, s_Extension, s_Climber, io_ClimberPost, this::getPose);
+  private final AutoBuilder autoBuilder = new AutoBuilder(s_Intake, s_Extension, s_Climber, io_ClimberPost, state);
 
   public Robot() 
-  {
-    updateSwerveState();
-    
+  {    
     initLogging();
     initInputTransmute();
 
     new ControlBinder
     (
       state, 
-      this::getPose, 
       driver, 
       operator, 
       switchboard, 
@@ -244,7 +239,7 @@ public class Robot extends TimedRobot
 
     Epilogue.bind(this);
 
-    s_Swerve.registerTelemetry(ctreLogger::telemeterize);
+    s_Swerve.registerTelemetry(this::updateSwerveState);
 
     CameraServer.startAutomaticCapture();
 
@@ -260,7 +255,7 @@ public class Robot extends TimedRobot
       driverStick::stickOutput,
       () -> -driver.getRightX(),
       driver::getRightTriggerAxis,
-      this::getPose
+      () -> state.swerve.Pose
     );
 
     driverStick
@@ -271,7 +266,7 @@ public class Robot extends TimedRobot
       .withDeadband(driverDeadband);
 
     FieldObject.setRobotRadiusSup(() -> SwerveConstants.robotRadiusExpanded);
-    FieldObject.setRobotPosSup(() -> swerveState.Pose.getTranslation());
+    FieldObject.setRobotPosSup(() -> state.swerve.Pose.getTranslation());
 
     FieldObject.setGlobalActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
     
@@ -329,9 +324,9 @@ public class Robot extends TimedRobot
   /* ============ */
 
   /** Pull current state from drivebase for external use, to avoid repeated expensive calls */
-  private void updateSwerveState()
+  private void updateSwerveState(SwerveDriveState swerveState)
   {
-    swerveState = s_Swerve.getState();
+    state.swerve = swerveState;
     PBDash.FIELD.setRobotPose(swerveState.Pose);
     PBDash.POSE.put
     (
@@ -344,9 +339,6 @@ public class Robot extends TimedRobot
       )
     );
   }
-
-  private Pose2d getPose()
-    {return swerveState.Pose;}
 
   private void compileAuto()
   {
@@ -392,7 +384,6 @@ public class Robot extends TimedRobot
   {
     FieldUtils.updateAutoWinner();
     PBDash.updateSendables();
-    updateSwerveState();
     CommandScheduler.getInstance().run();
   }
 
@@ -401,7 +392,7 @@ public class Robot extends TimedRobot
   {
     FieldUtils.updateAlliance();
     
-    if (swerveState.Pose.getTranslation().equals(Translation2d.kZero))
+    if (state.swerve.Pose.getTranslation().equals(Translation2d.kZero))
       s_Swerve.resetPose
       (
         switch (FieldUtils.getAlliance()) 

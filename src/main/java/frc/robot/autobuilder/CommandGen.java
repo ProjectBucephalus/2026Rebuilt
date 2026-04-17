@@ -1,7 +1,6 @@
 package frc.robot.autobuilder;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 
 import frc.robot.DriveBuilder;
+import frc.robot.Robot.RobotState;
 import frc.robot.autobuilder.ParsedRepr.*;
 import frc.robot.constants.Constants.ClimberConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
@@ -36,7 +36,7 @@ public class CommandGen
   private final PositionMotor s_Extension;
   private final LinearExtension s_Climber;
   private final DigitalInput io_ClimberPost;
-  private final Supplier<Pose2d> poseSup;
+  private final RobotState state;
 
   /** The final command group that gets built from the instructions */
   private SequentialCommandGroup commands;
@@ -51,8 +51,7 @@ public class CommandGen
    * @param s_Swerve The swerve subsystem
    * @param s_Intake The intake subsystem
    * @param s_Climber The climber subsystem
-   * @param swerveStateSup Swerve state supplier, used to get the robot's starting position and provided to driving-related commands
-   * @param robotState The robot's state object
+   * @param state The robot's state object
    */
   public CommandGen
   (
@@ -60,14 +59,14 @@ public class CommandGen
     PositionMotor s_Extension,
     LinearExtension s_Climber,
     DigitalInput io_ClimberPost,
-    Supplier<Pose2d> poseSup
+    RobotState state
   )
   {
     this.s_Intake = s_Intake;
     this.s_Extension = s_Extension;
     this.s_Climber = s_Climber;
     this.io_ClimberPost = io_ClimberPost;
-    this.poseSup = poseSup;
+    this.state = state;
   }
 
   /**
@@ -77,7 +76,7 @@ public class CommandGen
   public Command compile(List<Instruction> instrs)
   {
     commands = new SequentialCommandGroup();
-    currPose = poseSup.get();
+    currPose = state.swerve.Pose;
 
     // Iterate over each instruction, calling a seperate function that handles the actual compilation logic and handling any errors that arise
     // This design means that the actual compilation logic is seperated from the error handling, and doesn't have to consider them

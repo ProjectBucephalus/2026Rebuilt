@@ -1,10 +1,8 @@
 package frc.robot.autobuilder;
 
-import java.util.function.Supplier;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot.RobotState;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.generic.LinearExtension;
 import frc.robot.subsystems.generic.PositionMotor;
@@ -25,12 +23,12 @@ public class AutoBuilder
    * @param s_Extension
    * @param s_Climber
    * @param io_ClimberPost
-   * @param poseSup
+   * @param state
    */
-  public AutoBuilder(Intake s_Intake, PositionMotor s_Extension, LinearExtension s_Climber, DigitalInput io_ClimberPost, Supplier<Pose2d> poseSup)
+  public AutoBuilder(Intake s_Intake, PositionMotor s_Extension, LinearExtension s_Climber, DigitalInput io_ClimberPost, RobotState state)
   {
     parser = new Parser();
-    commandGen = new CommandGen(s_Intake, s_Extension, s_Climber, io_ClimberPost, poseSup);
+    commandGen = new CommandGen(s_Intake, s_Extension, s_Climber, io_ClimberPost, state);
   }
 
   /**
