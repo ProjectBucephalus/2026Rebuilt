@@ -10,6 +10,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -182,9 +183,18 @@ public class Robot extends TimedRobot
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
   private final JoystickTransmuter driverStickRaw = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
-  private final Brake driverBrake = new Brake(driver::getRightTriggerAxis, ControlConstants.maxThrottle, ControlConstants.minThrottle);
+  private final Brake driverBrake = new Brake
+  (
+    () -> driver.leftBumper().getAsBoolean() 
+      ? ControlConstants.brakeFromIntake 
+      : driver.getRightTriggerAxis(), 
+    ControlConstants.maxThrottle, 
+    ControlConstants.minThrottle
+  );
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
+
+  private final AutoBuilder autoBuilder = new AutoBuilder(s_Intake, s_Extension, s_Climber, io_ClimberPost, this::getPose);
 
   public Robot() 
   {
@@ -196,7 +206,7 @@ public class Robot extends TimedRobot
     new ControlBinder
     (
       state, 
-      () -> swerveState, 
+      this::getPose, 
       driver, 
       operator, 
       switchboard, 
@@ -249,10 +259,8 @@ public class Robot extends TimedRobot
       driverStick::stickOutput,
       () -> -driver.getRightX(),
       driver::getRightTriggerAxis,
-      () -> swerveState.Pose
+      this::getPose
     );
-
-    driverBrake.withBrakeAxis(() -> Math.max(driver.getRightTriggerAxis(), s_Intake.getRelativeSpeed() * PBDash.getDouble("Intake Throttle")));
 
     driverStick
       .rotated(FieldUtils.isAlliance(Alliance.Red))
@@ -321,27 +329,28 @@ public class Robot extends TimedRobot
     PBDash.FIELD.setRobotPose(swerveState.Pose);
   }
 
+  private Pose2d getPose()
+    {return swerveState.Pose;}
+
   private void compileAuto()
   {
-    autoCommand = Optional.of(AutoBuilder.compile(PBDash.AUTO_STRING.get(), swerveState.Pose, s_Swerve, s_Intake, s_Extension));
+    autoCommand = Optional.of(autoBuilder.compile(PBDash.AUTO_STRING.get()));
   }
 
   private void checkDevices()
   {
     PBDash.DEVICE_ERRORS.init();
-
-    double batteryVoltage = Math.round(100 * RobotController.getBatteryVoltage()) / 100.0;
-    if (batteryVoltage < 12.5) PBDash.DEVICE_ERRORS.append("Battery " + batteryVoltage + "v, ");
-
-    if (!driver.isConnected() || !operator.isConnected() || !switchboard.isConnected()) PBDash.DEVICE_ERRORS.append("Controller, ");
+    
+    if (!driver.isConnected() || !operator.isConnected()) PBDash.DEVICE_ERRORS.append("Controller, ");
+    if (!(switchboard.button(1)).or(switchboard.button(2)).or(switchboard.button(3)).getAsBoolean()) PBDash.DEVICE_ERRORS.append("Switchboard, ");
 
     if (!s_Swerve.devicesValid()) PBDash.DEVICE_ERRORS.append("Drivebase, ");
-
+    
     if (!s_PortShooter.devicesValid()) PBDash.DEVICE_ERRORS.append("Port Shooter, ");
     if (!s_PortShooter.potValid()) PBDash.DEVICE_ERRORS.append("Port Pot, ");
     if (!s_StbdShooter.devicesValid()) PBDash.DEVICE_ERRORS.append("Stbd Shooter, ");
     if (!s_StbdShooter.potValid()) PBDash.DEVICE_ERRORS.append("Stbd Pot, ");
-
+    
     if (!s_Climber.devicesValid()) PBDash.DEVICE_ERRORS.append("Climber Motor, ");
     if (!s_Climber.atLimit()) PBDash.DEVICE_ERRORS.append("Climber Limit Sensor, ");
     if (io_ClimberPost.get()) PBDash.DEVICE_ERRORS.append("Climber Post Sensor, ");
@@ -349,8 +358,11 @@ public class Robot extends TimedRobot
     if (!s_Intake.devicesValid()) PBDash.DEVICE_ERRORS.append("Intake Roller, ");
     if (!s_Extension.devicesValid()) PBDash.DEVICE_ERRORS.append("Extension, ");
     if (!io_ExtensionEncoder.isConnected()) PBDash.DEVICE_ERRORS.append("Extension Encoder, ");
-
+    
     if (!s_Vision.hasLocalisation()) PBDash.DEVICE_ERRORS.append("Vision, ");
+
+    double batteryVoltage = Math.round(100 * RobotController.getBatteryVoltage()) / 100.0;
+    if (batteryVoltage < 12.5) PBDash.DEVICE_ERRORS.append("Battery " + batteryVoltage + "v, ");
   }
 
   @Logged(name = "CAN Load")
@@ -386,6 +398,8 @@ public class Robot extends TimedRobot
           case Red -> FieldConstants.redStartLine;
         }
       );
+
+    s_Intake.state = RollerState.Off;
   }
 
   @Override
@@ -419,6 +433,8 @@ public class Robot extends TimedRobot
     driverStick.rotated(FieldUtils.isAlliance(Alliance.Red));
     
     autoCommand.ifPresent(Command::cancel);
+
+    PBDash.removeFieldObject("Auto Path");
 
     CommandScheduler.getInstance()
       .schedule

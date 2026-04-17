@@ -56,7 +56,7 @@ public class ObjectList extends FieldObject
    */
   public Translation2d process(Translation2d controlInput)
   {
-    if (!activeSupplier.getAsBoolean() || fieldObjects.size() <= 0) 
+    if (!globalActiveSupplier.getAsBoolean() || !activeSupplier.getAsBoolean() || fieldObjects.size() <= 0) 
       return controlInput;
 
     fetchRobotValues();

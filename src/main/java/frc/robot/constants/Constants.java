@@ -86,12 +86,12 @@ public final class Constants
     public static final Pair<String, String>[] autoPresets = new Pair[]
     {
       new Pair<>("Blank", ""),
-      new Pair<>("Drive Back", "Intake(on), DriveBy(-1 0)"),
-      new Pair<>("Aussie's Auto", "Follow(r_trench_a2m), Intake(on), Follow(r_balls), Follow(r_trench_m2a), DriveTo(1.5 1)"),
+      new Pair<>("Drive Back", "Intake on, DriveBy -1 0"),
+      new Pair<>("Aussie's Auto", "Follow r_trench_a2m, Intake on, Follow r_balls, Follow r_trench_m2a, DriveTo 1.5 1"),
       new Pair<>
       (
         "Aussie's Auto v2", 
-        "Follow(r_trench_a2m), Intake(on), Follow(r_balls), Follow(r_trench_m2a), DriveTo(3 1), WaitFor(4), Follow(r_trench_a2m), DriveTo(5.75 5 90), Follow(r_trench_m2a), DriveTo(3 1)"
+        "Follow r_trench_a2m, Intake on, Follow r_balls, Follow r_trench_m2a, DriveTo 3 1, WaitFor 4, Follow r_trench_a2m, DriveTo 5.75 5 90, Follow r_trench_m2a, DriveTo 3 1"
       )
     };
   }
@@ -118,15 +118,15 @@ public final class Constants
 
     public static final double initialHeading = 0;
 
-    /* Drive PID Values */
-    public static final double driveKP = 2.5;
+    /* Auto Drive PID Values, Meters */
+    public static final double driveKP = 2.25;
     public static final double driveKI = 0.0;
-    public static final double driveKD = 0.2;
+    public static final double driveKD = 0.0;
 
-    /* Rotation Control PID Values */
-    public static final double rotationKP = 6;
+    /* Auto Rotation PID Values, Degrees */
+    public static final double rotationKP = 3.5;
     public static final double rotationKI = 0;
-    public static final double rotationKD = 0;
+    public static final double rotationKD = 0.01;
 
     /* Swerve Limit Values */
     /** Mechanical maximum staright-line robot speed, Meters per Second */
@@ -161,19 +161,15 @@ public final class Constants
         new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.08;
-    /** Scalar to convert robot speed and target distance to target offset for leading shots */
-    public static final double leadFactorN = 0.5;
-    public static final double leadFactorT = 0.0;
-    public static final double leadFactorV = 0.15;
-    public static final double minRange = 1.1;
+    public static final double accelLeadFactor = 0.8;
 
+    public static final double minRange = 1.1;
     public static final double closeManualRange = 2;
     public static final double farManualRange = 4.5;
+    public static final double maxPassRange = 7.5;
 
     /** Target pass point, blue origin (right side) */
     public static final AllianceTranslation2d passPoint = new AllianceTranslation2d(1.5, 2);
-
-    public static final double maxPassRange = 7.5;
 
     /** Tuning data for flywheels */
     public static final class FlywheelConstants
@@ -417,8 +413,7 @@ public final class Constants
       put(2.0, 8.0);
       put(2.5, 11.0);
       put(3.0, 13.0);
-      put(3.5, 15.0);
-      
+      put(3.5, 16.0);
       put(4.0, 19.0);
       put(4.5, 22.0);
       put(5.0, 23.0);
@@ -436,8 +431,7 @@ public final class Constants
       put(2.0, 48.0);
       put(2.5, 49.0);
       put(3.0, 50.0);
-      put(3.5, 52.0); // TODO: Needs retesting when possible
-      
+      put(3.5, 52.0);
       put(4.0, 53.0); 
       put(4.5, 56.0);
       put(5.0, 59.0);
@@ -467,13 +461,20 @@ public final class Constants
 
     }};
 
-    public static final InterpolatingDoubleTreeMap leadFactor = new InterpolatingDoubleTreeMap()
+    /** Distance to Time-of-Flight for Shoot-on-the-Move */
+    public static final InterpolatingDoubleTreeMap shotTime = new InterpolatingDoubleTreeMap()
     {{
-      put(1.0, 1.15 * ShooterConstants.leadFactorV);
-      put(2.0, 1.21 * ShooterConstants.leadFactorV);
-      put(3.0, 1.23 * ShooterConstants.leadFactorV);
-      put(4.0, 1.22 * ShooterConstants.leadFactorV);
-      put(5.0, 1.44 * ShooterConstants.leadFactorV);
+      put(1.0, 1.17);
+      put(1.5, 1.21);
+      put(2.0, 1.23);
+      put(2.5, 1.24);
+      put(3.0, 1.25);
+      put(3.5, 1.29);
+      put(4.0, 1.27);
+      put(4.5, 1.31);
+      put(5.0, 1.37);
+      put(5.5, 1.43);
+      put(6.0, 1.45);
     }};
   }
 
@@ -532,13 +533,8 @@ public final class Constants
 
       public static final double minRotations = -0.31;
       public static final double maxRotations = 0.0;
-      public static final double squishRotations = -0.1; // furthest in before hopper retracts
+      public static final double jostleRotations = -0.1; // furthest in before hopper retracts
       public static final double bumpSafeRotations = -0.14;
-
-      public static final double extendedTolerance = 0.02;
-
-      /** Duration and interval of retraction/extension pulses when agitating, seconds */
-      public static final double extensionJostleDelay = 0.25;
 
       public static final TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
       static

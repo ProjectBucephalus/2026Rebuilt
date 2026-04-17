@@ -25,9 +25,9 @@ public class Hood
   /**
    * Creates a Servo driven shooter hood, to be managed by {@link Shooter} master-system
    * @param servoID PWM-ID of hood altitude servo
-   * @param feedbackID AIO-ID of servo feedback sensor
    * @param inverted Inverts the range and direction of motion of the servo
-   * @param targetSup Supplier for current Target object
+   * @param homeAngle Zero-point offset for the servo
+   * @param target Target object for the shooter
    */
   public Hood(int servoID, boolean inverted, double homeAngle, Target target)
   {

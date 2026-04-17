@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.constants.Constants;
 import frc.robot.constants.IDConstants;
 import frc.robot.constants.Constants.*;
 
@@ -35,13 +34,14 @@ public class PBDash
   private static final NetworkTable table = NetworkTableInstance.getDefault().getTable(IDConstants.dashTableName);
   private static final Map<String, Sendable> tablesToData = new HashMap<>();
 
-  // Auto-builder strings
-  public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "Intake(on), DriveTo(2.5 4)");
-  public static final Key<String>  AUTO_ERRS        = new Key<>("Auto String Errors", "");
-
-  public static final Key<Boolean>  LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", false);
-  
+  // System states
   public static final Key<String> DEVICE_ERRORS = new Key<>("Device Errors", "");
+  public static final Key<String> CLIMBER_STATE = new Key<>("Climber State", "Home");
+  public static final Key<String> EXTENSION_STATE = new Key<>("Climber State", "Stowed");
+
+  // Auto-builder strings
+  public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
+  public static final Key<String>  AUTO_ERRS        = new Key<>("Auto String Errors", "");
 
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
@@ -58,7 +58,8 @@ public class PBDash
   public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
   public static final Key<Double>  TEST_INTAKE_SPEED= new Key<>("Test Intake Speed", IntakeConstants.RollerConstants.intakeMaxSpeed);
-  
+  public static final Key<Double>  TEST_LEAD_FACTOR = new Key<>("Acceleration Lead Factor", ShooterConstants.accelLeadFactor);
+
   // Manual speed adjustment
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
   public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
@@ -79,14 +80,21 @@ public class PBDash
     putSendable("Auto Presets", AUTO_PRESETS);
   }
 
-  public static void putFieldObject(String name, Pose2d pose)
-    {FIELD.getObject(name).setPose(pose);}
+  public static void putFieldObject(String name, Translation2d point)
+    {FIELD.getObject(name).setPose(new Pose2d(point, Rotation2d.kZero));}
 
   public static void putFieldObject(String name, Pose2d... poses)
     {FIELD.getObject(name).setPoses(poses);}
 
-  public static void putFieldObject(String name, Translation2d point)
-    {FIELD.getObject(name).setPose(new Pose2d(point, Rotation2d.kZero));}
+  public static void addToFieldObject(String name, Pose2d... newPoses)
+  {
+    var object = FIELD.getObject(name);
+    var poses = object.getPoses();
+    // Elastic only displays a trajectory for objects with 8+ poses, so we add the first pose a bunch of times to force it
+    for (int i = 0; i < (9 - newPoses.length); i++) poses.add(newPoses[0]);
+    for (var pose : newPoses) poses.add(pose);
+    object.setPoses(poses);
+  }
 
   public static void putFieldPath(String name, Pose2d start, Pose2d end)
   {
@@ -103,6 +111,9 @@ public class PBDash
 
     FIELD.getObject(name).setPoses(poses);
   }
+
+  public static void removeFieldObject(String name)
+    {FIELD.getObject(name).setPoses(new Pose2d[0]);}
 
   /**
    * Publishes a Sendable to the table {@value IDConstants#dashTableName} <p>

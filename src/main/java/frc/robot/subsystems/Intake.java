@@ -17,7 +17,9 @@ import frc.robot.util.PBDash;
 @Logged(strategy = Strategy.OPT_IN)
 public class Intake extends SubsystemBase 
 {
+  @Logged
   public static enum RollerState { On, Off, Reversed }
+  @Logged
   public RollerState state = RollerState.Off;
 
   @Logged
@@ -32,10 +34,6 @@ public class Intake extends SubsystemBase
   /** @return Current motor speed, mechanism rotations per second */
   public double getSpeed()
     {return roller.getSpeed();}
-
-  /** @return Current motor speed relative to max speed, nominally [-1..1] */
-  public double getRelativeSpeed()
-    {return getSpeed() / RollerConstants.intakeMaxSpeed;}
 
   @Override
   public void periodic() 

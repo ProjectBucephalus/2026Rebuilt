@@ -18,6 +18,7 @@ import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.*
 
 import frc.robot.Robot;
 import frc.robot.constants.Constants.ShooterConstants;
+import frc.robot.constants.Constants.ShooterConstants.FlywheelConstants;
 
 /**
  * Interface class for a shooter flywheel. <p>
@@ -30,6 +31,8 @@ public class Flywheels
 {
   private final TalonFX m_Leader; 
   private final TalonFX m_Follower;
+
+  private final Target target;
 
   private boolean speedCheck = false;
 
@@ -46,8 +49,9 @@ public class Flywheels
    * Creates a velocity controlled flywheel, to be managed by {@link ShooterConstants} master-system
    * @param leaderCAN CAN-ID of primary shooter motor
    * @param followerCAN CAN-ID of secondary shooter motor, set to follow first
+   * @param target Target object for the shooter
    */
-  public Flywheels(int leaderCAN, int followerCAN)
+  public Flywheels(int leaderCAN, int followerCAN, Target target)
   {
     m_Leader = new TalonFX(leaderCAN);
     m_Follower = new TalonFX(followerCAN);
@@ -56,6 +60,8 @@ public class Flywheels
     m_Follower.getConfigurator().apply(flywheelConfig);
 
     m_Follower.setControl(new Follower(leaderCAN, MotorAlignmentValue.Opposed));
+
+    this.target = target;
   }
 
   /**
@@ -115,9 +121,18 @@ public class Flywheels
   public boolean devicesValid()
     {return m_Leader.isConnected() && m_Follower.isConnected();}
 
+  /**
+   * Intended to be called in {@link Shooter#periodic()} <p>
+   * Apply speed to motors based on target state
+   */
   public void update()
   {
-
+    if (target.disabled)
+      m_Leader.set(0);
+    else if (target.flywheelsActive)
+      setSpeed(target.speed);
+    else
+      setSpeed(FlywheelConstants.idleSpeed);
   }
 
   protected void updateSim()

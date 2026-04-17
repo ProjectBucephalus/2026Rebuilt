@@ -84,11 +84,9 @@ public class Launchpad
     {
       setColourSpan(PadColour.FULL_RED, 0, 31);
       setColourSpan(PadColour.FULL_ORANGE, 32, 63);
-      PBDash.LAUNCHPAD_GOOD.put(false);
       return false;
     }
 
-    PBDash.LAUNCHPAD_GOOD.put(true);
     return true;
   }
 

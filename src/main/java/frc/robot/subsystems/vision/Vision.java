@@ -14,10 +14,8 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.constants.Constants.VisionConstants;
 import frc.robot.util.PBDash;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static frc.robot.constants.Constants.VisionConstants.*;
 
 /** 
