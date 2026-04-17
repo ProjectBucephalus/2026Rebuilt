@@ -56,17 +56,9 @@ public class VelocityMotor extends SubsystemBase
     {return runEnd(() -> setSpeed(speedSup.getAsDouble()), () -> setSpeed(0));}
 
   /** @return Current speed of the motor, in mechanism rotations per second */
-  @Logged(name = "Speed Rotations per Second")
+  @Logged(name = "speed RevPerSec")
   public double getSpeed() 
     {return m_Velocity.getVelocity().getValue().in(Units.RotationsPerSecond);}
-
-  @Logged(name = "Temp Celsius")
-  public double getTemp() 
-    {return m_Velocity.getAncillaryDeviceTemp().getValue().in(Units.Celsius);}
-
-  @Logged(name = "Current Amps")
-  public double getMotorCurrent()
-    {return m_Velocity.getStatorCurrent().getValue().in(Units.Amps);}
 
   /** @return {@code true} if all CAN devices are connected */
   public boolean devicesValid()

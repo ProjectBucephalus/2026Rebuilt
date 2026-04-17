@@ -21,7 +21,6 @@ public class PositionMotor extends SubsystemBase
 
   protected final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
-  @Logged
   protected boolean active = false;
 
   /**

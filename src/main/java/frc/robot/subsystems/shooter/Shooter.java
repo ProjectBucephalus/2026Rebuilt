@@ -60,8 +60,8 @@ public class Shooter extends SubsystemBase
   private Translation2d lastVelocity = Translation2d.kZero;
   private double timeOfFlight = 0;
 
-  @Logged
   /** Current active target for the shooter */
+  @Logged
   public final Target target = new Target(TargetState.Manual);
 
   /**
