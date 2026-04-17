@@ -13,16 +13,42 @@ public class LEDStrip extends SubsystemBase
   private final AddressableLED leds;
   private final AddressableLEDBuffer buffer;
   private final ArrayList<Block> blocks;
+  private final double brightness;
+
+  public LEDStrip(int pwmPort, double brightness, int length)
+  {
+    leds = new AddressableLED(pwmPort);    
+    buffer = new AddressableLEDBuffer(length);
+    blocks = new ArrayList<>();
+    this.brightness = brightness;
+
+    leds.setLength(length);
+    leds.start();
+  }
 
   public LEDStrip(int pwmPort, int length)
   {
-    leds = new AddressableLED(pwmPort);
+    leds = new AddressableLED(pwmPort);    
+    buffer = new AddressableLEDBuffer(length);
+    blocks = new ArrayList<>();
+    this.brightness = 0.2;
+
     leds.setLength(length);
     leds.start();
-    
-    buffer = new AddressableLEDBuffer(length);
+  }
 
-    blocks = new ArrayList<>();
+  public LEDStrip(int pwmPort, double brightness, Block... blocks)
+  {
+    int length = 0;
+    for (var block : blocks) length += block.length;
+
+    leds = new AddressableLED(pwmPort);
+    buffer = new AddressableLEDBuffer(length);
+    this.blocks = new ArrayList<>(List.of(blocks));
+    this.brightness = brightness;
+
+    leds.setLength(length);
+    leds.start();
   }
 
   public LEDStrip(int pwmPort, Block... blocks)
@@ -31,12 +57,12 @@ public class LEDStrip extends SubsystemBase
     for (var block : blocks) length += block.length;
 
     leds = new AddressableLED(pwmPort);
+    buffer = new AddressableLEDBuffer(length);
+    this.blocks = new ArrayList<>(List.of(blocks));
+    this.brightness = 0.2;
+
     leds.setLength(length);
     leds.start();
-
-    buffer = new AddressableLEDBuffer(length);
-
-    this.blocks = new ArrayList<>(List.of(blocks));
   }
 
   public Block getBlock(int pos)
@@ -60,7 +86,7 @@ public class LEDStrip extends SubsystemBase
     int currentPos = 0;
     for (var block : blocks) 
     {
-      block.render(buffer, currentPos);
+      block.render(buffer, currentPos, brightness);
       currentPos += block.length;
     }
 

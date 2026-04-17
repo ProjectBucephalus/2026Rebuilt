@@ -1,11 +1,12 @@
-package frc.robot.leds.Patterns;
+package frc.robot.leds.patterns;
 
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.LEDReader;
 import edu.wpi.first.wpilibj.LEDWriter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 
-public class AlternatingPattern implements Pattern
+public class AlternatingPattern implements LEDPattern
 {
   private final Color colour1;
   private final Color colour2;
@@ -22,7 +23,7 @@ public class AlternatingPattern implements Pattern
   }
 
   @Override
-  public <T extends LEDWriter & LEDReader> void render(T buffer) 
+  public void applyTo(LEDReader reader, LEDWriter writer) 
   {
     if (Timer.getTimestamp() - lastSwap >= frequency)
     {
@@ -30,7 +31,7 @@ public class AlternatingPattern implements Pattern
       evenCycle = !evenCycle;
     }
       
-    for (int i = 0; i < buffer.getLength(); i++)
-      buffer.setLED(i, (i % 2 == 0) == evenCycle ? colour1 : colour2);
+    for (int i = 0; i < reader.getLength(); i++)
+      writer.setLED(i, (i % 2 == 0) == evenCycle ? colour1 : colour2);
   }
 }
