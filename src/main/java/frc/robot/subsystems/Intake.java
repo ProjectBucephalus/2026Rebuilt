@@ -17,7 +17,9 @@ import frc.robot.util.PBDash;
 @Logged(strategy = Strategy.OPT_IN)
 public class Intake extends SubsystemBase 
 {
+  @Logged
   public static enum RollerState { On, Off, Reversed }
+  @Logged
   public RollerState state = RollerState.Off;
 
   @Logged

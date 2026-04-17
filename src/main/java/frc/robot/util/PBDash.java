@@ -35,13 +35,14 @@ public class PBDash
   private static final NetworkTable table = NetworkTableInstance.getDefault().getTable(IDConstants.dashTableName);
   private static final Map<String, Sendable> tablesToData = new HashMap<>();
 
+  // System states
+  public static final Key<String> DEVICE_ERRORS = new Key<>("Device Errors", "");
+  public static final Key<String> CLIMBER_STATE = new Key<>("Climber State", "Home");
+  public static final Key<String> EXTENSION_STATE = new Key<>("Climber State", "Stowed");
+
   // Auto-builder strings
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
   public static final Key<String>  AUTO_ERRS        = new Key<>("Auto String Errors", "");
-
-  public static final Key<Boolean> LAUNCHPAD_GOOD  = new Key<>("Launchpad Good", false);
-  
-  public static final Key<String> DEVICE_ERRORS = new Key<>("Device Errors", "");
 
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);

@@ -358,10 +358,13 @@ public record ControlBinder
     driver.leftBumper().onTrue(s_Intake.setStateCmd(RollerState.On));
 
     // Deploy
-    operator.leftBumper().or(driver.rightBumper())
-      .onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations));
+    operator.leftBumper().or(driver.leftBumper())
+      .onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations))
+      .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Deployed")));
     // Stow
-    operator.rightBumper().onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations));
+    operator.rightBumper()
+      .onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations))
+      .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Stowed")));
 
     // Reverse
     operator.leftTrigger(ControlConstants.triggerThreshold)
@@ -383,6 +386,9 @@ public record ControlBinder
 
     // Manual Control
     s_Extension.setDefaultCommand(s_Extension.adjustTargetCmd(() -> MathUtil.applyDeadband(operator.getLeftY(), ControlConstants.manualControlDeadband) * ControlConstants.manualIntakeExtensionScale));
+    operator
+      .axisMagnitudeGreaterThan(XboxController.Axis.kLeftY.value, ControlConstants.manualControlDeadband)
+      .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Manual")));
   }
 
   private void bindClimber()
@@ -413,16 +419,21 @@ public record ControlBinder
       (
         Commands.either
         (
-          s_Climber.setTargetCmd(ClimberConstants.climbPosition), 
-          s_Climber.retractCmd(), 
+          s_Climber.setTargetCmd(ClimberConstants.climbPosition).alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Climb"))), 
+          s_Climber.retractCmd().alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Home"))), 
           () -> s_Climber.atMax() && !io_ClimberPost.get()
         )
       );
     // Extend
-    operator.back().onTrue(s_Climber.extendCmd());
+    operator.back()
+      .onTrue(s_Climber.extendCmd())
+      .onTrue(runOnce(() -> PBDash.CLIMBER_STATE.put("Extended")));
       
     // Manual Control
     s_Climber.setDefaultCommand(s_Climber.adjustTargetCmd(() -> MathUtil.applyDeadband(-operator.getRightY(), ControlConstants.manualControlDeadband) * ControlConstants.manualClimberExtensionScale));
+    operator
+      .axisMagnitudeGreaterThan(XboxController.Axis.kRightY.value, ControlConstants.manualControlDeadband)
+      .onTrue(runOnce(() -> PBDash.CLIMBER_STATE.put("Manual")));
   }
 
   /** Mutually exclusive to {@link ControlBinder#bind bind()} */
