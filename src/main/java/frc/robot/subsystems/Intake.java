@@ -33,10 +33,6 @@ public class Intake extends SubsystemBase
   public double getSpeed()
     {return roller.getSpeed();}
 
-  /** @return Current motor speed relative to max speed, nominally [-1..1] */
-  public double getRelativeSpeed()
-    {return getSpeed() / RollerConstants.intakeMaxSpeed;}
-
   @Override
   public void periodic() 
   {

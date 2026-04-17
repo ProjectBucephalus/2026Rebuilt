@@ -167,7 +167,14 @@ public class Robot extends TimedRobot
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
   private final JoystickTransmuter driverStickRaw = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
-  private final Brake driverBrake = new Brake(driver::getRightTriggerAxis, ControlConstants.maxThrottle, ControlConstants.minThrottle);
+  private final Brake driverBrake = new Brake
+  (
+    () -> driver.leftBumper().getAsBoolean() 
+      ? ControlConstants.brakeFromIntake 
+      : driver.getRightTriggerAxis(), 
+    ControlConstants.maxThrottle, 
+    ControlConstants.minThrottle
+  );
   private final InputCurve driverInputCurve = new InputCurve(2);
   private final Deadband driverDeadband = new Deadband();
 
@@ -236,8 +243,6 @@ public class Robot extends TimedRobot
       driver::getRightTriggerAxis,
       this::getPose
     );
-
-    driverBrake.withBrakeAxis(() -> Math.max(driver.getRightTriggerAxis(), s_Intake.getRelativeSpeed() * PBDash.getDouble("Intake Throttle")));
 
     driverStick
       .rotated(FieldUtils.isAlliance(Alliance.Red))

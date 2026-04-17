@@ -353,9 +353,9 @@ public record ControlBinder
   private void bindIntake()
   {
     // Off
-    driver.leftBumper().onTrue(s_Intake.setStateCmd(RollerState.Off));
+    driver.rightBumper().onTrue(s_Intake.setStateCmd(RollerState.Off));
     // On
-    driver.rightBumper().onTrue(s_Intake.setStateCmd(RollerState.On));
+    driver.leftBumper().onTrue(s_Intake.setStateCmd(RollerState.On));
 
     // Deploy
     operator.leftBumper().or(driver.rightBumper())
