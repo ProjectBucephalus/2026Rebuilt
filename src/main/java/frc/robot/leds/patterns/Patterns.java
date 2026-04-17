@@ -1,4 +1,4 @@
-package frc.robot.leds.patterns_tempname;
+package frc.robot.leds.patterns;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;

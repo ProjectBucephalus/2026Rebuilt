@@ -1,4 +1,4 @@
-package frc.robot.leds.patterns_tempname;
+package frc.robot.leds.patterns;
 
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.LEDReader;

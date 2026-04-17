@@ -37,7 +37,7 @@ import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
 import frc.robot.leds.Block;
-import frc.robot.leds.patterns_tempname.Patterns;
+import frc.robot.leds.patterns.Patterns;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.RollerState;
 import frc.robot.subsystems.generic.*;
