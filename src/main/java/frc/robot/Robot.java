@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,6 +36,8 @@ import frc.robot.constants.Constants.*;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
+import frc.robot.leds.Block;
+import frc.robot.leds.Patterns.AlternatingPattern;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.RollerState;
 import frc.robot.subsystems.generic.*;
@@ -176,6 +179,9 @@ public class Robot extends TimedRobot
   private final RumbleRequester io_operatorRight  = new RumbleRequester(operator, RumbleType.kRightRumble, PBDash.RUMBLE_OPERATOR::get);
   private final RumbleRequester io_operatorLeft   = new RumbleRequester(operator, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
   
+  /* LEDs */
+  private final LEDStrip io_LEDs = new LEDStrip(2, new Block(50, new AlternatingPattern(Color.kCrimson, Color.kCyan, 1))); 
+
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
   private final JoystickTransmuter driverStickRaw = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
@@ -315,7 +321,7 @@ public class Robot extends TimedRobot
 
   private void bindLEDs()
   {
-    // TODO
+    
   }
 
   /* UTIL METHODS */
