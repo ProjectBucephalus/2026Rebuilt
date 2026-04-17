@@ -78,7 +78,7 @@ public class Robot extends TimedRobot
     public ClimbPosition climbPos = ClimbPosition.None;
     public ShootersState shoot = ShootersState.Auto;
     public boolean nudging = true;
-    public SwerveDriveState swerve = s_Swerve.getState();
+    public SwerveDriveState swerve = new SwerveDriveState();
   }
   
   @Logged
@@ -330,7 +330,7 @@ public class Robot extends TimedRobot
     (
       String.format
       (
-        "X: %.2fm, Y: %.2fm, R: %.2f°", 
+        "X: %.2fm, Y: %.2fm, R: %.0f°", 
         swerveState.Pose.getX(), 
         swerveState.Pose.getY(), 
         swerveState.Pose.getRotation().getDegrees()

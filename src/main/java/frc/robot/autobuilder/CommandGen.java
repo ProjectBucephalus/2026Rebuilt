@@ -122,7 +122,7 @@ public class CommandGen
       }
       catch (GeneralException e) 
       {
-        AutoBuilder.error(e.msg);
+        AutoBuilder.error((Object[])e.msg);
       }
     }
 
