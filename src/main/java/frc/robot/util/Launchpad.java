@@ -12,9 +12,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class Launchpad
 {
-  private final Trigger no = new Trigger(() -> false);
+  private static final String tableName = "LaunchPadColours";
 
-  private final String tableName = "LaunchPadColours";
+  private final Trigger no = new Trigger(() -> false);
   private final IntegerPublisher[] publishers = new IntegerPublisher[72];
 
   private final CommandGenericHID controllerOne;
@@ -196,40 +196,40 @@ public class Launchpad
   {
     PadColour[] processingGrid = new PadColour[grid.length];
     for (int i = 0; i < grid.length; i++)
-    switch (grid[i]) 
-    {
-      case 1:
-        processingGrid[i] = PadColour.DIM_RED;
-        break;
-      case 4:
-        processingGrid[i] = PadColour.MEDIUM_RED;
-        break;
-      case 7:
-        processingGrid[i] = PadColour.FULL_RED;
-        break;
-      case 2:
-        processingGrid[i] = PadColour.DIM_AMBER;
-        break;
-      case 5:
-        processingGrid[i] = PadColour.MEDIUM_AMBER;
-        break;
-      case 8:
-        processingGrid[i] = PadColour.FULL_AMBER;
-        break;
-      case 3:
-        processingGrid[i] = PadColour.DIM_GREEN;
-        break;
-      case 6:
-        processingGrid[i] = PadColour.MEDIUM_GREEN;
-        break;
-      case 9:
-        processingGrid[i] = PadColour.FULL_GREEN;
-        break;
-      case 0:
-      default:
-        processingGrid[i] = PadColour.OFF;
-        break;
-    }
+      switch (grid[i]) 
+      {
+        case 1:
+          processingGrid[i] = PadColour.DIM_RED;
+          break;
+        case 4:
+          processingGrid[i] = PadColour.MEDIUM_RED;
+          break;
+        case 7:
+          processingGrid[i] = PadColour.FULL_RED;
+          break;
+        case 2:
+          processingGrid[i] = PadColour.DIM_AMBER;
+          break;
+        case 5:
+          processingGrid[i] = PadColour.MEDIUM_AMBER;
+          break;
+        case 8:
+          processingGrid[i] = PadColour.FULL_AMBER;
+          break;
+        case 3:
+          processingGrid[i] = PadColour.DIM_GREEN;
+          break;
+        case 6:
+          processingGrid[i] = PadColour.MEDIUM_GREEN;
+          break;
+        case 9:
+          processingGrid[i] = PadColour.FULL_GREEN;
+          break;
+        case 0:
+        default:
+          processingGrid[i] = PadColour.OFF;
+          break;
+      }
 
     return new DisplayGrid(processingGrid);
   }

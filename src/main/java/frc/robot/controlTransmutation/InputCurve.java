@@ -29,6 +29,7 @@ public class InputCurve implements InputTransmuter
    * Applies a sensitivity curve to the input, keeping the range from [0..1] but causing it to scale faster the closer it gets to 1 <>
    * Allows finer control at slow speeds while maintaining the same top speedp
    */
+  @Override
   public Translation2d process(Translation2d controlInput)
   {
     return Conversions.clamp

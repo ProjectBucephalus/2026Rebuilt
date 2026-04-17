@@ -1,9 +1,9 @@
 package frc.robot.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
@@ -16,7 +16,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
@@ -93,7 +92,7 @@ public class PBDash
     var poses = object.getPoses();
     // Elastic only displays a trajectory for objects with 8+ poses, so we add the first pose a bunch of times to force it
     for (int i = 0; i < (9 - newPoses.length); i++) poses.add(newPoses[0]);
-    for (var pose : newPoses) poses.add(pose);
+    poses.addAll(List.of(newPoses));
     object.setPoses(poses);
   }
 
@@ -108,13 +107,13 @@ public class PBDash
       .range(0, 9)
       .boxed()
       .map(section -> start.interpolate(end, sectionLength * section))
-      .collect(Collectors.toList());
+      .toList();
 
     FIELD.getObject(name).setPoses(poses);
   }
 
   public static void removeFieldObject(String name)
-    {FIELD.getObject(name).setPoses(new Pose2d[0]);}
+    {FIELD.getObject(name).setPoses();}
 
   /**
    * Publishes a Sendable to the table {@value IDConstants#dashTableName} <p>
@@ -151,7 +150,7 @@ public class PBDash
    * @param value value to publish
    */
   public static void putInt(String name, int value)
-    {entry(name).setInteger(Long.valueOf(value));}
+    {entry(name).setInteger(value);}
 
   /**
    * Publishes a double to the table {@value IDConstants#dashTableName}
@@ -344,27 +343,23 @@ public class PBDash
     putSendable
     (
       "Swerve Drive", 
-      new Sendable() 
+      builder -> 
       {
-        @Override
-        public void initSendable(SendableBuilder builder) 
-        {
-          builder.setSmartDashboardType("SwerveDrive");
+        builder.setSmartDashboardType("SwerveDrive");
 
-          builder.addDoubleProperty("Front Left Angle", () -> swerveStateSup.get().ModuleStates[0].angle.getRadians(), null);
-          builder.addDoubleProperty("Front Left Velocity", () -> swerveStateSup.get().ModuleStates[0].speedMetersPerSecond, null);
+        builder.addDoubleProperty("Front Left Angle", () -> swerveStateSup.get().ModuleStates[0].angle.getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> swerveStateSup.get().ModuleStates[0].speedMetersPerSecond, null);
 
-          builder.addDoubleProperty("Front Right Angle", () -> swerveStateSup.get().ModuleStates[1].angle.getRadians(), null);
-          builder.addDoubleProperty("Front Right Velocity", () -> swerveStateSup.get().ModuleStates[1].speedMetersPerSecond, null);
+        builder.addDoubleProperty("Front Right Angle", () -> swerveStateSup.get().ModuleStates[1].angle.getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> swerveStateSup.get().ModuleStates[1].speedMetersPerSecond, null);
 
-          builder.addDoubleProperty("Back Left Angle", () -> swerveStateSup.get().ModuleStates[2].angle.getRadians(), null);
-          builder.addDoubleProperty("Back Left Velocity", () -> swerveStateSup.get().ModuleStates[2].speedMetersPerSecond, null);
+        builder.addDoubleProperty("Back Left Angle", () -> swerveStateSup.get().ModuleStates[2].angle.getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> swerveStateSup.get().ModuleStates[2].speedMetersPerSecond, null);
 
-          builder.addDoubleProperty("Back Right Angle", () -> swerveStateSup.get().ModuleStates[3].angle.getRadians(), null);
-          builder.addDoubleProperty("Back Right Velocity", () -> swerveStateSup.get().ModuleStates[3].speedMetersPerSecond, null);
+        builder.addDoubleProperty("Back Right Angle", () -> swerveStateSup.get().ModuleStates[3].angle.getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> swerveStateSup.get().ModuleStates[3].speedMetersPerSecond, null);
 
-          builder.addDoubleProperty("Robot Angle", () -> swerveStateSup.get().Pose.getRotation().getRadians(), null);
-        }
+        builder.addDoubleProperty("Robot Angle", () -> swerveStateSup.get().Pose.getRotation().getRadians(), null);
       }
     );
   }

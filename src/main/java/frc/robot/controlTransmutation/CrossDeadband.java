@@ -13,7 +13,7 @@ public class CrossDeadband extends Deadband
   
   /**
    * Snaps the input to be purely cardinal
-   * @param deadband Optional, absolute value of input below which the output will be zero. Defaults to {@link ControlConstants#stickDeadband stickDeadband}
+   * @param deadbandVal Optional, absolute value of input below which the output will be zero. Defaults to {@link ControlConstants#stickDeadband stickDeadband}
    * @param overlap Determines the size and behaviour of corners: <1 deadzone, >1 smooth control, (default) 1 direct change from X to Y
    */
   public CrossDeadband()
@@ -39,7 +39,7 @@ public class CrossDeadband extends Deadband
   @Override
   public Translation2d process(Translation2d controlInput)
   {
-    if (controlInput.getNorm() <= deadband)
+    if (controlInput.getNorm() <= deadbandVal)
       {return Translation2d.kZero;}
       
     return new Translation2d

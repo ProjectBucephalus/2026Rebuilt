@@ -12,7 +12,8 @@ import edu.wpi.first.math.geometry.Translation2d;
  */
 public class AlliancePose2d implements Supplier<Pose2d>
 {
-  private final Pose2d poseBlue, poseRed;
+  private final Pose2d poseBlue;
+  private final Pose2d  poseRed;
 
   /**
    * Constructs a new AlliancePose2d based on blue origin

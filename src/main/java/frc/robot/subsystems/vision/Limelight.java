@@ -14,7 +14,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 
 import static frc.robot.constants.Constants.VisionConstants.*;
-import static frc.robot.constants.FieldConstants.tagLayout;;
+import static frc.robot.constants.FieldConstants.tagLayout;
 
 /** 
  * Wrapper class to interface with Limelight camera running Photonvision 

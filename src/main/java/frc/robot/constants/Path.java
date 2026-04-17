@@ -2,6 +2,8 @@ package frc.robot.constants;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,9 +16,9 @@ import frc.robot.util.PBDash;
  * Note: Assumed to be Blue Alliance for use with {@link Path#allianceRotated() allianceRotated()} method
  * @param pointRadius Approach distance before switching to next point, metres
  * @param heading Rotation for robot to face, applies over entire path
- * @param sequence List of Pose2d to navigate through, start to end
+ * @param nodes List of Pose2d to navigate through, start to end
  */
-public record Path(double throttle, Node... sequence)
+public record Path(double throttle, Node... nodes)
 {
   public record Node(Pose2d pose, double radius) {}
 
@@ -25,18 +27,39 @@ public record Path(double throttle, Node... sequence)
     this(throttle, new Node[poseSequence.length]);
 
     for (int i = 0; i < poseSequence.length; i++)
-      sequence[i] = new Node(poseSequence[i], pointRadius);
+      nodes[i] = new Node(poseSequence[i], pointRadius);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o instanceof Path path)
+      return throttle == path.throttle && Arrays.equals(nodes, path.nodes);
+    else 
+      return false;
+  }
+
+  @Override
+  public int hashCode() 
+    {return 31 * Objects.hash(throttle) + Arrays.hashCode(nodes);}
+
+  @Override
+  public String toString() {
+    return "Path{" +
+            "throttle=" + throttle +
+            ", nodes=" + Arrays.toString(nodes) +
+            '}';
   }
 
   public Pose2d targetPose()
-    {return sequence[sequence.length - 1].pose();}
+    {return nodes[nodes.length - 1].pose();}
 
   /** Creates a clone of the path, rotated around field-centre */
   public Path rotated()
   {
-    var rotatedSequence = new Node[sequence.length];
-    for (int i = 0; i < sequence.length; i++)
-      rotatedSequence[i] = new Node(FieldUtils.rotatePose(sequence[i].pose()), sequence[i].radius());
+    var rotatedSequence = new Node[nodes.length];
+    for (int i = 0; i < nodes.length; i++)
+      rotatedSequence[i] = new Node(FieldUtils.rotatePose(nodes[i].pose()), nodes[i].radius());
 
     return new Path(throttle, rotatedSequence);
   }
@@ -49,18 +72,18 @@ public record Path(double throttle, Node... sequence)
 
   public Path concat(Path other)
   {
-    Node[] concatSequence = Arrays.copyOf(sequence, sequence.length + other.sequence.length);
-    System.arraycopy(other.sequence, 0, concatSequence, sequence.length, other.sequence.length);
+    Node[] concatSequence = Arrays.copyOf(nodes, nodes.length + other.nodes.length);
+    System.arraycopy(other.nodes, 0, concatSequence, nodes.length, other.nodes.length);
     return new Path(throttle, concatSequence);
   }
 
   public void display(String fieldObject)
   {
-    var poses = Arrays.stream(sequence).map(node -> node.pose()).toArray(Pose2d[]::new);
+    var poses = Arrays.stream(nodes).map(Node::pose).toArray(Pose2d[]::new);
     PBDash.addToFieldObject(fieldObject, poses);
   }
 
-  public static final HashMap<String, Path> autoPaths = new HashMap<>();
+  public static final Map<String, Path> autoPaths = new HashMap<>();
   static
   {
     // Right side trench, alliance zone -> mid zone
@@ -139,7 +162,7 @@ public record Path(double throttle, Node... sequence)
         new Pose2d(7.75, 3.08, Rotation2d.kCW_90deg)
       )
     );
-  };
+  }
 
   public static final Path climbBlueRight = new Path
   (

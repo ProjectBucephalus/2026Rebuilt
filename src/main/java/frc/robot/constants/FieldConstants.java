@@ -168,7 +168,6 @@ public class FieldConstants
       .or(trenchNR.asTrigger());
 
     /* Trench Column */
-    //public static final double trenchColumnWidth = 1.67 - trenchWidth;
     public static final double trenchColumnDepth = 1.3;
     public static final double trenchColXa = hubCentreOffset + trenchColumnDepth/2;
     public static final double trenchColXb = hubCentreOffset - trenchColumnDepth/2;

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shooter;
 
-import frc.robot.Robot;
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
@@ -25,6 +24,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
@@ -89,7 +89,7 @@ public class Turret
    */
   public double getSpeed()
   {
-    if (Robot.isSimulation())
+    if (RobotBase.isSimulation())
       return motorSim.getAngularVelocity().in(Units.RotationsPerSecond);
     else 
       return m_Turret.getVelocity().getValue().in(Units.RotationsPerSecond);
@@ -103,7 +103,7 @@ public class Turret
   @Logged(name = "azimuth Degrees")
   public double getAzimuth() 
   {
-    if (Robot.isSimulation())
+    if (RobotBase.isSimulation())
       return motorSim.getAngularPosition().in(Units.Degrees);
     else 
       return m_Turret.getPosition().getValue().in(Units.Degrees);
@@ -111,15 +111,15 @@ public class Turret
 
   public Pair<Double, Double> getAzimuthTimestamped()
   {
-    if (Robot.isSimulation())
+    if (RobotBase.isSimulation())
     {
       double angle = motorSim.getAngularPosition().in(Units.Degrees);
-      return new Pair<Double,Double>(Utils.getCurrentTimeSeconds(), angle);
+      return new Pair<>(Utils.getCurrentTimeSeconds(), angle);
     }
     else 
     {
       var signal = m_Turret.getPosition();
-      return new Pair<Double,Double>(signal.getTimestamp().getTime(), signal.getValue().in(Units.Degrees));
+      return new Pair<>(signal.getTimestamp().getTime(), signal.getValue().in(Units.Degrees));
     }
   }
   
@@ -166,7 +166,7 @@ public class Turret
     // pull the value from the pot, convert to mechanism angle, and send to motor
     if 
     (
-      Robot.isReal() 
+      RobotBase.isReal() 
       && Math.abs(getSpeed()) < calibrationSpeedLimit // Only calibrate when turret is moving slowly
       && (
         force.length != 0
@@ -193,7 +193,7 @@ public class Turret
    * @param targetPoint the Translation2d of the target
    * @return the robot-relative target angle in degrees 
    */
-  private double calculateTargetAngle(Pose2d shooterPose, Translation2d targetPoint, double robotDegreesPerSecond )
+  private static double calculateTargetAngle(Pose2d shooterPose, Translation2d targetPoint, double robotDegreesPerSecond )
   {
     // Angle from turret centre to target relative to field +X axis
     double fieldTarget = targetPoint.minus(shooterPose.getTranslation()).getAngle().getDegrees();
@@ -277,7 +277,7 @@ public class Turret
     motorSim.setInputVoltage(motorVoltage.in(Units.Volts));
     motorSim.update(0.020); // assume 20 ms loop time
 
-    // apply the new rotor position and velocity to the TalonFX;
+    // apply the new rotor position and velocity to the TalonFX
     // note that this is rotor position/velocity (before gear ratio), but
     // DCMotorSim returns mechanism position/velocity (after gear ratio)
     motorSimState.setRawRotorPosition(motorSim.getAngularPosition().times(azimuthMotorRatio));

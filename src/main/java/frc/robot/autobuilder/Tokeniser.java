@@ -62,11 +62,11 @@ public class Tokeniser
   private Token number() 
   {
     // Consume all consecutive digits
-    while (match(this::isDigit));
+    while (match(Tokeniser::isDigit));
 
     // Look for a fractional part, consuming all consecutive digits after one
     if (match('.')) 
-      while (match(this::isDigit));
+      while (match(Tokeniser::isDigit));
 
     return createToken(Token.Type.Num);
   }
@@ -75,26 +75,26 @@ public class Tokeniser
   private Token text() 
   {
     // Consume all consecutive alphanumeric characters
-    while (match(this::isAlphaNumeric));
+    while (match(Tokeniser::isAlphaNumeric));
 
     return createToken(Token.Type.Text);
   }
 
   /** Helper for checking if a character is 0..9 */
-  private boolean isDigit(char c)
+  private static boolean isDigit(char c)
     {return c >= '0' && c <= '9';}
 
   /** 
    * Helper for checking if a character is a..z or _ <p>
    * Everything is handled in lowercase, so uppercase characters do not need to be considered
    */
-  private boolean isAlpha(char c) 
+  private static boolean isAlpha(char c) 
   {
     return (c >= 'a' && c <= 'z') || c == '_';
   }
 
   /** Helper for checking if a character is 0..9, a..z, or _ */
-  private boolean isAlphaNumeric(char c) 
+  private static boolean isAlphaNumeric(char c) 
     {return isAlpha(c) || isDigit(c);}
 
   /** Gets the current character in the source and advances our position, or returns {@code '\0'} if we're already past the end of the source */

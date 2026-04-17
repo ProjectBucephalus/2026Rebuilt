@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RumbleRequester extends SubsystemBase
 {
-  private HashSet<String> queue = new HashSet<String>();
+  private HashSet<String> queue = new HashSet<>();
   private final CommandXboxController controller;
   private final RumbleType side;
   private final Supplier<Double> strengthSup;

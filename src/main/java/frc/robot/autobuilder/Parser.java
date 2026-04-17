@@ -5,7 +5,7 @@ import java.util.List;
 
 import frc.robot.autobuilder.ParsedRepr.Instruction;
 import frc.robot.autobuilder.ParsedRepr.Value;
-import frc.robot.autobuilder.ParsedRepr.Value.Type;;
+import frc.robot.autobuilder.ParsedRepr.Value.Type;
 
 /**
  * Converts {@link Token Tokens} into {@link ParsedRepr.Instruction Instructions}, 

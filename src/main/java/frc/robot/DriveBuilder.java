@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -29,18 +29,18 @@ import frc.robot.util.Conversions;
 
 public class DriveBuilder
 {
-  private final static SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest
+  private static final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest
     .FieldCentric() 
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
     .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-  private final static SwerveRequest.FieldCentricFacingAngle facingAngleRequest = new SwerveRequest
+  private static final SwerveRequest.FieldCentricFacingAngle facingAngleRequest = new SwerveRequest
     .FieldCentricFacingAngle()
     .withDriveRequestType(com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType.OpenLoopVoltage)
     .withSteerRequestType(SteerRequestType.MotionMagicExpo)
     .withHeadingPID(SwerveConstants.rotationKP, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
 
-  private final static PIDController thetaController = new PIDController(SwerveConstants.rotationKP, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
+  private static final PIDController thetaController = new PIDController(SwerveConstants.rotationKP, SwerveConstants.rotationKI, SwerveConstants.rotationKD);
 
   private static CommandSwerveDrivetrain s_Swerve;
   private static Supplier<Translation2d> joystickSup;
@@ -133,7 +133,7 @@ public class DriveBuilder
    * Creates a Heading-nudged drive command that maintains a (potentially dynamic) desired heading, except while the rotation stick is being used
    * @param targetHeadingSup A function that takes the robot's current heading, and returns the target heading, both in degrees
    */
-  public static Command headingNudged(Function<Double, Double> targetHeadingSup) 
+  public static Command headingNudged(DoubleUnaryOperator targetHeadingSup) 
   {
     return s_Swerve.run(() -> {
       double rotationVal = rotationSup.getAsDouble();
@@ -141,7 +141,7 @@ public class DriveBuilder
 
       // Rotation stick not being actively controlled
       if (Math.abs(rotationVal) <= ControlConstants.stickDeadband) 
-        rotationVal = Math.toRadians(thetaController.calculate(robotRotation, targetHeadingSup.apply(robotRotation)));
+        rotationVal = Math.toRadians(thetaController.calculate(robotRotation, targetHeadingSup.applyAsDouble(robotRotation)));
       else
         rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());
 
@@ -225,12 +225,12 @@ public class DriveBuilder
    */
   public static Command pathFollow(Path path)
   {
-    final ArrayList<Node> waypoints = new ArrayList<>(path.sequence().length * 3 - 2);
+    final ArrayList<Node> waypoints = new ArrayList<>(path.nodes().length * 3 - 2);
 
-    for (int i = 0; i < path.sequence().length - 1; i++) 
+    for (int i = 0; i < path.nodes().length - 1; i++) 
     {
-      final var current = path.sequence()[i];
-      final var next = path.sequence()[i + 1];
+      final var current = path.nodes()[i];
+      final var next = path.nodes()[i + 1];
 
       // Find the distance between the current point and the next
       final double segmentLength = current.pose().getTranslation().getDistance(next.pose().getTranslation());
@@ -253,7 +253,7 @@ public class DriveBuilder
     }
 
     // Final waypoint does not trigger until the robot arives at it
-    waypoints.add(new Node(path.sequence()[path.sequence().length - 1].pose(), ControlConstants.lineupTolerance));
+    waypoints.add(new Node(path.nodes()[path.nodes().length - 1].pose(), ControlConstants.lineupTolerance));
 
     return pathFollowInner(waypoints, path::throttle);
   }

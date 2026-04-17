@@ -10,7 +10,8 @@ import edu.wpi.first.math.geometry.Translation2d;
  */
 public class AllianceTranslation2d implements Supplier<Translation2d>
 {
-  private final Translation2d pointBlue, pointRed;
+  private final Translation2d pointBlue;
+  private final Translation2d  pointRed;
 
   /**
    * Constructs a new AllianceTranslation2d based on blue origin

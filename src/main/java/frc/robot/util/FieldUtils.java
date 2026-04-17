@@ -17,7 +17,7 @@ import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed
  * Field or FMS related utilities 
  * @author 5985
  */
-public class FieldUtils 
+public final class FieldUtils 
 {
   private static Alliance alliance;
   static {updateAlliance();}
@@ -33,7 +33,7 @@ public class FieldUtils
     if (autoWinner.isEmpty()) 
     {
       String gameData = DriverStation.getGameSpecificMessage();
-      if (gameData.length() > 0)
+      if (!gameData.isEmpty())
         autoWinner = switch (gameData.charAt(0))
         {
           case 'B' -> Optional.of(Alliance.Blue);

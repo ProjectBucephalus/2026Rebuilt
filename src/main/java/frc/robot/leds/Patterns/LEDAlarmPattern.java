@@ -3,7 +3,6 @@ package frc.robot.leds.Patterns;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.util.FieldUtils;
 import frc.robot.util.MatchTime;
 
 public class LEDAlarmPattern extends LEDPatternObject{

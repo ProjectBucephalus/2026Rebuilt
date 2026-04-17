@@ -11,12 +11,12 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.*;
 
-import frc.robot.Robot;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.ShooterConstants.FlywheelConstants;
 
@@ -92,7 +92,7 @@ public class Flywheels
   @Logged(name = "speed RevPerSec")
   public double getSpeed() 
   {
-    if (Robot.isSimulation())
+    if (RobotBase.isSimulation())
       return motorSim.getAngularVelocity().in(Units.RotationsPerSecond);
     else 
       return m_Leader.getVelocity().getValue().in(Units.RotationsPerSecond);
@@ -131,7 +131,7 @@ public class Flywheels
     motorSim.setInputVoltage(motorVoltage);
     motorSim.update(0.020); // assume 20 ms loop time
 
-    // apply the new rotor position and velocity to the TalonFX;
+    // apply the new rotor position and velocity to the TalonFX
     // note that this is rotor position/velocity (before gear ratio), but
     // DCMotorSim returns mechanism position/velocity (after gear ratio)
     leaderSimState.setRawRotorPosition(motorSim.getAngularPosition().times(mainWheelBeltRatio));

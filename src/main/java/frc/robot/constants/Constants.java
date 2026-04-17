@@ -392,7 +392,7 @@ public final class Constants
       allIDs.addAll(outpostIDs);
       allIDs.addAll(towerIDs);
       allIDs.addAll(hubIDs);
-    };
+    }
 
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
     public static final double linearStdDevBaseline = 0.3;
@@ -404,78 +404,82 @@ public final class Constants
   public static final class Interpolation 
   {
     /** Distance to Altitude conversion for shooting into the elevated Hub */
-    public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap()
-    {{
-      put(0.0, 0.0);
-      put(1.0, 0.0);
-      put(1.1, 1.0);
-      put(1.5, 4.0);
-      put(2.0, 8.0);
-      put(2.5, 11.0);
-      put(3.0, 13.0);
-      put(3.5, 16.0);
-      put(4.0, 19.0);
-      put(4.5, 22.0);
-      put(5.0, 23.0);
-      put(5.5, 23.0);
-    }};
+    public static final InterpolatingDoubleTreeMap shooterAltitudeHub = new InterpolatingDoubleTreeMap();
+    static 
+    {
+      shooterAltitudeHub.put(0.0, 0.0);
+      shooterAltitudeHub.put(1.0, 0.0);
+      shooterAltitudeHub.put(1.1, 1.0);
+      shooterAltitudeHub.put(1.5, 4.0);
+      shooterAltitudeHub.put(2.0, 8.0);
+      shooterAltitudeHub.put(2.5, 11.0);
+      shooterAltitudeHub.put(3.0, 13.0);
+      shooterAltitudeHub.put(3.5, 16.0);
+      shooterAltitudeHub.put(4.0, 19.0);
+      shooterAltitudeHub.put(4.5, 22.0);
+      shooterAltitudeHub.put(5.0, 23.0);
+      shooterAltitudeHub.put(5.5, 23.0);
+    }
 
     /** Distance to Speed conversion for shooting into the elevated Hub */
-    public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap()
-    {{
-      put(0.0, 0.0);
-      put(0.1, 0.0);
-      put(0.9, 45.0); // below min range
-      put(1.1, 45.0);
-      put(1.5, 46.5);
-      put(2.0, 48.0);
-      put(2.5, 49.0);
-      put(3.0, 50.0);
-      put(3.5, 52.0);
-      put(4.0, 53.0); 
-      put(4.5, 56.0);
-      put(5.0, 59.0);
-      put(5.5, 61.0);
-      put(6.0, 62.0);
-    }};
+    public static final InterpolatingDoubleTreeMap flywheelSpeedHub = new InterpolatingDoubleTreeMap();
+    static
+    {
+      flywheelSpeedHub.put(0.0, 0.0);
+      flywheelSpeedHub.put(0.1, 0.0);
+      flywheelSpeedHub.put(0.9, 45.0); // below min range
+      flywheelSpeedHub.put(1.1, 45.0);
+      flywheelSpeedHub.put(1.5, 46.5);
+      flywheelSpeedHub.put(2.0, 48.0);
+      flywheelSpeedHub.put(2.5, 49.0);
+      flywheelSpeedHub.put(3.0, 50.0);
+      flywheelSpeedHub.put(3.5, 52.0);
+      flywheelSpeedHub.put(4.0, 53.0); 
+      flywheelSpeedHub.put(4.5, 56.0);
+      flywheelSpeedHub.put(5.0, 59.0);
+      flywheelSpeedHub.put(5.5, 61.0);
+      flywheelSpeedHub.put(6.0, 62.0);
+    }
 
     /** Distance to Altitude conversion for shooting to a point on the field */
-    public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap()
-    {{
-      put(0.5, 23.0);
-      put(7.5, 23.0);
+    public static final InterpolatingDoubleTreeMap shooterAltitudeLow = new InterpolatingDoubleTreeMap();
+    static
+    {
+      shooterAltitudeLow.put(0.5, 23.0);
+      shooterAltitudeLow.put(7.5, 23.0);
 
-    }};
+    }
 
     /** Distance to Speed conversion for shooting to a point on the field */
-    public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap()
-    {{
-      put(0.5, 15.0);
-      put(1.5, 22.0);
-      put(2.5, 33.0);
-      put(3.5, 39.0);
-      put(4.5, 46.0);
-      put(5.5, 51.0);
-      put(6.5, 58.0);
-      put(7.5, 68.0);
-
-    }};
+    public static final InterpolatingDoubleTreeMap flywheelSpeedLow = new InterpolatingDoubleTreeMap();
+    static
+    {
+      flywheelSpeedLow.put(0.5, 15.0);
+      flywheelSpeedLow.put(1.5, 22.0);
+      flywheelSpeedLow.put(2.5, 33.0);
+      flywheelSpeedLow.put(3.5, 39.0);
+      flywheelSpeedLow.put(4.5, 46.0);
+      flywheelSpeedLow.put(5.5, 51.0);
+      flywheelSpeedLow.put(6.5, 58.0);
+      flywheelSpeedLow.put(7.5, 68.0);
+    }
 
     /** Distance to Time-of-Flight for Shoot-on-the-Move */
-    public static final InterpolatingDoubleTreeMap shotTime = new InterpolatingDoubleTreeMap()
-    {{
-      put(1.0, 1.17);
-      put(1.5, 1.21);
-      put(2.0, 1.23);
-      put(2.5, 1.24);
-      put(3.0, 1.25);
-      put(3.5, 1.29);
-      put(4.0, 1.27);
-      put(4.5, 1.31);
-      put(5.0, 1.37);
-      put(5.5, 1.43);
-      put(6.0, 1.45);
-    }};
+    public static final InterpolatingDoubleTreeMap shotTime = new InterpolatingDoubleTreeMap();
+    static
+    {
+      shotTime.put(1.0, 1.17);
+      shotTime.put(1.5, 1.21);
+      shotTime.put(2.0, 1.23);
+      shotTime.put(2.5, 1.24);
+      shotTime.put(3.0, 1.25);
+      shotTime.put(3.5, 1.29);
+      shotTime.put(4.0, 1.27);
+      shotTime.put(4.5, 1.31);
+      shotTime.put(5.0, 1.37);
+      shotTime.put(5.5, 1.43);
+      shotTime.put(6.0, 1.45);
+    }
   }
 
   public static final class LEDConstants 
@@ -529,8 +533,6 @@ public final class Constants
       private static final double extensionOutPulley = 30;
       private static final double extensionChainRatio = extensionOutPulley / extensionInPulley;
 
-      //public static final double extensionRatio = extensionPlanetaryRatio * extensionGearRatio * extensionChainRatio;
-
       public static final double minRotations = -0.31;
       public static final double maxRotations = 0.0;
       public static final double jostleRotations = -0.1; // furthest in before hopper retracts
@@ -559,7 +561,7 @@ public final class Constants
 
         extensionConfig.CurrentLimits.StatorCurrentLimit = 35;
         extensionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-      };
+      }
     }
   }   
 

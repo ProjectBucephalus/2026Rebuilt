@@ -16,7 +16,7 @@ public class LEDS extends SubsystemBase
 {
     AddressableLED LEDStrip;
     AddressableLEDBuffer LEDBuffer;
-    ArrayList<LEDSection> sectionList = new ArrayList<LEDSection>();
+    ArrayList<LEDSection> sectionList = new ArrayList<>();
 
     public LEDS()
     {
@@ -38,7 +38,7 @@ public class LEDS extends SubsystemBase
 
     public void removeSection(String name)
     {
-        sectionList.removeIf(a -> a.getName() == name);
+        sectionList.removeIf(a -> a.getName().equals(name));
     }
 
     //TODO: list section method and remove section by name method (section names?) 

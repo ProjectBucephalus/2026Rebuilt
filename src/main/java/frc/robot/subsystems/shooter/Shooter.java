@@ -54,8 +54,6 @@ public class Shooter extends SubsystemBase
   private Status shootStatus;
 
   private Pose2d shooterPose;
-  private Translation2d velocity;
-  private Translation2d acceleration;
 
   private Translation2d lastVelocity = Translation2d.kZero;
   private double timeOfFlight = 0;
@@ -207,10 +205,9 @@ public class Shooter extends SubsystemBase
 
   private void telemetrise()
   {
-    var shooterPose = swerveState.Pose
-      .plus(shooterOffset)
+    var rotatedPose = shooterPose
       .plus(new Transform2d(Translation2d.kZero, Rotation2d.fromDegrees(turret.getAzimuth())));
-    PBDash.putFieldPath(ntId + " Pose", shooterPose, shooterPose.transformBy(new Transform2d(flywheels.getSpeed() / 60, 0, Rotation2d.kZero)));
+    PBDash.putFieldPath(ntId + " Pose", rotatedPose, rotatedPose.transformBy(new Transform2d(flywheels.getSpeed() / 60, 0, Rotation2d.kZero)));
 
     var targetPoint = target.state == TargetState.Hub ? FieldUtils.getAllianceHubCentre() : target.point;
     PBDash.putFieldObject(ntId + "Target", new Pose2d(targetPoint.plus(target.offset), Rotation2d.kZero));
@@ -236,8 +233,8 @@ public class Shooter extends SubsystemBase
 
     // Calculate the instantaneous velocity and acceleration of the shooter
     var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
-    velocity = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
-    acceleration = velocity.minus(lastVelocity);
+    Translation2d velocity = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
+    Translation2d acceleration = velocity.minus(lastVelocity);
 
     // Store pose and velocity to be used next cycle
     lastVelocity = velocity;

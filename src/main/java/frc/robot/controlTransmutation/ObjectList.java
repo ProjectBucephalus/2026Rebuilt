@@ -1,6 +1,7 @@
 package frc.robot.controlTransmutation;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
@@ -31,11 +32,7 @@ public class ObjectList extends FieldObject
    */
   public ObjectList add(FieldObject ...newObjects)
   {
-    fieldObjects.ensureCapacity(fieldObjects.size() + newObjects.length);
-
-    for (var object : newObjects) 
-      fieldObjects.add(object);
-
+    fieldObjects.addAll(List.of(newObjects));
     return this;
   }
 
@@ -54,9 +51,10 @@ public class ObjectList extends FieldObject
   /**
    * Updates the global robot radius and position, then applies each contained object's processing to the input
    */
+  @Override
   public Translation2d process(Translation2d controlInput)
   {
-    if (!globalActiveSupplier.getAsBoolean() || !activeSupplier.getAsBoolean() || fieldObjects.size() <= 0) 
+    if (!globalActiveSupplier.getAsBoolean() || !activeSupplier.getAsBoolean() || fieldObjects.isEmpty()) 
       return controlInput;
 
     fetchRobotValues();

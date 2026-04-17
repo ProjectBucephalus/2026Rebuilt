@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.wpilibj2.command.Commands.*;
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -63,12 +64,11 @@ public record ControlBinder
   DigitalInput io_ClimberPost
 )
 {
-  private static boolean bound = false;
+  private static AtomicBoolean bound = new AtomicBoolean(false);
 
   public void bind()
   {
-    if (bound) return; // Guard against being called multiple times
-    bound = true;
+    if (bound.compareAndExchange(false, true)) return; // Guard against being called multiple times
 
     bindState();
     bindDrive();
@@ -133,14 +133,11 @@ public record ControlBinder
       (
         DriveBuilder.headingLocked
         (
-          () -> {
-            var rotation = switch (state.climbPos) 
-            {
-              case Left -> Rotation2d.kCCW_90deg;
-              case Right -> Rotation2d.kCW_90deg;
-              case None -> Rotation2d.kZero; // Shouldn't actually happen due to trigger condition
-            };
-            return rotation;
+          () -> switch (state.climbPos) 
+          {
+            case Left -> Rotation2d.kCCW_90deg;
+            case Right -> Rotation2d.kCW_90deg;
+            case None -> Rotation2d.kZero; // Shouldn't actually happen due to trigger condition
           }
         ).onlyWhile(() -> state.climbPos != ClimbPosition.None)
       );
@@ -246,30 +243,22 @@ public record ControlBinder
       .and(() -> state.shoot == ShootersState.Test)
       .whileTrue
       (
-        bothShooters(Commands::runOnce, s -> {
-          s.target.state = TargetState.Hub;
-        })
-        .repeatedly()
-        .ignoringDisable(true)
+        bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Hub)
+          .repeatedly()
+          .ignoringDisable(true)
       );
 
     switchboard.button(IDConstants.testIdleSwitchID)
       .and(() -> state.shoot == ShootersState.Test)
       .whileTrue
       (
-        bothShooters(Commands::runOnce, s -> {
-          s.target.state = TargetState.Manual;
-        })
-        .repeatedly()
-        .ignoringDisable(true)
+        bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Manual)
+          .repeatedly()
+          .ignoringDisable(true)
       );
 
     switchboard.button(10)
-      .onTrue
-      (
-        bothShooters(Commands::runOnce, s -> {s.calibrate();})
-        .ignoringDisable(true)
-      );
+      .onTrue(bothShooters(Commands::runOnce, Shooter::calibrate).ignoringDisable(true));
     
     final Trigger autoAimTrigger = new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
                                           .and(s_Vision::hasLocalisation)
@@ -299,7 +288,7 @@ public record ControlBinder
       .onFalse(s_PortShooter.runOnce(() -> s_PortShooter.target.disabled = false).ignoringDisable(true))
       .whileTrue(s_PortShooter.runIndexerCmd(() -> -s_StbdShooter.getSpeed())); // Follow opposing indexer while shooter is disabled
 
-    // Rev if (test and fire) or (((not alliance_zone) or shift) and not test)
+    // Rev If (test and fire) or (((not alliance_zone) or shift) and not test)
     new Trigger
       (() ->
         (state.shoot == ShootersState.Test && operator.rightTrigger().getAsBoolean())
@@ -379,6 +368,7 @@ public record ControlBinder
           
           private RollerState prevState;
 
+          @Override
           public void initialize()
           {
             prevState = s_Intake.state;
@@ -387,6 +377,7 @@ public record ControlBinder
               s_Extension.setTarget(ExtensionConstants.jostleRotations);
           }
 
+          @Override
           public void end(boolean i) 
           {
             s_Intake.state = prevState;
@@ -451,8 +442,7 @@ public record ControlBinder
   /** Mutually exclusive to {@link ControlBinder#bind bind()} */
   public void bindSysId()
   {
-    if (bound) return; // Guard against being called multiple times
-    bound = true;
+    if (bound.compareAndExchange(false, true)) return; // Guard against being called multiple times
 
     s_Swerve.setDefaultCommand(DriveBuilder.manual());
 

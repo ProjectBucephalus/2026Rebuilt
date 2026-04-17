@@ -140,67 +140,11 @@ public class CommandGen
     switch (instr.type())
     {
       // driveto x y r - Go to pose `x`, `y`, `r` (alliance origin relative). `r` optional, maintains current rotation if omitted
-      case driveto -> 
-      { 
-        Rotation2d rotationTarget;
-        // Some extra handling is required due to the optional argument
-        if (instr.args().length > 2) 
-        {
-          assertArgCount(3);
-          rotationTarget = Rotation2d.fromDegrees(instr.arg(2).asNum());
-        }
-        else
-        {
-          assertArgCount(2);
-          rotationTarget = currPose.getRotation();
-        }
-
-        // Clamp the target pose to at least half a meter from the field walls and the midline for safety and to handle mis-inputs
-        // If either value changes as a result of this clamping, we provide a warning but still continue
-        double xArg = instr.arg(0).asNum();
-        double x = MathUtil.clamp(xArg, 0.5, (FieldConstants.fieldCentre.getX()) - 0.5);
-        if (x != xArg) {AutoBuilder.error("warning: x value `", xArg, "` was clamped to `", x, "`");}
-        double yArg = instr.arg(1).asNum();
-        double y = MathUtil.clamp(yArg, 0.5, FieldConstants.fieldWidth - 0.5);
-        if (y != yArg) {AutoBuilder.error("warning: y value `", yArg, "` was clamped to `", y, "`");}
-
-        currPose = new Pose2d(new Translation2d(x, y), rotationTarget);
-        Pose2d targetPose = FieldUtils.allianceRotatePose(currPose);
-
-        PBDash.addToFieldObject("Auto Path", targetPose);
-
-        // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
-        commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose)));
-      }
+      case driveto -> compileDriveTo();
       // driveby x y - Relative drive
-      case driveby -> 
-      {
-        assertArgCount(2);
-
-        Translation2d offset = new Translation2d(instr.arg(0).asNum(), instr.arg(1).asNum());
-        currPose = new Pose2d(currPose.getTranslation().plus(offset), currPose.getRotation());
-        Pose2d targetPose = FieldUtils.allianceRotatePose(currPose);
-
-        PBDash.addToFieldObject("Auto Path", targetPose);
-
-        // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
-        commands.addCommands(DriveBuilder.pathFollow(targetPose));
-      }
+      case driveby -> compileDriveBy();
       // follow n - Follow the path with name `n` in Path.autoPaths
-      case follow -> 
-      {
-        assertArgCount(1);
-
-        var pathName = instr.arg(0).asText();
-        var path = Path.autoPaths.get(pathName);
-
-        if (path == null) throw new GeneralException("no path `" + pathName + "`");
-
-        path.display("Auto Path");
-
-        currPose = path.targetPose();
-        commands.addCommands(DriveBuilder.pathFollow(path.allianceRotated()));
-      }
+      case follow -> compileFollow();
       // waitfor d - Wait for duration `d`
       case waitfor -> 
       {
@@ -234,35 +178,98 @@ public class CommandGen
         boolean passState = instr.arg(0).asBool();
         commands.addCommands(Commands.runOnce(() -> PBDash.IO_SHOOT_PASS.put(passState)));
       }
-      case climb ->
-      {
-        assertArgCount(1);
-
-        String text = instr.arg(0).asText();
-        boolean isLeft = switch (text)
-        {
-          case "left" -> true;
-          case "right" -> false;
-          default -> throw new GeneralException("expected the argument to be `left` or `right`, but it was ", text);
-        };
-
-        Pose2d climbStartPose = isLeft ? GeoFencing.climbStartPoseLeft.get() : GeoFencing.climbStartPoseRight.get();
-        Pose2d climbEndPose = isLeft ? GeoFencing.climbEndPoseLeft.get() : GeoFencing.climbEndPoseRight.get();
-
-        commands.addCommands
-        (
-          Commands.parallel
-          (
-            DriveBuilder.pathFollow(climbStartPose),
-            s_Climber.extendCmd()
-          ),
-          Commands.waitUntil(() -> !io_ClimberPost.get()),
-          DriveBuilder.pathFollow(climbEndPose, () -> 0.75),
-          Commands.waitUntil(io_ClimberPost::get),
-          s_Climber.setTargetCmd(ClimberConstants.climbPosition)
-        );
-      }
+      case climb -> compileClimb();
     }
+  }
+
+  private void compileDriveTo() throws TypeMismatchException, ArgCountException 
+  {
+    Rotation2d rotationTarget;
+    // Some extra handling is required due to the optional argument
+    if (instr.args().length > 2) 
+    {
+      assertArgCount(3);
+      rotationTarget = Rotation2d.fromDegrees(instr.arg(2).asNum());
+    }
+    else
+    {
+      assertArgCount(2);
+      rotationTarget = currPose.getRotation();
+    }
+
+    // Clamp the target pose to at least half a meter from the field walls and the midline for safety and to handle mis-inputs
+    // If either value changes as a result of this clamping, we provide a warning but still continue
+    double xArg = instr.arg(0).asNum();
+    double x = MathUtil.clamp(xArg, 0.5, (FieldConstants.fieldCentre.getX()) - 0.5);
+    if (x != xArg) {AutoBuilder.error("warning: x value `", xArg, "` was clamped to `", x, "`");}
+    double yArg = instr.arg(1).asNum();
+    double y = MathUtil.clamp(yArg, 0.5, FieldConstants.fieldWidth - 0.5);
+    if (y != yArg) {AutoBuilder.error("warning: y value `", yArg, "` was clamped to `", y, "`");}
+
+    currPose = new Pose2d(new Translation2d(x, y), rotationTarget);
+    Pose2d targetPose = FieldUtils.allianceRotatePose(currPose);
+
+    PBDash.addToFieldObject("Auto Path", targetPose);
+    // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
+    commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose)));
+  }
+
+  private void compileDriveBy() throws TypeMismatchException, ArgCountException 
+  {
+    assertArgCount(2);
+
+    Translation2d offset = new Translation2d(instr.arg(0).asNum(), instr.arg(1).asNum());
+    currPose = new Pose2d(currPose.getTranslation().plus(offset), currPose.getRotation());
+    Pose2d targetPose = FieldUtils.allianceRotatePose(currPose);
+
+    PBDash.addToFieldObject("Auto Path", targetPose);
+
+    // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
+    commands.addCommands(DriveBuilder.pathFollow(targetPose));
+  }
+
+  private void compileFollow() throws TypeMismatchException, ArgCountException, GeneralException
+  {
+    assertArgCount(1);
+
+    var pathName = instr.arg(0).asText();
+    var path = Path.autoPaths.get(pathName);
+
+    if (path == null) throw new GeneralException("no path `" + pathName + "`");
+
+    path.display("Auto Path");
+
+    currPose = path.targetPose();
+    commands.addCommands(DriveBuilder.pathFollow(path.allianceRotated()));
+  }
+
+  private void compileClimb() throws TypeMismatchException, ArgCountException, GeneralException
+  {
+    assertArgCount(1);
+
+    String text = instr.arg(0).asText();
+    boolean isLeft = switch (text)
+    {
+      case "left" -> true;
+      case "right" -> false;
+      default -> throw new GeneralException("expected the argument to be `left` or `right`, but it was ", text);
+    };
+
+    Pose2d climbStartPose = isLeft ? GeoFencing.climbStartPoseLeft.get() : GeoFencing.climbStartPoseRight.get();
+    Pose2d climbEndPose = isLeft ? GeoFencing.climbEndPoseLeft.get() : GeoFencing.climbEndPoseRight.get();
+
+    commands.addCommands
+    (
+      Commands.parallel
+      (
+        DriveBuilder.pathFollow(climbStartPose),
+        s_Climber.extendCmd()
+      ),
+      Commands.waitUntil(() -> !io_ClimberPost.get()),
+      DriveBuilder.pathFollow(climbEndPose, () -> 0.75),
+      Commands.waitUntil(io_ClimberPost::get),
+      s_Climber.setTargetCmd(ClimberConstants.climbPosition)
+    );
   }
 
   /**

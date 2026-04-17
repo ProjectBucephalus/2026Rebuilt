@@ -22,7 +22,7 @@ public class LockableXboxController extends CommandXboxController
   private static final double lockTime = 1.5;
   private static final double rumbleTime = 0.2;
 
-  private final XboxController io_hid;
+  private final XboxController io_Hid;
 
   private boolean unlocked = false;
   private Trigger isUnlocked = new Trigger(() -> unlocked);
@@ -36,28 +36,28 @@ public class LockableXboxController extends CommandXboxController
   public LockableXboxController(int port, Button lockButton) 
   {
     super(port);
-    io_hid = new XboxController(port);
-    new Trigger(() -> io_hid.getRawButtonPressed(lockButton.value) && !unlocked)
+    io_Hid = new XboxController(port);
+    new Trigger(() -> io_Hid.getRawButtonPressed(lockButton.value) && !unlocked)
       .onTrue
       (
-        run(() -> io_hid.setRumble(RumbleType.kBothRumble, 1.0))
+        run(() -> io_Hid.setRumble(RumbleType.kBothRumble, 1.0))
           .withTimeout(rumbleTime)
           .andThen(runOnce
           (() -> {
             unlocked = true;
-            io_hid.setRumble(RumbleType.kBothRumble, 0.0);
+            io_Hid.setRumble(RumbleType.kBothRumble, 0.0);
           }))
         .ignoringDisable(true)
       );
 
-    new Trigger(() -> io_hid.getRawButton(lockButton.value))
+    new Trigger(() -> io_Hid.getRawButton(lockButton.value))
       .whileTrue(waitSeconds(lockTime - rumbleTime)
-      .andThen(run(() -> io_hid.setRumble(RumbleType.kBothRumble, 1.0))
+      .andThen(run(() -> io_Hid.setRumble(RumbleType.kBothRumble, 1.0))
         .withTimeout(rumbleTime))
       .andThen(runOnce(
         () -> {
           unlocked = false;
-          io_hid.setRumble(RumbleType.kBothRumble, 0.0);
+          io_Hid.setRumble(RumbleType.kBothRumble, 0.0);
         }))
       .ignoringDisable(true));
   }

@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BooleanSupplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -49,13 +48,13 @@ public class Polygon extends GeoFence
     var initalPoint = new Translation2d(x, y + radius).rotateAround(centre, Rotation2d.fromDegrees(theta));
 
     // Line endpoints are equidistant around a circle
-    var pointAngle = Rotation2d.fromDegrees(360/(sides * 2));
+    var pointAngle = Rotation2d.fromDegrees(360.0 / (sides * 2));
 
     // Starting with the initial point, each subsequent point is equal to the previous point rotated by the angle
     // Extra point between each line terminator point for the line midpoint
     var polygonPoints = Stream
       .iterate(initalPoint, prev -> prev.rotateAround(centre, pointAngle))
-      .limit(sides * 2 + 1)
+      .limit(sides * 2 + 1l)
       .toList();
     
     for (int i = 0; i < sides; i++)
@@ -127,7 +126,7 @@ public class Polygon extends GeoFence
     return Arrays
       .stream(edgeLines)
       .min(Comparator.comparingDouble(line -> line.getCentre().getDistance(robotPos)))
-      .get();
+      .orElseThrow();
   }
 
   /** @return The index of the nearest line of the polygon */
@@ -136,7 +135,7 @@ public class Polygon extends GeoFence
     return IntStream.range(0, edgeLines.length)
       .boxed()
       .min(Comparator.comparingDouble(idx -> edgeLines[idx].getCentre().getDistance(robotPos)))
-      .get();
+      .orElseThrow();
   }
 
   /**
@@ -144,9 +143,7 @@ public class Polygon extends GeoFence
    * @return List of Translation2ds, metres
    */
   public List<Translation2d> getMidPoints()
-  {
-    return Arrays.stream(edgeLines).map(line -> line.getCentre()).collect(Collectors.toList());
-  }
+    {return Arrays.stream(edgeLines).map(Line::getCentre).toList();}
 
   /**
    * Constructs and adds an Attractor on each face of the Polygon

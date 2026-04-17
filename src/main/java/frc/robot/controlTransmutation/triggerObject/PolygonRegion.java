@@ -43,12 +43,12 @@ public class PolygonRegion extends TriggerRegion
     var initalPoint = new Translation2d(x, y + radius).rotateAround(centre, Rotation2d.fromDegrees(theta));
 
     // Line endpoints are equidistant around a circle
-    var pointAngle = Rotation2d.fromDegrees(360/sides);
+    var pointAngle = Rotation2d.fromDegrees(360.0 / sides);
 
     // Starting with the initial point, each subsequent point is equal to the previous point rotated by the angle
     var polygonPoints = Stream
       .iterate(initalPoint, prev -> prev.rotateAround(centre, pointAngle))
-      .limit(sides + 1)
+      .limit(sides + 1l)
       .toList();
     
     for (int i = 0; i < sides; i++)
@@ -68,6 +68,7 @@ public class PolygonRegion extends TriggerRegion
    * {@inheritDoc} <p>
    * Distance is based on the distance to the nearest line
    */
+  @Override
   public double getDistance()
     {return nearestLine().getDirectionalDistance();}
 
@@ -77,6 +78,6 @@ public class PolygonRegion extends TriggerRegion
     return Arrays
       .stream(polygonLines)
       .min(Comparator.comparingDouble(line -> line.getCentre().getDistance(robotPos)))
-      .get();
+      .orElseThrow();
   }
 }

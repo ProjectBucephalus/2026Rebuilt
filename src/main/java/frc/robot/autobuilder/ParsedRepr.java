@@ -1,5 +1,6 @@
 package frc.robot.autobuilder;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import frc.robot.autobuilder.ParsedRepr.Value.Type;
@@ -41,9 +42,9 @@ public final class ParsedRepr
 
   public static class GeneralException extends Exception
   {
-    public final Object[] msg;
+    public final Serializable[] msg;
 
-    public GeneralException(Object... msg) {this.msg = msg;}
+    public GeneralException(Serializable... msg) {this.msg = msg;}
   }
 
   /** 
@@ -54,7 +55,7 @@ public final class ParsedRepr
    * <li> A value of type Bool does not contain a {@code Boolean}
    * <li> A value of type String does not contain a {@code String}
    */
-  public record Value(Type type, Object value)
+  public record Value(Type type, Object value) implements Serializable
   {
     /** The possible types of a value */
     public enum Type 

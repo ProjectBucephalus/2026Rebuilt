@@ -11,9 +11,9 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.VisionConstants.*;
@@ -64,7 +64,7 @@ public class Vision extends SubsystemBase
    */
   @Logged
   public boolean hasLocalisation()
-    {return (Robot.isSimulation() || (lastGoodPose > -1 && Timer.getTimestamp() - lastGoodPose < visionFrequencyThreshold));}
+    {return (RobotBase.isSimulation() || (lastGoodPose > -1 && Timer.getTimestamp() - lastGoodPose < visionFrequencyThreshold));}
 
   /**
    * Accepts a given robot pose as if it were a valid localisation estimate
@@ -88,35 +88,32 @@ public class Vision extends SubsystemBase
         // Skip this limelight if it isn't active
         if (!ll.isActive()) continue;
 
-        // Pose estimate returns Optional, so may or may not be present
-        var optEst = ll.getPhotonEst();
-        if (optEst.isEmpty()) continue;
-        var est = optEst.get();
+        ll.getPhotonEst().ifPresent(est -> {
+          // Reject update if it contains no tags, or if the robot is rotating too fast
+          if (est.targetsUsed.isEmpty()|| Math.abs(rpsSup.get()) >= 2.0) return;
 
-        // Reject update if it contains no tags, or if the robot is rotating too fast
-        if (est.targetsUsed.size() == 0 || Math.abs(rpsSup.get()) >= 2.0) continue;
+          double accTagDist = 0;
+          for (var target : est.targetsUsed) accTagDist += target.getBestCameraToTarget().getTranslation().getNorm();
+          double avgTagDist = accTagDist / est.targetsUsed.size();
 
-        double accTagDist = 0;
-        for (var target : est.targetsUsed) accTagDist += target.getBestCameraToTarget().getTranslation().getNorm();
-        double avgTagDist = accTagDist / est.targetsUsed.size();
+          // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
+          // If this is the first time we've seen tags since last losing localisation, we trust the estimate fully
+          double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
+          double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 0;
+          double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 0;
 
-        // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
-        // If this is the first time we've seen tags since last losing localisation, we trust the estimate fully
-        double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-        double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 0;
-        double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 0;
+          double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
 
-        double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
+          Pose2d poseOut = est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure());
+          // If the camera is mounted on a turret, apply additional offset processing
+          if (ll.isOnTurret()) poseOut = poseOut.transformBy(ll.getTurretToRobot(timestamp));
 
-        Pose2d poseOut = est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure());
-        // If the camera is mounted on a turret, apply additional offset processing
-        if (ll.isOnTurret()) poseOut = poseOut.transformBy(ll.getTurretToRobot(timestamp));
+          // Update time since last good pose estimate
+          lastGoodPose = Timer.getTimestamp();
 
-        // Update time since last good pose estimate
-        lastGoodPose = Timer.getTimestamp();
-
-        // Send pose estimate to consumer
-        estimateConsumer.accept(poseOut, timestamp, VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+          // Send pose estimate to consumer
+          estimateConsumer.accept(poseOut, timestamp, VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+        });
       } 
     }
     else if (usingVision)

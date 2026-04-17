@@ -2,6 +2,7 @@ package frc.robot.controlTransmutation.geoFence;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.controlTransmutation.FieldObject;
@@ -19,7 +20,7 @@ public abstract class GeoFence extends FieldObject
   // Inherits from FieldObject: T2D centre, double radius, double buffer, double checkRadius
 
   // A list of object-relative attractors to check
-  protected ArrayList<TriggerVector> attractors = new ArrayList<TriggerVector>();
+  protected ArrayList<TriggerVector> attractors = new ArrayList<>();
 
   /**
    * Adds one or more Attractor objects tied to the GeoFence object
@@ -28,8 +29,7 @@ public abstract class GeoFence extends FieldObject
    */
   public GeoFence addAttractors(TriggerVector ...newAttractors)
   {
-    for (var attractor : newAttractors)
-      attractors.add(attractor);
+    attractors.addAll(List.of(newAttractors));
     return this;
   }
 
@@ -77,7 +77,7 @@ public abstract class GeoFence extends FieldObject
     return attractors
       .stream()
       .min(Comparator.comparingDouble(line -> line.getCentre().getDistance(robotPos)))
-      .get()
+      .orElseThrow()
       .process(controlInput);
   }
   

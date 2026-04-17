@@ -55,6 +55,7 @@ public class LineRegion extends TriggerRegion
     dotXY = (pointA.getX() * dotX) + (pointA.getY() * dotY);
   }
 
+  @Override
   public double getDistance(Translation2d testPos)
   {
     double dot = (testPos.getX() * dotX) + (testPos.getY() * dotY) - dotXY; // Normalised dot product of the two lines

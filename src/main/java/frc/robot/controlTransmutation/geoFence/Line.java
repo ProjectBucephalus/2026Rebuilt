@@ -109,19 +109,7 @@ public class Line extends GeoFence
 
   /** If the robot position is within the projection area of the line, the output will be negative on one side of the line */
   public double getDirectionalDistance()
-  {
-    //double dot = (robotPos.getX() * dotX) + (robotPos.getY() * dotY) - dotXY;
-    //
-    //SmartDashboard.putNumber("Dot Product", dot);
-    //SmartDashboard.putNumber("Distance", ((robotPos.getX() * normY) - (robotPos.getY() * normX) - normXY));
-    //
-    //if (dot <= 0)
-    //  {return pointA.getDistance(robotPos) - (radius + robotRadius);}
-    //else if (dot >= 1)
-    //  {return pointB.getDistance(robotPos) - (radius + robotRadius);}
-    //else
-      {return ((robotPos.getX() * normY) - (robotPos.getY() * normX) - normXY) - (radius + robotRadius);}
-  }
+    {return ((robotPos.getX() * normY) - (robotPos.getY() * normX) - normXY) - (radius + robotRadius);}
 
   /**
    * Constructs and adds one or more Attractors, relative to the line
