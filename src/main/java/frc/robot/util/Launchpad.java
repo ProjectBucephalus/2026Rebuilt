@@ -46,6 +46,23 @@ public class Launchpad
 
     PadColour(int value) 
       {this.value = value;}
+
+    public static final PadColour OF = PadColour.OFF;
+    public static final PadColour DG = PadColour.DIM_GREEN;
+    public static final PadColour MG = PadColour.MEDIUM_GREEN;
+    public static final PadColour FG = PadColour.FULL_GREEN;
+    public static final PadColour DR = PadColour.DIM_RED;
+    public static final PadColour MR = PadColour.MEDIUM_RED;
+    public static final PadColour FR = PadColour.FULL_RED;
+    public static final PadColour DA = PadColour.DIM_AMBER;
+    public static final PadColour MA = PadColour.MEDIUM_AMBER;
+    public static final PadColour FA = PadColour.FULL_AMBER;
+    public static final PadColour ML = PadColour.MEDIUM_YELLOW_GREEN;
+    public static final PadColour FL = PadColour.FULL_YELLOW_GREEN;
+    public static final PadColour FY = PadColour.FULL_YELLOW;
+    public static final PadColour MO = PadColour.MEDIUM_ORANGE;
+    public static final PadColour FO = PadColour.FULL_ORANGE;
+    public static final PadColour FC = PadColour.FULL_ORANGE_RED;
   }
 
   /**

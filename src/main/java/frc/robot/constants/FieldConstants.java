@@ -1,5 +1,7 @@
 package frc.robot.constants;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,6 +19,8 @@ import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed
  */
 public class FieldConstants 
 {
+  public static final AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
+
   /** Length of the field in the X direction, metres */
   public static final double fieldLength = 16.54;
   /** Width of the field in the Y direction, metres */

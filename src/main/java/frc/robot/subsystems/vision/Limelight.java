@@ -1,20 +1,20 @@
 package frc.robot.subsystems.vision;
 
-import static frc.robot.constants.Constants.VisionConstants.*;
-
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
+
+import static frc.robot.constants.Constants.VisionConstants.*;
+import static frc.robot.constants.FieldConstants.tagLayout;;
 
 /** 
  * Wrapper class to interface with Limelight camera running Photonvision 
@@ -22,14 +22,6 @@ import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
  */
 public class Limelight
 {    
-  @FunctionalInterface
-  public static interface TurretAzimuthSupplier 
-  {
-    public Pair<Double, Double> get();
-  }
-
-  private static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
-
   private final PhotonCamera camera;
   private final PhotonPoseEstimator photonEstimator;
 
@@ -41,7 +33,7 @@ public class Limelight
   private final Transform2d cameraToStructure;
 
   private final TimeInterpolatableBuffer<Double> azimuthBuf = TimeInterpolatableBuffer.createDoubleBuffer(azimuthBufLength);
-  private final TurretAzimuthSupplier azimuthSup;
+  private final Supplier<Pair<Double, Double>> azimuthSup;
 
   /**
    * Creates a new static Limelight vision camera
@@ -56,7 +48,7 @@ public class Limelight
     turretToRobot = Transform2d.kZero;
     cameraToStructure = cameraToRobot;
 
-    photonEstimator = new PhotonPoseEstimator(kTagLayout, Transform3d.kZero);
+    photonEstimator = new PhotonPoseEstimator(tagLayout, Transform3d.kZero);
 
     azimuthSup = () -> new Pair<>(0.0, 0.0);
     onTurret = false;
@@ -70,7 +62,7 @@ public class Limelight
   * @param turretAngleSup Supplier for the current robot-relative azimuth of the turret, degrees
   * @param robotToTurret Transform2d from robot-centre to turret-centre
   */
-  public Limelight(String name, Transform2d cameraToTurret, TurretAzimuthSupplier turretAzimuthSup, Transform2d robotToTurret) 
+  public Limelight(String name, Transform2d cameraToTurret, Supplier<Pair<Double, Double>> turretAzimuthSup, Transform2d robotToTurret) 
   {
     camera = new PhotonCamera(name);
 
@@ -78,7 +70,7 @@ public class Limelight
     turretToRobot = robotToTurret.inverse();
     cameraToStructure = cameraToTurret;
 
-    photonEstimator = new PhotonPoseEstimator(kTagLayout, Transform3d.kZero);
+    photonEstimator = new PhotonPoseEstimator(tagLayout, Transform3d.kZero);
 
     this.azimuthSup = turretAzimuthSup;
     onTurret = true;

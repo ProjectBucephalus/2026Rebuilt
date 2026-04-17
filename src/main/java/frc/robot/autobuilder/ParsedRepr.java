@@ -54,10 +54,10 @@ public final class ParsedRepr
    * <li> A value of type Bool does not contain a {@code Boolean}
    * <li> A value of type String does not contain a {@code String}
    */
-  public static record Value(Type type, Object value)
+  public record Value(Type type, Object value)
   {
     /** The possible types of a value */
-    public static enum Type 
+    public enum Type 
     {
       /** Number type, represented as a double */
       Num,
@@ -115,12 +115,12 @@ public final class ParsedRepr
   }
 
   /** An instruction, formed of a instruction type and an array of {@link ParsedRepr.Value Values} */
-  public static record Instruction(Type type, Value... args) 
+  public record Instruction(Type type, Value... args) 
   {
     /** The possible types of instruction. 
      * Must all be lowercase, as the parser converts a lowercase String to this enum via the built-in {@link Enum#valueOf valueOf} method 
      */
-    public static enum Type
+    public enum Type
     {
       driveto, driveby, follow, 
       waitfor, waituntil, 

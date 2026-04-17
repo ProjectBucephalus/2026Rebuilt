@@ -26,7 +26,7 @@ import static frc.robot.constants.Constants.VisionConstants.*;
 public class Vision extends SubsystemBase 
 {
   @FunctionalInterface
-  public static interface PoseEstimateConsumer 
+  public interface PoseEstimateConsumer 
   {
     public void accept
     (

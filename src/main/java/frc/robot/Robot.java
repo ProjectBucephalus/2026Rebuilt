@@ -69,22 +69,20 @@ import frc.robot.util.*;
 public class Robot extends TimedRobot 
 {
   /* State */
-  public static enum ClimbPosition { None, Left, Right }
-  public static enum ShootersState { Auto, Stbd, Port, Manual, Test }
+  public enum ClimbPosition { None, Left, Right }
+  public enum ShootersState { Auto, Stbd, Port, Manual, Test }
 
   @Logged
-  public static class RobotState 
+  public class RobotState 
   {
     public ClimbPosition climbPos = ClimbPosition.None;
     public ShootersState shoot = ShootersState.Auto;
     public boolean nudging = true;
-    public SwerveDriveState swerve = new SwerveDriveState();
+    public SwerveDriveState swerve = s_Swerve.getState();
   }
   
   @Logged
   private final RobotState state = new RobotState();
-
-  //private SwerveDriveState swerveState = new SwerveDriveState();
   private Optional<Command> autoCommand = Optional.empty();
 
   /* Telemetry and SD */

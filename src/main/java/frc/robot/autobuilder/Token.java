@@ -8,7 +8,7 @@ package frc.robot.autobuilder;
 public record Token(Token.Type type, String text)
 {
   /** Types of tokens */
-  public static enum Type
+  public enum Type
   {
     /** {@code ,} */
     Comma, 
