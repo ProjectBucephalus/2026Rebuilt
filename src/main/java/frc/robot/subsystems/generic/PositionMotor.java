@@ -102,13 +102,18 @@ public class PositionMotor extends SubsystemBase
   public double getAngle() 
     {return m_Position.getPosition().getValue().in(Units.Rotations);}
 
+  /** @return Current angle of the motor, in mechanism rotations */
+  @Logged(name = "target Rotations")
+  public double getTarget() 
+    {return request.Position;}
+
   /** Stops the motor by setting the target to its current position */
   public void stop()
     {m_Position.set(0);}
 
   /** @return {@code true} when the motor is close to target */
   public boolean atTarget()
-    {return MathUtil.isNear(request.Position, getAngle(), 0.1);}
+    {return MathUtil.isNear(getTarget(), getAngle(), 0.1);}
 
   /** @return {@code true} if all CAN devices are connected */
   public boolean devicesValid()

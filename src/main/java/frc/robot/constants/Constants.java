@@ -533,13 +533,8 @@ public final class Constants
 
       public static final double minRotations = -0.31;
       public static final double maxRotations = 0.0;
-      public static final double squishRotations = -0.1; // furthest in before hopper retracts
+      public static final double jostleRotations = -0.1; // furthest in before hopper retracts
       public static final double bumpSafeRotations = -0.14;
-
-      public static final double extendedTolerance = 0.02;
-
-      /** Duration and interval of retraction/extension pulses when agitating, seconds */
-      public static final double extensionJostleDelay = 0.25;
 
       public static final TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
       static

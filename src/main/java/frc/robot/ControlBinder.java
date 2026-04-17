@@ -372,15 +372,24 @@ public record ControlBinder
       (
         new Command() 
         {
+          {addRequirements(s_Extension);}
+          
           private RollerState prevState;
 
           public void initialize()
           {
             prevState = s_Intake.state;
             s_Intake.state = RollerState.Reversed;
+            if (s_Extension.getTarget() == ExtensionConstants.maxRotations) 
+              s_Extension.setTarget(ExtensionConstants.jostleRotations);
           }
 
-          public void end(boolean i) {s_Intake.state = prevState;}
+          public void end(boolean i) 
+          {
+            s_Intake.state = prevState;
+            if (s_Extension.getTarget() == ExtensionConstants.jostleRotations) 
+              s_Extension.setTarget(ExtensionConstants.maxRotations);
+          }
         }
       );
 
