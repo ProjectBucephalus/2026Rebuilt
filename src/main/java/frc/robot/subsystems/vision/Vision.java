@@ -79,53 +79,46 @@ public class Vision extends SubsystemBase
   @Override
   public void periodic() 
   {
-    if (PBDash.IO_LL.get()) 
+    if (PBDash.IO_LL.get())
     {
       usingVision = true;
 
       for (var ll : lls)
       {
-        if (ll.isActive())
-        {
+        // Skip this limelight if it isn't active
+        if (!ll.isActive()) continue;
+
         // Pose estimate returns Optional, so may or may not be present
-        ll.getPhotonEst().ifPresent(est -> {
-          // Reject update if it contains no tags, or if the robot is rotating too fast         
-          if (est.targetsUsed.size() != 0 && Math.abs(rpsSup.get()) < 2.0) 
-          {
-            double avgTagDist = 
-              est.targetsUsed
-                .stream()
-                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
-                .average()
-                .getAsDouble();
+        var optEst = ll.getPhotonEst();
+        if (optEst.isEmpty()) continue;
+        var est = optEst.get();
 
-            // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
-            double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-            double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 0;
-            double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 0;
-            var stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev);
+        // Reject update if it contains no tags, or if the robot is rotating too fast
+        if (est.targetsUsed.size() == 0 || Math.abs(rpsSup.get()) >= 2.0) continue;
 
-            double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
+        double accTagDist = 0;
+        for (var target : est.targetsUsed) accTagDist += target.getBestCameraToTarget().getTranslation().getNorm();
+        double avgTagDist = accTagDist / est.targetsUsed.size();
 
-            // If the camera is mounted on a turret, apply additional offset processing
-            Pose2d poseOut = 
-              ll.isOnTurret() 
-              ? est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure()).transformBy(ll.getTurretToRobot(timestamp))
-              : est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure());
-            
-            PBDash.putString("Processed Pose", poseOut.toString());
+        // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
+        // If this is the first time we've seen tags since last losing localisation, we trust the estimate fully
+        double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
+        double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 0;
+        double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 0;
 
-            // Update time since last good pose estimate
-            lastGoodPose = Timer.getTimestamp();
+        double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
 
-            // Send pose estimate to consumer
-            estimateConsumer.accept(poseOut, timestamp, stdDevs);
-          
-          }
-        });
-      }
-    } 
-  }
+        Pose2d poseOut = est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure());
+        // If the camera is mounted on a turret, apply additional offset processing
+        if (ll.isOnTurret()) poseOut = poseOut.transformBy(ll.getTurretToRobot(timestamp));
+
+        // Update time since last good pose estimate
+        lastGoodPose = Timer.getTimestamp();
+
+        // Send pose estimate to consumer
+        estimateConsumer.accept(poseOut, timestamp, VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+      } 
+    }
     else if (usingVision)
     {
       usingVision = false;

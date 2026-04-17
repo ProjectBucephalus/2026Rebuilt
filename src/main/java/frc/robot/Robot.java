@@ -226,6 +226,7 @@ public class Robot extends TimedRobot
     .bind();
 
     bindRumbles();
+    bindLEDs();
   }
 
   /* INIT METHODS */
@@ -319,6 +320,11 @@ public class Robot extends TimedRobot
       .onTrue(io_operatorRight.timedRumbleCmd("Last Climb Chance", 1.5));
   }
 
+  private void bindLEDs()
+  {
+    // TODO
+  }
+
   /* UTIL METHODS */
   /* ============ */
 
@@ -327,6 +333,16 @@ public class Robot extends TimedRobot
   {
     swerveState = s_Swerve.getState();
     PBDash.FIELD.setRobotPose(swerveState.Pose);
+    PBDash.POSE.put
+    (
+      String.format
+      (
+        "X: %.2fm, Y: %.2fm, R: %.2f°", 
+        swerveState.Pose.getX(), 
+        swerveState.Pose.getY(), 
+        swerveState.Pose.getRotation().getDegrees()
+      )
+    );
   }
 
   private Pose2d getPose()
@@ -368,10 +384,6 @@ public class Robot extends TimedRobot
   @Logged(name = "CAN Load")
   public float getCanLoad() 
     {return canBus.getStatus().BusUtilization;}
-
-  @Logged(name = "Pigeon Degrees")
-  public double getPigeonReading() 
-    {return swerveState.RawHeading.getDegrees();}
   
   /* OPMODE METHODS */
   /* ============ */

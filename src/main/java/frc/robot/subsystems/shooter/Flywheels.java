@@ -77,7 +77,6 @@ public class Flywheels
    * 
    * @return true if the motor is at speed
    */
-  @Logged
   public boolean atSpeed() 
   {
     // Use given tolerance for reaching speed, use double tolerance for no longer being at speed
@@ -97,24 +96,6 @@ public class Flywheels
       return motorSim.getAngularVelocity().in(Units.RotationsPerSecond);
     else 
       return m_Leader.getVelocity().getValue().in(Units.RotationsPerSecond);
-  }
-
-  @Logged(name = "temp Celsius")
-  public double getTemp() 
-  {
-    if (Robot.isSimulation())
-      return -1; 
-    else 
-      return m_Leader.getAncillaryDeviceTemp().getValue().in(Units.Celsius);
-  }
-
-  @Logged(name = "current draw Amps")
-  public double getMotorCurrent()
-  {
-    if (Robot.isSimulation())
-      return motorSim.getCurrentDrawAmps();
-    else 
-      return m_Leader.getStatorCurrent().getValue().in(Units.Amps);
   }
 
   /** @return {@code true} if all CAN devices are connected */

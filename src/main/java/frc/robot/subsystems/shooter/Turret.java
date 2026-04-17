@@ -211,7 +211,6 @@ public class Turret
       && Math.abs(getAzimuth()) < maxTurretAzimuth - limitBufferZone;
   }
 
-  @Logged
   public boolean atAzimuth()
   {
     // Use given tolerance for reaching target, use double tolerance for no longer being at target
@@ -221,12 +220,6 @@ public class Turret
       azCheck = false;
 
     return azCheck;
-  }
-
-  @Logged
-  public double azimuthError()
-  {
-    return Math.abs(Conversions.mod(getAzimuth(), 360) - Conversions.mod(target.azimuth, 360));
   }
 
   /** 

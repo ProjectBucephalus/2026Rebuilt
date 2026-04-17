@@ -100,12 +100,9 @@ public class Limelight
 
     // getAllUnreadResults() should generally only be called once per cycle, as it clears the internal list
     var results = camera.getAllUnreadResults();
-
-    if (results == null || results.isEmpty()) 
-      return Optional.empty();
+    if (results == null || results.isEmpty()) return Optional.empty();
 
     var result = results.get(results.size() - 1);
-
     result.targets.removeIf(target -> target.getPoseAmbiguity() > 0.2);
 
     return photonEstimator.estimateCoprocMultiTagPose(result)

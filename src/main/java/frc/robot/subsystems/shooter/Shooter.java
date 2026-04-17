@@ -51,6 +51,8 @@ public class Shooter extends SubsystemBase
   private final Supplier<SwerveDriveState> swerveStateSup;
   private SwerveDriveState swerveState;
 
+  private Status shootStatus;
+
   private Pose2d shooterPose;
   private Translation2d velocity;
   private Translation2d acceleration;
@@ -154,15 +156,35 @@ public class Shooter extends SubsystemBase
    */
   @Logged
   public boolean shootReady()
+    {return shootStatus == Status.Fire;}
+
+  /**
+   * Checks what conditions required for shooting are currently met
+   * 
+   * @return Status
+   */
+  @Logged
+  public Status shootStatus()
+    {return shootStatus;}
+
+  private void updateStatus()
   {
-    return 
-      target.flywheelsActive
-      && turret.readyToShoot(swerveState.Speeds)
-      && flywheels.atSpeed()
-      && target.distance > ShooterConstants.minRange
-      && !GeoFencing.trenchTrigger.getAsBoolean()
-      && !GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
-      && !GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation());
+    if (!target.flywheelsActive || target.disabled)
+      shootStatus = Status.Idling;
+    else if 
+    (
+      target.distance <= ShooterConstants.minRange 
+      || GeoFencing.trenchTrigger.getAsBoolean() 
+      || GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
+      || GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation())
+    )
+      shootStatus = Status.BadLocation;
+    else if (!turret.readyToShoot(swerveState.Speeds))
+      shootStatus = Status.Aiming;
+    else if (!flywheels.atSpeed())
+      shootStatus = Status.Revving;
+    else 
+      shootStatus = Status.Fire;
   }
 
   public Command runIndexerCmd()
@@ -287,6 +309,7 @@ public class Shooter extends SubsystemBase
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
     hood.update();
 
+    updateStatus();
     telemetrise();
   }
 

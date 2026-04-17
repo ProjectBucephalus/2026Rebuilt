@@ -39,9 +39,21 @@ public class PBDash
   public static final Key<String> CLIMBER_STATE = new Key<>("Climber State", "Home");
   public static final Key<String> EXTENSION_STATE = new Key<>("Climber State", "Stowed");
 
-  // Auto-builder strings
+  // Auto-builder
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
   public static final Key<String>  AUTO_ERRS        = new Key<>("Auto String Errors", "");
+  public static final SendableChooser<String> AUTO_PRESETS = new SendableChooser<>();
+  static
+  {
+    AUTO_PRESETS.setDefaultOption(ControlConstants.autoPresets[0].getFirst(), ControlConstants.autoPresets[0].getSecond());
+    for (int i = 1; i < ControlConstants.autoPresets.length; i++)
+    {
+      var preset = ControlConstants.autoPresets[i];
+      AUTO_PRESETS.addOption(preset.getFirst(), preset.getSecond());
+    }
+    AUTO_PRESETS.onChange(AUTO_STRING::put);
+    putSendable("Auto Presets", AUTO_PRESETS);
+  }
 
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
@@ -64,21 +76,10 @@ public class PBDash
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
   public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
 
+  // Robot pose
+  public static final Key<String> POSE = new Key<>("Robot Pose", "");
   public static final Field2d FIELD = new Field2d();
   static { putSendable("Field", FIELD); }
-
-  public static final SendableChooser<String> AUTO_PRESETS = new SendableChooser<>();
-  static
-  {
-    AUTO_PRESETS.setDefaultOption(ControlConstants.autoPresets[0].getFirst(), ControlConstants.autoPresets[0].getSecond());
-    for (int i = 1; i < ControlConstants.autoPresets.length; i++)
-    {
-      var preset = ControlConstants.autoPresets[i];
-      AUTO_PRESETS.addOption(preset.getFirst(), preset.getSecond());
-    }
-    AUTO_PRESETS.onChange(AUTO_STRING::put);
-    putSendable("Auto Presets", AUTO_PRESETS);
-  }
 
   public static void putFieldObject(String name, Translation2d point)
     {FIELD.getObject(name).setPose(new Pose2d(point, Rotation2d.kZero));}
