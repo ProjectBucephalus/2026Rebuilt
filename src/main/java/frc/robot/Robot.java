@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.util.Color;
@@ -183,13 +184,14 @@ public class Robot extends TimedRobot
   private final LEDStrip io_LEDs = new LEDStrip
   (
     IDConstants.LEDPWDPort, 
+    new Block(LEDConstants.gapLength),
     new Block
     (
       LEDConstants.block0Length, 
       Patterns.supplied(() -> 
         switch (s_PortShooter.shootStatus()) 
         {
-          case Idling -> Color.kPurple;
+          case Idling -> new Color(1.0, 0.0, 1.0);
           case BadLocation -> Color.kRed;
           case Aiming -> Color.kYellow;
           case Revving -> Color.kWhite;
@@ -198,7 +200,7 @@ public class Robot extends TimedRobot
         }
       )
     ), 
-    new Block(LEDConstants.block1Length)
+    new Block(LEDConstants.block1Length, LEDPattern.solid(Color.kRed))
   ); 
 
   /* Input Transmutation */
