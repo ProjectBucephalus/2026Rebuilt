@@ -8,9 +8,6 @@ import frc.robot.util.FieldUtils;
 
 import static frc.robot.constants.Constants.ShooterConstants.TurretConstants.*;
 
-import java.nio.Buffer;
-import java.util.ArrayList;
-
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
