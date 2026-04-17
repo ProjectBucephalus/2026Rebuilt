@@ -89,7 +89,7 @@ public class Robot extends TimedRobot
   private Optional<Command> autoCommand = Optional.empty();
 
   /* Telemetry and SD */
-  private final Telemetry ctreLogger = new Telemetry(SwerveConstants.maxSpeed);
+  private final Telemetry ctreLogger = new Telemetry();
   private final CANBus canBus = new CANBus();
 
   /* Controllers */

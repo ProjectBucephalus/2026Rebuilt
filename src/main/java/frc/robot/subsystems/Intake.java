@@ -4,36 +4,29 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants.IntakeConstants.RollerConstants;
 import frc.robot.constants.IDConstants;
 import frc.robot.subsystems.generic.VelocityMotor;
 import frc.robot.util.PBDash;
 
 /**
- * Ball processing master-system with extendable intake, internally creates and manages associated subsystems
+ * Ball processing master-system with extendable intake
  * @author 5985
  */
 @Logged(strategy = Strategy.OPT_IN)
-public class Intake extends SubsystemBase 
+public class Intake extends VelocityMotor 
 {
-  @Logged
-  public static enum RollerState { On, Off, Reversed }
+  public enum RollerState { On, Off, Reversed }
+
   @Logged
   public RollerState state = RollerState.Off;
 
-  @Logged
-  private final VelocityMotor roller = new VelocityMotor(IDConstants.intakeCAN, RollerConstants.intakeConfig);
+  public Intake() 
+    {super(IDConstants.intakeCAN, RollerConstants.intakeConfig);}
 
-  public Intake() {}
-
-  /** @return Command to stop the intake */
-  public Command setStateCmd(RollerState state)
+  /** @return Command to set the intake's state to the given value */
+  public Command setStateCmd(RollerState state) 
     {return runOnce(() -> this.state = state);}
-
-  /** @return Current motor speed, mechanism rotations per second */
-  public double getSpeed()
-    {return roller.getSpeed();}
 
   @Override
   public void periodic() 
@@ -45,10 +38,6 @@ public class Intake extends SubsystemBase
       case Reversed -> -RollerConstants.intakeMinSpeed;
     };
 
-    roller.setSpeed(rollerSpeed);
+    setSpeed(rollerSpeed);
   }
-
-  /** @return {@code true} if all CAN devices are connected */
-  public boolean devicesValid()
-    {return roller.devicesValid();}
 }
