@@ -250,10 +250,14 @@ public record ControlBinder
 
     switchboard.button(IDConstants.testIdleSwitchID)
       .and(() -> state.shoot == ShootersState.Test)
-      .whileTrue
+      .onTrue
       (
-        bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Manual)
-          .repeatedly()
+        bothShooters(Commands::runOnce, s -> s.target.disabled = true)
+          .ignoringDisable(true)
+      )
+      .onFalse
+      (
+        bothShooters(Commands::runOnce, s -> s.target.disabled = false)
           .ignoringDisable(true)
       );
 

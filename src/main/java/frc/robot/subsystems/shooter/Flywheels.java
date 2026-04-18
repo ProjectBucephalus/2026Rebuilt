@@ -19,6 +19,7 @@ import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.*
 
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.ShooterConstants.FlywheelConstants;
+import frc.robot.subsystems.shooter.Target.TargetState;
 
 /**
  * Interface class for a shooter flywheel. <p>
@@ -110,7 +111,7 @@ public class Flywheels
   {
     if (target.disabled)
       m_Leader.set(0);
-    else if (target.flywheelsActive)
+    else if (target.flywheelsActive || target.state == TargetState.Manual)
       setSpeed(target.speed);
     else
       setSpeed(FlywheelConstants.idleSpeed);
