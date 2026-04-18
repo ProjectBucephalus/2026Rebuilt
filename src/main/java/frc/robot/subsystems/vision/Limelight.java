@@ -22,11 +22,12 @@ import static frc.robot.constants.FieldConstants.tagLayout;
  */
 public class Limelight
 {    
+  private final String name;
   private final PhotonCamera camera;
   private final PhotonPoseEstimator photonEstimator;
 
   private final boolean onTurret;
-  private boolean isActive = true;
+  private boolean active = true;
 
   private final Transform2d robotToTurret;
   private final Transform2d turretToRobot;
@@ -42,6 +43,7 @@ public class Limelight
    */
   public Limelight(String name, Transform2d cameraToRobot) 
   {
+    this.name = name;
     camera = new PhotonCamera(name);
 
     robotToTurret = Transform2d.kZero;
@@ -64,6 +66,7 @@ public class Limelight
   */
   public Limelight(String name, Transform2d cameraToTurret, Supplier<Pair<Double, Double>> turretAzimuthSup, Transform2d robotToTurret) 
   {
+    this.name = name;
     camera = new PhotonCamera(name);
 
     this.robotToTurret = robotToTurret;
@@ -75,6 +78,9 @@ public class Limelight
     this.azimuthSup = turretAzimuthSup;
     onTurret = true;
   }
+
+  public String getName()
+    {return name;}
 
   /** @param pipelineIndex Vision pipeline index to start using */
   protected void updatePipeline(int pipelineIndex)
@@ -137,8 +143,8 @@ public class Limelight
     {return cameraToStructure;}
 
   public boolean isActive()
-  {return isActive;}
+  {return active;}
 
   public void setActive(boolean activeState)
-  {isActive = activeState;}
+  {active = activeState;}
 }

@@ -19,6 +19,19 @@ import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed
  */
 public class FieldConstants 
 {
+  /** Adjustment values to account for the physical field */
+  public static final class FieldTuning
+  {
+    /** Offset for climb lineup, metres away from driverstation wall */
+    public static final double climbOffsetBlueRight = -0.045;
+    /** Offset for climb lineup, metres away from driverstation wall */
+    public static final double climbOffsetBlueLeft  = -0.015;
+    /** Offset for climb lineup, metres away from driverstation wall */
+    public static final double climbOffsetRedRight  = 0.0;
+    /** Offset for climb lineup, metres away from driverstation wall */
+    public static final double climbOffsetRedLeft   = 0.0;
+  }
+
   public static final AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
 
   /** Length of the field in the X direction, metres */
@@ -203,12 +216,12 @@ public class FieldConstants
     public static final double towerPostRedLeftY = fieldWidth - (towerSpacing + towerWidth - towerPostEdge);
 
     public static final Box towerBlue = new Box(0, towerPostBlueRightY, towerPostBlueX, towerPostBlueLeftY, towerBaseRadius, 0.25);
-    public static final Point towerPostBlueN = new Point(towerPostBlueX, towerPostBlueLeftY, towerPostRadius, 0.25);
-    public static final Point towerPostBlueS = new Point(towerPostBlueX, towerPostBlueRightY, towerPostRadius, 0.25);
+    public static final Point towerPostBlueN = new Point(towerPostBlueX + FieldTuning.climbOffsetBlueLeft, towerPostBlueLeftY, towerPostRadius, 0.25);
+    public static final Point towerPostBlueS = new Point(towerPostBlueX + FieldTuning.climbOffsetBlueRight, towerPostBlueRightY, towerPostRadius, 0.25);
     
     public static final Box towerRed = new Box(fieldLength, towerPostRedLeftY, towerPostRedX, towerPostRedRightY, towerBaseRadius, 0.25);
-    public static final Point towerPostRedN = new Point(towerPostRedX, towerPostRedRightY, towerPostRadius, 0.25);
-    public static final Point towerPostRedS = new Point(towerPostRedX, towerPostRedLeftY, towerPostRadius, 0.25);
+    public static final Point towerPostRedN = new Point(towerPostRedX - FieldTuning.climbOffsetRedRight, towerPostRedRightY, towerPostRadius, 0.25);
+    public static final Point towerPostRedS = new Point(towerPostRedX - FieldTuning.climbOffsetRedLeft, towerPostRedLeftY, towerPostRadius, 0.25);
 
     /* Tower Exclusion Zones */
     // Region in which turrets cannot safely shoot
@@ -234,13 +247,13 @@ public class FieldConstants
     // TriggerVectors for climbing
     private static final double climbTriggerRadius = 2;
     private static final double climbTriggerBuffer = 0.5;
-    public static final Translation2d climbStartOffset = new Translation2d(0, 7.0);
+    public static final Translation2d climbStartOffset = new Translation2d(0, 1.0);
     public static final Translation2d climbEndOffset = new Translation2d(0, 0.35);
 
-    public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX, towerPostBlueRightY, 90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX, towerPostBlueLeftY, -90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbRedRight  = new TriggerVector(towerPostRedX, towerPostRedRightY, -90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbRedLeft   = new TriggerVector(towerPostRedX, towerPostRedLeftY, 90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueRight, towerPostBlueRightY, 90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueLeft, towerPostBlueLeftY, -90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbRedRight  = new TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedRight, towerPostRedRightY, -90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbRedLeft   = new TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedLeft, towerPostRedLeftY, 90, climbTriggerRadius, climbTriggerBuffer);
 
     public static final ObjectList climbTriggerVectors = new ObjectList
     (

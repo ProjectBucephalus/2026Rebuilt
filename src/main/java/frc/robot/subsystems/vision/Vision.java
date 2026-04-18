@@ -86,34 +86,40 @@ public class Vision extends SubsystemBase
       for (var ll : lls)
       {
         // Skip this limelight if it isn't active
-        if (!ll.isActive()) continue;
+        
+        if (ll.isActive())
+        {
+          ll.getPhotonEst().ifPresent(est -> {
+            // Reject update if it contains no tags, or if the robot is rotating too fast
+            if (est.targetsUsed.isEmpty()|| Math.abs(rpsSup.get()) >= 2.0) return;
 
-        ll.getPhotonEst().ifPresent(est -> {
-          // Reject update if it contains no tags, or if the robot is rotating too fast
-          if (est.targetsUsed.isEmpty()|| Math.abs(rpsSup.get()) >= 2.0) return;
+            double accTagDist = 0;
+            for (var target : est.targetsUsed) accTagDist += target.getBestCameraToTarget().getTranslation().getNorm();
+            double avgTagDist = accTagDist / est.targetsUsed.size();
 
-          double accTagDist = 0;
-          for (var target : est.targetsUsed) accTagDist += target.getBestCameraToTarget().getTranslation().getNorm();
-          double avgTagDist = accTagDist / est.targetsUsed.size();
+            // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
+            // If this is the first time we've seen tags since last losing localisation, we trust the estimate fully
+            double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
+            double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 0;
+            double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 0;
 
-          // The more tags seen and the closer we are on average to them, the more trustworthy the estimate is
-          // If this is the first time we've seen tags since last losing localisation, we trust the estimate fully
-          double stdDevFactor = Math.pow(avgTagDist, 2.0) / est.targetsUsed.size();
-          double linearStdDev = hasLocalisation() ? linearStdDevBaseline * stdDevFactor : 0;
-          double rotStdDev = hasLocalisation() ? rotStdDevBaseline * stdDevFactor : 0;
+            double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
 
-          double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
+            PBDash.putString("Raw Pose" + ll.getName(), est.estimatedPose.toString());
+            Pose2d poseOut = est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure());
+            // If the camera is mounted on a turret, apply additional offset processing
+            if (ll.isOnTurret()) poseOut = poseOut.transformBy(ll.getTurretToRobot(timestamp));
+            PBDash.putString("Processed Pose" + ll.getName(), poseOut.toString());
 
-          Pose2d poseOut = est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure());
-          // If the camera is mounted on a turret, apply additional offset processing
-          if (ll.isOnTurret()) poseOut = poseOut.transformBy(ll.getTurretToRobot(timestamp));
+            // Update time since last good pose estimate
+            lastGoodPose = Timer.getTimestamp();
 
-          // Update time since last good pose estimate
-          lastGoodPose = Timer.getTimestamp();
+            // Send pose estimate to consumer
+            estimateConsumer.accept(poseOut, timestamp, VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
 
-          // Send pose estimate to consumer
-          estimateConsumer.accept(poseOut, timestamp, VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
-        });
+
+          });
+        }
       } 
     }
     else if (usingVision)

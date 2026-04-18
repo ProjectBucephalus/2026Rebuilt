@@ -86,7 +86,7 @@ public class Robot extends TimedRobot
   }
   
   @Logged
-  private final RobotState state = new RobotState();
+  public final RobotState state = new RobotState();
   private Optional<Command> autoCommand = Optional.empty();
 
   /* Telemetry and SD */
@@ -124,7 +124,7 @@ public class Robot extends TimedRobot
     false
   );
 
-  private final Limelight s_PhotonStbd = new Limelight
+  private final Limelight s_PhotonPort = new Limelight
   (
     IDConstants.portLimelightName, 
     VisionConstants.flatCameraToTurret, 
@@ -132,7 +132,7 @@ public class Robot extends TimedRobot
     ShooterConstants.portShooterOffset
   );
 
-  private final Limelight s_PhotonPort = new Limelight
+  private final Limelight s_PhotonStbd = new Limelight
   (
     IDConstants.stbdLimelightName, 
     VisionConstants.flatCameraToTurret, 
@@ -145,8 +145,8 @@ public class Robot extends TimedRobot
   (
     s_Swerve::addVisionMeasurement,
     () -> state.swerve.Speeds.omegaRadiansPerSecond,
-    s_PhotonStbd,
-    s_PhotonPort
+    s_PhotonPort,
+    s_PhotonStbd
   );
   
   @Logged(name = "Climber")
@@ -234,8 +234,8 @@ public class Robot extends TimedRobot
       driverBrake, 
       s_Swerve, 
       s_Vision,
-      s_PhotonStbd,
       s_PhotonPort, 
+      s_PhotonStbd,
       s_PortShooter, 
       s_StbdShooter, 
       s_Intake, 
@@ -357,7 +357,7 @@ public class Robot extends TimedRobot
     (
       String.format
       (
-        "X: %.2fm, Y: %.2fm, R: %.0f°", 
+        "X: %.2fm, Y: %.2fm, R: %.0f", 
         swerveState.Pose.getX(), 
         swerveState.Pose.getY(), 
         swerveState.Pose.getRotation().getDegrees()

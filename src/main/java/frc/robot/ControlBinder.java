@@ -54,8 +54,8 @@ public record ControlBinder
   Brake driverBrake,
   CommandSwerveDrivetrain s_Swerve,
   Vision s_Vision,
-  Limelight s_PhotonStbd,
   Limelight s_PhotonPort,
+  Limelight s_PhotonStbd,
   Shooter s_PortShooter,
   Shooter s_StbdShooter,
   Intake s_Intake,
@@ -201,7 +201,13 @@ public record ControlBinder
           s_PhotonPort.setActive(false);
         })
       )
-      .onFalse(runOnce(() -> s_StbdShooter.target.state = s_PortShooter.target.state));
+      .onFalse
+      (
+        runOnce(() -> {
+          s_StbdShooter.target.state = s_PortShooter.target.state;
+          s_PhotonPort.setActive(true);
+        })
+      );
 
     new Trigger(() -> state.climbPos == ClimbPosition.Left)
       .onTrue
@@ -212,7 +218,13 @@ public record ControlBinder
           s_PhotonStbd.setActive(false);
         })
       )
-      .onFalse(runOnce(() -> s_PortShooter.target.state = s_StbdShooter.target.state));
+      .onFalse
+      (
+        runOnce(() -> {
+          s_PortShooter.target.state = s_StbdShooter.target.state;
+          s_PhotonStbd.setActive(true);
+        })
+      );
 
     // Manual
     new Trigger(() -> state.shoot == ShootersState.Manual)
@@ -249,7 +261,7 @@ public record ControlBinder
       );
 
     switchboard.button(IDConstants.testIdleSwitchID)
-      .and(() -> state.shoot == ShootersState.Test)
+      //.and(() -> state.shoot == ShootersState.Test)
       .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.disabled = true)
