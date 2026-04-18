@@ -11,6 +11,7 @@ import frc.robot.controlTransmutation.geoFence.*;
 import frc.robot.controlTransmutation.triggerObject.*;
 import frc.robot.util.AlliancePose2d;
 
+import static frc.robot.constants.Constants.SwerveConstants.robotRadiusExpanded;
 import static frc.robot.constants.Constants.SwerveConstants.robotRadiusInscribed;
 
 /**
@@ -244,16 +245,40 @@ public class FieldConstants
     public static final Box towerClearRedLeft   = new Box(fieldLength, towerPostRedLeftY - clearRadius, towerPostRedX - clearRadius, towerPostRedRightY - climbAllowance, clearRadius, 0.25);
     public static final Box towerClearRedRight  = new Box(fieldLength, towerPostRedLeftY + climbAllowance, towerPostRedX - clearRadius, towerPostRedRightY + clearRadius, clearRadius, 0.25);
 
+    /** Depth of barrier from driver wall when climbing, metres */
+    private static final double climbWallDepth  = towerPostBlueX - robotRadiusExpanded - 0.1;
+    /** Speed limit when lining up to climb, [0..1] */
+    private static final double climbSlowLimit  = 0.3;
+
+    public static final Box climbWallBlue       = new Box(0, 0, climbWallDepth, fieldWidth);
+    public static final Box climbWallRed        = new Box(fieldLength, 0, fieldLength - climbWallDepth, fieldWidth);
+    public static final BoxRegion climbSlowBlue = new BoxRegion(0, 0, towerDepth, fieldWidth, 0, 1);
+    public static final BoxRegion climbSlowRed  = new BoxRegion(fieldLength, 0, fieldLength - towerDepth, fieldWidth, 0, 1);
+
+    public static final Box towerClearBlue      = new Box(towerPostBlueX + clearRadius, towerPostBlueRightY, towerPostBlueX + clearRadius, towerPostBlueLeftY, towerPostRadius, 0.25);
+    public static final Box towerClearRed       = new Box(towerPostRedX - clearRadius, towerPostRedRightY, towerPostRedX - clearRadius, towerPostRedLeftY, towerPostRadius, 0.25);
+    
+    public static final ObjectList climbBarrier = new ObjectList
+    (
+      towerClearBlue,
+      towerClearRed,
+      climbWallBlue,
+      climbWallRed,
+      climbSlowBlue.withSpeedLimit(climbSlowLimit),
+      climbSlowRed.withSpeedLimit(climbSlowLimit)
+    );
+
     // TriggerVectors for climbing
-    private static final double climbTriggerRadius = 2;
-    private static final double climbTriggerBuffer = 0.5;
-    public static final Translation2d climbStartOffset = new Translation2d(0, 1.0);
+    private static final double climbTriggerRadius = 2.5;
+    private static final double climbTriggerBuffer = 1.1;
+    public static final Translation2d climbApproachOffset = new Translation2d(0, 1.2);
+    public static final Translation2d climbStartOffset = new Translation2d(0, 0.7);
     public static final Translation2d climbEndOffset = new Translation2d(0, 0.35);
 
-    public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueRight, towerPostBlueRightY, 90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueLeft, towerPostBlueLeftY, -90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbRedRight  = new TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedRight, towerPostRedRightY, -90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbRedLeft   = new TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedLeft, towerPostRedLeftY, 90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueRight, towerPostBlueRightY + 0.5, 90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueLeft, towerPostBlueLeftY - 0.5, -90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbRedRight  = new TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedRight, towerPostRedRightY - 0.5, -90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbRedLeft   = new TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedLeft, towerPostRedLeftY + 0.5, 90, climbTriggerRadius, climbTriggerBuffer);
 
     public static final ObjectList climbTriggerVectors = new ObjectList
     (
@@ -320,7 +345,8 @@ public class FieldConstants
     (
       fieldStaticGeoFence, 
       fieldBlueGeoFence, 
-      fieldRedGeoFence
+      fieldRedGeoFence,
+      climbBarrier
     ).addPriority(field);
 
     /** Minimum speed limit within a restrictor */

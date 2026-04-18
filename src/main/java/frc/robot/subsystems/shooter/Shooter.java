@@ -56,6 +56,8 @@ public class Shooter extends SubsystemBase
   private Pose2d shooterPose;
 
   private Translation2d lastVelocity = Translation2d.kZero;
+  private Translation2d lastAcceleration = Translation2d.kZero;
+  private double jerkSquare;
   private double timeOfFlight = 0;
 
   /** Current active target for the shooter */
@@ -175,6 +177,7 @@ public class Shooter extends SubsystemBase
       || GeoFencing.trenchTrigger.getAsBoolean() 
       || GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation())
+      || (target.state == TargetState.Manual && jerkSquare >= PBDash.IO_JERK_LIMIT.get())
     )
       shootStatus = Status.BadLocation;
     else if (!turret.readyToShoot(swerveState.Speeds))
@@ -235,6 +238,7 @@ public class Shooter extends SubsystemBase
     var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
     Translation2d velocity = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
     Translation2d acceleration = velocity.minus(lastVelocity);
+    jerkSquare = acceleration.minus(lastAcceleration).getSquaredNorm();
 
     // Store pose and velocity to be used next cycle
     lastVelocity = velocity;
@@ -248,7 +252,7 @@ public class Shooter extends SubsystemBase
       case Hub -> FieldUtils.getAllianceHubCentre().minus(shooterPose.getTranslation()).getNorm();
     };
 
-    if (target.state != TargetState.Manual && velocity.getNorm() > 0.15)
+    if (target.state != TargetState.Manual && jerkSquare < PBDash.IO_JERK_LIMIT.get())
     {
       Translation2d targetPoint = switch (target.state) 
       {

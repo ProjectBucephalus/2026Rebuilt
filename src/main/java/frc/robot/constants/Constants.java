@@ -59,6 +59,9 @@ public final class Constants
     /** Rotation lineup tolerance, degrees */
     public static final double angleLineupTolerance = 3;
 
+    /** Maximum robot speed to reduce power consumption, relative to maximum uncapped speed */
+    public static final double powerSaveThrottle = 0.6;
+
     /** Attractor minimum angle tolerance, degrees */
     public static final double minAngleTolerance = 20;
     /** Attractor maximum angle tolerance, degrees */
@@ -162,6 +165,8 @@ public final class Constants
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.08;
     public static final double accelLeadFactor = 0.8;
+    /** Maximum Jerk^2 from drivebase at which shot leading is viable, (metres per second^3)^2 */
+    public static final double leadingJerkLimit = 1; // TODO: I have absolutely no idea what this value should be, good luck
 
     public static final double minRange = 1.1;
     public static final double closeManualRange = 2;
@@ -495,8 +500,9 @@ public final class Constants
     public static final class RollerConstants 
     {
       /** Default speed of intake when running, rps */
-      public static final double intakeMinSpeed = 30;
       public static final double intakeMaxSpeed = 50;
+      /** Reduced speed for intake when reversing or to reduce power consumption, rps */
+      public static final double intakeMinSpeed = 30;
 
       /** Intake speed at which robot throttle starts being applied, rps */
       public static final double brakeSpeedStart = 10;
@@ -576,8 +582,10 @@ public final class Constants
     public static final double maxPosition  = 0.23;
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.02;
+    /** Alternate between this position and maxPosition for final approach to tower, metres */
+    public static final double wigglePosition = maxPosition - 0.03;
     /** Position for full climb, meters */
-    public static final double climbPosition = 0.08; // TODO figure out minimum valid climb height
+    public static final double climbPosition = 0.05;
 
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;

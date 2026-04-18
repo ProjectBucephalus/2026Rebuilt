@@ -306,6 +306,7 @@ public class Robot extends TimedRobot
     GeoFencing.towerPostBlueN     .setActiveCondition(() -> state.climbPos != ClimbPosition.Left);
     GeoFencing.towerClearRedRight .setActiveCondition(() -> state.climbPos == ClimbPosition.Left);
     GeoFencing.towerPostRedS      .setActiveCondition(() -> state.climbPos != ClimbPosition.Left);
+    GeoFencing.climbBarrier       .setActiveCondition(() -> state.climbPos != ClimbPosition.None);
     
     // Climb attractor TriggerVector setup
     GeoFencing.climbBlueLeft 

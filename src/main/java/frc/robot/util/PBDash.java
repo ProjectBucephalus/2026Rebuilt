@@ -58,7 +58,8 @@ public class PBDash
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
   public static final Key<Boolean> IO_FENCE         = new Key<>("Enable Fencing", true);
   public static final Key<Boolean> IO_SHOOT_HUB     = new Key<>("Auto Shoot Hub", false);
-  public static final Key<Boolean> IO_SHOOT_PASS      = new Key<>("Auto Shoot Pass", true);
+  public static final Key<Boolean> IO_SHOOT_PASS    = new Key<>("Auto Shoot Pass", true);
+  public static final Key<Boolean> IO_POWER_SAVE    = new Key<>("Power Save Mode", false);
   
   // Rumble strengths
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", RumblerConstants.driverDefault);
@@ -74,6 +75,7 @@ public class PBDash
   // Manual speed adjustment
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
   public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
+  public static final Key<Double>  IO_JERK_LIMIT    = new Key<>("Jerk Limit", ShooterConstants.leadingJerkLimit);
 
   // Robot pose
   public static final Key<String> POSE = new Key<>("Robot Pose", "");

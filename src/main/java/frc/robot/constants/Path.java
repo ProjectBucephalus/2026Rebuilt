@@ -164,34 +164,71 @@ public record Path(double throttle, Node... nodes)
     );
   }
 
+  private static final double climbApproachThrottle = 0.3;
+  private static final double climbApproachRadius   = 0.3;
+  private static final double climbThrottle         = 0.1;
+  private static final double climbRadius           = 0.3;
+
+  public static final Path climbApproachBlueRight = new Path
+  (
+    climbApproachThrottle,
+    climbApproachRadius, 
+    new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbApproachOffset), Rotation2d.kCW_90deg),
+    new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCW_90deg)
+  );
+  
+  public static final Path climbApproachBlueLeft = new Path
+  (
+    climbApproachThrottle,
+    climbApproachRadius, 
+    new Pose2d(GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbApproachOffset), Rotation2d.kCCW_90deg),
+    new Pose2d(GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbStartOffset), Rotation2d.kCCW_90deg)
+  );
+
+  public static final Path climbApproachRedRight = new Path
+  (
+    climbApproachThrottle,
+    climbApproachRadius, 
+    new Pose2d(GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbApproachOffset), Rotation2d.kCCW_90deg),
+    new Pose2d(GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbStartOffset), Rotation2d.kCCW_90deg)
+  );
+  
+  public static final Path climbApproachRedLeft = new Path
+  (
+    climbApproachThrottle,
+    climbApproachRadius, 
+    new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbApproachOffset), Rotation2d.kCW_90deg),
+    new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCW_90deg)
+  );
+
   public static final Path climbBlueRight = new Path
   (
-    0.1,
-    0.1, 
+    climbThrottle,
+    climbRadius, 
     new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCW_90deg),
     new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCW_90deg)
   );
   
   public static final Path climbBlueLeft = new Path
   (
-    0.1,
-    0.1, 
+    climbThrottle,
+    climbRadius, 
     new Pose2d(GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbStartOffset), Rotation2d.kCCW_90deg),
     new Pose2d(GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbEndOffset), Rotation2d.kCCW_90deg)
   );
 
   public static final Path climbRedRight = new Path
   (
-    0.1,
-    0.1, 
+    climbThrottle,
+    climbRadius, 
     new Pose2d(GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbStartOffset), Rotation2d.kCCW_90deg),
     new Pose2d(GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbEndOffset), Rotation2d.kCCW_90deg)
   );
   
   public static final Path climbRedLeft = new Path
   (
-    0.1,
-    0.1, 
+    climbThrottle,
+    climbRadius, 
     new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCW_90deg),
     new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCW_90deg)
   );

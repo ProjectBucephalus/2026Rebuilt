@@ -27,6 +27,7 @@ import frc.robot.constants.IDConstants;
 import frc.robot.constants.Path;
 import frc.robot.constants.Constants.ClimberConstants;
 import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.IntakeConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
@@ -65,10 +66,13 @@ public record ControlBinder
 )
 {
   private static AtomicBoolean bound = new AtomicBoolean(false);
-
+  private static Trigger switchboardConnected;
+    
   public void bind()
   {
     if (bound.compareAndExchange(false, true)) return; // Guard against being called multiple times
+
+    switchboardConnected = switchboard.button(1).or(switchboard.button(2)).or(switchboard.button(3));
 
     bindState();
     bindDrive();
@@ -81,19 +85,32 @@ public record ControlBinder
   {
     // Auto Pass
     switchboard.button(IDConstants.shootHubSwitchID)
-      .onChange(runOnce(() -> PBDash.IO_SHOOT_HUB.put(switchboard.button(IDConstants.shootHubSwitchID).getAsBoolean())).ignoringDisable(true));
+      .onChange(runOnce(() -> PBDash.IO_SHOOT_HUB.put(switchboard.button(IDConstants.shootHubSwitchID).getAsBoolean())).onlyIf(switchboardConnected).ignoringDisable(true));
 
     // Auto Rev
     switchboard.button(IDConstants.shootPassSwitchID)
-      .onChange(runOnce(() -> PBDash.IO_SHOOT_PASS.put(switchboard.button(IDConstants.shootPassSwitchID).getAsBoolean())).ignoringDisable(true));
+      .onChange(runOnce(() -> PBDash.IO_SHOOT_PASS.put(switchboard.button(IDConstants.shootPassSwitchID).getAsBoolean())).onlyIf(switchboardConnected).ignoringDisable(true));
 
     // Fencing
     switchboard.button(IDConstants.fencingSwitchID)
-      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(IDConstants.fencingSwitchID).getAsBoolean())).ignoringDisable(true));
+      .onChange(runOnce(() -> PBDash.IO_FENCE.put(switchboard.button(IDConstants.fencingSwitchID).getAsBoolean())).onlyIf(switchboardConnected).ignoringDisable(true));
 
     // Vision
     switchboard.button(IDConstants.visionSwitchID)
-      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(IDConstants.visionSwitchID).getAsBoolean())).ignoringDisable(true));
+      .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(IDConstants.visionSwitchID).getAsBoolean())).onlyIf(switchboardConnected).ignoringDisable(true));
+
+    // Power Save
+    new Trigger(PBDash.IO_POWER_SAVE::get)
+      .onTrue
+      (runOnce(() -> {
+        PBDash.IO_MAX_THROTTLE.put(ControlConstants.powerSaveThrottle);
+        PBDash.TEST_INTAKE_SPEED.put(IntakeConstants.RollerConstants.intakeMinSpeed);
+      }))
+      .onFalse
+      (runOnce(() -> {
+        PBDash.IO_MAX_THROTTLE.put(ControlConstants.maxThrottle);
+        PBDash.TEST_INTAKE_SPEED.put(IntakeConstants.RollerConstants.intakeMaxSpeed);
+      }));
   }
 
   private void bindDrive()
@@ -149,13 +166,65 @@ public record ControlBinder
       .onTrue(runOnce(() -> driverBrake.withMinThrottle(PBDash.IO_MIN_THROTTLE.get())));
 
     GeoFencing.climbBlueRight.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueRight).andThen(DriveBuilder.waitCommand()));
+      .whileTrue
+      (
+        DriveBuilder.pathFollow(Path.climbApproachBlueRight)
+        .andThen
+        (
+          Commands.repeatingSequence
+          ( 
+            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+            s_Climber.gotoTargetCmd(ClimberConstants.climbPosition)
+          ).raceWith(DriveBuilder.pathFollow(Path.climbBlueRight)),
+          s_Climber.extendCmd(),
+          DriveBuilder.waitCommand()
+        )
+      );
     GeoFencing.climbBlueLeft.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbBlueLeft).andThen(DriveBuilder.waitCommand()));
+      .whileTrue
+      (
+        DriveBuilder.pathFollow(Path.climbApproachBlueLeft)
+        .andThen
+        (
+          Commands.repeatingSequence
+          ( 
+            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+            s_Climber.gotoTargetCmd(ClimberConstants.climbPosition)
+          ).raceWith(DriveBuilder.pathFollow(Path.climbBlueLeft)),
+          s_Climber.extendCmd(),
+          DriveBuilder.waitCommand()
+        )
+      );
     GeoFencing.climbRedRight.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbRedRight).andThen(DriveBuilder.waitCommand()));
+      .whileTrue
+      (
+        DriveBuilder.pathFollow(Path.climbApproachRedRight)
+        .andThen
+        (
+          Commands.repeatingSequence
+          ( 
+            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+            s_Climber.gotoTargetCmd(ClimberConstants.climbPosition)
+          ).raceWith(DriveBuilder.pathFollow(Path.climbRedRight)),
+          s_Climber.extendCmd(),
+          DriveBuilder.waitCommand()
+        )
+      );
     GeoFencing.climbRedLeft.asTrigger()
-      .whileTrue(DriveBuilder.pathFollow(Path.climbRedLeft).andThen(DriveBuilder.waitCommand()));
+      .whileTrue
+      (
+        DriveBuilder.pathFollow(Path.climbApproachRedLeft)
+        .andThen
+        (
+          Commands.repeatingSequence
+          ( 
+            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+            s_Climber.gotoTargetCmd(ClimberConstants.climbPosition)
+          ).raceWith(DriveBuilder.pathFollow(Path.climbRedLeft)),
+          s_Climber.extendCmd(),
+          DriveBuilder.waitCommand()
+        )
+      );
   }
 
   private void bindShooters()
@@ -192,7 +261,7 @@ public record ControlBinder
       );
 
     // Tag-Seeking for climb
-    new Trigger(() -> state.climbPos == ClimbPosition.Right)
+    driver.povRight().or(() -> state.climbPos == ClimbPosition.Right)
       .onTrue
       (
         runOnce(() -> {          
@@ -200,7 +269,8 @@ public record ControlBinder
           s_StbdShooter.target.state = TargetState.Manual;
           s_PhotonPort.setActive(false);
         })
-      )
+      );
+    new Trigger(() -> state.climbPos == ClimbPosition.Right)
       .onFalse
       (
         runOnce(() -> {
@@ -209,7 +279,7 @@ public record ControlBinder
         })
       );
 
-    new Trigger(() -> state.climbPos == ClimbPosition.Left)
+    driver.povLeft().or(() -> state.climbPos == ClimbPosition.Left)
       .onTrue
       (
         runOnce(() -> {          
@@ -217,8 +287,9 @@ public record ControlBinder
           s_PortShooter.target.state = TargetState.Manual;
           s_PhotonStbd.setActive(false);
         })
-      )
-      .onFalse
+      );
+    new Trigger(() -> state.climbPos == ClimbPosition.Left)
+    .onFalse
       (
         runOnce(() -> {
           s_PortShooter.target.state = s_StbdShooter.target.state;
@@ -261,15 +332,16 @@ public record ControlBinder
       );
 
     switchboard.button(IDConstants.testIdleSwitchID)
-      //.and(() -> state.shoot == ShootersState.Test)
       .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.disabled = true)
+          .onlyIf(switchboardConnected)
           .ignoringDisable(true)
       )
       .onFalse
       (
         bothShooters(Commands::runOnce, s -> s.target.disabled = false)
+          .onlyIf(switchboardConnected)
           .ignoringDisable(true)
       );
 
@@ -296,13 +368,13 @@ public record ControlBinder
     new Trigger(() -> state.shoot == ShootersState.Port)
       .onTrue(s_StbdShooter.runOnce(() -> s_StbdShooter.target.disabled = true).ignoringDisable(true))
       .onFalse(s_StbdShooter.runOnce(() -> s_StbdShooter.target.disabled = false).ignoringDisable(true))
-      .whileTrue(s_StbdShooter.runIndexerCmd(() -> -s_PortShooter.getSpeed())); // Follow opposing indexer while shooter is disabled
+      .whileTrue(s_StbdShooter.runIndexerCmd(() -> -s_PortShooter.getSpeed()).onlyIf(() -> s_Extension.getAngle() > -0.2)); // Follow opposing indexer while shooter is disabled
     
     // Stbd-Only
     new Trigger(() -> state.shoot == ShootersState.Stbd)
       .onTrue(s_PortShooter.runOnce(() -> s_PortShooter.target.disabled = true).ignoringDisable(true))
       .onFalse(s_PortShooter.runOnce(() -> s_PortShooter.target.disabled = false).ignoringDisable(true))
-      .whileTrue(s_PortShooter.runIndexerCmd(() -> -s_StbdShooter.getSpeed())); // Follow opposing indexer while shooter is disabled
+      .whileTrue(s_PortShooter.runIndexerCmd(() -> -s_StbdShooter.getSpeed()).onlyIf(() -> s_Extension.getAngle() > -0.2)); // Follow opposing indexer while shooter is disabled
 
     // Rev If (test and fire) or (((not alliance_zone) or shift) and not test)
     new Trigger
@@ -341,7 +413,7 @@ public record ControlBinder
         ((state.shoot == ShootersState.Auto || state.shoot == ShootersState.Port) && shootZoneTrigger.getAsBoolean())
       )
     )
-    .whileTrue(s_PortShooter.runIndexerCmd());
+    .whileTrue(s_PortShooter.runIndexerCmd().onlyIf(() -> s_Extension.getAngle() > -0.2));
 
     // Stbd
     forceStopTrigger.negate()
@@ -355,7 +427,12 @@ public record ControlBinder
         ((state.shoot == ShootersState.Auto || state.shoot == ShootersState.Stbd) && shootZoneTrigger.getAsBoolean())
       )
     )
-    .whileTrue(s_StbdShooter.runIndexerCmd());
+    .whileTrue(s_StbdShooter.runIndexerCmd().onlyIf(() -> s_Extension.getAngle() > -0.2));
+
+    shootZoneTrigger.negate()
+      .and(manualFireTrigger.negate())
+      .onTrue(bothShooters(Commands::runOnce, s -> s.target.flywheelsActive = false))
+      .onFalse(bothShooters(Commands::runOnce, s -> s.target.flywheelsActive = true));
   }
 
   private void bindIntake()
@@ -415,11 +492,11 @@ public record ControlBinder
     final Trigger autoDeployTrigger = new Trigger(() -> state.climbPos != ClimbPosition.None);
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(state.swerve.Pose.getTranslation()));
 
-    // In alliance zone and auto-deploy, extend (only on true so that manual control can still happen while in alliance zone)
-    autoDeployTrigger
-      .and(allianceZoneTrigger)
-      .and(s_Vision::hasLocalisation)
-      .onTrue(s_Climber.extendCmd());
+    // // In alliance zone and auto-deploy, extend (only on true so that manual control can still happen while in alliance zone)
+    // autoDeployTrigger
+    //   .and(allianceZoneTrigger)
+    //   .and(s_Vision::hasLocalisation)
+    //   .onTrue(s_Climber.extendCmd());
 
     // Leave alliance zone or enter trench, retract (intentionally regardless of auto-deploy)
     trenchTrigger
