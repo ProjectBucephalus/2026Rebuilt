@@ -225,9 +225,9 @@ public final class Constants
       public static final double hoodRange = 23;
 
       /** Offset for Zero position on port servo (servo degrees) */
-      public static final double portHomeAngle = 0;
+      public static final double portHomeAngle = 11;
       /** Offset for Zero position on starboard servo (servo degrees) */
-      public static final double stbdHomeAngle = 26;
+      public static final double stbdHomeAngle = 6;
 
       public static final double servoGear = 20;
       public static final double hoodGear = 193;
@@ -248,9 +248,9 @@ public final class Constants
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double portPotOffset = -1790.79;
+      public static final double portPotOffset = -1790.29;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double stbdPotOffset = -1741.33;
+      public static final double stbdPotOffset = -1793.00;
 
       private static final double planetaryRatio = 13.03; // MaxPlanetary gearbox marked 4:1 is actually 3.6:1, 5:1 is actually 5.2:1
       private static final double driveGear = 15;
