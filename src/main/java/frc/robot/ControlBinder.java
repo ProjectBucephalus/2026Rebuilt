@@ -257,7 +257,7 @@ public record ControlBinder
           s_PortShooter.target.azimuth = -60;
           s_StbdShooter.target.azimuth = 60;
         })
-        .alongWith(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Manual))
+        .alongWith(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Vision))
         .ignoringDisable(true)
       );
 
@@ -267,12 +267,12 @@ public record ControlBinder
       (
         runOnce(() -> {          
           s_StbdShooter.target.azimuth = 45;
-          s_StbdShooter.target.state = TargetState.Manual;
+          s_StbdShooter.target.state = TargetState.Vision;
           s_PhotonPort.setActive(false);
         })
       );
-    new Trigger(() -> state.climbPos == ClimbPosition.Right)
-      .onFalse
+    new Trigger(() -> state.climbPos != ClimbPosition.Right)
+      .onTrue
       (
         runOnce(() -> {
           s_StbdShooter.target.state = s_PortShooter.target.state;
@@ -285,12 +285,12 @@ public record ControlBinder
       (
         runOnce(() -> {          
           s_PortShooter.target.azimuth = -45;
-          s_PortShooter.target.state = TargetState.Manual;
+          s_PortShooter.target.state = TargetState.Vision;
           s_PhotonStbd.setActive(false);
         })
       );
-    new Trigger(() -> state.climbPos == ClimbPosition.Left)
-    .onFalse
+    new Trigger(() -> state.climbPos != ClimbPosition.Left)
+    .onTrue
       (
         runOnce(() -> {
           s_PortShooter.target.state = s_StbdShooter.target.state;

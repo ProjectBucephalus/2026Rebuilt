@@ -26,7 +26,9 @@ public class Target
     /** Aim at an arbitrary point */
     Point, 
     /** Aim at your alliance's hub */
-    Hub;
+    Hub,
+    /** Fixed position to give camera optimal view */
+    Vision;
   }
 
   /** The currently active {@link TargetState} */

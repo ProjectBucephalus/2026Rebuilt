@@ -7,5 +7,6 @@ public enum Status
   Aiming,
   Revving,
   AwaitingInput,
-  Fire
+  Fire,
+  Vision
 }

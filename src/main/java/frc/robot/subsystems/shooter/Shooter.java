@@ -57,6 +57,7 @@ public class Shooter extends SubsystemBase
 
   private Translation2d lastVelocity = Translation2d.kZero;
   private Translation2d lastAcceleration = Translation2d.kZero;
+  @Logged
   private double jerkSquare;
   private double timeOfFlight = 0;
 
@@ -171,6 +172,8 @@ public class Shooter extends SubsystemBase
   {
     if (!target.flywheelsActive || target.disabled)
       shootStatus = Status.Idling;
+    else if (target.state == TargetState.Vision)
+      shootStatus = Status.Vision;
     else if 
     (
       target.distance <= ShooterConstants.minRange 
@@ -246,20 +249,20 @@ public class Shooter extends SubsystemBase
     // Find distance to current target for calculating leading shots
     double distance = switch (target.state) 
     {
-      case Manual -> target.distance;
       case Point -> target.point.minus(shooterPose.getTranslation()).getNorm();
       // aim at our alliance's hub
       case Hub -> FieldUtils.getAllianceHubCentre().minus(shooterPose.getTranslation()).getNorm();
+      default -> target.distance;
     };
 
-    if (target.state != TargetState.Manual && jerkSquare < PBDash.IO_JERK_LIMIT.get())
+    if (target.state != TargetState.Manual && target.state != TargetState.Vision && jerkSquare < PBDash.IO_JERK_LIMIT.get())
     {
       Translation2d targetPoint = switch (target.state) 
       {
-        case Manual -> Translation2d.kZero;
         case Point -> target.point;
         // aim at our alliance's hub
         case Hub -> FieldUtils.getAllianceHubCentre();
+        default -> Translation2d.kZero;
       };
 
       // Calculate the component of the velocity that is towards the target
@@ -280,10 +283,10 @@ public class Shooter extends SubsystemBase
       // Find distance to current target for calculating leading shots
       target.distance = switch (target.state) 
       {
-        case Manual -> target.distance;
         case Point -> target.point.plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
         // aim at our alliance's hub
         case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
+        default -> target.distance;
       };
     }
     else
@@ -297,6 +300,7 @@ public class Shooter extends SubsystemBase
       case Manual -> target.altitude;
       case Point -> Interpolation.shooterAltitudeLow.get(target.distance);
       case Hub -> Interpolation.shooterAltitudeHub.get(target.distance);
+      case Vision -> 0;
     };
 
     target.speed = switch (target.state)
@@ -304,6 +308,7 @@ public class Shooter extends SubsystemBase
       case Manual -> target.speed;
       case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
       case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
+      case Vision -> FlywheelConstants.idleSpeed;
     };
 
     flywheels.update();
