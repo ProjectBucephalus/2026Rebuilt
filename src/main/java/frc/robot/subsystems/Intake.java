@@ -16,7 +16,7 @@ import frc.robot.util.PBDash;
 @Logged(strategy = Strategy.OPT_IN)
 public class Intake extends VelocityMotor 
 {
-  public enum RollerState { On, Off, Reversed }
+  public enum RollerState { On, Off, Idle, Reversed }
 
   @Logged
   public RollerState state = RollerState.Off;
@@ -35,6 +35,7 @@ public class Intake extends VelocityMotor
     {
       case On -> PBDash.TEST_INTAKE_SPEED.get();
       case Off -> 0;
+      case Idle -> RollerConstants.intakeMinSpeed;
       case Reversed -> -RollerConstants.intakeMinSpeed;
     };
 

@@ -51,7 +51,7 @@ public final class Constants
     /** Minimum rotational robot speed when braking, relative to maximum uncapped rotational speed */
     public static final double minRotThrottle = 0.3;
     /** Maximum brake value when intake is running at full speed */
-    public static final double brakeFromIntake = 0.25;
+    public static final double brakeFromIntake = 0.4;
     /** How far a trigger must be pressed to be considered on, [0..1] */
     public static final double triggerThreshold = 0.8;
     /** Translation lineup tolerance, meters */
@@ -60,7 +60,7 @@ public final class Constants
     public static final double angleLineupTolerance = 3;
 
     /** Maximum robot speed to reduce power consumption, relative to maximum uncapped speed */
-    public static final double powerSaveThrottle = 0.6;
+    public static final double powerSaveThrottle = 0.5;
 
     /** Attractor minimum angle tolerance, degrees */
     public static final double minAngleTolerance = 20;
@@ -543,8 +543,8 @@ public final class Constants
 
       public static final double minRotations = -0.31;
       public static final double maxRotations = 0.0;
-      public static final double jostleRotations = -0.1; // furthest in before hopper retracts
-      public static final double bumpSafeRotations = -0.14;
+      public static final double jostleRotations = -0.05;
+      public static final double bumpSafeRotations = -0.05;
 
       public static final TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
       static
@@ -579,11 +579,11 @@ public final class Constants
     /** meters */
     public static final double minPosition  = 0.015;
     /** meters */
-    public static final double maxPosition  = 0.23;
+    public static final double maxPosition  = 0.24;
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.02;
     /** Alternate between this position and maxPosition for final approach to tower, metres */
-    public static final double wigglePosition = maxPosition - 0.03;
+    public static final double wigglePosition = maxPosition - 0.02;
     /** Position for full climb, meters */
     public static final double climbPosition = 0.05;
 

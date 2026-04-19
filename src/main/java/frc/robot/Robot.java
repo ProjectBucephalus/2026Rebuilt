@@ -208,9 +208,13 @@ public class Robot extends TimedRobot
   private final JoystickTransmuter driverStickRaw = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
   private final Brake driverBrake = new Brake
   (
-    () -> driver.leftBumper().getAsBoolean() 
-      ? ControlConstants.brakeFromIntake 
-      : driver.getRightTriggerAxis(), 
+    () -> Math.max
+      (
+        driver.leftBumper().getAsBoolean() 
+          ? ControlConstants.brakeFromIntake 
+          : 0, 
+        driver.getRightTriggerAxis()
+      ), 
     ControlConstants.maxThrottle, 
     ControlConstants.minThrottle
   );

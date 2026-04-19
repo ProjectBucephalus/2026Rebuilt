@@ -68,7 +68,7 @@ public class TunerConstants
         new CurrentLimitsConfigs()
           // Swerve azimuth does not require much torque output, so we can set a relatively low
           // stator current limit to help avoid brownouts without impacting performance.
-          .withStatorCurrentLimit(Amps.of(30))
+          .withStatorCurrentLimit(Amps.of(50))
           .withStatorCurrentLimitEnable(true)
       );
   private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();

@@ -133,7 +133,7 @@ public class FieldConstants
     // Speed should be limited when traversing
     // Rotation must NOT be square when traversing
     /** Throttle limit when within bump zone */
-    public static final double bumpSpeedLimit = 0.4;
+    public static final double bumpSpeedLimit = 0;
     public static final double bumpRotationTolerance = 40;
     public static final double bumpWidth = 1.85;
     public static final double bumpYa = hubYa - bumpWidth;
@@ -248,15 +248,15 @@ public class FieldConstants
     /** Depth of barrier from driver wall when climbing, metres */
     private static final double climbWallDepth  = towerPostBlueX - robotRadiusExpanded - 0.1;
     /** Speed limit when lining up to climb, [0..1] */
-    private static final double climbSlowLimit  = 0.3;
+    private static final double climbSlowLimit  = 0.5;
 
     public static final Box climbWallBlue       = new Box(0, 0, climbWallDepth, fieldWidth);
     public static final Box climbWallRed        = new Box(fieldLength, 0, fieldLength - climbWallDepth, fieldWidth);
     public static final BoxRegion climbSlowBlue = new BoxRegion(0, 0, towerDepth, fieldWidth, 0, 1);
     public static final BoxRegion climbSlowRed  = new BoxRegion(fieldLength, 0, fieldLength - towerDepth, fieldWidth, 0, 1);
 
-    public static final Box towerClearBlue      = new Box(towerPostBlueX + clearRadius, towerPostBlueRightY, towerPostBlueX + clearRadius, towerPostBlueLeftY, towerPostRadius, 0.25);
-    public static final Box towerClearRed       = new Box(towerPostRedX - clearRadius, towerPostRedRightY, towerPostRedX - clearRadius, towerPostRedLeftY, towerPostRadius, 0.25);
+    public static final Box towerClearBlue      = new Box(towerPostBlueX + 1, towerPostBlueRightY, towerPostBlueX + 1, towerPostBlueLeftY, towerPostRadius, 0.25);
+    public static final Box towerClearRed       = new Box(towerPostRedX - 1, towerPostRedRightY, towerPostRedX - 1, towerPostRedLeftY, towerPostRadius, 0.25);
     
     public static final ObjectList climbBarrier = new ObjectList
     (
