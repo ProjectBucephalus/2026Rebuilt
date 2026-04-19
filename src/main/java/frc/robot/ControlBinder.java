@@ -175,7 +175,9 @@ public record ControlBinder
           Commands.repeatingSequence
           ( 
             s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition)
+            Commands.waitSeconds(ClimberConstants.wiggleWait),
+            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+            Commands.waitSeconds(ClimberConstants.wiggleWait)
           ).raceWith(DriveBuilder.pathFollow(Path.climbBlueRight)),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
@@ -190,7 +192,9 @@ public record ControlBinder
           Commands.repeatingSequence
           ( 
             s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition)
+            Commands.waitSeconds(ClimberConstants.wiggleWait),
+            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+            Commands.waitSeconds(ClimberConstants.wiggleWait)
           ).raceWith(DriveBuilder.pathFollow(Path.climbBlueLeft)),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
@@ -205,7 +209,9 @@ public record ControlBinder
           Commands.repeatingSequence
           ( 
             s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition)
+            Commands.waitSeconds(ClimberConstants.wiggleWait),
+            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+            Commands.waitSeconds(ClimberConstants.wiggleWait)
           ).raceWith(DriveBuilder.pathFollow(Path.climbRedRight)),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
@@ -220,7 +226,9 @@ public record ControlBinder
           Commands.repeatingSequence
           ( 
             s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition)
+            Commands.waitSeconds(ClimberConstants.wiggleWait),
+            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+            Commands.waitSeconds(ClimberConstants.wiggleWait)
           ).raceWith(DriveBuilder.pathFollow(Path.climbRedLeft)),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()

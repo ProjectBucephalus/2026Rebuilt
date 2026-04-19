@@ -580,6 +580,9 @@ public final class Constants
     /** Position for full climb, meters */
     public static final double climbPosition = 0.05;
 
+    /** Delay between movements when approaching tower, seconds */
+    public static final double wiggleWait = 0.1;
+
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;
     private static final double winchPulley = 15;
