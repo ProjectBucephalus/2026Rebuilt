@@ -275,10 +275,18 @@ public class FieldConstants
     public static final Translation2d climbStartOffset = new Translation2d(0, 0.7);
     public static final Translation2d climbEndOffset = new Translation2d(0, 0.35);
 
-    public static final TriggerVector climbBlueRight = new TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueRight, towerPostBlueRightY + 0.5, 90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbBlueLeft  = new TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueLeft, towerPostBlueLeftY - 0.5, -90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbRedRight  = new TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedRight, towerPostRedRightY - 0.5, -90, climbTriggerRadius, climbTriggerBuffer);
-    public static final TriggerVector climbRedLeft   = new TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedLeft, towerPostRedLeftY + 0.5, 90, climbTriggerRadius, climbTriggerBuffer);
+    public static final TriggerVector climbBlueRight = new 
+      TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueRight, towerPostBlueRightY + 0.5, 90, climbTriggerRadius, climbTriggerBuffer)
+      .withBufferActivation(false);
+    public static final TriggerVector climbBlueLeft  = new 
+      TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueLeft, towerPostBlueLeftY - 0.5, -90, climbTriggerRadius, climbTriggerBuffer)
+      .withBufferActivation(false);
+    public static final TriggerVector climbRedRight  = new 
+      TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedRight, towerPostRedRightY - 0.5, -90, climbTriggerRadius, climbTriggerBuffer)
+      .withBufferActivation(false);
+    public static final TriggerVector climbRedLeft   = new 
+      TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedLeft, towerPostRedLeftY + 0.5, 90, climbTriggerRadius, climbTriggerBuffer)
+      .withBufferActivation(false);
 
     public static final ObjectList climbTriggerVectors = new ObjectList
     (
