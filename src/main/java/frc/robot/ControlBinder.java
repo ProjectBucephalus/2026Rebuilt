@@ -67,6 +67,7 @@ public record ControlBinder
 {
   private static AtomicBoolean bound = new AtomicBoolean(false);
   private static Trigger switchboardConnected;
+  private static Trigger shootZoneTrigger;
     
   public void bind()
   {
@@ -174,7 +175,7 @@ public record ControlBinder
           Commands.repeatingSequence
           ( 
             s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            s_Climber.gotoTargetCmd(ClimberConstants.climbPosition)
+            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition)
           ).raceWith(DriveBuilder.pathFollow(Path.climbBlueRight)),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
@@ -189,7 +190,7 @@ public record ControlBinder
           Commands.repeatingSequence
           ( 
             s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            s_Climber.gotoTargetCmd(ClimberConstants.climbPosition)
+            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition)
           ).raceWith(DriveBuilder.pathFollow(Path.climbBlueLeft)),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
@@ -204,7 +205,7 @@ public record ControlBinder
           Commands.repeatingSequence
           ( 
             s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            s_Climber.gotoTargetCmd(ClimberConstants.climbPosition)
+            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition)
           ).raceWith(DriveBuilder.pathFollow(Path.climbRedRight)),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
@@ -219,7 +220,7 @@ public record ControlBinder
           Commands.repeatingSequence
           ( 
             s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            s_Climber.gotoTargetCmd(ClimberConstants.climbPosition)
+            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition)
           ).raceWith(DriveBuilder.pathFollow(Path.climbRedLeft)),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
@@ -395,7 +396,7 @@ public record ControlBinder
     /* Shooting when Ready */
 
     // (alliance_zone and auto_hub) or ((not alliance_zone) and auto_pass)
-    final Trigger shootZoneTrigger = 
+    shootZoneTrigger = 
          (allianceZoneTrigger.and(PBDash.IO_SHOOT_HUB.asTrigger()))
       .or(allianceZoneTrigger.negate().and(PBDash.IO_SHOOT_PASS.asTrigger()));
 
@@ -440,7 +441,9 @@ public record ControlBinder
     // Off
     driver.rightBumper().onTrue(s_Intake.setStateCmd(RollerState.Off));
     // On
-    driver.leftBumper().onTrue(s_Intake.setStateCmd(RollerState.On));
+    driver.leftBumper()
+      .onTrue(s_Intake.setStateCmd(RollerState.On))
+      .onFalse(s_Intake.setStateCmd(RollerState.Idle));
 
     // Deploy
     operator.leftBumper().or(driver.leftBumper())
@@ -448,8 +451,17 @@ public record ControlBinder
       .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Deployed")));
     // Stow
     operator.rightBumper()
+      .and(operator.rightTrigger().negate())
       .onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations))
       .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Stowed")));
+    // Jostle
+    operator.rightTrigger()
+      .and(operator.rightBumper().or(shootZoneTrigger))
+      .and(() -> s_Extension.getTarget() == ExtensionConstants.maxRotations)
+      .onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.jostleRotations))
+      .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Jostle")))
+      .onFalse(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations))
+      .onFalse(runOnce(() -> PBDash.EXTENSION_STATE.put("Deployed")));
 
     // Reverse
     operator.leftTrigger(ControlConstants.triggerThreshold)
@@ -466,6 +478,26 @@ public record ControlBinder
           {
             prevState = s_Intake.state;
             s_Intake.state = RollerState.Reversed;
+          }
+
+          @Override
+          public void end(boolean i) 
+          {
+            s_Intake.state = prevState;
+          }
+        }
+      );
+    // Jostle
+    operator.rightTrigger()
+      .whileTrue
+      (
+        new Command() 
+        {
+          {addRequirements(s_Extension);}
+          
+          @Override
+          public void initialize()
+          {
             if (s_Extension.getTarget() == ExtensionConstants.maxRotations) 
               s_Extension.setTarget(ExtensionConstants.jostleRotations);
           }
@@ -473,7 +505,6 @@ public record ControlBinder
           @Override
           public void end(boolean i) 
           {
-            s_Intake.state = prevState;
             if (s_Extension.getTarget() == ExtensionConstants.jostleRotations) 
               s_Extension.setTarget(ExtensionConstants.maxRotations);
           }
