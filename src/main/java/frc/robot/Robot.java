@@ -181,27 +181,7 @@ public class Robot extends TimedRobot
   private final RumbleRequester io_operatorLeft   = new RumbleRequester(operator, RumbleType.kLeftRumble, PBDash.RUMBLE_OPERATOR::get);
   
   /* LEDs */
-  private final LEDStrip io_LEDs = new LEDStrip
-  (
-    IDConstants.LEDPWDPort, 
-    new Block(LEDConstants.gapLength),
-    new Block
-    (
-      LEDConstants.block0Length, 
-      Patterns.supplied(() -> 
-        switch (s_PortShooter.shootStatus()) 
-        {
-          case Idling -> new Color(1.0, 0.0, 1.0);
-          case BadLocation -> Color.kRed;
-          case Aiming -> Color.kYellow;
-          case Revving -> Color.kWhite;
-          case AwaitingInput -> Color.kBlue;
-          case Fire -> Color.kGreen;
-        }
-      )
-    ), 
-    new Block(LEDConstants.block1Length, LEDPattern.solid(Color.kRed))
-  ); 
+  private LEDStrip io_LEDs;
 
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
@@ -347,7 +327,66 @@ public class Robot extends TimedRobot
 
   private void bindLEDs()
   {
+    // Port shooter state
+    Block.setPatternMulti
+    (
+      Patterns.supplied
+      (() -> 
+        switch (s_PortShooter.shootStatus()) 
+        {
+          case Idling -> new Color(1.0, 0.0, 1.0);
+          case BadLocation -> Color.kRed;
+          case Aiming -> Color.kYellow;
+          case Revving -> Color.kWhite;
+          case AwaitingInput -> Color.kBlue;
+          case Fire -> Color.kGreen;
+        }
+      ),
+      IDConstants.portLEDBlocks
+    );
 
+    // Stbd shooter state
+    Block.setPatternMulti
+    (
+      Patterns.supplied
+      (() -> 
+        switch (s_StbdShooter.shootStatus()) 
+        {
+          case Idling -> new Color(1.0, 0.0, 1.0);
+          case BadLocation -> Color.kRed;
+          case Aiming -> Color.kYellow;
+          case Revving -> Color.kWhite;
+          case AwaitingInput -> Color.kBlue;
+          case Fire -> Color.kGreen;
+        }
+      ),
+      IDConstants.stbdLEDBlocks
+    );
+    
+    // Drivebase state
+    Block.setPatternMulti
+    (
+      LEDPattern.solid(Color.kPurple),
+      // Patterns.supplied
+      // (() -> 
+      //   switch (s_StbdShooter.shootStatus()) 
+      //   {
+      //     case Idling -> new Color(1.0, 0.0, 1.0);
+      //     case BadLocation -> Color.kRed;
+      //     case Aiming -> Color.kYellow;
+      //     case Revving -> Color.kWhite;
+      //     case AwaitingInput -> Color.kBlue;
+      //     case Fire -> Color.kGreen;
+      //   }
+      // ),
+      IDConstants.lowerLEDBlocks
+    );
+
+    io_LEDs = new LEDStrip
+    (
+      IDConstants.LEDPWDPort, 
+      IDConstants.allLEDBlocks
+    );
   }
 
   /* UTIL METHODS */
