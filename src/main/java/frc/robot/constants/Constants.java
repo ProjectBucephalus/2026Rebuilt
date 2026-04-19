@@ -128,8 +128,8 @@ public final class Constants
 
     /* Auto Rotation PID Values, Degrees */
     public static final double rotationKP = 3.5;
-    public static final double rotationKI = 0;
-    public static final double rotationKD = 0.01;
+    public static final double rotationKI = 0.0;
+    public static final double rotationKD = 0.03;
 
     /* Swerve Limit Values */
     /** Mechanical maximum staright-line robot speed, Meters per Second */
@@ -210,7 +210,7 @@ public final class Constants
       }
 
       /** Target flywheel speed when idle, mechanism rps */
-      public static final double idleSpeed = 10;
+      public static final double idleSpeed = 15;
       /** Allowed variation in flywheel speed for shooting, rps */
       public static final double flySpeedTolerance = 2;
 
@@ -579,6 +579,9 @@ public final class Constants
     public static final double wigglePosition = maxPosition - 0.02;
     /** Position for full climb, meters */
     public static final double climbPosition = 0.05;
+
+    /** Delay between movements when approaching tower, seconds */
+    public static final double wiggleWait = 0.1;
 
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;

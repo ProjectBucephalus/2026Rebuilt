@@ -340,6 +340,7 @@ public class Robot extends TimedRobot
           case Revving -> Color.kWhite;
           case AwaitingInput -> Color.kBlue;
           case Fire -> Color.kGreen;
+          case Vision -> Color.kLimeGreen;
         }
       ),
       IDConstants.portLEDBlocks
@@ -358,6 +359,7 @@ public class Robot extends TimedRobot
           case Revving -> Color.kWhite;
           case AwaitingInput -> Color.kBlue;
           case Fire -> Color.kGreen;
+          case Vision -> Color.kLimeGreen;
         }
       ),
       IDConstants.stbdLEDBlocks
@@ -366,7 +368,7 @@ public class Robot extends TimedRobot
     // Drivebase state
     Block.setPatternMulti
     (
-      LEDPattern.solid(Color.kPurple),
+      LEDPattern.solid(Color.kBlue),
       // Patterns.supplied
       // (() -> 
       //   switch (s_StbdShooter.shootStatus()) 

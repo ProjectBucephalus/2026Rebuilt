@@ -41,6 +41,9 @@ public class TriggerVector extends FieldObject
   private boolean onTarget = false;
   private Trigger trigger = new Trigger(activeSupplier).and(globalActiveSupplier).and(this::checkTrigger);
 
+  /** If false, the trigger cannot *become* true when within the buffer */
+  private boolean bufferActivation = true;
+
   private Rotation2d lastInputAngle = Rotation2d.kZero;
 
 
@@ -136,7 +139,8 @@ public class TriggerVector extends FieldObject
     if (distance <= buffer)
     {
       // If the robot is within the target buffer (very close to target), just compare input angle to approach heading
-      return Conversions.nearRotation(approachHeadingRotation, controlInput.getAngle(), maxAngleTolerance);
+      // Has the option to not activate when close
+      return bufferActivation && Conversions.nearRotation(approachHeadingRotation, controlInput.getAngle(), minAngleTolerance);
     }
 
     // Calculate current angle from robot to target
@@ -167,8 +171,18 @@ public class TriggerVector extends FieldObject
   @Override
   public double getDistance()
   {
-    // Only need to check distance from robot centre to target centre
-    return centre.getDistance(robotPos);
+    // Only need to check distance from robot to target centre
+    return centre.getDistance(robotPos) - robotRadius;
   }
 
+  /**
+   * Sets whether the trigger should activate when the robot is within the buffer, or only activate on approach
+   * @param bufferActivation {@code false} to prevent activation when within the buffer. Default {@code true}
+   * @return The modified TriggerVector object
+   */
+  public TriggerVector withBufferActivation(boolean bufferActivation)
+  {
+    this.bufferActivation = bufferActivation;
+    return this;
+  }
 }
