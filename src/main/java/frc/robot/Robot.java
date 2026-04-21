@@ -38,6 +38,7 @@ import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
 import frc.robot.leds.Block;
+import frc.robot.leds.patterns.AlternatingPattern;
 import frc.robot.leds.patterns.Patterns;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.RollerState;
@@ -75,12 +76,14 @@ public class Robot extends TimedRobot
   /* State */
   public enum ClimbPosition { None, Left, Right }
   public enum ShootersState { Auto, Stbd, Port, Manual, Test }
+  public enum NavState      { Manual, Nudged, Blocked, Following, AtTarget, RedShift, BlueShift, DualShift, Disabled }
 
   @Logged
   public class RobotState 
   {
     public ClimbPosition climbPos = ClimbPosition.None;
     public ShootersState shoot = ShootersState.Auto;
+    public NavState nav = NavState.Disabled;
     public boolean nudging = true;
     public SwerveDriveState swerve = new SwerveDriveState();
   }
@@ -334,7 +337,7 @@ public class Robot extends TimedRobot
       (() -> 
         switch (s_PortShooter.shootStatus()) 
         {
-          case Idling -> new Color(1.0, 0.0, 1.0);
+          case Idling -> Color.kMagenta;
           case BadLocation -> Color.kRed;
           case Aiming -> Color.kYellow;
           case Revving -> Color.kWhite;
@@ -353,7 +356,7 @@ public class Robot extends TimedRobot
       (() -> 
         switch (s_StbdShooter.shootStatus()) 
         {
-          case Idling -> new Color(1.0, 0.0, 1.0);
+          case Idling -> Color.kMagenta;
           case BadLocation -> Color.kRed;
           case Aiming -> Color.kYellow;
           case Revving -> Color.kWhite;
@@ -368,33 +371,55 @@ public class Robot extends TimedRobot
     // Drivebase state
     Block.setPatternMulti
     (
-      LEDPattern.solid(Color.kBlue),
+      Patterns.conditional
+      (
+        () -> FieldUtils.hubBothTransition(3), // both hubs will be active
+        new AlternatingPattern(Color.kWhite, Color.kBlack, 2.0),
+        Patterns.conditional
+        (
+          () -> FieldUtils.hubTransition(Alliance.Red, 3), // red hub will be active
+          new AlternatingPattern(Color.kRed, Color.kBlack, 2.0),
+          Patterns.conditional
+          (
+            () -> FieldUtils.hubTransition(Alliance.Blue, 3), // blue hub will be active
+            new AlternatingPattern(Color.kBlue, Color.kBlack, 2.0),
+            Patterns.conditional
+            (
+              () -> state.nav == NavState.Disabled,
+              new AlternatingPattern(Color.kLimeGreen, Color.kGold, 0.5),
+              Patterns.supplied
+              (() -> 
+                switch (state.nav) 
+                {
+                  // Manual, Nudged, Blocked, Following, AtTarget, RedShift, BlueShift, DualShift
+                  default -> Color.kMagenta;
+                  case Nudged -> Color.kYellow;
+                  case Blocked -> Color.kOrange;
+                  case Following -> Color.kYellow;
+                  case AtTarget -> Color.kGreen;
+                  case RedShift -> Color.kRed;
+                  case BlueShift -> Color.kBlue;
+                  case DualShift -> Color.kWhite;
+                }
+              )
+            )
+          )
+        )
+      ),
       // Patterns.supplied
       // (() -> 
-      //   switch (s_StbdShooter.shootStatus()) 
+      //   switch (driveStatus()) 
       //   {
-      //     case Idling -> new Color(1.0, 0.0, 1.0);
-      //     case BadLocation -> Color.kRed;
-      //     case Aiming -> Color.kYellow;
-      //     case Revving -> Color.kWhite;
-      //     case AwaitingInput -> Color.kBlue;
-      //     case Fire -> Color.kGreen;
-      //     case Both Hubs will be Active -> LED Section 2 = Alternating White
-      //     case Red Hub will be Active -> LED Section 2 = Red Alternating
-      //     case Blue Hub will be Active -> LED Section 2 = Blue Alternating
-      //     case Both Hubs active -> LED Section 2 = White
-      //     case Red Hub active -> LED Section 2 = Red
-      //     case Blue Hub active -> LED Section 2 = BLue
-      //     case Robot in nudge zone & effected -> LED Section 2 = Yellow
-      //     case Robot affected by attractor -> LED Section 2 = Yellow
-      //     case Robot at attractor target -> LED Section 2 = Green
-      //     case Robot Blocked by fence -> LED Section 2 = Orange
-      //     case Shooters Idling -> LED Section 1 = Purple
-      //     case Shooters -> LED Section 1 = Red
-      //     case Waiting for Turret, Hood Angle, or Turret speed -> LED Section 1 = Yellow
-      //     case Aimed, but Flywheel not in Target range -> LED Section 1 = White
-      //     case Ready to fire, but waiting for saftey mode input -> LED Section 1 = Blue
-      //     case Actively Shooting -> LED Section 1 = Green
+      //     case Both Hubs will be Active -> Alternating White
+      //     case Red Hub will be Active -> Red Alternating
+      //     case Blue Hub will be Active -> Blue Alternating
+      //     case Both Hubs active -> White
+      //     case Red Hub active -> Red
+      //     case Blue Hub active -> BLue
+      //     case Robot in nudge zone & effected -> Yellow
+      //     case Robot affected by attractor -> Yellow
+      //     case Robot at attractor target -> Green
+      //     case Robot Blocked by fence -> Orange
       //   }
       // ),
       IDConstants.lowerLEDBlocks
