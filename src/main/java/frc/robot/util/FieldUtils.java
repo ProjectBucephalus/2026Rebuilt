@@ -99,6 +99,8 @@ public final class FieldUtils
   {
     double timeElapsed = MatchTime.getTeleTimeElapsed();
 
+    if (autoWinner.isEmpty()) return false;
+    
     if (alliance == autoWinner.get()) 
       return (timeElapsed >= (35 - preMargin) && timeElapsed < (35)) // Shift 2
       || (timeElapsed >= (85 - preMargin) && timeElapsed < (85));    // Shift 4
