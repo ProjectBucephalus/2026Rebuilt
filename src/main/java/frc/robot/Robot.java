@@ -407,22 +407,6 @@ public class Robot extends TimedRobot
           )
         )
       ),
-      // Patterns.supplied
-      // (() -> 
-      //   switch (driveStatus()) 
-      //   {
-      //     case Both Hubs will be Active -> Alternating White
-      //     case Red Hub will be Active -> Red Alternating
-      //     case Blue Hub will be Active -> Blue Alternating
-      //     case Both Hubs active -> White
-      //     case Red Hub active -> Red
-      //     case Blue Hub active -> BLue
-      //     case Robot in nudge zone & effected -> Yellow
-      //     case Robot affected by attractor -> Yellow
-      //     case Robot at attractor target -> Green
-      //     case Robot Blocked by fence -> Orange
-      //   }
-      // ),
       IDConstants.lowerLEDBlocks
     );
 
