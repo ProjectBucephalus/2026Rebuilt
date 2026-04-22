@@ -146,12 +146,11 @@
             "y": 288.0,
             "width": 192.0,
             "height": 96.0,
-            "type": "Text Display",
+            "type": "Large Text Display",
             "properties": {
               "topic": "Robot/state/nav",
               "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": false
+              "data_type": "string"
             }
           },
           {
@@ -174,12 +173,11 @@
             "y": 464.0,
             "width": 224.0,
             "height": 112.0,
-            "type": "Text Display",
+            "type": "Large Text Display",
             "properties": {
               "topic": "Robot/Intake/state",
               "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": false
+              "data_type": "string"
             }
           },
           {
@@ -209,12 +207,11 @@
             "y": 464.0,
             "width": 160.0,
             "height": 112.0,
-            "type": "Text Display",
+            "type": "Large Text Display",
             "properties": {
               "topic": "/PBDash/Climber State",
               "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": false
+              "data_type": "string"
             }
           },
           {
@@ -288,12 +285,11 @@
             "y": 96.0,
             "width": 128.0,
             "height": 96.0,
-            "type": "Text Display",
+            "type": "Large Text Display",
             "properties": {
               "topic": "Robot/Port Shooter/shootStatus",
               "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": false
+              "data_type": "string"
             }
           },
           {
@@ -315,12 +311,11 @@
             "y": 96.0,
             "width": 128.0,
             "height": 96.0,
-            "type": "Text Display",
+            "type": "Large Text Display",
             "properties": {
               "topic": "Robot/Stbd Shooter/shootStatus",
               "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": false
+              "data_type": "string"
             }
           },
           {
@@ -355,12 +350,11 @@
             "y": 480.0,
             "width": 192.0,
             "height": 96.0,
-            "type": "Text Display",
+            "type": "Large Text Display",
             "properties": {
               "topic": "/PBDash/Robot Pose",
               "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": false
+              "data_type": "string"
             }
           }
         ]

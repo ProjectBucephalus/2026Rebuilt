@@ -433,7 +433,7 @@ public class Robot extends TimedRobot
     (
       String.format
       (
-        "x: %.2f, y: %.2f, r: %.0f", 
+        "X:%.2fm, Y:%.2fm, R:%.0f\u00b0", 
         swerveState.Pose.getX(), 
         swerveState.Pose.getY(), 
         swerveState.Pose.getRotation().getDegrees()
