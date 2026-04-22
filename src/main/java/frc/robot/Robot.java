@@ -37,6 +37,7 @@ import frc.robot.constants.Constants.*;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
+import frc.robot.controlTransmutation.geoFence.GeoFence;
 import frc.robot.leds.Block;
 import frc.robot.leds.patterns.AlternatingPattern;
 import frc.robot.leds.patterns.Patterns;
@@ -454,6 +455,9 @@ public class Robot extends TimedRobot
         swerveState.Pose.getRotation().getDegrees()
       )
     );
+
+    FieldObject.fetchRobotValues();
+    GeoFence.clearBlocked();
   }
 
   private void compileAuto()

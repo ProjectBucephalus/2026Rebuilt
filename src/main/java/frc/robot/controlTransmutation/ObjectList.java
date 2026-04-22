@@ -57,7 +57,7 @@ public class ObjectList extends FieldObject
     if (!globalActiveSupplier.getAsBoolean() || !activeSupplier.getAsBoolean() || fieldObjects.isEmpty()) 
       return controlInput;
 
-    fetchRobotValues();
+    //fetchRobotValues();
 
     var controlOutput = controlInput;
 

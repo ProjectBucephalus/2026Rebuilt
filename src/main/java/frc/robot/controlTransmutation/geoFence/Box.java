@@ -103,48 +103,49 @@ public class Box extends GeoFence
   {
     double motionX = motionXY.getX();
     double motionY = motionXY.getY();
-    double distanceToEdgeX;
-    double distanceToEdgeY;
+    double distanceToEdge;
 
     if (robotPos.getX() < Xa)
+    {
+      if (robotPos.getY() < Ya) // SW Corner
+        {return pointDamping(Xa, Ya, motionXY);}
+      else if (robotPos.getY() > Yb) // NW Corner
+        {return pointDamping(Xa, Yb, motionXY);}
+      else // W Cardinal
       {
-        if (robotPos.getY() < Ya) // SW Corner
-          {return pointDamping(Xa, Ya, motionXY);}
-        else if (robotPos.getY() > Yb) // NW Corner
-          {return pointDamping(Xa, Yb, motionXY);}
-        else // W Cardinal
-        {
-          distanceToEdgeX = (Xa - radius) - (robotPos.getX() + robotRadius);
-          motionX = Math.min(motionX, (Conversions.clamp(distanceToEdgeX, 0, buffer)) / buffer);
-        }
+        distanceToEdge = (Xa - radius) - (robotPos.getX() + robotRadius);
+        motionX = Math.min(motionX, (Conversions.clamp(distanceToEdge, 0, buffer)) / buffer);
       }
-      else if (robotPos.getX() > Xb)
+    }
+    else if (robotPos.getX() > Xb)
+    {
+      if (robotPos.getY() < Ya) // SE Corner
+        {return pointDamping(Xb, Ya, motionXY);}
+      else if (robotPos.getY() > Yb) // NE Corner
+        {return pointDamping(Xb, Yb, motionXY);}
+      else // E Cardinal
       {
-        if (robotPos.getY() < Ya) // SE Corner
-          {return pointDamping(Xb, Ya, motionXY);}
-        else if (robotPos.getY() > Yb) // NE Corner
-          {return pointDamping(Xb, Yb, motionXY);}
-        else // E Cardinal
-        {
-          distanceToEdgeX = (robotPos.getX() - robotRadius) - (Xb + radius);
-          motionX = Math.max(motionX, (-Conversions.clamp(distanceToEdgeX, 0, buffer)) / buffer);
-        }
+        distanceToEdge = (robotPos.getX() - robotRadius) - (Xb + radius);
+        motionX = Math.max(motionX, (-Conversions.clamp(distanceToEdge, 0, buffer)) / buffer);
       }
-      else 
+    }
+    else 
+    {
+      if (robotPos.getY() < Ya) // S Cardinal
       {
-        if (robotPos.getY() < Ya) // S Cardinal
-        {
-          distanceToEdgeY = (Ya - radius) - (robotPos.getY() + robotRadius);
-          motionY = Math.min(motionY, (Conversions.clamp(distanceToEdgeY, 0, buffer)) / buffer);
-        } 
-        else if (robotPos.getY() > Yb) // N Cardinal
-        {
-          distanceToEdgeY = (robotPos.getY() - robotRadius) - (Yb + radius);
-          motionY = Math.max(motionY, (-Conversions.clamp(distanceToEdgeY, 0, buffer)) / buffer);
-        }
-        else // Center (you've met a terrible fate *insert kazoo music here*)
-          {return pointDamping(centre.getX(), centre.getY(), motionXY);}
+        distanceToEdge = (Ya - radius) - (robotPos.getY() + robotRadius);
+        motionY = Math.min(motionY, (Conversions.clamp(distanceToEdge, 0, buffer)) / buffer);
+      } 
+      else if (robotPos.getY() > Yb) // N Cardinal
+      {
+        distanceToEdge = (robotPos.getY() - robotRadius) - (Yb + radius);
+        motionY = Math.max(motionY, (-Conversions.clamp(distanceToEdge, 0, buffer)) / buffer);
       }
-      return new Translation2d(motionX, motionY);
+      else // Center (you've met a terrible fate *insert kazoo music here*)
+        {return pointDamping(centre.getX(), centre.getY(), motionXY);}
+    }
+
+    if (distanceToEdge <= 0.05) touchingObject = true; // Check for collision
+    return new Translation2d(motionX, motionY);
   }
 }
