@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import static frc.robot.constants.FieldConstants.*;
 
 import java.util.Optional;
+import frc.robot.Robot;
 
 import frc.robot.constants.Constants.ShooterConstants;
 
@@ -27,7 +28,10 @@ public final class FieldUtils
   public static Optional<Alliance> getAutoWinner()
     {return autoWinner;}
 
-  /** Attempts to fetch the alliance that won auto from DriverStation, if we haven't already got it */
+  /** 
+   * Attempts to fetch the alliance that won auto from DriverStation, if we haven't already got it </p>
+   * Randomly assigns a winner when running Auto in simulation
+   */
   public static void updateAutoWinner()
   {
     if (autoWinner.isEmpty()) 
@@ -40,6 +44,9 @@ public final class FieldUtils
           case 'R' -> Optional.of(Alliance.Red);
           default  -> Optional.empty();
         };
+        
+      else if (Robot.isSimulation() && DriverStation.isAutonomous())
+        autoWinner = Math.rint(Math.random()) == 0 ? Optional.of(Alliance.Blue) : Optional.of(Alliance.Red);
     }
   }
 
@@ -89,7 +96,16 @@ public final class FieldUtils
 
   /** @return whether the provided alliance's hub will become active within the given margin */
   public static boolean hubTransition(Alliance alliance, double preMargin)
-    {return !hubActive(alliance) && hubActiveToleranced(alliance, preMargin, 0);}
+  {
+    double timeElapsed = MatchTime.getTeleTimeElapsed();
+
+    if (alliance == autoWinner.get()) 
+      return (timeElapsed >= (35 - preMargin) && timeElapsed < (35)) // Shift 2
+      || (timeElapsed >= (85 - preMargin) && timeElapsed < (85));    // Shift 4
+    else 
+      return (timeElapsed >= (10 - preMargin) && timeElapsed < (10)) // Shift 1
+      || (timeElapsed >= (60 - preMargin) && timeElapsed < (60));    // Shift 3
+  }
   
   /** @return whether both hubs will become active within the given margin */
   public static boolean hubBothTransition(double preMargin)
