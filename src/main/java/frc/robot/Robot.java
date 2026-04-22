@@ -40,6 +40,7 @@ import frc.robot.controlTransmutation.*;
 import frc.robot.controlTransmutation.geoFence.GeoFence;
 import frc.robot.leds.Block;
 import frc.robot.leds.patterns.AlternatingPattern;
+import frc.robot.leds.patterns.ChasePattern;
 import frc.robot.leds.patterns.Patterns;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.RollerState;
@@ -345,7 +346,7 @@ public class Robot extends TimedRobot
           case Revving -> Color.kWhite;
           case AwaitingInput -> Color.kBlue;
           case Fire -> Color.kGreen;
-          case Vision -> Color.kLimeGreen;
+          case Vision -> Color.kCyan;
         }
       ),
       IDConstants.portLEDBlocks
@@ -364,7 +365,7 @@ public class Robot extends TimedRobot
           case Revving -> Color.kWhite;
           case AwaitingInput -> Color.kBlue;
           case Fire -> Color.kGreen;
-          case Vision -> Color.kLimeGreen;
+          case Vision -> Color.kCyan;
         }
       ),
       IDConstants.stbdLEDBlocks
@@ -376,19 +377,19 @@ public class Robot extends TimedRobot
       Patterns.conditional
       (
         () -> FieldUtils.hubBothTransition(3), // both hubs will be active
-        new AlternatingPattern(Color.kWhite, Color.kBlack, 3.0),
+        new ChasePattern(Color.kWhite, Color.kBlack, 3.0),
         Patterns.conditional
         (
           () -> FieldUtils.hubTransition(Alliance.Red, 3), // red hub will be active
-          new AlternatingPattern(Color.kRed, Color.kBlack, 3.0),
+          new ChasePattern(Color.kRed, 3.0),
           Patterns.conditional
           (
             () -> FieldUtils.hubTransition(Alliance.Blue, 3), // blue hub will be active
-            new AlternatingPattern(Color.kBlue, Color.kBlack, 3.0),
+            new ChasePattern(Color.kBlue, -3.0),
             Patterns.conditional
             (
               () -> state.nav == NavState.Disabled,
-              new AlternatingPattern(Color.kLimeGreen, Color.kGold, 1.0),
+              new ChasePattern(Color.kLimeGreen, Color.kGold, 1.0),
               Patterns.supplied
               (() -> 
                 switch (state.nav) 

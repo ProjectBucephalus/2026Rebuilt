@@ -28,6 +28,14 @@ public class AlternatingPattern implements LEDPattern
     this.period  = 1.0 / frequency;
   }
 
+  /**
+   * Creates a pattern that sets alternate LEDs to the given colour and black, swapping at the given frequency
+   * @param colour Colour of Even LEDs on first cycle
+   * @param frequency Cycles per second, Hz
+   */
+  public AlternatingPattern(Color colour, double frequency)
+    {this(colour, Color.kBlack, frequency);}
+
   @Override
   public void applyTo(LEDReader reader, LEDWriter writer) 
   {
