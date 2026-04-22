@@ -77,7 +77,7 @@ public class Robot extends TimedRobot
   /* State */
   public enum ClimbPosition { None, Left, Right }
   public enum ShootersState { Auto, Stbd, Port, Manual, Test }
-  public enum NavState      { Manual, Nudged, Blocked, Following, AtTarget, RedShift, BlueShift, DualShift, Disabled }
+  public enum NavState      { Manual, HeadingLocked, Nudged, Blocked, Following, AtTarget, RedShift, BlueShift, DualShift, Disabled }
 
   @Logged
   public class RobotState 
@@ -268,7 +268,8 @@ public class Robot extends TimedRobot
       driverStick::stickOutput,
       () -> -driver.getRightX(),
       driver::getRightTriggerAxis,
-      () -> state.swerve.Pose
+      () -> state.swerve.Pose,
+      state
     );
 
     driverStick
@@ -338,7 +339,7 @@ public class Robot extends TimedRobot
       (() -> 
         switch (s_PortShooter.shootStatus()) 
         {
-          case Idling -> Color.kMagenta;
+          case Idling -> Color.kPurple;
           case BadLocation -> Color.kRed;
           case Aiming -> Color.kYellow;
           case Revving -> Color.kWhite;
@@ -357,7 +358,7 @@ public class Robot extends TimedRobot
       (() -> 
         switch (s_StbdShooter.shootStatus()) 
         {
-          case Idling -> Color.kMagenta;
+          case Idling -> Color.kPurple;
           case BadLocation -> Color.kRed;
           case Aiming -> Color.kYellow;
           case Revving -> Color.kWhite;
@@ -375,25 +376,24 @@ public class Robot extends TimedRobot
       Patterns.conditional
       (
         () -> FieldUtils.hubBothTransition(3), // both hubs will be active
-        new AlternatingPattern(Color.kWhite, Color.kBlack, 2.0),
+        new AlternatingPattern(Color.kWhite, Color.kBlack, 3.0),
         Patterns.conditional
         (
           () -> FieldUtils.hubTransition(Alliance.Red, 3), // red hub will be active
-          new AlternatingPattern(Color.kRed, Color.kBlack, 2.0),
+          new AlternatingPattern(Color.kRed, Color.kBlack, 3.0),
           Patterns.conditional
           (
             () -> FieldUtils.hubTransition(Alliance.Blue, 3), // blue hub will be active
-            new AlternatingPattern(Color.kBlue, Color.kBlack, 2.0),
+            new AlternatingPattern(Color.kBlue, Color.kBlack, 3.0),
             Patterns.conditional
             (
               () -> state.nav == NavState.Disabled,
-              new AlternatingPattern(Color.kLimeGreen, Color.kGold, 0.5),
+              new AlternatingPattern(Color.kLimeGreen, Color.kGold, 1.0),
               Patterns.supplied
               (() -> 
                 switch (state.nav) 
                 {
-                  // Manual, Nudged, Blocked, Following, AtTarget, RedShift, BlueShift, DualShift
-                  default -> Color.kMagenta;
+                  default -> Color.kPurple;
                   case Nudged -> Color.kYellow;
                   case Blocked -> Color.kOrange;
                   case Following -> Color.kYellow;
@@ -449,7 +449,7 @@ public class Robot extends TimedRobot
     (
       String.format
       (
-        "X: %.2fm, Y: %.2fm, R: %.0f", 
+        "x: %.2f, y: %.2f, r: %.0f", 
         swerveState.Pose.getX(), 
         swerveState.Pose.getY(), 
         swerveState.Pose.getRotation().getDegrees()
