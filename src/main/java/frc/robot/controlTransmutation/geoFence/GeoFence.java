@@ -19,8 +19,26 @@ public abstract class GeoFence extends FieldObject
 {
   // Inherits from FieldObject: T2D centre, double radius, double buffer, double checkRadius
 
+  /** Flag to indicate per cycle if the robot is in contact with an active GeoFence object */
+  protected static boolean touchingObject;
+
   // A list of object-relative attractors to check
   protected ArrayList<TriggerVector> attractors = new ArrayList<>();
+
+  /** @return {@code true} if the minimum distance between the robot and an active GeoFence object is <= 0.05m */
+  public static boolean isBlocked()
+    {return touchingObject;}
+
+  /**
+   * Clears the flag indicating that the robot is in contact with a GeoFence object
+   * @return the state of the flag before clearing
+   */
+  public static boolean clearBlocked()
+    {
+      boolean wasTouching = touchingObject;
+      touchingObject = false;
+      return wasTouching;
+    }
 
   /**
    * Adds one or more Attractor objects tied to the GeoFence object
@@ -39,13 +57,13 @@ public abstract class GeoFence extends FieldObject
   {
     if (globalActiveSupplier.getAsBoolean() && activeSupplier.getAsBoolean())
     {
-      if (checkAttractors())
-      {
-        var controlOutput = processAttractors(controlInput);
-        // If the attractors have not had any affect, we want to continue to the geofence checks rather than returning
-        if (!controlOutput.equals(controlInput))
-          return controlOutput;
-      }
+      // if (checkAttractors())
+      // {
+      //   var controlOutput = processAttractors(controlInput);
+      //   // If the attractors have not had any affect, we want to continue to the geofence checks rather than returning
+      //   if (!controlOutput.equals(controlInput))
+      //     return controlOutput;
+      // }
 
       if (checkPosition())
         return dampMotion(controlInput);
@@ -119,6 +137,8 @@ public abstract class GeoFence extends FieldObject
     // Converts clamped motion from normal back to X and Y
     double motionX   = ((motionN * distanceX) - (motionT * distanceY)) / distanceN;
     double motionY   = ((motionN * distanceY) + (motionT * distanceX)) / distanceN;
+
+    if (distanceN <= 0.05) touchingObject = true; // Check for collision
     return new Translation2d(motionX, motionY);
   }
 }

@@ -131,7 +131,7 @@ public record ControlBinder
       .and(() -> state.nudging)
       .onTrue(s_Extension.setTargetCmd(() -> Math.min(ExtensionConstants.bumpSafeRotations, s_Extension.getAngle())))
       .whileTrue(DriveBuilder.nonCardinal(bumpRotationTolerance))
-      .onFalse(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations));
+      .onFalse(s_Extension.setTargetCmd(() -> s_Extension.getAngle() > ExtensionConstants.bumpSafeRotations * 1.2 ? ExtensionConstants.maxRotations : ExtensionConstants.minRotations));
     
     // Trench nudging
     trenchTrigger
@@ -261,16 +261,20 @@ public record ControlBinder
       .and(PBDash.IO_LL::get)
       .onTrue
       (
-        runOnce(() -> {          
-          s_PortShooter.target.azimuth = -60;
-          s_StbdShooter.target.azimuth = 60;
-        })
-        .alongWith(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Vision))
+        bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Vision)
+        .andThen
+        (
+          Commands.waitSeconds(0.2),
+          runOnce(() -> {          
+            s_PortShooter.target.azimuth = -60;
+            s_StbdShooter.target.azimuth = 60;
+          })
+        )
         .ignoringDisable(true)
       );
 
     // Tag-Seeking for climb
-    driver.povRight().or(() -> state.climbPos == ClimbPosition.Right)
+    driver.povRight().or(() -> state.climbPos == ClimbPosition.Right && DriverStation.isAutonomous())
       .onTrue
       (
         runOnce(() -> {          
@@ -288,7 +292,7 @@ public record ControlBinder
         })
       );
 
-    driver.povLeft().or(() -> state.climbPos == ClimbPosition.Left)
+    driver.povLeft().or(() -> state.climbPos == ClimbPosition.Left && DriverStation.isAutonomous())
       .onTrue
       (
         runOnce(() -> {          
@@ -340,7 +344,8 @@ public record ControlBinder
           .ignoringDisable(true)
       );
 
-    switchboard.button(IDConstants.testIdleSwitchID)
+    switchboard.button(IDConstants.disableShootersSwitchID)
+      .or(switchboard.button(IDConstants.disableShootersSwitchID).and(DriverStation::isEnabled))
       .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.disabled = true)
@@ -404,8 +409,8 @@ public record ControlBinder
     /* Shooting when Ready */
 
     // (alliance_zone and auto_hub) or ((not alliance_zone) and auto_pass)
-    shootZoneTrigger = 
-         (allianceZoneTrigger.and(PBDash.IO_SHOOT_HUB.asTrigger()))
+    shootZoneTrigger = new Trigger(DriverStation::isEnabled)
+      .and(allianceZoneTrigger.and(PBDash.IO_SHOOT_HUB.asTrigger()))
       .or(allianceZoneTrigger.negate().and(PBDash.IO_SHOOT_PASS.asTrigger()));
 
     final Trigger forceStopTrigger = driver.leftTrigger(ControlConstants.triggerThreshold);
@@ -422,6 +427,7 @@ public record ControlBinder
         ((state.shoot == ShootersState.Auto || state.shoot == ShootersState.Port) && shootZoneTrigger.getAsBoolean())
       )
     )
+    .and(DriverStation::isEnabled)
     .whileTrue(s_PortShooter.runIndexerCmd().onlyIf(() -> s_Extension.getAngle() > -0.2));
 
     // Stbd
@@ -436,10 +442,12 @@ public record ControlBinder
         ((state.shoot == ShootersState.Auto || state.shoot == ShootersState.Stbd) && shootZoneTrigger.getAsBoolean())
       )
     )
+    .and(DriverStation::isEnabled)
     .whileTrue(s_StbdShooter.runIndexerCmd().onlyIf(() -> s_Extension.getAngle() > -0.2));
 
     shootZoneTrigger.negate()
       .and(manualFireTrigger.negate())
+      .and(DriverStation::isEnabled)
       .onTrue(bothShooters(Commands::runOnce, s -> s.target.flywheelsActive = false))
       .onFalse(bothShooters(Commands::runOnce, s -> s.target.flywheelsActive = true));
   }
@@ -468,8 +476,10 @@ public record ControlBinder
       .and(() -> s_Extension.getTarget() == ExtensionConstants.maxRotations)
       .onTrue(s_Extension.setTargetCmd(() -> ExtensionConstants.jostleRotations))
       .onTrue(runOnce(() -> PBDash.EXTENSION_STATE.put("Jostle")))
+      .onTrue(s_Intake.setStateCmd(RollerState.On))
       .onFalse(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations))
-      .onFalse(runOnce(() -> PBDash.EXTENSION_STATE.put("Deployed")));
+      .onFalse(runOnce(() -> PBDash.EXTENSION_STATE.put("Deployed")))
+      .onFalse(s_Intake.setStateCmd(RollerState.Idle));
 
     // Reverse
     operator.leftTrigger(ControlConstants.triggerThreshold)

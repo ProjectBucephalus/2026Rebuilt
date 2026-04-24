@@ -36,24 +36,33 @@ public class Conversions
    */
   public static int wrap(int value, int min, int max)
   {
-    if (max == min) return 0;
+    if (max == min) return min;
 
     if (max < min)
-    {
-      int trueMax = min;
-      min = max;
-      max = trueMax;
-    }
+      return wrapInner(value, max, min);
+    else
+      return wrapInner(value, min, max);
+  }
 
+  /** 
+   * Inner function cannot handle bad inputs 
+   * 
+   * @param value number to wrap
+   * @param min lowest end of target range, inclusive
+   * @param max highest end of target range, inclusive
+   * @return modulus of the number over the range
+   */
+  private static int wrapInner(int value, int min, int max)
+  {
     if (value < min)
     {
       value += ((max-min) + 1);
-      value = wrap(value, min, max);
+      value = wrapInner(value, min, max);
     }
     else if (value > max)
     {
       value -= ((max-min) + 1);
-      value = wrap(value,min,max);
+      value = wrapInner(value,min,max);
     }
 
     return value;

@@ -127,8 +127,8 @@ public final class Constants
     public static final double driveKD = 0.0;
 
     /* Auto Rotation PID Values, Degrees */
-    public static final double rotationKP = 3.5;
-    public static final double rotationKI = 0.0;
+    public static final double rotationKP = 2.5;
+    public static final double rotationKI = 0.0`;
     public static final double rotationKD = 0.03;
 
     /* Swerve Limit Values */

@@ -37,7 +37,10 @@ import frc.robot.constants.Constants.*;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
+import frc.robot.controlTransmutation.geoFence.GeoFence;
 import frc.robot.leds.Block;
+import frc.robot.leds.patterns.AlternatingPattern;
+import frc.robot.leds.patterns.ChasePattern;
 import frc.robot.leds.patterns.Patterns;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.RollerState;
@@ -75,12 +78,14 @@ public class Robot extends TimedRobot
   /* State */
   public enum ClimbPosition { None, Left, Right }
   public enum ShootersState { Auto, Stbd, Port, Manual, Test }
+  public enum NavState      { Manual, HeadingLocked, Nudged, Blocked, Following, AtTarget, RedShift, BlueShift, DualShift, Disabled }
 
   @Logged
   public class RobotState 
   {
     public ClimbPosition climbPos = ClimbPosition.None;
     public ShootersState shoot = ShootersState.Auto;
+    public NavState nav = NavState.Disabled;
     public boolean nudging = true;
     public SwerveDriveState swerve = new SwerveDriveState();
   }
@@ -264,7 +269,8 @@ public class Robot extends TimedRobot
       driverStick::stickOutput,
       () -> -driver.getRightX(),
       driver::getRightTriggerAxis,
-      () -> state.swerve.Pose
+      () -> state.swerve.Pose,
+      state
     );
 
     driverStick
@@ -334,13 +340,13 @@ public class Robot extends TimedRobot
       (() -> 
         switch (s_PortShooter.shootStatus()) 
         {
-          case Idling -> new Color(1.0, 0.0, 1.0);
+          case Idling -> Color.kPurple;
           case BadLocation -> Color.kRed;
           case Aiming -> Color.kYellow;
           case Revving -> Color.kWhite;
           case AwaitingInput -> Color.kBlue;
           case Fire -> Color.kGreen;
-          case Vision -> Color.kLimeGreen;
+          case Vision -> Color.kCyan;
         }
       ),
       IDConstants.portLEDBlocks
@@ -353,13 +359,13 @@ public class Robot extends TimedRobot
       (() -> 
         switch (s_StbdShooter.shootStatus()) 
         {
-          case Idling -> new Color(1.0, 0.0, 1.0);
+          case Idling -> Color.kPurple;
           case BadLocation -> Color.kRed;
           case Aiming -> Color.kYellow;
           case Revving -> Color.kWhite;
           case AwaitingInput -> Color.kBlue;
           case Fire -> Color.kGreen;
-          case Vision -> Color.kLimeGreen;
+          case Vision -> Color.kCyan;
         }
       ),
       IDConstants.stbdLEDBlocks
@@ -368,25 +374,46 @@ public class Robot extends TimedRobot
     // Drivebase state
     Block.setPatternMulti
     (
-      LEDPattern.solid(Color.kBlue),
-      // Patterns.supplied
-      // (() -> 
-      //   switch (s_StbdShooter.shootStatus()) 
-      //   {
-      //     case Both Hubs will be Active -> Alternating White
-      //     case Red Hub will be Active -> Red Alternating
-      //     case Blue Hub will be Active -> Blue Alternating
-      //     case Both Hubs active -> White
-      //     case Red Hub active -> Red
-      //     case Blue Hub active -> BLue
-      //     case Robot in nudge zone & effected -> Yellow
-      //     case Robot affected by attractor -> Yellow
-      //     case Robot at attractor target -> Green
-      //     case Robot Blocked by fence -> Orange
-      //   }
-      // ),
+      Patterns.conditional
+      (
+        () -> FieldUtils.hubBothTransition(3), // both hubs will be active
+        new ChasePattern(Color.kWhite, Color.kBlack, 3.0),
+        Patterns.conditional
+        (
+          () -> FieldUtils.hubTransition(Alliance.Red, 3), // red hub will be active
+          new ChasePattern(Color.kRed, 3.0),
+          Patterns.conditional
+          (
+            () -> FieldUtils.hubTransition(Alliance.Blue, 3), // blue hub will be active
+            new ChasePattern(Color.kBlue, -3.0),
+            Patterns.conditional
+            (
+              () -> state.nav == NavState.Disabled,
+              new ChasePattern(Color.kLimeGreen, Color.kGold, 1.0),
+              Patterns.supplied
+              (() -> 
+                switch (state.nav) 
+                {
+                  default -> Color.kPurple;
+                  case Nudged -> Color.kYellow;
+                  case Blocked -> Color.kOrange;
+                  case Following -> Color.kYellow;
+                  case AtTarget -> Color.kGreen;
+                  case RedShift -> Color.kRed;
+                  case BlueShift -> Color.kBlue;
+                  case DualShift -> Color.kWhite;
+                }
+              )
+            )
+          )
+        )
+      ),
       IDConstants.lowerLEDBlocks
     );
+
+    Block.setNTAddressMulti(PBDash.LED_STATE_PORT, IDConstants.portLEDBlocks);
+    Block.setNTAddressMulti(PBDash.LED_STATE_STBD, IDConstants.stbdLEDBlocks);
+    Block.setNTAddressMulti(PBDash.LED_STATE_DRIVE, IDConstants.lowerLEDBlocks);
 
     io_LEDs = new LEDStrip
     (
@@ -407,12 +434,15 @@ public class Robot extends TimedRobot
     (
       String.format
       (
-        "X: %.2fm, Y: %.2fm, R: %.0f", 
+        "X:%.2fm, Y:%.2fm, R:%.0f\u00b0", 
         swerveState.Pose.getX(), 
         swerveState.Pose.getY(), 
         swerveState.Pose.getRotation().getDegrees()
       )
     );
+
+    FieldObject.fetchRobotValues();
+    GeoFence.clearBlocked();
   }
 
   private void compileAuto()

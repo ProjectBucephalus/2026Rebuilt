@@ -55,6 +55,7 @@ public class Shooter extends SubsystemBase
 
   private Pose2d shooterPose;
 
+  private Translation2d lastPosition = Translation2d.kZero;
   private Translation2d lastVelocity = Translation2d.kZero;
   private Translation2d lastAcceleration = Translation2d.kZero;
   @Logged
@@ -180,7 +181,7 @@ public class Shooter extends SubsystemBase
       || GeoFencing.trenchTrigger.getAsBoolean() 
       || GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation())
-      || (target.state == TargetState.Manual && jerkSquare >= PBDash.IO_JERK_LIMIT.get())
+      || (target.state != TargetState.Manual && jerkSquare >= PBDash.IO_JERK_LIMIT.get())
     )
       shootStatus = Status.BadLocation;
     else if (!turret.readyToShoot(swerveState.Speeds))
@@ -243,8 +244,10 @@ public class Shooter extends SubsystemBase
     Translation2d acceleration = velocity.minus(lastVelocity);
     jerkSquare = acceleration.minus(lastAcceleration).getSquaredNorm();
 
-    // Store pose and velocity to be used next cycle
+    // Store pose, velocity, and acceleration to be used next cycle
+    //lastPosition = shooterPose.getTranslation(); // Shooter pose has too much noise, so currently using speed from drivebase
     lastVelocity = velocity;
+    lastAcceleration = acceleration;
 
     // Find distance to current target for calculating leading shots
     double distance = switch (target.state) 
@@ -255,31 +258,37 @@ public class Shooter extends SubsystemBase
       default -> target.distance;
     };
 
-    if (target.state != TargetState.Manual && target.state != TargetState.Vision && jerkSquare < PBDash.IO_JERK_LIMIT.get())
+    if (target.state != TargetState.Manual && target.state != TargetState.Vision)
     {
-      Translation2d targetPoint = switch (target.state) 
-      {
-        case Point -> target.point;
-        // aim at our alliance's hub
-        case Hub -> FieldUtils.getAllianceHubCentre();
-        default -> Translation2d.kZero;
-      };
+      // Base target offset to reduce collisions
+      target.offset = baseTargetOffset
+          .rotateBy(swerveState.Pose.getRotation().unaryMinus());
+      
+      // If acceleration is stable, calculate shot leading
+      if (jerkSquare < PBDash.IO_JERK_LIMIT.get())
+      {  
+        Translation2d targetPoint = switch (target.state) 
+        {
+          case Point -> target.point;
+          // aim at our alliance's hub
+          case Hub -> FieldUtils.getAllianceHubCentre();
+          default -> Translation2d.kZero;
+        };
 
-      // Calculate the component of the velocity that is towards the target
-      double motionNormal = (((targetPoint.getX() - shooterPose.getX()) * velocity.getX()) + ((targetPoint.getY() - shooterPose.getY()) * velocity.getY())) / distance; 
-      double normalFactor = motionNormal / velocity.getNorm();
+        // Calculate the component of the velocity that is towards the target
+        double motionNormal = (((targetPoint.getX() - shooterPose.getX()) * velocity.getX()) + ((targetPoint.getY() - shooterPose.getY()) * velocity.getY())) / distance; 
+        double normalFactor = motionNormal / velocity.getNorm();
 
-      // Multiply ToF from last cycle by velocity towards target to give the change in distance from shot leading
-      // Use this new distance to calculate the new ToF
-      timeOfFlight = Interpolation.shotTime.get(distance + (timeOfFlight * normalFactor * motionNormal));
+        // Multiply ToF from last cycle by velocity towards target to give the change in distance from shot leading
+        // Use this new distance to calculate the new ToF
+        timeOfFlight = Interpolation.shotTime.get(distance + (timeOfFlight * normalFactor * motionNormal));
 
-      // Calculate target offset to avoid balls from each shooter colliding before reaching target
-      // and accounting for turret velocity and (half) acceleration
-      target.offset = 
-        baseTargetOffset
-          .rotateBy(swerveState.Pose.getRotation().unaryMinus())
-          .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.TEST_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight)));
+        // Calculate target offset to avoid balls from each shooter colliding before reaching target
+        // accounting for turret velocity and acceleration
+        target.offset = target.offset
+            .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.TEST_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight)));
 
+      }
       // Find distance to current target for calculating leading shots
       target.distance = switch (target.state) 
       {
@@ -289,7 +298,7 @@ public class Shooter extends SubsystemBase
         default -> target.distance;
       };
     }
-    else
+    else // If manual or tag-seeking
     {
       target.offset = Translation2d.kZero;
       target.distance = distance;
