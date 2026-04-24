@@ -373,28 +373,16 @@ public class Robot extends TimedRobot
       // (() -> 
       //   switch (s_StbdShooter.shootStatus()) 
       //   {
-      //     case Idling -> new Color(1.0, 0.0, 1.0);
-      //     case BadLocation -> Color.kRed;
-      //     case Aiming -> Color.kYellow;
-      //     case Revving -> Color.kWhite;
-      //     case AwaitingInput -> Color.kBlue;
-      //     case Fire -> Color.kGreen;
-      //     case Both Hubs will be Active -> LED Section 2 = Alternating White
-      //     case Red Hub will be Active -> LED Section 2 = Red Alternating
-      //     case Blue Hub will be Active -> LED Section 2 = Blue Alternating
-      //     case Both Hubs active -> LED Section 2 = White
-      //     case Red Hub active -> LED Section 2 = Red
-      //     case Blue Hub active -> LED Section 2 = BLue
-      //     case Robot in nudge zone & effected -> LED Section 2 = Yellow
-      //     case Robot affected by attractor -> LED Section 2 = Yellow
-      //     case Robot at attractor target -> LED Section 2 = Green
-      //     case Robot Blocked by fence -> LED Section 2 = Orange
-      //     case Shooters Idling -> LED Section 1 = Purple
-      //     case Shooters -> LED Section 1 = Red
-      //     case Waiting for Turret, Hood Angle, or Turret speed -> LED Section 1 = Yellow
-      //     case Aimed, but Flywheel not in Target range -> LED Section 1 = White
-      //     case Ready to fire, but waiting for saftey mode input -> LED Section 1 = Blue
-      //     case Actively Shooting -> LED Section 1 = Green
+      //     case Both Hubs will be Active -> Alternating White
+      //     case Red Hub will be Active -> Red Alternating
+      //     case Blue Hub will be Active -> Blue Alternating
+      //     case Both Hubs active -> White
+      //     case Red Hub active -> Red
+      //     case Blue Hub active -> BLue
+      //     case Robot in nudge zone & effected -> Yellow
+      //     case Robot affected by attractor -> Yellow
+      //     case Robot at attractor target -> Green
+      //     case Robot Blocked by fence -> Orange
       //   }
       // ),
       IDConstants.lowerLEDBlocks
