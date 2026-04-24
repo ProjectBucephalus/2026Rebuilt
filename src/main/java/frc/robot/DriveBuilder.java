@@ -18,14 +18,19 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Robot.NavState;
+import frc.robot.Robot.RobotState;
 import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.SwerveConstants;
 import frc.robot.constants.Path;
 import frc.robot.constants.Path.Node;
+import frc.robot.controlTransmutation.geoFence.GeoFence;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.Conversions;
+import frc.robot.util.FieldUtils;
 
 public class DriveBuilder
 {
@@ -48,6 +53,8 @@ public class DriveBuilder
   private static DoubleSupplier brakeSup;
   private static Supplier<Pose2d> robotPoseSup;
 
+  private static RobotState robotState;
+
   /**
    * Sets up the persistent internal values. Must be called before any of the other functions are used
    * 
@@ -56,6 +63,7 @@ public class DriveBuilder
    * @param rotationSup Supplier for the robot rotation input, [-1..1]
    * @param brakeSup Supplier for the braking input, [0..1]. 0 is no braking, 1 is full braking
    * @param robotPoseSup Supplier for the robot's pose at any given point in time
+   * @param robotState State object for the robot to allow navState to be updated
    */
   public static void init
   (
@@ -63,7 +71,8 @@ public class DriveBuilder
     Supplier<Translation2d> joystickSup,
     DoubleSupplier rotationSup,
     DoubleSupplier brakeSup,
-    Supplier<Pose2d> robotPoseSup
+    Supplier<Pose2d> robotPoseSup,
+    RobotState robotState
   )
   {
     DriveBuilder.s_Swerve = s_Swerve;
@@ -71,6 +80,17 @@ public class DriveBuilder
     DriveBuilder.rotationSup = rotationSup;
     DriveBuilder.brakeSup = brakeSup;
     DriveBuilder.robotPoseSup = robotPoseSup;
+    DriveBuilder.robotState = robotState;
+  }
+
+  private static void manualStateUpdate()
+  {
+    if (GeoFence.isBlocked()) robotState.nav = NavState.Blocked;
+    else if (FieldUtils.hubActive(Alliance.Blue)) 
+        if (FieldUtils.hubActive(Alliance.Red)) robotState.nav = NavState.DualShift;
+        else robotState.nav = NavState.BlueShift;
+      else if (FieldUtils.hubActive(Alliance.Red)) robotState.nav = NavState.RedShift;
+      else robotState.nav = NavState.Manual;
   }
 
   /** Creates a basic Manual drive command */
@@ -95,6 +115,8 @@ public class DriveBuilder
           .withVelocityY(motionXY.getY() * SwerveConstants.maxSpeed)
           .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
       );
+
+      manualStateUpdate();
     });
   }
 
@@ -126,6 +148,8 @@ public class DriveBuilder
           .withVelocityY(motionXY.getY() * SwerveConstants.maxSpeed)
           .withTargetDirection(targetHeadingSup.get())
       );
+
+      robotState.nav = NavState.HeadingLocked;
     });
   }
 
@@ -153,6 +177,8 @@ public class DriveBuilder
           .withVelocityY(motionXY.getY() * SwerveConstants.maxSpeed)
           .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
       );
+
+      robotState.nav = NavState.Nudged;
     });
   }
 
@@ -304,6 +330,8 @@ public class DriveBuilder
           currentWaypoint = Math.min(currentWaypoint + 1, waypoints.size());
           onPath = true;
         }
+
+        robotState.nav = NavState.Following;
       }
 
       @Override
@@ -312,6 +340,10 @@ public class DriveBuilder
         // Finish when robot is at the final waypoint
         return Conversions.atPose(robotPoseSup.get(), waypoints.get(waypoints.size()-1).pose());
       }
+
+      @Override
+      public void end(boolean interrupted) 
+        {robotState.nav = interrupted ? NavState.Blocked : NavState.AtTarget;}
     };
   }
 

@@ -59,7 +59,14 @@ public class PBDash
   public static final Key<Boolean> IO_FENCE         = new Key<>("Enable Fencing", true);
   public static final Key<Boolean> IO_SHOOT_HUB     = new Key<>("Auto Shoot Hub", false);
   public static final Key<Boolean> IO_SHOOT_PASS    = new Key<>("Auto Shoot Pass", true);
-  public static final Key<Boolean> IO_POWER_SAVE    = new Key<>("Power Save Mode", false);
+  public static final Key<Boolean> IO_POWER_DRIVE   = new Key<>("Power Save Drive", false);
+  public static final Key<Boolean> IO_POWER_SHOOT   = new Key<>("Power Save Shooter", false);
+
+  // State feedback
+  public static final Key<String>   STATE_DRIVE     = new Key<>("Drive State", "");
+  public static final Key<String[]> LED_STATE_DRIVE = new Key<>("Drive State LED", new String[]{});
+  public static final Key<String[]> LED_STATE_PORT  = new Key<>("Shooter State LED Port", new String[]{});
+  public static final Key<String[]> LED_STATE_STBD  = new Key<>("Shooter State LED Stbd", new String[]{});
   
   // Rumble strengths
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", RumblerConstants.driverDefault);
@@ -78,8 +85,8 @@ public class PBDash
   public static final Key<Double>  IO_JERK_LIMIT    = new Key<>("Jerk Limit", ShooterConstants.leadingJerkLimit);
 
   // Robot pose
-  public static final Key<String> POSE = new Key<>("Robot Pose", "");
-  public static final Field2d FIELD = new Field2d();
+  public static final Key<String>  POSE             = new Key<>("Robot Pose", "");
+  public static final Field2d      FIELD            = new Field2d();
   static { putSendable("Field", FIELD); }
 
   public static void putFieldObject(String name, Translation2d point)

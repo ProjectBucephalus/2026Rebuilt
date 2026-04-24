@@ -91,29 +91,34 @@ public class Fence extends GeoFence
     
     double motionX = motionXY.getX();
     double motionY = motionXY.getY();
+
+    // Holding values initialised as non-zero to allow for collision check
+    double distanceToEdgeX = 1;
+    double distanceToEdgeY = 1;
     
     if (motionX > 0)
     {   
-      double distanceToEdgeX = (Xb - radius) - (robotPos.getX() + robotRadius); 
+      distanceToEdgeX = (Xb - radius) - (robotPos.getX() + robotRadius); 
       motionX = Math.min(motionX, (Conversions.clamp(distanceToEdgeX, 0, buffer)) / buffer);
     }
     else if (motionX < 0)
     {   
-      double distanceToEdgeX = (robotPos.getX() - robotRadius) - (Xa + radius);
+      distanceToEdgeX = (robotPos.getX() - robotRadius) - (Xa + radius);
       motionX = Math.max(motionX, (-Conversions.clamp(distanceToEdgeX, 0, buffer)) / buffer);
     }
 
     if (motionY > 0)
     {   
-      double distanceToEdgeY = (Yb - radius) - (robotPos.getY() + robotRadius);
+      distanceToEdgeY = (Yb - radius) - (robotPos.getY() + robotRadius);
       motionY = Math.min(motionY, (Conversions.clamp(distanceToEdgeY, 0, buffer)) / buffer);
     }
     else if (motionY < 0)
     {   
-      double distanceToEdgeY = (robotPos.getY() - robotRadius) - (Ya + radius);
+      distanceToEdgeY = (robotPos.getY() - robotRadius) - (Ya + radius);
       motionY = Math.max(motionY, (-Conversions.clamp(distanceToEdgeY, 0, buffer)) / buffer);
     }
-    
+
+    if(distanceToEdgeX <= 0.05 || distanceToEdgeY <= 0.05) touchingObject = true; // Check for collision
     return new Translation2d(motionX, motionY);
   }
 }
