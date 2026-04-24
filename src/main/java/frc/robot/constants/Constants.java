@@ -55,9 +55,9 @@ public final class Constants
     /** How far a trigger must be pressed to be considered on, [0..1] */
     public static final double triggerThreshold = 0.8;
     /** Translation lineup tolerance, meters */
-    public static final double lineupTolerance = 0.1;
+    public static final double lineupTolerance = 0.05;
     /** Rotation lineup tolerance, degrees */
-    public static final double angleLineupTolerance = 3;
+    public static final double angleLineupTolerance = 1.5;
 
     /** Maximum robot speed to reduce power consumption, relative to maximum uncapped speed */
     public static final double powerSaveThrottle = 0.5;

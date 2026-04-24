@@ -249,7 +249,7 @@ public class FieldConstants
     /** Depth of barrier from driver wall when climbing, metres */
     private static final double climbWallDepth  = towerPostBlueX - robotRadiusExpanded - 0.1;
     /** Speed limit when lining up to climb, [0..1] */
-    private static final double climbSlowLimit  = 0.5;
+    private static final double climbSlowLimit  = 0.4;
 
     public static final Box climbWallBlue       = new Box(0, 0, climbWallDepth, fieldWidth);
     public static final Box climbWallRed        = new Box(fieldLength, 0, fieldLength - climbWallDepth, fieldWidth);
@@ -271,7 +271,7 @@ public class FieldConstants
 
     // TriggerVectors for climbing
     private static final double climbTriggerRadius = 2.5;
-    private static final double climbTriggerBuffer = 1.1;
+    private static final double climbTriggerBuffer = 0.8;
     public static final Translation2d climbApproachOffset = new Translation2d(0, 1.2);
     public static final Translation2d climbStartOffset = new Translation2d(0, 0.7);
     public static final Translation2d climbEndOffset = new Translation2d(0, 0.35);
