@@ -75,6 +75,16 @@ public class Block
     if (ntAddress != null)
     {
       pattern.applyTo(ntBuffer);
+      
+      if 
+      (
+        ntBuffer.getLED(0).equals(ntBuffer.getLED(1))
+        && ntBuffer.getLED(0).equals(ntBuffer.getLED(2))
+        && ntBuffer.getLED(0).equals(ntBuffer.getLED(3))
+      )
+      ntAddress.put(new String[] {ntBuffer.getLED(0).toHexString()});
+      
+      else
       ntAddress.put
       (
         new String[]
