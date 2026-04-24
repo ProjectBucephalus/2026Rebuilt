@@ -101,7 +101,7 @@ public record ControlBinder
       .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(IDConstants.visionSwitchID).getAsBoolean())).onlyIf(switchboardConnected).ignoringDisable(true));
 
     // Power Save
-    new Trigger(PBDash.IO_POWER_SAVE::get)
+    new Trigger(PBDash.IO_POWER_DRIVE::get)
       .onTrue
       (runOnce(() -> {
         PBDash.IO_MAX_THROTTLE.put(ControlConstants.powerSaveThrottle);
