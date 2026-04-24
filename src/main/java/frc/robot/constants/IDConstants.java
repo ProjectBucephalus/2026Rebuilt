@@ -86,7 +86,7 @@ public final class IDConstants
 
   /* Switchboard Switches */
   public static final int testHubSwitchID = 1;
-  public static final int testIdleSwitchID = 2;
+  public static final int disableShootersSwitchID = 2;
   public static final int testManualSwitchID = 3;
   public static final int autoAimSwitchID = 4;
   public static final int shootHubSwitchID = 6;

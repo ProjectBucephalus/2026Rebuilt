@@ -136,17 +136,18 @@ public class FieldConstants
     public static final double bumpSpeedLimit = 0;
     public static final double bumpRotationTolerance = 40;
     public static final double bumpWidth = 1.85;
+    public static final double columnBumpBuffer = 0.65;
     public static final double bumpYa = hubYa - bumpWidth;
     public static final double bumpYb = hubYb + bumpWidth;
 
-    public static final double bumpDepth = 0.5;
+    public static final double bumpDepth = 0.75;
     public static final double bumpXa = hubCentreOffset + bumpDepth/2;
     public static final double bumpXb = hubCentreOffset - bumpDepth/2;
 
-    public static final BoxRegion bumpSB = new BoxRegion(fieldCentre.getX() - bumpXa, bumpYa, fieldCentre.getX() - bumpXb, hubYa);
-    public static final BoxRegion bumpNB = new BoxRegion(fieldCentre.getX() - bumpXa, hubYb,  fieldCentre.getX() - bumpXb, bumpYb);
-    public static final BoxRegion bumpSR = new BoxRegion(fieldCentre.getX() + bumpXa, bumpYa, fieldCentre.getX() + bumpXb, hubYa);
-    public static final BoxRegion bumpNR = new BoxRegion(fieldCentre.getX() + bumpXa, hubYb,  fieldCentre.getX() + bumpXb, bumpYb);
+    public static final BoxRegion bumpSB = new BoxRegion(fieldCentre.getX() - bumpXa, bumpYa + columnBumpBuffer, fieldCentre.getX() - bumpXb, hubYa);
+    public static final BoxRegion bumpNB = new BoxRegion(fieldCentre.getX() - bumpXa, hubYb,  fieldCentre.getX() - bumpXb, bumpYb - columnBumpBuffer);
+    public static final BoxRegion bumpSR = new BoxRegion(fieldCentre.getX() + bumpXa, bumpYa + columnBumpBuffer, fieldCentre.getX() + bumpXb, hubYa);
+    public static final BoxRegion bumpNR = new BoxRegion(fieldCentre.getX() + bumpXa, hubYb,  fieldCentre.getX() + bumpXb, bumpYb - columnBumpBuffer);
 
     static 
     {
