@@ -13,6 +13,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.ControlConstants;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class PositionMotor extends SubsystemBase
@@ -95,6 +96,15 @@ public class PositionMotor extends SubsystemBase
    */
   public Command adjustTargetCmd(DoubleSupplier shiftSup) 
     {return run(() -> {if (shiftSup.getAsDouble() != 0) baseSetTarget(getAngle() + shiftSup.getAsDouble());});}
+  
+  /**
+   * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
+   * Reduces the input by the Manual Deadband amount to give finer control from a deadbanded joystick
+   * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
+   * @return the Command
+   */
+  public Command adjustTargetRemoveDeadbandCmd(DoubleSupplier shiftSup) 
+    {return adjustTargetCmd(() -> shiftSup.getAsDouble() == 0 ? 0 : shiftSup.getAsDouble() - Math.copySign(ControlConstants.manualControlDeadband, shiftSup.getAsDouble()));}
 
   /** @return Current angle of the motor, in mechanism rotations */
   @Logged(name = "angle Rotations")
