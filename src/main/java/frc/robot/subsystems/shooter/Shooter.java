@@ -171,7 +171,12 @@ public class Shooter extends SubsystemBase
 
   private void updateStatus()
   {
-    if (!target.flywheelsActive || target.disabled)
+    if 
+    (
+      !target.flywheelsActive 
+      || target.disabled
+      || (PBDash.IO_POWER_SHOOT.get() && lastVelocity.getSquaredNorm() > ShooterConstants.driveSpeedSquareThreshold)
+    )
       shootStatus = Status.Idling;
     else if (target.state == TargetState.Vision)
       shootStatus = Status.Vision;
@@ -314,13 +319,16 @@ public class Shooter extends SubsystemBase
       case Vision -> 0;
     };
 
-    target.speed = switch (target.state)
-    {
-      case Manual -> target.speed;
-      case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
-      case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
-      case Vision -> FlywheelConstants.idleSpeed;
-    };
+    if (shootStatus == Status.Idling || shootStatus == Status.BadLocation)
+      target.speed = FlywheelConstants.idleSpeed;
+    else
+      target.speed = switch (target.state)
+      {
+        case Manual -> target.speed;
+        case Point -> Interpolation.flywheelSpeedLow.get(target.distance);
+        case Hub -> Interpolation.flywheelSpeedHub.get(target.distance);
+        case Vision -> FlywheelConstants.idleSpeed;
+      };
 
     flywheels.update();
     turret.update(shooterPose, Math.toDegrees(swerveState.Speeds.omegaRadiansPerSecond));
