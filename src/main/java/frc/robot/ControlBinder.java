@@ -84,11 +84,11 @@ public record ControlBinder
 
   private void bindState()
   {
-    // Auto Pass
+    // Auto Score
     switchboard.button(IDConstants.shootHubSwitchID)
       .onChange(runOnce(() -> PBDash.IO_SHOOT_HUB.put(switchboard.button(IDConstants.shootHubSwitchID).getAsBoolean())).onlyIf(switchboardConnected).ignoringDisable(true));
 
-    // Auto Rev
+    // Auto Pass
     switchboard.button(IDConstants.shootPassSwitchID)
       .onChange(runOnce(() -> PBDash.IO_SHOOT_PASS.put(switchboard.button(IDConstants.shootPassSwitchID).getAsBoolean())).onlyIf(switchboardConnected).ignoringDisable(true));
 
@@ -403,7 +403,7 @@ public record ControlBinder
           state.shoot != ShootersState.Test
         )
       )
-      .onTrue(bothShooters(Commands::runOnce, Shooter::revFlywheels).ignoringDisable(true))
+      .onTrue(bothShooters(Commands::runOnce, Shooter::revFlywheels))
       .onFalse(bothShooters(Commands::runOnce, Shooter::idleFlywheels).ignoringDisable(true));
 
     /* Shooting when Ready */
