@@ -166,7 +166,7 @@ public final class Constants
     public static final double targetPointOffset = 0.08;
     public static final double accelLeadFactor = 0.8;
     /** Maximum Jerk^2 from drivebase at which shot leading is viable, (metres per second^3)^2 */
-    public static final double leadingJerkLimit = 1; // TODO: I have absolutely no idea what this value should be, good luck
+    public static final double leadingJerkLimit = 0.05; // TODO: I have absolutely no idea what this value should be, good luck
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, m/s */
     private static final double driveSpeedThreshold = 0.5;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, squared to reduce calculation load, (m/s)^2 */

@@ -1514,10 +1514,24 @@
             }
           },
           {
-            "title": "Jerk Limit",
+            "title": "Accel Factor",
             "x": 1312.0,
             "y": 576.0,
-            "width": 128.0,
+            "width": 112.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Acceleration Lead Factor",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Jerk Limit",
+            "x": 1424.0,
+            "y": 576.0,
+            "width": 112.0,
             "height": 96.0,
             "type": "Text Display",
             "properties": {

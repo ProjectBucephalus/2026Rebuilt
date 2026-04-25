@@ -57,8 +57,8 @@ public class PBDash
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
   public static final Key<Boolean> IO_FENCE         = new Key<>("Enable Fencing", true);
-  public static final Key<Boolean> IO_SHOOT_HUB     = new Key<>("Auto Shoot Hub", false);
-  public static final Key<Boolean> IO_SHOOT_PASS    = new Key<>("Auto Shoot Pass", true);
+  public static final Key<Boolean> IO_SHOOT_HUB     = new Key<>("Auto Shoot Hub", true);
+  public static final Key<Boolean> IO_SHOOT_PASS    = new Key<>("Auto Shoot Pass", false);
   public static final Key<Boolean> IO_POWER_DRIVE   = new Key<>("Power Save Drive", false);
   public static final Key<Boolean> IO_POWER_SHOOT   = new Key<>("Power Save Shooter", false);
 
