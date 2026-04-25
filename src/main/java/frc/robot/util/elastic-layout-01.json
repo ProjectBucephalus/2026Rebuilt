@@ -719,206 +719,6 @@
       }
     },
     {
-      "name": "Manual Controls",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
-          {
-            "title": "Max Throttle",
-            "x": 672.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Max Throttle",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Min Throttle",
-            "x": 672.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Min Throttle",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Test Flyspeed",
-            "x": 1088.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Test Flyspeed",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Port Target Distance",
-            "x": 1056.0,
-            "y": 512.0,
-            "width": 224.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "Robot/Port Shooter/target/distance Meters",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Stbd Target Distance",
-            "x": 1280.0,
-            "y": 512.0,
-            "width": 224.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "Robot/Stbd Shooter/target/distance Meters",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Test Altitude",
-            "x": 1216.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Test Altitude",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Auto String",
-            "x": 1056.0,
-            "y": 0.0,
-            "width": 480.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Auto String",
-              "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Auto String Errors",
-            "x": 1056.0,
-            "y": 256.0,
-            "width": 480.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Auto String Errors",
-              "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Auto Presets",
-            "x": 1056.0,
-            "y": 128.0,
-            "width": 480.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/PBDash/Auto Presets",
-              "period": 0.06,
-              "sort_options": false
-            }
-          },
-          {
-            "title": "Test Azimuth",
-            "x": 1344.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Test Azimuth",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Intake Speed",
-            "x": 544.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Test Intake Speed",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Current Commands",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 384.0,
-            "type": "Scheduler",
-            "properties": {
-              "topic": "/PBDash/Current Commands",
-              "period": 0.06
-            }
-          },
-          {
-            "title": "Jerk Limit",
-            "x": 544.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Jerk Limit",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Power Save Mode",
-            "x": 800.0,
-            "y": 0.0,
-            "width": 160.0,
-            "height": 96.0,
-            "type": "Toggle Switch",
-            "properties": {
-              "topic": "/PBDash/Power Save Mode",
-              "period": 0.06,
-              "data_type": "boolean"
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "Data",
       "grid_layout": {
         "layouts": [
@@ -1611,25 +1411,11 @@
         ],
         "containers": [
           {
-            "title": "Device Errors",
-            "x": 704.0,
-            "y": 384.0,
-            "width": 832.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Device Errors",
-              "period": 0.06,
-              "data_type": "string",
-              "show_submit_button": false
-            }
-          },
-          {
             "title": "Field",
-            "x": 704.0,
-            "y": 0.0,
-            "width": 832.0,
-            "height": 384.0,
+            "x": 576.0,
+            "y": -32.0,
+            "width": 1088.0,
+            "height": 416.0,
             "type": "Field",
             "properties": {
               "topic": "/PBDash/Field",
@@ -1643,6 +1429,20 @@
               "robot_color": 4294198070,
               "trajectory_color": 4294967295,
               "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "Device Errors",
+            "x": 704.0,
+            "y": 384.0,
+            "width": 832.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Device Errors",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
             }
           },
           {
@@ -1670,6 +1470,104 @@
               "period": 0.06,
               "data_type": "string"
             }
+          },
+          {
+            "title": "Min Throttle",
+            "x": 1056.0,
+            "y": 576.0,
+            "width": 128.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Min Throttle",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Max Throttle",
+            "x": 1056.0,
+            "y": 480.0,
+            "width": 128.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Max Throttle",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Intake Speed",
+            "x": 1184.0,
+            "y": 576.0,
+            "width": 128.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Test Intake Speed",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Jerk Limit",
+            "x": 1312.0,
+            "y": 576.0,
+            "width": 128.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Jerk Limit",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Test Flyspeed",
+            "x": 1184.0,
+            "y": 480.0,
+            "width": 128.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Test Flyspeed",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Test Altitude",
+            "x": 1424.0,
+            "y": 480.0,
+            "width": 112.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Test Altitude",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Test Azimuth",
+            "x": 1312.0,
+            "y": 480.0,
+            "width": 112.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Test Azimuth",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": true
+            }
           }
         ]
       }
@@ -1678,7 +1576,176 @@
       "name": "Auto",
       "grid_layout": {
         "layouts": [],
-        "containers": []
+        "containers": [
+          {
+            "title": "Field",
+            "x": -160.0,
+            "y": 128.0,
+            "width": 1280.0,
+            "height": 544.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/PBDash/Field",
+              "period": 0.06,
+              "field_game": "Rebuilt (No Fuel)",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 0.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "Auto String",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 704.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Auto String",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": true
+            }
+          },
+          {
+            "title": "Auto Presets",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/PBDash/Auto Presets",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "Auto String Errors",
+            "x": 960.0,
+            "y": 0.0,
+            "width": 576.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Auto String Errors",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Current Commands",
+            "x": 1248.0,
+            "y": 224.0,
+            "width": 288.0,
+            "height": 352.0,
+            "type": "Scheduler",
+            "properties": {
+              "topic": "/PBDash/Current Commands",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Vision",
+            "x": 960.0,
+            "y": 576.0,
+            "width": 144.0,
+            "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/PBDash/Use Limelight",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Fencing",
+            "x": 1104.0,
+            "y": 576.0,
+            "width": 144.0,
+            "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/PBDash/Enable Fencing",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Auto Hub",
+            "x": 1248.0,
+            "y": 576.0,
+            "width": 144.0,
+            "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/PBDash/Auto Shoot Hub",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Auto Pass",
+            "x": 1392.0,
+            "y": 576.0,
+            "width": 144.0,
+            "height": 96.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/PBDash/Auto Shoot Pass",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "LL Port",
+            "x": 960.0,
+            "y": 224.0,
+            "width": 288.0,
+            "height": 192.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonport_Port_1182_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0,
+              "fps": 10
+            }
+          },
+          {
+            "title": "LL Stbd",
+            "x": 960.0,
+            "y": 384.0,
+            "width": 288.0,
+            "height": 192.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonstbd_Port_1182_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0,
+              "fps": 10
+            }
+          },
+          {
+            "title": "Device Errors",
+            "x": 960.0,
+            "y": 128.0,
+            "width": 576.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/PBDash/Device Errors",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          }
+        ]
       }
     }
   ]
