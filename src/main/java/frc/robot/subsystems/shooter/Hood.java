@@ -44,7 +44,7 @@ public class Hood
   protected void update()
   {
     // Limit the target altitude to within the hood's range of motion     
-    double altitude = (target.disabled || GeoFencing.trenchTrigger.getAsBoolean())
+    double altitude = (target.disabled || GeoFencing.obstacleBlue.checkPosition(target.shooterPosition) || GeoFencing.obstacleRed.checkPosition(target.shooterPosition))
       ? 0 
       : Conversions.clamp(target.altitude, 0, hoodRange);
 

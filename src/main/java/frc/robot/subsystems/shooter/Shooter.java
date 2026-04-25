@@ -178,7 +178,8 @@ public class Shooter extends SubsystemBase
     else if 
     (
       target.distance <= ShooterConstants.minRange 
-      || GeoFencing.trenchTrigger.getAsBoolean() 
+      || GeoFencing.obstacleBlue.checkPosition(shooterPose.getTranslation())
+      || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation())
       || (target.state != TargetState.Manual && jerkSquare >= PBDash.IO_JERK_LIMIT.get())
@@ -237,6 +238,7 @@ public class Shooter extends SubsystemBase
   {
     swerveState = swerveStateSup.get();
     shooterPose = swerveState.Pose.plus(shooterOffset);
+    target.shooterPosition = shooterPose.getTranslation();
 
     // Calculate the instantaneous velocity and acceleration of the shooter
     var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
@@ -252,9 +254,9 @@ public class Shooter extends SubsystemBase
     // Find distance to current target for calculating leading shots
     double distance = switch (target.state) 
     {
-      case Point -> target.point.minus(shooterPose.getTranslation()).getNorm();
+      case Point -> target.point.minus(target.shooterPosition).getNorm();
       // aim at our alliance's hub
-      case Hub -> FieldUtils.getAllianceHubCentre().minus(shooterPose.getTranslation()).getNorm();
+      case Hub -> FieldUtils.getAllianceHubCentre().minus(target.shooterPosition).getNorm();
       default -> target.distance;
     };
 
@@ -292,9 +294,9 @@ public class Shooter extends SubsystemBase
       // Find distance to current target for calculating leading shots
       target.distance = switch (target.state) 
       {
-        case Point -> target.point.plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
+        case Point -> target.point.plus(target.offset).minus(target.shooterPosition).getNorm();
         // aim at our alliance's hub
-        case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(shooterPose.getTranslation()).getNorm();
+        case Hub -> FieldUtils.getAllianceHubCentre().plus(target.offset).minus(target.shooterPosition).getNorm();
         default -> target.distance;
       };
     }

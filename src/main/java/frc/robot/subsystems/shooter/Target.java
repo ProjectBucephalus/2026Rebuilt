@@ -31,6 +31,8 @@ public class Target
     Vision;
   }
 
+  /** The current translation of the shooter in field space */
+  public Translation2d shooterPosition = Translation2d.kZero;
   /** The currently active {@link TargetState} */
   public TargetState state; 
   /** The target azimuth, used for the {@link TargetState#Manual Manual} state, and for storing the last-calculated target in the other two states */

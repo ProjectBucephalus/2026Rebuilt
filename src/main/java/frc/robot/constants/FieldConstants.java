@@ -129,6 +129,9 @@ public class FieldConstants
     public static final Point hubBlueOutput = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
     public static final Point hubRedOutput  = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
 
+    public static final BoxRegion obstacleBlue = new BoxRegion(fieldCentre.getX() - hubFrontOffset, 0, fieldCentre.getX() - hubBackOffset, fieldWidth);
+    public static final BoxRegion obstacleRed  = new BoxRegion(fieldCentre.getX() + hubFrontOffset, 0, fieldCentre.getX() + hubBackOffset, fieldWidth);
+
     /* Bump Zone */
     // Speed should be limited when traversing
     // Rotation must NOT be square when traversing
