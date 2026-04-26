@@ -575,7 +575,7 @@ public record ControlBinder
       .onTrue(runOnce(() -> PBDash.CLIMBER_STATE.put("Extended")));
       
     // Manual Control
-    s_Climber.setDefaultCommand(s_Climber.adjustTargetRemoveDeadbandCmd(() -> MathUtil.applyDeadband(-operator.getRightY(), ControlConstants.manualControlDeadband) * ControlConstants.manualClimberExtensionScale));
+    s_Climber.setDefaultCommand(s_Climber.adjustTargetCmd(() -> MathUtil.applyDeadband(-operator.getRightY(), ControlConstants.manualControlDeadband) * ControlConstants.manualClimberExtensionScale));
     operator
       .axisMagnitudeGreaterThan(XboxController.Axis.kRightY.value, ControlConstants.manualControlDeadband)
       .onTrue(runOnce(() -> PBDash.CLIMBER_STATE.put("Manual")));

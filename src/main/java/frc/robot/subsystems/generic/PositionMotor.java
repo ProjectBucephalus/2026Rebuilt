@@ -120,15 +120,6 @@ public class PositionMotor extends SubsystemBase
   public Command adjustTargetCmd(DoubleSupplier shiftSup) 
     {return run(() -> {if (shiftSup.getAsDouble() != 0) baseSetTarget(getAngle() + shiftSup.getAsDouble());});}
   
-  /**
-   * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
-   * Reduces the input by the Manual Deadband amount to give finer control from a deadbanded joystick
-   * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
-   * @return the Command
-   */
-  public Command adjustTargetRemoveDeadbandCmd(DoubleSupplier shiftSup) 
-    {return adjustTargetCmd(() -> shiftSup.getAsDouble() == 0 ? 0 : shiftSup.getAsDouble() - Math.copySign(ControlConstants.manualControlDeadband, shiftSup.getAsDouble()));}
-
   /** @return Current angle of the motor, in mechanism rotations */
   @Logged(name = "angle Rotations")
   public double getAngle() 
