@@ -188,7 +188,7 @@
             "height": 224.0,
             "type": "Radial Gauge",
             "properties": {
-              "topic": "Robot/Intake/extension/angle Rotations",
+              "topic": "Robot/Extension/angle Rotations",
               "period": 0.06,
               "data_type": "double",
               "start_angle": -30.0,
@@ -546,7 +546,7 @@
             "height": 224.0,
             "type": "Radial Gauge",
             "properties": {
-              "topic": "Robot/Intake/extension/angle Rotations",
+              "topic": "Robot/Extension/angle Rotations",
               "period": 0.06,
               "data_type": "double",
               "start_angle": -30.0,
@@ -1160,6 +1160,20 @@
                   "data_type": "double",
                   "show_submit_button": false
                 }
+              },
+              {
+                "title": "Extension State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Extension State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               }
             ]
           },
@@ -1340,6 +1354,20 @@
                 "type": "Text Display",
                 "properties": {
                   "topic": "Robot/Climber/Position Meters",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "target Rotations",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "Robot/Climber/target Rotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false

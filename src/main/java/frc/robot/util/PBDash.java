@@ -36,7 +36,7 @@ public class PBDash
   // System states
   public static final Key<String> DEVICE_ERRORS = new Key<>("Device Errors", "");
   public static final Key<String> CLIMBER_STATE = new Key<>("Climber State", "Home");
-  public static final Key<String> EXTENSION_STATE = new Key<>("Climber State", "Stowed");
+  public static final Key<String> EXTENSION_STATE = new Key<>("Extension State", "Stowed");
 
   // Auto-builder
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
