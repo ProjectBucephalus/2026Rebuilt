@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.constants.Constants.ControlConstants;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class PositionMotor extends SubsystemBase
@@ -48,13 +47,12 @@ public class PositionMotor extends SubsystemBase
     motorSim = new DCMotorSim
     (
       LinearSystemId.createDCMotorSystem
-        (DCMotor.getKrakenX60(1), 0.1, motorGearRatio),
+        (DCMotor.getKrakenX60(1), 0.1, motorGearRatio * config.Feedback.RotorToSensorRatio),
       DCMotor.getKrakenX60(1)
     );
     if (Robot.isSimulation())
     {
       config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-      config.Feedback.RotorToSensorRatio = 1;
       m_Position.getConfigurator().apply(config);
     }
   }
