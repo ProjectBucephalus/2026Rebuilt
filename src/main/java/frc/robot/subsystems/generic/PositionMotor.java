@@ -104,7 +104,7 @@ public class PositionMotor extends SubsystemBase
    * @return the Command
    */
   public Command adjustTargetRemoveDeadbandCmd(DoubleSupplier shiftSup) 
-    {return adjustTargetCmd(() -> shiftSup.getAsDouble() == 0 ? 0 : shiftSup.getAsDouble() - Math.copySign(ControlConstants.manualControlDeadband, shiftSup.getAsDouble()));}
+    {return adjustTargetCmd(() -> shiftSup.getAsDouble() == 0 ? 0 : (shiftSup.getAsDouble() - Math.copySign(ControlConstants.manualControlDeadband/2, shiftSup.getAsDouble())));}
 
   /** @return Current angle of the motor, in mechanism rotations */
   @Logged(name = "angle Rotations")
