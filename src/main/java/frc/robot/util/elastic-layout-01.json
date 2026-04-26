@@ -168,14 +168,14 @@
             }
           },
           {
-            "title": "Roller",
+            "title": "Extension State",
             "x": 1152.0,
             "y": 464.0,
             "width": 224.0,
             "height": 112.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/Intake/state",
+              "topic": "/PBDash/Extension State",
               "period": 0.06,
               "data_type": "string"
             }
@@ -188,7 +188,7 @@
             "height": 224.0,
             "type": "Radial Gauge",
             "properties": {
-              "topic": "Robot/Intake/extension/angle Rotations",
+              "topic": "Robot/Extension/angle Rotations",
               "period": 0.06,
               "data_type": "double",
               "start_angle": -30.0,
@@ -199,6 +199,19 @@
               "wrap_value": false,
               "show_pointer": true,
               "show_ticks": false
+            }
+          },
+          {
+            "title": "Roller",
+            "x": 1152.0,
+            "y": 416.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/Intake/state",
+              "period": 0.06,
+              "data_type": "string"
             }
           },
           {
@@ -526,14 +539,14 @@
             }
           },
           {
-            "title": "Roller",
+            "title": "Extension State",
             "x": 1152.0,
             "y": 464.0,
             "width": 224.0,
             "height": 112.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/Intake/state",
+              "topic": "/PBDash/Extension State",
               "period": 0.06,
               "data_type": "string"
             }
@@ -546,7 +559,7 @@
             "height": 224.0,
             "type": "Radial Gauge",
             "properties": {
-              "topic": "Robot/Intake/extension/angle Rotations",
+              "topic": "Robot/Extension/angle Rotations",
               "period": 0.06,
               "data_type": "double",
               "start_angle": -30.0,
@@ -557,6 +570,19 @@
               "wrap_value": false,
               "show_pointer": true,
               "show_ticks": false
+            }
+          },
+          {
+            "title": "Roller",
+            "x": 1152.0,
+            "y": 416.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/Intake/state",
+              "period": 0.06,
+              "data_type": "string"
             }
           },
           {
@@ -1160,6 +1186,20 @@
                   "data_type": "double",
                   "show_submit_button": false
                 }
+              },
+              {
+                "title": "Extension State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Extension State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               }
             ]
           },
@@ -1340,6 +1380,20 @@
                 "type": "Text Display",
                 "properties": {
                   "topic": "Robot/Climber/Position Meters",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "target Rotations",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "Robot/Climber/target Rotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false

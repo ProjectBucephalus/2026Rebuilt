@@ -5,15 +5,20 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.Robot;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class PositionMotor extends SubsystemBase
@@ -23,6 +28,9 @@ public class PositionMotor extends SubsystemBase
   protected final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
   protected boolean active = false;
+
+  private final double motorGearRatio;
+  private final DCMotorSim motorSim;
 
   /**
    * Creates a wrapper around a TalonFX to provide velocity control
@@ -34,6 +42,19 @@ public class PositionMotor extends SubsystemBase
   {
     m_Position = new TalonFX(id);
     m_Position.getConfigurator().apply(config);
+
+    motorGearRatio = config.Feedback.SensorToMechanismRatio;
+    motorSim = new DCMotorSim
+    (
+      LinearSystemId.createDCMotorSystem
+        (DCMotor.getKrakenX60(1), 0.1, motorGearRatio * config.Feedback.RotorToSensorRatio),
+      DCMotor.getKrakenX60(1)
+    );
+    if (Robot.isSimulation())
+    {
+      config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+      m_Position.getConfigurator().apply(config);
+    }
   }
 
   /**
@@ -97,15 +118,6 @@ public class PositionMotor extends SubsystemBase
   public Command adjustTargetCmd(DoubleSupplier shiftSup) 
     {return run(() -> {if (shiftSup.getAsDouble() != 0) baseSetTarget(getAngle() + shiftSup.getAsDouble());});}
   
-  /**
-   * Creates a command to continuously adjust the target point of the motor by a dynamic amount <p>
-   * Reduces the input by the Manual Deadband amount to give finer control from a deadbanded joystick
-   * @param shiftSup A supplier for the amount to adjust the target by in mechanism rotations
-   * @return the Command
-   */
-  public Command adjustTargetRemoveDeadbandCmd(DoubleSupplier shiftSup) 
-    {return adjustTargetCmd(() -> shiftSup.getAsDouble() == 0 ? 0 : (shiftSup.getAsDouble() - Math.copySign(ControlConstants.manualControlDeadband/2, shiftSup.getAsDouble())));}
-
   /** @return Current angle of the motor, in mechanism rotations */
   @Logged(name = "angle Rotations")
   public double getAngle() 
@@ -127,4 +139,25 @@ public class PositionMotor extends SubsystemBase
   /** @return {@code true} if all CAN devices are connected */
   public boolean devicesValid()
     {return m_Position.isConnected();}
+
+  @Override
+  public void simulationPeriodic()
+  {
+        var motorSimState = m_Position.getSimState();
+    motorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+    // get the motor voltage of the TalonFX
+    var motorVoltage = motorSimState.getMotorVoltageMeasure();
+
+    // use the motor voltage to calculate new position and velocity
+    // using WPILib's DCMotorSim class for physics simulation
+    motorSim.setInputVoltage(motorVoltage.in(Units.Volts));
+    motorSim.update(0.020); // assume 20 ms loop time
+
+    // apply the new rotor position and velocity to the TalonFX
+    // note that this is rotor position/velocity (before gear ratio), but
+    // DCMotorSim returns mechanism position/velocity (after gear ratio)
+    motorSimState.setRawRotorPosition(motorSim.getAngularPosition().times(motorGearRatio));
+    motorSimState.setRotorVelocity(motorSim.getAngularVelocity().times(motorGearRatio));
+  }
 }
