@@ -90,7 +90,7 @@ public final class ParsedRepr
           case "off" -> false;
           default -> 
           {
-            AutoBuilder.error("warning: value ", value, " was interpreted as a boolean but is not `on` or `off` (treated it as false/`off`)");
+            AutoBuilder.error("warning: value ", value, " should be `on` or `off` (treated it as false/`off`)");
             yield false;
           }
         };

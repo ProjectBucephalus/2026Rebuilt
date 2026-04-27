@@ -100,7 +100,7 @@ public class CommandGen
           instr.type(), 
           "`) has type ", 
           e.found.type(), 
-          " but should have type ", 
+          ", expected ", 
           e.expected
         );
       }
@@ -113,11 +113,10 @@ public class CommandGen
           pos + 1, 
           " (`", 
           instr.type(), 
-          "`) has  ",
+          "`) has ",
           e.found,
-          " arguments but should have ",
-          e.expected,
-          " arguments"
+          " arguments, expected ",
+          e.expected
         );
       }
       catch (GeneralException e) 
@@ -201,10 +200,10 @@ public class CommandGen
     // If either value changes as a result of this clamping, we provide a warning but still continue
     double xArg = instr.arg(0).asNum();
     double x = MathUtil.clamp(xArg, 0.5, (FieldConstants.fieldCentre.getX()) - 0.5);
-    if (x != xArg) {AutoBuilder.error("warning: x value `", xArg, "` was clamped to `", x, "`");}
+    if (x != xArg) {AutoBuilder.error("warning: x = `", xArg, "` was clamped to `", x, "`");}
     double yArg = instr.arg(1).asNum();
     double y = MathUtil.clamp(yArg, 0.5, FieldConstants.fieldWidth - 0.5);
-    if (y != yArg) {AutoBuilder.error("warning: y value `", yArg, "` was clamped to `", y, "`");}
+    if (y != yArg) {AutoBuilder.error("warning: y = `", yArg, "` was clamped to `", y, "`");}
 
     currPose = new Pose2d(new Translation2d(x, y), rotationTarget);
     Pose2d targetPose = FieldUtils.allianceRotatePose(currPose);
@@ -252,7 +251,7 @@ public class CommandGen
     {
       case "left" -> true;
       case "right" -> false;
-      default -> throw new GeneralException("expected the argument to be `left` or `right`, but it was ", text);
+      default -> throw new GeneralException("expected `left` or `right`, found ", text);
     };
 
     Pose2d climbStartPose = isLeft ? GeoFencing.climbStartPoseLeft.get() : GeoFencing.climbStartPoseRight.get();
