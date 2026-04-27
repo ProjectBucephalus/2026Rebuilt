@@ -8,9 +8,9 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Robot;
 import frc.robot.util.Conversions;
 
 /** 
@@ -75,7 +75,7 @@ public class LimitedMotor extends PositionMotor
     m_Position.setPosition(minRotations);
 
     // Allows using motor stall as limit. Deprecated
-    if (Robot.isSimulation())
+    if (RobotBase.isSimulation())
       limit = new SimLimit();
     else if (limitIO == -1)
       limit = new StallLimit(configs.CustomParams.CustomParam1);

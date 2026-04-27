@@ -13,12 +13,12 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class PositionMotor extends SubsystemBase
@@ -41,7 +41,6 @@ public class PositionMotor extends SubsystemBase
   public PositionMotor(int id, TalonFXConfiguration config) 
   {
     m_Position = new TalonFX(id);
-    m_Position.getConfigurator().apply(config);
 
     motorGearRatio = config.Feedback.SensorToMechanismRatio;
     motorSim = new DCMotorSim
@@ -50,11 +49,14 @@ public class PositionMotor extends SubsystemBase
         (DCMotor.getKrakenX60(1), 0.1, motorGearRatio * config.Feedback.RotorToSensorRatio),
       DCMotor.getKrakenX60(1)
     );
-    if (Robot.isSimulation())
+
+    if (RobotBase.isSimulation())
     {
+      config = config.clone();
       config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-      m_Position.getConfigurator().apply(config);
     }
+
+    m_Position.getConfigurator().apply(config);
   }
 
   /**
@@ -128,7 +130,7 @@ public class PositionMotor extends SubsystemBase
   public double getTarget() 
     {return request.Position;}
 
-  /** Stops the motor by setting the target to its current position */
+  /** Stops the motor */
   public void stop()
     {m_Position.set(0);}
 
@@ -143,7 +145,7 @@ public class PositionMotor extends SubsystemBase
   @Override
   public void simulationPeriodic()
   {
-        var motorSimState = m_Position.getSimState();
+    var motorSimState = m_Position.getSimState();
     motorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
 
     // get the motor voltage of the TalonFX

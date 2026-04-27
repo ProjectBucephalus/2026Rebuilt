@@ -76,25 +76,26 @@ public class Block
     {
       pattern.applyTo(ntBuffer);
       
+      // getLED is non-trivial and entails a memory allocation
+      var ledZero = ntBuffer.getLED(0);
       if 
       (
-        ntBuffer.getLED(0).equals(ntBuffer.getLED(1))
-        && ntBuffer.getLED(0).equals(ntBuffer.getLED(2))
-        && ntBuffer.getLED(0).equals(ntBuffer.getLED(3))
+        ledZero.equals(ntBuffer.getLED(1))
+        && ledZero.equals(ntBuffer.getLED(2))
+        && ledZero.equals(ntBuffer.getLED(3))
       )
-      ntAddress.put(new String[] {ntBuffer.getLED(0).toHexString()});
-      
+        ntAddress.put(new String[] {ledZero.toHexString()});
       else
-      ntAddress.put
-      (
-        new String[]
-        {
-          ntBuffer.getLED(0).toHexString(),
-          ntBuffer.getLED(1).toHexString(),
-          ntBuffer.getLED(2).toHexString(),
-          ntBuffer.getLED(3).toHexString()
-        }
-      );
+        ntAddress.put
+        (
+          new String[]
+          {
+            ledZero.toHexString(),
+            ntBuffer.getLED(1).toHexString(),
+            ntBuffer.getLED(2).toHexString(),
+            ntBuffer.getLED(3).toHexString()
+          }
+        );
     }
   }
 }
