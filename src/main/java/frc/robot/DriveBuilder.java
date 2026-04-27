@@ -83,14 +83,15 @@ public class DriveBuilder
     DriveBuilder.robotState = robotState;
   }
 
-  private static void manualStateUpdate()
+  private static void manualStateUpdate(boolean hasInput)
   {
     if (GeoFence.isBlocked()) robotState.nav = NavState.Blocked;
-    else if (FieldUtils.hubActive(Alliance.Blue)) 
-        if (FieldUtils.hubActive(Alliance.Red)) robotState.nav = NavState.DualShift;
-        else robotState.nav = NavState.BlueShift;
-      else if (FieldUtils.hubActive(Alliance.Red)) robotState.nav = NavState.RedShift;
-      else robotState.nav = NavState.Manual;
+    else if (hasInput || robotState.nav != NavState.AtTarget)
+    if (FieldUtils.hubActive(Alliance.Blue)) 
+      if (FieldUtils.hubActive(Alliance.Red)) robotState.nav = NavState.DualShift;
+      else robotState.nav = NavState.BlueShift;
+    else if (FieldUtils.hubActive(Alliance.Red)) robotState.nav = NavState.RedShift;
+    else robotState.nav = NavState.Manual;
   }
 
   /** Creates a basic Manual drive command */
@@ -116,7 +117,7 @@ public class DriveBuilder
           .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
       );
 
-      manualStateUpdate();
+      manualStateUpdate(!motionXY.equals(Translation2d.kZero));
     });
   }
 
@@ -149,7 +150,7 @@ public class DriveBuilder
           .withTargetDirection(targetHeadingSup.get())
       );
 
-      robotState.nav = NavState.HeadingLocked;
+      robotState.nav = GeoFence.isBlocked() ? NavState.Blocked : NavState.HeadingLocked;
     });
   }
 
@@ -178,7 +179,7 @@ public class DriveBuilder
           .withRotationalRate(rotationVal * SwerveConstants.maxAngularVelocity)
       );
 
-      robotState.nav = NavState.Nudged;
+      robotState.nav = GeoFence.isBlocked() ? NavState.Blocked : NavState.Nudged;
     });
   }
 
@@ -331,7 +332,7 @@ public class DriveBuilder
           onPath = true;
         }
 
-        robotState.nav = NavState.Following;
+        robotState.nav = GeoFence.isBlocked() ? NavState.Blocked : NavState.Following;
       }
 
       @Override
