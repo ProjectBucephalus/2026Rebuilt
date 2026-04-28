@@ -816,6 +816,20 @@
                 }
               },
               {
+                "title": "acceleration",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "Robot/Port Shooter/accel",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
                 "title": "jerk",
                 "x": 0.0,
                 "y": 0.0,
@@ -1010,6 +1024,20 @@
                 "type": "Text Display",
                 "properties": {
                   "topic": "Robot/Stbd Shooter/indexer/speed RevPerSec",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "acceleration",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "Robot/Stbd Shooter/accel",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false

@@ -59,6 +59,8 @@ public class Shooter extends SubsystemBase
   private Translation2d lastVelocity = Translation2d.kZero;
   private Translation2d lastAcceleration = Translation2d.kZero;
   @Logged
+  private double accel;
+  @Logged
   private double jerk;
   private double timeOfFlight = 0;
 
@@ -251,6 +253,7 @@ public class Shooter extends SubsystemBase
     var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
     Translation2d velocity = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
     Translation2d acceleration = velocity.minus(lastVelocity).times(50);
+    accel = acceleration.getNorm();
     jerk = acceleration.minus(lastAcceleration).getNorm() * 50;
 
     // Store pose, velocity, and acceleration to be used next cycle
@@ -275,11 +278,13 @@ public class Shooter extends SubsystemBase
       
       // If acceleration is stable, calculate shot leading
       if (jerk < PBDash.TUNE_JERK_LIMIT.get())
-      {  
+      { 
+        double mechLag = PBDash.TUNE_MECH_LAG.get(); 
+
         // Projecting pose based on velocity and acceleration
         shooterPose = new Pose2d(
           shooterPose.getTranslation()
-            .plus(velocity.plus(acceleration.times(PBDash.TUNE_MECH_LAG.get() * PBDash.TUNE_LEAD_FACTOR.get())).times(PBDash.TUNE_MECH_LAG.get())), 
+            .plus(velocity.plus(acceleration.times(mechLag * PBDash.TUNE_LEAD_FACTOR.get())).times(mechLag)), 
           shooterPose.getRotation());
 
         Translation2d targetPoint = switch (target.state) 
@@ -302,7 +307,7 @@ public class Shooter extends SubsystemBase
         // accounting for turret velocity and acceleration
         target.offset = target.offset
             .minus(velocity.times(timeOfFlight)
-            //.plus(acceleration.times(PBDash.TUNE_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight))
+            //.plus(acceleration.times(PBDash.TUNE_LEAD_FACTOR.get() * mechLag * mechLag))
             );
 
       }
