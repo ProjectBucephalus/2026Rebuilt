@@ -1543,6 +1543,20 @@
                 }
               },
               {
+                "title": "Mechanism Lag",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Mechanism Lag",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
                 "title": "Blue Left Climb Offset",
                 "x": 0.0,
                 "y": 0.0,
