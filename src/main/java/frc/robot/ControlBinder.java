@@ -277,7 +277,7 @@ public record ControlBinder
     driver.povRight().or(() -> state.climbPos == ClimbPosition.Right && DriverStation.isAutonomous())
       .onTrue
       (
-        runOnce(() -> {          
+        runOnce(() -> {
           s_StbdShooter.target.azimuth = 45;
           s_StbdShooter.target.state = TargetState.Vision;
           s_PhotonPort.setActive(false);
@@ -287,7 +287,7 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {
-          s_StbdShooter.target.state = s_PortShooter.target.state;
+          s_StbdShooter.target.state = TargetState.Hub;
           s_PhotonPort.setActive(true);
         })
       );
@@ -295,7 +295,7 @@ public record ControlBinder
     driver.povLeft().or(() -> state.climbPos == ClimbPosition.Left && DriverStation.isAutonomous())
       .onTrue
       (
-        runOnce(() -> {          
+        runOnce(() -> {   
           s_PortShooter.target.azimuth = -45;
           s_PortShooter.target.state = TargetState.Vision;
           s_PhotonStbd.setActive(false);
@@ -305,7 +305,7 @@ public record ControlBinder
     .onTrue
       (
         runOnce(() -> {
-          s_PortShooter.target.state = s_StbdShooter.target.state;
+          s_PortShooter.target.state = TargetState.Hub;
           s_PhotonStbd.setActive(true);
         })
       );

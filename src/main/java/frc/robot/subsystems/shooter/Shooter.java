@@ -158,7 +158,7 @@ public class Shooter extends SubsystemBase
    */
   @Logged
   public boolean shootReady()
-    {return shootStatus == Status.Fire;}
+    {return shootStatus == Status.Fire || shootStatus == Status.AwaitingInput;}
 
   /**
    * Checks what conditions required for shooting are currently met
@@ -171,15 +171,15 @@ public class Shooter extends SubsystemBase
 
   private void updateStatus()
   {
-    if 
+    if (target.state == TargetState.Vision)
+      shootStatus = Status.Vision;
+    else if 
     (
       !target.flywheelsActive 
       || target.disabled
       || (PBDash.IO_POWER_SHOOT.get() && lastVelocity.getSquaredNorm() > ShooterConstants.driveSpeedSquareThreshold)
     )
       shootStatus = Status.Idling;
-    else if (target.state == TargetState.Vision)
-      shootStatus = Status.Vision;
     else if 
     (
       target.distance <= ShooterConstants.minRange 
@@ -194,6 +194,8 @@ public class Shooter extends SubsystemBase
       shootStatus = Status.Aiming;
     else if (!flywheels.atSpeed())
       shootStatus = Status.Revving;
+    else if (indexer.getSpeed() <= 5)
+      shootStatus = Status.AwaitingInput;
     else 
       shootStatus = Status.Fire;
   }
@@ -293,7 +295,7 @@ public class Shooter extends SubsystemBase
         // Calculate target offset to avoid balls from each shooter colliding before reaching target
         // accounting for turret velocity and acceleration
         target.offset = target.offset
-            .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.TEST_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight)));
+            .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.TUNE_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight)));
 
       }
       // Find distance to current target for calculating leading shots

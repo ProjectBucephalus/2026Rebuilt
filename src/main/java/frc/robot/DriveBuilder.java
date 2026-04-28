@@ -344,7 +344,7 @@ public class DriveBuilder
 
       @Override
       public void end(boolean interrupted) 
-        {robotState.nav = interrupted ? NavState.Blocked : NavState.AtTarget;}
+        {if (!interrupted) robotState.nav = NavState.AtTarget;}
     };
   }
 
