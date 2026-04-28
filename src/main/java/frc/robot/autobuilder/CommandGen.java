@@ -7,13 +7,16 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 
 import frc.robot.DriveBuilder;
+import frc.robot.Robot.ClimbPosition;
 import frc.robot.Robot.RobotState;
 import frc.robot.autobuilder.ParsedRepr.*;
 import frc.robot.constants.Constants.ClimberConstants;
@@ -100,7 +103,7 @@ public class CommandGen
           instr.type(), 
           "`) has type ", 
           e.found.type(), 
-          " but should have type ", 
+          ", expected ", 
           e.expected
         );
       }
@@ -113,11 +116,10 @@ public class CommandGen
           pos + 1, 
           " (`", 
           instr.type(), 
-          "`) has  ",
+          "`) has ",
           e.found,
-          " arguments but should have ",
-          e.expected,
-          " arguments"
+          " arguments, expected ",
+          e.expected
         );
       }
       catch (GeneralException e) 
@@ -201,10 +203,10 @@ public class CommandGen
     // If either value changes as a result of this clamping, we provide a warning but still continue
     double xArg = instr.arg(0).asNum();
     double x = MathUtil.clamp(xArg, 0.5, (FieldConstants.fieldCentre.getX()) - 0.5);
-    if (x != xArg) {AutoBuilder.error("warning: x value `", xArg, "` was clamped to `", x, "`");}
+    if (x != xArg) {AutoBuilder.error("warning: x = `", xArg, "` was clamped to `", x, "`");}
     double yArg = instr.arg(1).asNum();
     double y = MathUtil.clamp(yArg, 0.5, FieldConstants.fieldWidth - 0.5);
-    if (y != yArg) {AutoBuilder.error("warning: y value `", yArg, "` was clamped to `", y, "`");}
+    if (y != yArg) {AutoBuilder.error("warning: y = `", yArg, "` was clamped to `", y, "`");}
 
     currPose = new Pose2d(new Translation2d(x, y), rotationTarget);
     Pose2d targetPose = FieldUtils.allianceRotatePose(currPose);
@@ -252,24 +254,62 @@ public class CommandGen
     {
       case "left" -> true;
       case "right" -> false;
-      default -> throw new GeneralException("expected the argument to be `left` or `right`, but it was ", text);
+      default -> throw new GeneralException("expected `left` or `right`, found ", text);
     };
 
-    Pose2d climbStartPose = isLeft ? GeoFencing.climbStartPoseLeft.get() : GeoFencing.climbStartPoseRight.get();
-    Pose2d climbEndPose = isLeft ? GeoFencing.climbEndPoseLeft.get() : GeoFencing.climbEndPoseRight.get();
+    Path approachPath, climbPath;
+
+    if (isLeft)
+      if(FieldUtils.isAlliance(Alliance.Blue))
+      {
+        approachPath = Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0);
+        climbPath = Path.climbBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0);
+      }
+      else // if Alliance.Red
+      {
+        approachPath = Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0);
+        climbPath = Path.climbRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0);
+      }
+    else // if isRight
+      if(FieldUtils.isAlliance(Alliance.Blue))
+      {
+        approachPath = Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0);
+        climbPath = Path.climbBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0);
+      }
+      else // if Alliance.Red
+      {
+        approachPath = Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0);
+        climbPath = Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0);
+      }
 
     commands.addCommands
     (
-      Commands.parallel
-      (
-        DriveBuilder.pathFollow(climbStartPose),
-        s_Climber.extendCmd()
-      ),
-      Commands.waitUntil(() -> !io_ClimberPost.get()),
-      DriveBuilder.pathFollow(climbEndPose, () -> 0.75),
+      // Set climb position for fencing and vision
+      Commands.runOnce(() -> state.climbPos = isLeft ? ClimbPosition.Left : ClimbPosition.Right),
+
+      // Follow to approach point, wait until climber is fully extended
+      DriveBuilder.pathFollow(approachPath)
+        .alongWith(s_Climber.extendCmd()),
       Commands.waitUntil(io_ClimberPost::get),
-      s_Climber.setTargetCmd(ClimberConstants.climbPosition)
+
+      // Wiggle climber while following path into cimb position
+      Commands.repeatingSequence
+      ( 
+        s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+        Commands.waitSeconds(ClimberConstants.wiggleWait),
+        s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+        Commands.waitSeconds(ClimberConstants.wiggleWait)
+      ).raceWith(DriveBuilder.pathFollow(climbPath)),
+      s_Climber.extendCmd(),
+
+      // Only attempt climb if the post is detected
+      Commands.waitUntil(() -> !io_ClimberPost.get()),
+      s_Climber.gotoTargetCmd(ClimberConstants.climbPosition),
+
+      // Unset climb position ready for teleop
+      Commands.runOnce(() -> state.climbPos = ClimbPosition.None)
     );
+     
   }
 
   /**

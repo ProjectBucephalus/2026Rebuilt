@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.LEDWriter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 
+@Deprecated(forRemoval =  true)
 public class AlternatingPattern implements LEDPattern
 {
   private final Color colour1;

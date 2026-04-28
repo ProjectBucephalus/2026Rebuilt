@@ -33,7 +33,7 @@ public class Intake extends VelocityMotor
   {
     double rollerSpeed = switch (state)  
     {
-      case On -> PBDash.TEST_INTAKE_SPEED.get();
+      case On -> PBDash.IO_INTAKE_SPEED.get();
       case Off -> 0;
       case Idle -> RollerConstants.intakeMinSpeed;
       case Reversed -> -RollerConstants.intakeMinSpeed;

@@ -221,12 +221,12 @@ public class FieldConstants
     public static final double towerPostRedLeftY = fieldWidth - (towerSpacing + towerWidth - towerPostEdge);
 
     public static final Box towerBlue = new Box(0, towerPostBlueRightY, towerPostBlueX, towerPostBlueLeftY, towerBaseRadius, 0.25);
-    public static final Point towerPostBlueN = new Point(towerPostBlueX + FieldTuning.climbOffsetBlueLeft, towerPostBlueLeftY, towerPostRadius, 0.25);
-    public static final Point towerPostBlueS = new Point(towerPostBlueX + FieldTuning.climbOffsetBlueRight, towerPostBlueRightY, towerPostRadius, 0.25);
+    public static final Point towerPostBlueN = new Point(towerPostBlueX, towerPostBlueLeftY, towerPostRadius, 0.25);
+    public static final Point towerPostBlueS = new Point(towerPostBlueX, towerPostBlueRightY, towerPostRadius, 0.25);
     
     public static final Box towerRed = new Box(fieldLength, towerPostRedLeftY, towerPostRedX, towerPostRedRightY, towerBaseRadius, 0.25);
-    public static final Point towerPostRedN = new Point(towerPostRedX - FieldTuning.climbOffsetRedRight, towerPostRedRightY, towerPostRadius, 0.25);
-    public static final Point towerPostRedS = new Point(towerPostRedX - FieldTuning.climbOffsetRedLeft, towerPostRedLeftY, towerPostRadius, 0.25);
+    public static final Point towerPostRedN = new Point(towerPostRedX, towerPostRedRightY, towerPostRadius, 0.25);
+    public static final Point towerPostRedS = new Point(towerPostRedX, towerPostRedLeftY, towerPostRadius, 0.25);
 
     /* Tower Exclusion Zones */
     // Region in which turrets cannot safely shoot

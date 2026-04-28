@@ -7,6 +7,8 @@ import java.util.Objects;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
@@ -69,6 +71,36 @@ public record Path(double throttle, Node... nodes)
   {
     return switch (FieldUtils.getAlliance()) { case Blue -> this; case Red -> this.rotated(); };
   }
+
+  /**
+   * Creates a clone of the path with all waypoints offset
+   * @param x Offset on the x-axis (Out from Blue), metres
+   * @param y Offset on the y-axis (Left from Blue), metres
+   * @return The modified path
+   */
+  public Path offset(double x, double y)
+  {
+    Translation2d offsetXY = new Translation2d(x, y);
+    var offsetSequence = new Node[nodes.length];
+    
+    for (int i = 0; i < nodes.length; i++)
+      offsetSequence[i] = new Node
+      (
+        new Pose2d(nodes[i].pose.getTranslation().plus(offsetXY), nodes[i].pose.getRotation()), 
+        nodes[i].radius()
+      );
+
+    return new Path(throttle, offsetSequence);
+  }
+
+  /**
+   * Creates a clone of the path with all waypoints offset relative to drivers
+   * @param out Offset Out, metres
+   * @param left Offset Left, metres
+   * @return The modified path
+   */
+  public Path allianceOffset(double out, double left)
+    {return FieldUtils.isAlliance(Alliance.Blue) ? offset(out, left) : offset(-out, -left);}
 
   public Path concat(Path other)
   {

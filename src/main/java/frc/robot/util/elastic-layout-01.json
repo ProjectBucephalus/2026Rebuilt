@@ -168,14 +168,14 @@
             }
           },
           {
-            "title": "Roller",
+            "title": "Extension State",
             "x": 1152.0,
             "y": 464.0,
             "width": 224.0,
             "height": 112.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/Intake/state",
+              "topic": "/PBDash/Extension State",
               "period": 0.06,
               "data_type": "string"
             }
@@ -188,7 +188,7 @@
             "height": 224.0,
             "type": "Radial Gauge",
             "properties": {
-              "topic": "Robot/Intake/extension/angle Rotations",
+              "topic": "Robot/Extension/angle Rotations",
               "period": 0.06,
               "data_type": "double",
               "start_angle": -30.0,
@@ -199,6 +199,19 @@
               "wrap_value": false,
               "show_pointer": true,
               "show_ticks": false
+            }
+          },
+          {
+            "title": "Roller",
+            "x": 1152.0,
+            "y": 416.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/Intake/state",
+              "period": 0.06,
+              "data_type": "string"
             }
           },
           {
@@ -526,14 +539,14 @@
             }
           },
           {
-            "title": "Roller",
+            "title": "Extension State",
             "x": 1152.0,
             "y": 464.0,
             "width": 224.0,
             "height": 112.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/Intake/state",
+              "topic": "/PBDash/Extension State",
               "period": 0.06,
               "data_type": "string"
             }
@@ -546,7 +559,7 @@
             "height": 224.0,
             "type": "Radial Gauge",
             "properties": {
-              "topic": "Robot/Intake/extension/angle Rotations",
+              "topic": "Robot/Extension/angle Rotations",
               "period": 0.06,
               "data_type": "double",
               "start_angle": -30.0,
@@ -557,6 +570,19 @@
               "wrap_value": false,
               "show_pointer": true,
               "show_ticks": false
+            }
+          },
+          {
+            "title": "Roller",
+            "x": 1152.0,
+            "y": 416.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/Intake/state",
+              "period": 0.06,
+              "data_type": "string"
             }
           },
           {
@@ -1160,6 +1186,20 @@
                   "data_type": "double",
                   "show_submit_button": false
                 }
+              },
+              {
+                "title": "Extension State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Extension State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
               }
             ]
           },
@@ -1265,12 +1305,11 @@
                 "y": 64.0,
                 "width": 224.0,
                 "height": 96.0,
-                "type": "Text Display",
+                "type": "Large Text Display",
                 "properties": {
-                  "topic": "/PBDash/Robot Pose",
+                  "topic": "/PBDash/Robot Pose mm",
                   "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
+                  "data_type": "string"
                 }
               },
               {
@@ -1346,6 +1385,20 @@
                 }
               },
               {
+                "title": "target Rotations",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "Robot/Climber/target Rotations",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
                 "title": "State",
                 "x": 704.0,
                 "y": 224.0,
@@ -1407,6 +1460,200 @@
                 }
               }
             ]
+          },
+          {
+            "title": "Tuning Values",
+            "x": 1280.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 288.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Test Flyspeed",
+                "x": 1568.0,
+                "y": 512.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Test Flyspeed",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Test Altitude",
+                "x": 1600.0,
+                "y": 544.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Test Altitude",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Test Azimuth",
+                "x": 1536.0,
+                "y": 576.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Test Azimuth",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Accel Factor",
+                "x": 1504.0,
+                "y": 672.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Acceleration Lead Factor",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Jerk Limit",
+                "x": 1568.0,
+                "y": 640.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Jerk Limit",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Blue Left Climb Offset",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Cl. Off. Blue Left",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Blue Right Climb Offset",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Cl. Off. Blue Right",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Red Left Climb Offset",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Cl. Off. Red Left",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Red Right Climb Offset",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Cl. Off. Red Right",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "Speed Limits",
+            "x": 1056.0,
+            "y": 480.0,
+            "width": 224.0,
+            "height": 192.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Max Throttle",
+                "x": 1280.0,
+                "y": 736.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Max Throttle",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Min Throttle",
+                "x": 1280.0,
+                "y": 800.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Min Throttle",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
+                "title": "Intake Speed",
+                "x": 1248.0,
+                "y": 832.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Test Intake Speed",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
           }
         ],
         "containers": [
@@ -1435,7 +1682,7 @@
             "title": "Device Errors",
             "x": 704.0,
             "y": 384.0,
-            "width": 832.0,
+            "width": 576.0,
             "height": 96.0,
             "type": "Text Display",
             "properties": {
@@ -1469,118 +1716,6 @@
               "topic": "Robot/Stbd Shooter/shootStatus",
               "period": 0.06,
               "data_type": "string"
-            }
-          },
-          {
-            "title": "Min Throttle",
-            "x": 1056.0,
-            "y": 576.0,
-            "width": 128.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Min Throttle",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Max Throttle",
-            "x": 1056.0,
-            "y": 480.0,
-            "width": 128.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Max Throttle",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Intake Speed",
-            "x": 1184.0,
-            "y": 576.0,
-            "width": 128.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Test Intake Speed",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Accel Factor",
-            "x": 1312.0,
-            "y": 576.0,
-            "width": 112.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Acceleration Lead Factor",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Jerk Limit",
-            "x": 1424.0,
-            "y": 576.0,
-            "width": 112.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Jerk Limit",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Test Flyspeed",
-            "x": 1184.0,
-            "y": 480.0,
-            "width": 128.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Test Flyspeed",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Test Altitude",
-            "x": 1424.0,
-            "y": 480.0,
-            "width": 112.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Test Altitude",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Test Azimuth",
-            "x": 1312.0,
-            "y": 480.0,
-            "width": 112.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/PBDash/Test Azimuth",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
             }
           }
         ]

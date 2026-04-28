@@ -42,7 +42,7 @@ public class Parser
     Token tok = advance();
     if (tok.type() != Token.Type.Text) 
     { 
-      err("expected a name to begin instruction but found " + tok);
+      err("expected an instruction but found " + tok);
       return tok.type() == Token.Type.Eof;
     }
     String name = tok.text();

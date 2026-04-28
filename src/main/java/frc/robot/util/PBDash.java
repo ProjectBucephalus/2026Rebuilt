@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.IDConstants;
 import frc.robot.constants.Constants.*;
 
@@ -36,7 +37,7 @@ public class PBDash
   // System states
   public static final Key<String> DEVICE_ERRORS = new Key<>("Device Errors", "");
   public static final Key<String> CLIMBER_STATE = new Key<>("Climber State", "Home");
-  public static final Key<String> EXTENSION_STATE = new Key<>("Climber State", "Stowed");
+  public static final Key<String> EXTENSION_STATE = new Key<>("Extension State", "Stowed");
 
   // Auto-builder
   public static final Key<String>  AUTO_STRING      = new Key<>("Auto String", "");
@@ -76,16 +77,23 @@ public class PBDash
   public static final Key<Double>  TEST_FLYSPEED    = new Key<>("Test Flyspeed", 0.0);
   public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
-  public static final Key<Double>  TEST_INTAKE_SPEED= new Key<>("Test Intake Speed", IntakeConstants.RollerConstants.intakeMaxSpeed);
-  public static final Key<Double>  TEST_LEAD_FACTOR = new Key<>("Acceleration Lead Factor", ShooterConstants.accelLeadFactor);
 
+  // Tuning values
+  public static final Key<Double>  TUNE_LEAD_FACTOR = new Key<>("Acceleration Lead Factor", ShooterConstants.accelLeadFactor);
+  public static final Key<Double>  TUNE_JERK_LIMIT  = new Key<>("Jerk Limit", ShooterConstants.leadingJerkLimit);
+  public static final Key<Double>  TUNE_CLIMB_BL    = new Key<>("Cl. Off. Blue Left", FieldConstants.FieldTuning.climbOffsetBlueLeft);
+  public static final Key<Double>  TUNE_CLIMB_RL    = new Key<>("Cl. Off. Red Left", FieldConstants.FieldTuning.climbOffsetRedLeft);
+  public static final Key<Double>  TUNE_CLIMB_BR    = new Key<>("Cl. Off. Blue Right", FieldConstants.FieldTuning.climbOffsetBlueRight);
+  public static final Key<Double>  TUNE_CLIMB_RR    = new Key<>("Cl. Off. Red Right", FieldConstants.FieldTuning.climbOffsetRedRight);
+  
   // Manual speed adjustment
+  public static final Key<Double>  IO_INTAKE_SPEED  = new Key<>("Max Intake Speed", IntakeConstants.RollerConstants.intakeMaxSpeed);
   public static final Key<Double>  IO_MAX_THROTTLE  = new Key<>("Max Throttle", ControlConstants.maxThrottle);
   public static final Key<Double>  IO_MIN_THROTTLE  = new Key<>("Min Throttle", ControlConstants.minThrottle);
-  public static final Key<Double>  IO_JERK_LIMIT    = new Key<>("Jerk Limit", ShooterConstants.leadingJerkLimit);
 
   // Robot pose
   public static final Key<String>  POSE             = new Key<>("Robot Pose", "");
+  public static final Key<String>  POSE_FINE        = new Key<>("Robot Pose mm", "");
   public static final Field2d      FIELD            = new Field2d();
   static { putSendable("Field", FIELD); }
 

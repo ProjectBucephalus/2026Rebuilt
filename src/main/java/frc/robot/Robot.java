@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.util.Color;
@@ -39,7 +38,6 @@ import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.controlTransmutation.*;
 import frc.robot.controlTransmutation.geoFence.GeoFence;
 import frc.robot.leds.Block;
-import frc.robot.leds.patterns.AlternatingPattern;
 import frc.robot.leds.patterns.ChasePattern;
 import frc.robot.leds.patterns.Patterns;
 import frc.robot.subsystems.*;
@@ -435,6 +433,16 @@ public class Robot extends TimedRobot
       String.format
       (
         "X:%.2fm, Y:%.2fm, R:%.0f\u00b0", 
+        swerveState.Pose.getX(), 
+        swerveState.Pose.getY(), 
+        swerveState.Pose.getRotation().getDegrees()
+      )
+    );
+    PBDash.POSE_FINE.put
+    (
+      String.format
+      (
+        "X:%.3fm, Y:%.3fm, R:%.1f\u00b0", 
         swerveState.Pose.getX(), 
         swerveState.Pose.getY(), 
         swerveState.Pose.getRotation().getDegrees()
