@@ -187,7 +187,7 @@ public class Shooter extends SubsystemBase
       || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation())
-      || (target.state != TargetState.Manual && jerkSquare >= PBDash.IO_JERK_LIMIT.get())
+      || (target.state != TargetState.Manual && jerkSquare >= PBDash.TUNE_JERK_LIMIT.get())
     )
       shootStatus = Status.BadLocation;
     else if (!turret.readyToShoot(swerveState.Speeds))
@@ -272,7 +272,7 @@ public class Shooter extends SubsystemBase
           .rotateBy(swerveState.Pose.getRotation().unaryMinus());
       
       // If acceleration is stable, calculate shot leading
-      if (jerkSquare < PBDash.IO_JERK_LIMIT.get())
+      if (jerkSquare < PBDash.TUNE_JERK_LIMIT.get())
       {  
         Translation2d targetPoint = switch (target.state) 
         {

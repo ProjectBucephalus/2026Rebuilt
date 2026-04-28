@@ -110,7 +110,7 @@ public record ControlBinder
       .onFalse
       (runOnce(() -> {
         PBDash.IO_MAX_THROTTLE.put(ControlConstants.maxThrottle);
-        PBDash.TEST_INTAKE_SPEED.put(IntakeConstants.RollerConstants.intakeMaxSpeed);
+        PBDash.IO_INTAKE_SPEED.put(IntakeConstants.RollerConstants.intakeMaxSpeed);
       }));
   }
 
