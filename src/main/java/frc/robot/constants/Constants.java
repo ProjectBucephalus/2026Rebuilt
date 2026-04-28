@@ -524,6 +524,7 @@ public final class Constants
 
         intakeConfig.Slot0.kS = 0.265;
         intakeConfig.Slot0.kV = 0.1;
+        intakeConfig.Slot0.kI = 0.01;
 
         intakeConfig.Slot0.kP = 0.15;
 
