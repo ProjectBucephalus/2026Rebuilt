@@ -538,12 +538,33 @@ public record ControlBinder
 
     // Retract
     operator.start()
+      .or(switchboard.button(IDConstants.climbButtonID))
       .onTrue
       (
         Commands.either
         (
-          s_Climber.setTargetCmd(ClimberConstants.climbPosition).alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Climb"))), 
-          s_Climber.retractCmd().alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Home"))), 
+          s_Climber.setTargetCmd(ClimberConstants.climbPosition)
+            .alongWith
+            (
+              runOnce
+              (() -> {
+                PBDash.CLIMBER_STATE.put("Climb");
+                if (state.climbPos == ClimbPosition.Left)
+                {
+                  s_StbdShooter.target.state = TargetState.Manual;
+                  s_StbdShooter.target.azimuth = ShooterConstants.towerAimStbdAz;
+                  s_StbdShooter.setDistance(ShooterConstants.towerAimStbdDist);
+                }
+                if (state.climbPos == ClimbPosition.Right)
+                {
+                  s_PortShooter.target.state = TargetState.Manual;
+                  s_PortShooter.target.azimuth = ShooterConstants.towerAimPortAz;
+                  s_PortShooter.setDistance(ShooterConstants.towerAimPortDist);
+                }
+              })
+            ), 
+          s_Climber.retractCmd()
+            .alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Home"))), 
           () -> s_Climber.atMax() && !io_ClimberPost.get()
         )
       );
