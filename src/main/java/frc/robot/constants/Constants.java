@@ -150,6 +150,14 @@ public final class Constants
   /** Geometry and tuning data for shooter systems */
   public static final class ShooterConstants
   {
+    /** Target azimuth for Port shooter when climbing, degrees */
+    public static final double towerAimPortAz   = -60;
+    /** Target distance for Port shooter when climbing, metres */
+    public static final double towerAimPortDist = 4;
+    /** Target azimuth for Stbd shooter when climbing, degrees */
+    public static final double towerAimStbdAz   = 60;
+    /** Target distance for Stbd shooter when climbing, metres */
+    public static final double towerAimStbdDist = 4;
     /** 
      * 2D offset from robot centre to port-side turret centre, metres fore/port, 
      * and rotation offset from robot-forward to turret-forward 
@@ -257,9 +265,9 @@ public final class Constants
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double portPotOffset = -1790.29;
+      public static final double portPotOffset = -1783.00;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double stbdPotOffset = -1793.00;
+      public static final double stbdPotOffset = -1757.00;
 
       private static final double planetaryRatio = 13.03; // MaxPlanetary gearbox marked 4:1 is actually 3.6:1, 5:1 is actually 5.2:1
       private static final double driveGear = 15;

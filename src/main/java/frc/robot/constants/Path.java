@@ -198,7 +198,7 @@ public record Path(double throttle, Node... nodes)
 
   private static final double climbApproachThrottle = 0.3;
   private static final double climbApproachRadius   = 0.3;
-  private static final double climbThrottle         = 0.1;
+  private static final double climbThrottle         = 0.16;
   private static final double climbRadius           = 0.3;
 
   public static final Path climbApproachBlueRight = new Path

@@ -277,7 +277,7 @@ public record ControlBinder
     driver.povRight().or(() -> state.climbPos == ClimbPosition.Right && DriverStation.isAutonomous())
       .onTrue
       (
-        runOnce(() -> {          
+        runOnce(() -> {
           s_StbdShooter.target.azimuth = 45;
           s_StbdShooter.target.state = TargetState.Vision;
           s_PhotonPort.setActive(false);
@@ -287,7 +287,7 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {
-          s_StbdShooter.target.state = s_PortShooter.target.state;
+          s_StbdShooter.target.state = TargetState.Hub;
           s_PhotonPort.setActive(true);
         })
       );
@@ -295,7 +295,7 @@ public record ControlBinder
     driver.povLeft().or(() -> state.climbPos == ClimbPosition.Left && DriverStation.isAutonomous())
       .onTrue
       (
-        runOnce(() -> {          
+        runOnce(() -> {   
           s_PortShooter.target.azimuth = -45;
           s_PortShooter.target.state = TargetState.Vision;
           s_PhotonStbd.setActive(false);
@@ -305,7 +305,7 @@ public record ControlBinder
     .onTrue
       (
         runOnce(() -> {
-          s_PortShooter.target.state = s_StbdShooter.target.state;
+          s_PortShooter.target.state = TargetState.Hub;
           s_PhotonStbd.setActive(true);
         })
       );
@@ -538,12 +538,33 @@ public record ControlBinder
 
     // Retract
     operator.start()
+      .or(switchboard.button(IDConstants.climbButtonID))
       .onTrue
       (
         Commands.either
         (
-          s_Climber.setTargetCmd(ClimberConstants.climbPosition).alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Climb"))), 
-          s_Climber.retractCmd().alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Home"))), 
+          s_Climber.setTargetCmd(ClimberConstants.climbPosition)
+            .alongWith
+            (
+              runOnce
+              (() -> {
+                PBDash.CLIMBER_STATE.put("Climb");
+                if (state.climbPos == ClimbPosition.Left)
+                {
+                  s_StbdShooter.target.state = TargetState.Manual;
+                  s_StbdShooter.target.azimuth = ShooterConstants.towerAimStbdAz;
+                  s_StbdShooter.setDistance(ShooterConstants.towerAimStbdDist);
+                }
+                if (state.climbPos == ClimbPosition.Right)
+                {
+                  s_PortShooter.target.state = TargetState.Manual;
+                  s_PortShooter.target.azimuth = ShooterConstants.towerAimPortAz;
+                  s_PortShooter.setDistance(ShooterConstants.towerAimPortDist);
+                }
+              })
+            ), 
+          s_Climber.retractCmd()
+            .alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Home"))), 
           () -> s_Climber.atMax() && !io_ClimberPost.get()
         )
       );
