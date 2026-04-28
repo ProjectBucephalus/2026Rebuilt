@@ -293,7 +293,7 @@ public class Shooter extends SubsystemBase
         // Calculate target offset to avoid balls from each shooter colliding before reaching target
         // accounting for turret velocity and acceleration
         target.offset = target.offset
-            .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.TEST_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight)));
+            .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.TUNE_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight)));
 
       }
       // Find distance to current target for calculating leading shots
