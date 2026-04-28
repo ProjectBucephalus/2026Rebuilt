@@ -105,7 +105,7 @@ public record ControlBinder
       .onTrue
       (runOnce(() -> {
         PBDash.IO_MAX_THROTTLE.put(ControlConstants.powerSaveThrottle);
-        PBDash.TEST_INTAKE_SPEED.put(IntakeConstants.RollerConstants.intakeMinSpeed);
+        PBDash.IO_INTAKE_SPEED.put(IntakeConstants.RollerConstants.intakeMinSpeed);
       }))
       .onFalse
       (runOnce(() -> {
@@ -169,7 +169,7 @@ public record ControlBinder
     GeoFencing.climbBlueRight.asTrigger()
       .whileTrue
       (
-        DriveBuilder.pathFollow(Path.climbApproachBlueRight)
+        s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0)))
         .andThen
         (
           Commands.repeatingSequence
@@ -178,7 +178,7 @@ public record ControlBinder
             Commands.waitSeconds(ClimberConstants.wiggleWait),
             s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
             Commands.waitSeconds(ClimberConstants.wiggleWait)
-          ).raceWith(DriveBuilder.pathFollow(Path.climbBlueRight)),
+          ).raceWith(s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0)))),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
         )
@@ -186,7 +186,7 @@ public record ControlBinder
     GeoFencing.climbBlueLeft.asTrigger()
       .whileTrue
       (
-        DriveBuilder.pathFollow(Path.climbApproachBlueLeft)
+        s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0)))
         .andThen
         (
           Commands.repeatingSequence
@@ -195,7 +195,7 @@ public record ControlBinder
             Commands.waitSeconds(ClimberConstants.wiggleWait),
             s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
             Commands.waitSeconds(ClimberConstants.wiggleWait)
-          ).raceWith(DriveBuilder.pathFollow(Path.climbBlueLeft)),
+          ).raceWith(s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0)))),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
         )
@@ -203,7 +203,7 @@ public record ControlBinder
     GeoFencing.climbRedRight.asTrigger()
       .whileTrue
       (
-        DriveBuilder.pathFollow(Path.climbApproachRedRight)
+        s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0)))
         .andThen
         (
           Commands.repeatingSequence
@@ -212,7 +212,7 @@ public record ControlBinder
             Commands.waitSeconds(ClimberConstants.wiggleWait),
             s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
             Commands.waitSeconds(ClimberConstants.wiggleWait)
-          ).raceWith(DriveBuilder.pathFollow(Path.climbRedRight)),
+          ).raceWith(s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0)))),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
         )
@@ -220,7 +220,7 @@ public record ControlBinder
     GeoFencing.climbRedLeft.asTrigger()
       .whileTrue
       (
-        DriveBuilder.pathFollow(Path.climbApproachRedLeft)
+        s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0)))
         .andThen
         (
           Commands.repeatingSequence
@@ -229,7 +229,7 @@ public record ControlBinder
             Commands.waitSeconds(ClimberConstants.wiggleWait),
             s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
             Commands.waitSeconds(ClimberConstants.wiggleWait)
-          ).raceWith(DriveBuilder.pathFollow(Path.climbRedLeft)),
+          ).raceWith(s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0)))),
           s_Climber.extendCmd(),
           DriveBuilder.waitCommand()
         )
