@@ -1305,12 +1305,11 @@
                 "y": 64.0,
                 "width": 224.0,
                 "height": 96.0,
-                "type": "Text Display",
+                "type": "Large Text Display",
                 "properties": {
-                  "topic": "/PBDash/Robot Pose",
+                  "topic": "/PBDash/Robot Pose mm",
                   "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
+                  "data_type": "string"
                 }
               },
               {

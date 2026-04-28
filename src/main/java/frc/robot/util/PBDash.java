@@ -93,6 +93,7 @@ public class PBDash
 
   // Robot pose
   public static final Key<String>  POSE             = new Key<>("Robot Pose", "");
+  public static final Key<String>  POSE_FINE        = new Key<>("Robot Pose mm", "");
   public static final Field2d      FIELD            = new Field2d();
   static { putSendable("Field", FIELD); }
 

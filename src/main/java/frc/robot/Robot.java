@@ -438,6 +438,16 @@ public class Robot extends TimedRobot
         swerveState.Pose.getRotation().getDegrees()
       )
     );
+    PBDash.POSE_FINE.put
+    (
+      String.format
+      (
+        "X:%.3fm, Y:%.3fm, R:%.1f\u00b0", 
+        swerveState.Pose.getX(), 
+        swerveState.Pose.getY(), 
+        swerveState.Pose.getRotation().getDegrees()
+      )
+    );
 
     FieldObject.fetchRobotValues();
     GeoFence.clearBlocked();
