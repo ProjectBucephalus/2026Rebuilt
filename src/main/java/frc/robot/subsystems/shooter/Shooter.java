@@ -189,12 +189,11 @@ public class Shooter extends SubsystemBase
       || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation())
-      || (target.state != TargetState.Manual && jerk >= PBDash.TUNE_JERK_LIMIT.get())
     )
       shootStatus = Status.BadLocation;
     else if (!turret.readyToShoot(swerveState.Speeds))
       shootStatus = Status.Aiming;
-    else if (!flywheels.atSpeed())
+    else if (!flywheels.atSpeed() || (target.state != TargetState.Manual && jerk >= PBDash.TUNE_JERK_LIMIT.get()))
       shootStatus = Status.Revving;
     else if (indexer.getSpeed() <= 5)
       shootStatus = Status.AwaitingInput;
