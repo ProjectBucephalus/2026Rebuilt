@@ -173,8 +173,20 @@ public class Shooter extends SubsystemBase
 
   private void updateStatus()
   {
-    if (target.state == TargetState.Vision)
+    if 
+    (
+      target.state == TargetState.Vision
+      || (
+        !target.disabled 
+        && target.state != TargetState.Manual
+        && (
+          GeoFencing.obstacleBlue.checkPosition(shooterPose.getTranslation())
+          || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
+        )
+      )
+    )
       shootStatus = Status.Vision;
+
     else if 
     (
       !target.flywheelsActive 
@@ -182,21 +194,26 @@ public class Shooter extends SubsystemBase
       || (PBDash.IO_POWER_SHOOT.get() && lastVelocity.getSquaredNorm() > ShooterConstants.driveSpeedSquareThreshold)
     )
       shootStatus = Status.Idling;
+
     else if 
     (
-      target.distance <= ShooterConstants.minRange 
-      || GeoFencing.obstacleBlue.checkPosition(shooterPose.getTranslation())
-      || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
+      target.distance <= ShooterConstants.minRange
       || GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation())
+      || GeoFencing.obstacleBlue.checkPosition(shooterPose.getTranslation())
+      || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
     )
       shootStatus = Status.BadLocation;
+
     else if (!turret.readyToShoot(swerveState.Speeds))
       shootStatus = Status.Aiming;
+
     else if (!flywheels.atSpeed() || (target.state != TargetState.Manual && jerk >= PBDash.TUNE_JERK_LIMIT.get()))
       shootStatus = Status.Revving;
+
     else if (indexer.getSpeed() <= 5)
       shootStatus = Status.AwaitingInput;
+
     else 
       shootStatus = Status.Fire;
   }
@@ -281,10 +298,9 @@ public class Shooter extends SubsystemBase
         double mechLag = PBDash.TUNE_MECH_LAG.get(); 
 
         // Projecting pose based on velocity and acceleration
-        shooterPose = new Pose2d(
+        target.shooterPosition = 
           shooterPose.getTranslation()
-            .plus(velocity.plus(acceleration.times(mechLag * PBDash.TUNE_LEAD_FACTOR.get())).times(mechLag)), 
-          shooterPose.getRotation());
+            .plus(velocity.plus(acceleration.times(mechLag * PBDash.TUNE_LEAD_FACTOR.get())).times(mechLag));
 
         Translation2d targetPoint = switch (target.state) 
         {
@@ -295,7 +311,7 @@ public class Shooter extends SubsystemBase
         };
 
         // Calculate the component of the velocity that is towards the target
-        double motionNormal = (((targetPoint.getX() - shooterPose.getX()) * velocity.getX()) + ((targetPoint.getY() - shooterPose.getY()) * velocity.getY())) / distance; 
+        double motionNormal = (((targetPoint.getX() - target.shooterPosition.getX()) * velocity.getX()) + ((targetPoint.getY() - target.shooterPosition.getY()) * velocity.getY())) / distance; 
         double normalFactor = motionNormal / velocity.getNorm();
 
         // Multiply ToF from last cycle by velocity towards target to give the change in distance from shot leading
@@ -334,7 +350,7 @@ public class Shooter extends SubsystemBase
       case Vision -> 0;
     };
 
-    if (shootStatus == Status.Idling || shootStatus == Status.BadLocation)
+    if (shootStatus == Status.Idling || shootStatus == Status.Vision || shootStatus == Status.BadLocation)
       target.speed = FlywheelConstants.idleSpeed;
     else
       target.speed = switch (target.state)

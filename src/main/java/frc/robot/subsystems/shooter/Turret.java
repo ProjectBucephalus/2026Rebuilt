@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import frc.robot.constants.Constants.ShooterConstants.TurretConstants;
+import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
@@ -17,6 +18,7 @@ import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -253,12 +255,31 @@ public class Turret
     }
     else
     {
-      // Update the azimuth stored in the target based on the target state
-      // Ensures that changing to manual mode doesn't cause sudden motion
-      if (target.state == TargetState.Hub)
-        target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
-      else if (target.state == TargetState.Point)
-        target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
+      if (target.state != TargetState.Manual)
+      {
+        // Seek tags when traversing bump or trench
+        if (GeoFencing.obstacleBlue.checkPosition(shooterPose.getTranslation()))
+        { // If turret mount is facing towards Neutral zone from Blue obstacle, look for Red Hub tags
+          if (Conversions.nearRotation(shooterPose.getRotation(), Rotation2d.kZero, 90))
+            {target.azimuth = calculateTargetAngle(shooterPose, GeoFencing.hubRed.getCentre(), robotDegreesPerSecond);}
+          else // If turret mount is facing towards Blue zone from Blue obstacle, look for Blue Tower tags
+            {target.azimuth = calculateTargetAngle(shooterPose, GeoFencing.towerBlue.getCentre(), robotDegreesPerSecond);}
+        }
+        else if (GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation()))
+        {
+          // If turret mount is facing towards Neutral zone from Red obstacle, look for Blue Hub tags
+          if (Conversions.nearRotation(shooterPose.getRotation(), Rotation2d.k180deg, 90))
+            {target.azimuth = calculateTargetAngle(shooterPose, GeoFencing.hubBlue.getCentre(), robotDegreesPerSecond);}
+          else // If turret mount is facing towards Red zone from Red obstacle, look for Red Tower tags
+            {target.azimuth = calculateTargetAngle(shooterPose, GeoFencing.towerRed.getCentre(), robotDegreesPerSecond);}
+        }
+        // Update the azimuth stored in the target based on the target state
+        // Ensures that changing to manual mode doesn't cause sudden motion
+        else if (target.state == TargetState.Hub)
+          target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
+        else if (target.state == TargetState.Point)
+          target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
+      }
 
       m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
     }
