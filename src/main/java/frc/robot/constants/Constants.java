@@ -158,6 +158,7 @@ public final class Constants
     public static final double towerAimStbdAz   = 60;
     /** Target distance for Stbd shooter when climbing, metres */
     public static final double towerAimStbdDist = 4;
+
     /** 
      * 2D offset from robot centre to port-side turret centre, metres fore/port, 
      * and rotation offset from robot-forward to turret-forward 
@@ -172,9 +173,13 @@ public final class Constants
         new Transform2d(-(0.1635 + SwerveConstants.drivebaseOffset), -0.1815, Rotation2d.k180deg);
     /** Distance either side of target for shooters to aim at to avoid balls coliding in flight, metres */
     public static final double targetPointOffset = 0.08;
+
+    /** Expected delay between commanded and actual aim, seconds */
+    public static final double mechanismLag = 0.15;
+    /** Scale applied to acceleration for shot-leading pose-projection */
     public static final double accelLeadFactor = 0.8;
-    /** Maximum Jerk^2 from drivebase at which shot leading is viable, (metres per second^3)^2 */
-    public static final double leadingJerkLimit = 0.05; // TODO: I have absolutely no idea what this value should be, good luck
+    /** Maximum Jerk from drivebase at which shot leading is viable, metres per second^3 */
+    public static final double leadingJerkLimit = 500; // TODO: I have absolutely no idea what this value should be, good luck
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, m/s */
     private static final double driveSpeedThreshold = 0.5;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, squared to reduce calculation load, (m/s)^2 */

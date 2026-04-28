@@ -816,14 +816,14 @@
                 }
               },
               {
-                "title": "jerkSquare",
+                "title": "jerk",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "Robot/Port Shooter/jerkSquare",
+                  "topic": "Robot/Port Shooter/jerk",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -1016,14 +1016,14 @@
                 }
               },
               {
-                "title": "jerkSquare",
+                "title": "jerk",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "Robot/Stbd Shooter/jerkSquare",
+                  "topic": "Robot/Stbd Shooter/jerk",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false

@@ -79,6 +79,7 @@ public class PBDash
   public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
 
   // Tuning values
+  public static final Key<Double>  TUNE_MECH_LAG    = new Key<>("Mechanism Lag", ShooterConstants.mechanismLag);
   public static final Key<Double>  TUNE_LEAD_FACTOR = new Key<>("Acceleration Lead Factor", ShooterConstants.accelLeadFactor);
   public static final Key<Double>  TUNE_JERK_LIMIT  = new Key<>("Jerk Limit", ShooterConstants.leadingJerkLimit);
   public static final Key<Double>  TUNE_CLIMB_BL    = new Key<>("Cl. Off. Blue Left", FieldConstants.FieldTuning.climbOffsetBlueLeft);

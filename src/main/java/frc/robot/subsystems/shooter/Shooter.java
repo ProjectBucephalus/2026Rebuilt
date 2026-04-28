@@ -59,7 +59,7 @@ public class Shooter extends SubsystemBase
   private Translation2d lastVelocity = Translation2d.kZero;
   private Translation2d lastAcceleration = Translation2d.kZero;
   @Logged
-  private double jerkSquare;
+  private double jerk;
   private double timeOfFlight = 0;
 
   /** Current active target for the shooter */
@@ -187,7 +187,7 @@ public class Shooter extends SubsystemBase
       || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation())
-      || (target.state != TargetState.Manual && jerkSquare >= PBDash.TUNE_JERK_LIMIT.get())
+      || (target.state != TargetState.Manual && jerk >= PBDash.TUNE_JERK_LIMIT.get())
     )
       shootStatus = Status.BadLocation;
     else if (!turret.readyToShoot(swerveState.Speeds))
@@ -250,8 +250,8 @@ public class Shooter extends SubsystemBase
     // Calculate the instantaneous velocity and acceleration of the shooter
     var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
     Translation2d velocity = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
-    Translation2d acceleration = velocity.minus(lastVelocity);
-    jerkSquare = acceleration.minus(lastAcceleration).getSquaredNorm();
+    Translation2d acceleration = velocity.minus(lastVelocity).times(50);
+    jerk = acceleration.minus(lastAcceleration).getNorm() * 50;
 
     // Store pose, velocity, and acceleration to be used next cycle
     //lastPosition = shooterPose.getTranslation(); // Shooter pose has too much noise, so currently using speed from drivebase
@@ -274,8 +274,14 @@ public class Shooter extends SubsystemBase
           .rotateBy(swerveState.Pose.getRotation().unaryMinus());
       
       // If acceleration is stable, calculate shot leading
-      if (jerkSquare < PBDash.TUNE_JERK_LIMIT.get())
+      if (jerk < PBDash.TUNE_JERK_LIMIT.get())
       {  
+        // Projecting pose based on velocity and acceleration
+        shooterPose = new Pose2d(
+          shooterPose.getTranslation()
+            .plus(velocity.plus(acceleration.times(PBDash.TUNE_MECH_LAG.get() * PBDash.TUNE_LEAD_FACTOR.get())).times(PBDash.TUNE_MECH_LAG.get())), 
+          shooterPose.getRotation());
+
         Translation2d targetPoint = switch (target.state) 
         {
           case Point -> target.point;
@@ -295,7 +301,9 @@ public class Shooter extends SubsystemBase
         // Calculate target offset to avoid balls from each shooter colliding before reaching target
         // accounting for turret velocity and acceleration
         target.offset = target.offset
-            .minus(velocity.times(timeOfFlight).plus(acceleration.times(PBDash.TUNE_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight)));
+            .minus(velocity.times(timeOfFlight)
+            //.plus(acceleration.times(PBDash.TUNE_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight))
+            );
 
       }
       // Find distance to current target for calculating leading shots
