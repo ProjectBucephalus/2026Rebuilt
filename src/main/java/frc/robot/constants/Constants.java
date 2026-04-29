@@ -55,9 +55,9 @@ public final class Constants
     /** How far a trigger must be pressed to be considered on, [0..1] */
     public static final double triggerThreshold = 0.8;
     /** Translation lineup tolerance, meters */
-    public static final double lineupTolerance = 0.05;
+    public static final double lineupTolerance = 0.1;
     /** Rotation lineup tolerance, degrees */
-    public static final double angleLineupTolerance = 1.5;
+    public static final double angleLineupTolerance = 2.5;
 
     /** Maximum robot speed to reduce power consumption, relative to maximum uncapped speed */
     public static final double powerSaveThrottle = 0.5;
@@ -88,14 +88,21 @@ public final class Constants
     /** First element is the default */
     public static final Pair<String, String>[] autoPresets = new Pair[]
     {
-      new Pair<>("Blank", ""),
+      new Pair<>("Depo & Climb", "WaitFor 3, Intake on, Follow l_depo, Intake agitate, WaitFor 1, Climb left"),
       new Pair<>("Drive Back", "Intake on, DriveBy -1 0"),
-      new Pair<>("Aussie's Auto", "Follow r_trench_a2m, Intake on, Follow r_balls, Follow r_trench_m2a, DriveTo 1.5 1"),
+      new Pair<>("Right 1-cycle", "Follow r_trench_i2m, Intake on, Follow r_balls, Follow r_trench_m2a, Intake agitate, DriveTo 2 1.5, Climb right"),
+      new Pair<>("Left 1-cycle", "Follow l_trench_i2m, Intake on, Follow l_balls, Follow l_trench_m2a, Intake agitate, DriveTo 2 6.5, Climb left"),
       new Pair<>
       (
-        "Aussie's Auto v2", 
-        "Follow r_trench_a2m, Intake on, Follow r_balls, Follow r_trench_m2a, DriveTo 3 1, WaitFor 4, Follow r_trench_a2m, DriveTo 5.75 5 90, Follow r_trench_m2a, DriveTo 3 1"
-      )
+        "Right 2-cycle", 
+        "Follow r_trench_i2m, Intake on, Follow r_balls, Follow r_trench_m2a, Intake agitate, DriveTo 2 1.5, WaitFor 3, Intake reverse, Follow r_trench_a2m_r, Intake on, Follow r_balls_near, Follow r_trench_m2a, Intake agitate, Climb right"
+      ),
+      new Pair<>
+      (
+        "Left 2-cycle", 
+        "Follow l_trench_i2m, Intake on, Follow l_balls, Follow l_trench_m2a, Intake agitate, DriveTo 2 6.5, WaitFor 3, Intake reverse, Follow l_trench_a2m_r, Intake on, Follow l_balls_near, Follow l_trench_m2a, Intake agitate, Climb left"
+      ),
+      new Pair<>("Blank", "")
     };
   }
 
@@ -178,8 +185,10 @@ public final class Constants
     public static final double mechanismLag = 0.15;
     /** Scale applied to acceleration for shot-leading pose-projection */
     public static final double accelLeadFactor = 0.8;
+    /** Maximum Acceleration from drivebase at which shot leading is viable, metres per second^2 */
+    public static final double leadingAccelLimit = 18;
     /** Maximum Jerk from drivebase at which shot leading is viable, metres per second^3 */
-    public static final double leadingJerkLimit = 500; // TODO: I have absolutely no idea what this value should be, good luck
+    public static final double leadingJerkLimit = 500;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, m/s */
     private static final double driveSpeedThreshold = 0.5;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, squared to reduce calculation load, (m/s)^2 */

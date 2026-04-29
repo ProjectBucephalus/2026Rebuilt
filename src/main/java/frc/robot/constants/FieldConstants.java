@@ -24,13 +24,22 @@ public class FieldConstants
   public static final class FieldTuning
   {
     /** Offset for climb lineup, metres away from driverstation wall */
-    public static final double climbOffsetBlueRight = -0.045;
+    public static final double climbOffsetBlueRight = -0.034;
     /** Offset for climb lineup, metres away from driverstation wall */
-    public static final double climbOffsetBlueLeft  = -0.015;
+    public static final double climbOffsetBlueLeft  = -0.023;
     /** Offset for climb lineup, metres away from driverstation wall */
-    public static final double climbOffsetRedRight  = 0.0;
+    public static final double climbOffsetRedRight  = -0.033;
     /** Offset for climb lineup, metres away from driverstation wall */
-    public static final double climbOffsetRedLeft   = 0.0;
+    public static final double climbOffsetRedLeft   = -0.03;
+    
+    /** Offset for climb lineup, degrees counterclockwise from nominal angle */
+    public static final double climbAngleBlueRight  = -0.1;
+    /** Offset for climb lineup, degrees counterclockwise from nominal angle */
+    public static final double climbAngleBlueLeft   = 0.0;
+    /** Offset for climb lineup, degrees counterclockwise from nominal angle */
+    public static final double climbAngleRedRight   = 0.0;
+    /** Offset for climb lineup, degrees counterclockwise from nominal angle */
+    public static final double climbAngleRedLeft    = 0.7;
   }
 
   public static final AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
@@ -129,8 +138,10 @@ public class FieldConstants
     public static final Point hubBlueOutput = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
     public static final Point hubRedOutput  = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
 
-    public static final BoxRegion obstacleBlue = new BoxRegion(fieldCentre.getX() - hubFrontOffset, 0, fieldCentre.getX() - hubBackOffset, fieldWidth);
-    public static final BoxRegion obstacleRed  = new BoxRegion(fieldCentre.getX() + hubFrontOffset, 0, fieldCentre.getX() + hubBackOffset, fieldWidth);
+    private static final double obstacleRadius = 0.2;
+
+    public static final BoxRegion obstacleBlue = new BoxRegion(fieldCentre.getX() - hubFrontOffset, 0, fieldCentre.getX() - hubBackOffset, fieldWidth, obstacleRadius, 0);
+    public static final BoxRegion obstacleRed  = new BoxRegion(fieldCentre.getX() + hubFrontOffset, 0, fieldCentre.getX() + hubBackOffset, fieldWidth, obstacleRadius, 0);
 
     /* Bump Zone */
     // Speed should be limited when traversing

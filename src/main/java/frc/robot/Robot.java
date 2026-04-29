@@ -409,9 +409,9 @@ public class Robot extends TimedRobot
       IDConstants.lowerLEDBlocks
     );
 
-    Block.setNTAddressMulti(PBDash.LED_STATE_PORT, IDConstants.portLEDBlocks);
-    Block.setNTAddressMulti(PBDash.LED_STATE_STBD, IDConstants.stbdLEDBlocks);
-    Block.setNTAddressMulti(PBDash.LED_STATE_DRIVE, IDConstants.lowerLEDBlocks);
+    Block.setNTAddressMulti(PBDash.STATE_LED_PORT, IDConstants.portLEDBlocks);
+    Block.setNTAddressMulti(PBDash.STATE_LED_STBD, IDConstants.stbdLEDBlocks);
+    Block.setNTAddressMulti(PBDash.STATE_LED_DRIVE, IDConstants.lowerLEDBlocks);
 
     io_LEDs = new LEDStrip
     (

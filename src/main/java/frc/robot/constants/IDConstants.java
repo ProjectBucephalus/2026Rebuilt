@@ -85,14 +85,15 @@ public final class IDConstants
   public static final int switchboardPort = 2;
 
   /* Switchboard Switches */
-  public static final int testHubSwitchID = 1;
   public static final int disableShootersSwitchID = 2;
   public static final int testManualSwitchID = 3;
-  public static final int autoAimSwitchID = 4;
+  public static final int testHubSwitchID = 1;
+  public static final int visionSwitchID = 8;
+  public static final int fencingSwitchID = 7;
   public static final int shootHubSwitchID = 6;
   public static final int shootPassSwitchID = 5;
-  public static final int fencingSwitchID = 7;
-  public static final int visionSwitchID = 8;
+  public static final int autoAimSwitchID = 4;
+  public static final int calibrateButtonID = 10;
   public static final int climbButtonID = 9;
 
   /* LEDs */

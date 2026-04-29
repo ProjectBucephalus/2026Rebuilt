@@ -135,8 +135,14 @@ public final class FieldUtils
    * @return the centre point of your alliance's hub
    */
   public static Translation2d getAllianceHubCentre() 
+    {return getHubCentre(getAlliance());}
+
+  /** 
+   * @return the centre point the alliance's hub
+   */
+  public static Translation2d getHubCentre(Alliance alliance) 
   {
-    return switch (getAlliance()) 
+    return switch (alliance) 
     {
       case Blue -> blueHubCentre;
       case Red -> redHubCentre;

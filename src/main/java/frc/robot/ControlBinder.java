@@ -336,20 +336,22 @@ public record ControlBinder
       );
 
     switchboard.button(IDConstants.testHubSwitchID)
-      .and(() -> state.shoot == ShootersState.Test)
-      .whileTrue
+      .and
+      (
+        switchboard.button(IDConstants.fencingSwitchID).negate()
+        .or(() -> state.shoot == ShootersState.Test)
+      )
+      .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Hub)
-          .repeatedly()
+          .onlyIf(s_Vision::hasLocalisation)
           .ignoringDisable(true)
       );
 
     switchboard.button(IDConstants.disableShootersSwitchID)
-      .or(switchboard.button(IDConstants.disableShootersSwitchID).and(DriverStation::isEnabled))
       .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.disabled = true)
-          .onlyIf(switchboardConnected)
           .ignoringDisable(true)
       )
       .onFalse
@@ -359,7 +361,7 @@ public record ControlBinder
           .ignoringDisable(true)
       );
 
-    switchboard.button(10)
+    switchboard.button(IDConstants.calibrateButtonID)
       .onTrue(bothShooters(Commands::runOnce, Shooter::calibrate).ignoringDisable(true));
     
     final Trigger autoAimTrigger = new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
@@ -450,6 +452,25 @@ public record ControlBinder
       .and(DriverStation::isEnabled)
       .onTrue(bothShooters(Commands::runOnce, s -> s.target.flywheelsActive = false))
       .onFalse(bothShooters(Commands::runOnce, s -> s.target.flywheelsActive = true));
+    
+    // Shoot while climbing
+    new Trigger(() -> s_Climber.getTarget() == ClimberConstants.climbPosition)
+      .onTrue(runOnce
+        (() -> {
+          if (state.climbPos == ClimbPosition.Left)
+          {
+            s_StbdShooter.target.state = TargetState.Manual;
+            s_StbdShooter.target.azimuth = ShooterConstants.towerAimStbdAz;
+            s_StbdShooter.setDistance(ShooterConstants.towerAimStbdDist);
+          }
+          if (state.climbPos == ClimbPosition.Right)
+          {
+            s_PortShooter.target.state = TargetState.Manual;
+            s_PortShooter.target.azimuth = ShooterConstants.towerAimPortAz;
+            s_PortShooter.setDistance(ShooterConstants.towerAimPortDist);
+          }
+        })
+      );
   }
 
   private void bindIntake()
@@ -544,25 +565,7 @@ public record ControlBinder
         Commands.either
         (
           s_Climber.setTargetCmd(ClimberConstants.climbPosition)
-            .alongWith
-            (
-              runOnce
-              (() -> {
-                PBDash.CLIMBER_STATE.put("Climb");
-                if (state.climbPos == ClimbPosition.Left)
-                {
-                  s_StbdShooter.target.state = TargetState.Manual;
-                  s_StbdShooter.target.azimuth = ShooterConstants.towerAimStbdAz;
-                  s_StbdShooter.setDistance(ShooterConstants.towerAimStbdDist);
-                }
-                if (state.climbPos == ClimbPosition.Right)
-                {
-                  s_PortShooter.target.state = TargetState.Manual;
-                  s_PortShooter.target.azimuth = ShooterConstants.towerAimPortAz;
-                  s_PortShooter.setDistance(ShooterConstants.towerAimPortDist);
-                }
-              })
-            ), 
+            .alongWith(runOnce(() -> {PBDash.CLIMBER_STATE.put("Climb");})), 
           s_Climber.retractCmd()
             .alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Home"))), 
           () -> s_Climber.atMax() && !io_ClimberPost.get()

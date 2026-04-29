@@ -65,9 +65,9 @@ public class PBDash
 
   // State feedback
   public static final Key<String>   STATE_DRIVE     = new Key<>("Drive State", "");
-  public static final Key<String[]> LED_STATE_DRIVE = new Key<>("Drive State LED", new String[]{});
-  public static final Key<String[]> LED_STATE_PORT  = new Key<>("Shooter State LED Port", new String[]{});
-  public static final Key<String[]> LED_STATE_STBD  = new Key<>("Shooter State LED Stbd", new String[]{});
+  public static final Key<String[]> STATE_LED_DRIVE = new Key<>("Drive State LED", new String[]{});
+  public static final Key<String[]> STATE_LED_PORT  = new Key<>("Shooter State LED Port", new String[]{});
+  public static final Key<String[]> STATE_LED_STBD  = new Key<>("Shooter State LED Stbd", new String[]{});
   
   // Rumble strengths
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", RumblerConstants.driverDefault);
@@ -81,6 +81,7 @@ public class PBDash
   // Tuning values
   public static final Key<Double>  TUNE_MECH_LAG    = new Key<>("Mechanism Lag", ShooterConstants.mechanismLag);
   public static final Key<Double>  TUNE_LEAD_FACTOR = new Key<>("Acceleration Lead Factor", ShooterConstants.accelLeadFactor);
+  public static final Key<Double>  TUNE_ACCEL_LIMIT = new Key<>("Acceleration Limit", ShooterConstants.leadingAccelLimit);
   public static final Key<Double>  TUNE_JERK_LIMIT  = new Key<>("Jerk Limit", ShooterConstants.leadingJerkLimit);
   public static final Key<Double>  TUNE_CLIMB_BL    = new Key<>("Cl. Off. Blue Left", FieldConstants.FieldTuning.climbOffsetBlueLeft);
   public static final Key<Double>  TUNE_CLIMB_RL    = new Key<>("Cl. Off. Red Left", FieldConstants.FieldTuning.climbOffsetRedLeft);
@@ -109,7 +110,7 @@ public class PBDash
     var object = FIELD.getObject(name);
     var poses = object.getPoses();
     // Elastic only displays a trajectory for objects with 8+ poses, so we add the first pose a bunch of times to force it
-    for (int i = 0; i < (9 - (newPoses.length + poses.size())); i++) poses.add(newPoses[0]);
+    for (int i = 0; i < 9 - poses.size(); i++) poses.add(newPoses[0]);
     poses.addAll(List.of(newPoses));
     object.setPoses(poses);
   }

@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.constants.FieldConstants.FieldTuning;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
@@ -118,17 +119,17 @@ public record Path(double throttle, Node... nodes)
   public static final Map<String, Path> autoPaths = new HashMap<>();
   static
   {
-    // Right side trench, alliance zone -> mid zone
+    // 1: Right side trench, alliance zone -> mid zone
     autoPaths.put
     (
       "r_trench_a2m", 
       new Path
       (
-        0.5,
-        0.2, 
+        0.6,
+        0.4, 
         new Pose2d(2.25, 0.8, Rotation2d.kZero),
-        new Pose2d(3.25, 0.55, Rotation2d.kZero),
-        new Pose2d(5.5, 0.55, Rotation2d.kZero),
+        new Pose2d(3.25, 0.61, Rotation2d.kZero),
+        new Pose2d(5.5, 0.61, Rotation2d.kZero),
         new Pose2d(6.5, 0.8, Rotation2d.kZero)
       )
     );
@@ -138,10 +139,12 @@ public record Path(double throttle, Node... nodes)
       "l_trench_a2m", 
       new Path
       (
-        0.5,
-        0.1, 
-        new Pose2d(2.5, 7.53, Rotation2d.kZero),
-        new Pose2d(6.25, 7.53, Rotation2d.kZero)
+        0.6,
+        0.4, 
+        new Pose2d(2.25, 7.22, Rotation2d.kZero),
+        new Pose2d(3.25, 7.47, Rotation2d.kZero),
+        new Pose2d(5.5, 7.47, Rotation2d.kZero),
+        new Pose2d(6.5, 7.22, Rotation2d.kZero)
       )
     );
     // 3: Right side trench, mid zone -> alliance zone
@@ -150,11 +153,11 @@ public record Path(double throttle, Node... nodes)
       "r_trench_m2a", 
       new Path
       (
-        0.5,
-        0.2, 
+        0.6,
+        0.4, 
         new Pose2d(6.5, 0.8, Rotation2d.k180deg),
-        new Pose2d(5.5, 0.55, Rotation2d.k180deg),
-        new Pose2d(3.25, 0.55, Rotation2d.k180deg),
+        new Pose2d(5.5, 0.61, Rotation2d.k180deg),
+        new Pose2d(3.25, 0.61, Rotation2d.k180deg),
         new Pose2d(2.25, 0.8, Rotation2d.k180deg)
       )
     );
@@ -164,10 +167,12 @@ public record Path(double throttle, Node... nodes)
       "l_trench_m2a", 
       new Path
       (
-        0.5,
-        0.1, 
-        new Pose2d(6.75, 7.53, Rotation2d.k180deg),
-        new Pose2d(3, 7.53, Rotation2d.k180deg)
+        0.6,
+        0.4, 
+        new Pose2d(6.5, 7.22, Rotation2d.k180deg),
+        new Pose2d(5.5, 7.47, Rotation2d.k180deg),
+        new Pose2d(3.25, 7.47, Rotation2d.k180deg),
+        new Pose2d(2.25, 7.22, Rotation2d.k180deg)
       )
     );
     // 5: Right side mid zone ball collection
@@ -176,7 +181,7 @@ public record Path(double throttle, Node... nodes)
       "r_balls", 
       new Path
       (
-        1.0,
+        0.7,
         0.5, 
         new Pose2d(7.75, 0.625, Rotation2d.kCCW_90deg),
         new Pose2d(7.75, 5, Rotation2d.kCCW_90deg)
@@ -188,10 +193,145 @@ public record Path(double throttle, Node... nodes)
       "l_balls", 
       new Path
       (
-        1.0,
+        0.7,
         0.5, 
         new Pose2d(7.75, 7.455, Rotation2d.kCW_90deg),
         new Pose2d(7.75, 3.08, Rotation2d.kCW_90deg)
+      )
+    );
+
+    // 7: Right side trench, alliance zone -> mid zone, facing alliance zone
+    autoPaths.put
+    (
+      "r_trench_a2m_r", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(2.25, 0.8, Rotation2d.k180deg),
+        new Pose2d(3.25, 0.61, Rotation2d.k180deg),
+        new Pose2d(5.5, 0.61, Rotation2d.k180deg),
+        new Pose2d(6.5, 0.8, Rotation2d.k180deg)
+      )
+    );
+    // 8: Left side trench, alliance zone -> mid zone, facing alliance zone
+    autoPaths.put
+    (
+      "l_trench_a2m_r", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(2.25, 7.22, Rotation2d.k180deg),
+        new Pose2d(3.25, 7.47, Rotation2d.k180deg),
+        new Pose2d(5.5, 7.47, Rotation2d.k180deg),
+        new Pose2d(6.5, 7.22, Rotation2d.k180deg)
+      )
+    );
+    // 9: Right side mid zone ball collection, near alliance zone
+    autoPaths.put
+    (
+      "r_balls_near", 
+      new Path
+      (
+        0.7,
+        0.5, 
+        new Pose2d(6.25, 0.625, Rotation2d.kCCW_90deg),
+        new Pose2d(6.25, 5, Rotation2d.kCCW_90deg)
+      )
+    );
+    // 10: Left side mid zone ball collection, near alliance zone
+    autoPaths.put
+    (
+      "l_balls_near", 
+      new Path
+      (
+        0.7,
+        0.5, 
+        new Pose2d(6.25, 7.455, Rotation2d.kCW_90deg),
+        new Pose2d(6.25, 3.08, Rotation2d.kCW_90deg)
+      )
+    );
+    // 11: Depo left to right
+    autoPaths.put
+    (
+      "l_depo", 
+      new Path
+      (
+        0.5,
+        0.4, 
+        new Pose2d(2.0, 7.25, Rotation2d.k180deg),
+        new Pose2d(0.5, 7.0, Rotation2d.kCW_90deg),
+        new Pose2d(0.5, 5.5, Rotation2d.kCW_90deg),
+        new Pose2d(1.5, 5.25, Rotation2d.kZero),
+        new Pose2d(2.0, 5.25, Rotation2d.kZero)
+      )
+    );
+    // 12: Depo right to left
+    autoPaths.put
+    (
+      "r_depo", 
+      new Path
+      (
+        0.5,
+        0.4, 
+        new Pose2d(2.0, 5.25, Rotation2d.k180deg),
+        new Pose2d(0.5, 5.5, Rotation2d.kCCW_90deg),
+        new Pose2d(0.5, 7.0, Rotation2d.kCCW_90deg),
+        new Pose2d(1.5, 7.25, Rotation2d.kZero),
+        new Pose2d(2.0, 7.25, Rotation2d.kZero)
+      )
+    );
+    // 13: Right side trench, intake in trench -> mid zone
+    autoPaths.put
+    (
+      "r_trench_i2m", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(4.0, 0.61, Rotation2d.kZero),
+        new Pose2d(5.5, 0.61, Rotation2d.kZero),
+        new Pose2d(6.5, 0.8, Rotation2d.kZero)
+      )
+    );
+    // 14: Left side trench, intake in trench -> mid zone
+    autoPaths.put
+    (
+      "l_trench_i2m", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(4.0, 7.47, Rotation2d.kZero),
+        new Pose2d(5.5, 7.47, Rotation2d.kZero),
+        new Pose2d(6.5, 7.22, Rotation2d.kZero)
+      )
+    );
+    // 15: Right side trench, mid zone -> intake in trench
+    autoPaths.put
+    (
+      "r_trench_m2i", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(6.5, 0.8, Rotation2d.kZero),
+        new Pose2d(5.5, 0.61, Rotation2d.kZero),
+        new Pose2d(4.0, 0.61, Rotation2d.kZero)
+      )
+    );
+    // 16: Left side trench, mid zone -> intake in trench
+    autoPaths.put
+    (
+      "l_trench_m2i", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(6.5, 7.22, Rotation2d.kZero),
+        new Pose2d(5.5, 7.47, Rotation2d.kZero),
+        new Pose2d(4.0, 7.47, Rotation2d.kZero)
       )
     );
   }
@@ -237,31 +377,39 @@ public record Path(double throttle, Node... nodes)
   (
     climbThrottle,
     climbRadius, 
-    new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCW_90deg),
-    new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCW_90deg)
+    new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbStartOffset), 
+               Rotation2d.kCW_90deg.plus(Rotation2d.fromDegrees(FieldTuning.climbAngleBlueRight))),
+    new Pose2d(GeoFencing.towerPostBlueS.getCentre().minus(GeoFencing.climbEndOffset), 
+               Rotation2d.kCW_90deg.plus(Rotation2d.fromDegrees(FieldTuning.climbAngleBlueRight)))
   );
   
   public static final Path climbBlueLeft = new Path
   (
     climbThrottle,
     climbRadius, 
-    new Pose2d(GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbStartOffset), Rotation2d.kCCW_90deg),
-    new Pose2d(GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbEndOffset), Rotation2d.kCCW_90deg)
+    new Pose2d(GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbStartOffset), 
+               Rotation2d.kCCW_90deg.plus(Rotation2d.fromDegrees(FieldTuning.climbAngleBlueLeft))),
+    new Pose2d(GeoFencing.towerPostBlueN.getCentre().plus(GeoFencing.climbEndOffset), 
+               Rotation2d.kCCW_90deg.plus(Rotation2d.fromDegrees(FieldTuning.climbAngleBlueLeft)))
   );
 
   public static final Path climbRedRight = new Path
   (
     climbThrottle,
     climbRadius, 
-    new Pose2d(GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbStartOffset), Rotation2d.kCCW_90deg),
-    new Pose2d(GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbEndOffset), Rotation2d.kCCW_90deg)
+    new Pose2d(GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbStartOffset), 
+               Rotation2d.kCCW_90deg.plus(Rotation2d.fromDegrees(FieldTuning.climbAngleRedRight))),
+    new Pose2d(GeoFencing.towerPostRedN.getCentre().plus(GeoFencing.climbEndOffset), 
+               Rotation2d.kCCW_90deg.plus(Rotation2d.fromDegrees(FieldTuning.climbAngleRedRight)))
   );
   
   public static final Path climbRedLeft = new Path
   (
     climbThrottle,
     climbRadius, 
-    new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbStartOffset), Rotation2d.kCW_90deg),
-    new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbEndOffset), Rotation2d.kCW_90deg)
+    new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbStartOffset), 
+               Rotation2d.kCW_90deg.plus(Rotation2d.fromDegrees(FieldTuning.climbAngleRedLeft))),
+    new Pose2d(GeoFencing.towerPostRedS.getCentre().minus(GeoFencing.climbEndOffset), 
+               Rotation2d.kCW_90deg.plus(Rotation2d.fromDegrees(FieldTuning.climbAngleRedLeft)))
   );
 }

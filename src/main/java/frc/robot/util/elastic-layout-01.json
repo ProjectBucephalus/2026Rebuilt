@@ -816,6 +816,20 @@
                 }
               },
               {
+                "title": "acceleration",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "Robot/Port Shooter/accel",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
                 "title": "jerk",
                 "x": 0.0,
                 "y": 0.0,
@@ -1010,6 +1024,20 @@
                 "type": "Text Display",
                 "properties": {
                   "topic": "Robot/Stbd Shooter/indexer/speed RevPerSec",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "acceleration",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "Robot/Stbd Shooter/accel",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -1529,6 +1557,20 @@
                 }
               },
               {
+                "title": "Acceleration Limit",
+                "x": 1568.0,
+                "y": 640.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Acceleration Limit",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
                 "title": "Jerk Limit",
                 "x": 1568.0,
                 "y": 640.0,
@@ -1763,9 +1805,9 @@
           },
           {
             "title": "Auto String",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 704.0,
+            "x": 0.0,
+            "y": 48.0,
+            "width": 960.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -1779,13 +1821,12 @@
             "title": "Auto Presets",
             "x": 0.0,
             "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
+            "width": 960.0,
+            "height": 96.0,
+            "type": "Split Button Chooser",
             "properties": {
               "topic": "/PBDash/Auto Presets",
-              "period": 0.06,
-              "sort_options": false
+              "period": 0.06
             }
           },
           {

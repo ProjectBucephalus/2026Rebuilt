@@ -59,6 +59,8 @@ public class Shooter extends SubsystemBase
   private Translation2d lastVelocity = Translation2d.kZero;
   private Translation2d lastAcceleration = Translation2d.kZero;
   @Logged
+  private double accel;
+  @Logged
   private double jerk;
   private double timeOfFlight = 0;
 
@@ -171,8 +173,20 @@ public class Shooter extends SubsystemBase
 
   private void updateStatus()
   {
-    if (target.state == TargetState.Vision)
+    if 
+    (
+      target.state == TargetState.Vision
+      || (
+        !target.disabled 
+        && target.state != TargetState.Manual
+        && (
+          GeoFencing.obstacleBlue.checkPosition(shooterPose.getTranslation())
+          || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
+        )
+      )
+    )
       shootStatus = Status.Vision;
+
     else if 
     (
       !target.flywheelsActive 
@@ -180,22 +194,38 @@ public class Shooter extends SubsystemBase
       || (PBDash.IO_POWER_SHOOT.get() && lastVelocity.getSquaredNorm() > ShooterConstants.driveSpeedSquareThreshold)
     )
       shootStatus = Status.Idling;
+
     else if 
     (
-      target.distance <= ShooterConstants.minRange 
-      || GeoFencing.obstacleBlue.checkPosition(shooterPose.getTranslation())
-      || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
+      target.distance <= ShooterConstants.minRange
       || GeoFencing.towerShadowBlue.checkPosition(shooterPose.getTranslation())
       || GeoFencing.towerShadowRed.checkPosition(shooterPose.getTranslation())
-      || (target.state != TargetState.Manual && jerk >= PBDash.TUNE_JERK_LIMIT.get())
+      || GeoFencing.obstacleBlue.checkPosition(shooterPose.getTranslation())
+      || GeoFencing.obstacleRed.checkPosition(shooterPose.getTranslation())
     )
       shootStatus = Status.BadLocation;
+
     else if (!turret.readyToShoot(swerveState.Speeds))
       shootStatus = Status.Aiming;
-    else if (!flywheels.atSpeed())
+
+    else if 
+    (
+      !flywheels.atSpeed() 
+      || 
+      (
+        target.state != TargetState.Manual 
+        && 
+        (
+          jerk >= PBDash.TUNE_JERK_LIMIT.get() 
+          || accel >= PBDash.TUNE_ACCEL_LIMIT.get()
+        )
+      )
+    )
       shootStatus = Status.Revving;
+
     else if (indexer.getSpeed() <= 5)
       shootStatus = Status.AwaitingInput;
+
     else 
       shootStatus = Status.Fire;
   }
@@ -251,6 +281,7 @@ public class Shooter extends SubsystemBase
     var fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(swerveState.Speeds, swerveState.Pose.getRotation());
     Translation2d velocity = new Translation2d(fieldRelativeSpeeds.vxMetersPerSecond, fieldRelativeSpeeds.vyMetersPerSecond);
     Translation2d acceleration = velocity.minus(lastVelocity).times(50);
+    accel = acceleration.getNorm();
     jerk = acceleration.minus(lastAcceleration).getNorm() * 50;
 
     // Store pose, velocity, and acceleration to be used next cycle
@@ -268,19 +299,21 @@ public class Shooter extends SubsystemBase
     };
 
     if (target.state != TargetState.Manual && target.state != TargetState.Vision)
-    {
-      // Base target offset to reduce collisions
-      target.offset = baseTargetOffset
-          .rotateBy(swerveState.Pose.getRotation().unaryMinus());
-      
+    { 
       // If acceleration is stable, calculate shot leading
-      if (jerk < PBDash.TUNE_JERK_LIMIT.get())
-      {  
+      if (jerk < PBDash.TUNE_JERK_LIMIT.get() && accel < PBDash.TUNE_ACCEL_LIMIT.get())
+      { 
+        // Base target offset to reduce collisions
+        target.offset = baseTargetOffset
+          .rotateBy(swerveState.Pose.getRotation().unaryMinus());
+
+        // Grab mechanism lag tuning value from dashboard
+        double mechLag = PBDash.TUNE_MECH_LAG.get(); 
+
         // Projecting pose based on velocity and acceleration
-        shooterPose = new Pose2d(
+        target.shooterPosition = 
           shooterPose.getTranslation()
-            .plus(velocity.plus(acceleration.times(PBDash.TUNE_MECH_LAG.get() * PBDash.TUNE_LEAD_FACTOR.get())).times(PBDash.TUNE_MECH_LAG.get())), 
-          shooterPose.getRotation());
+            .plus(velocity.plus(acceleration.times(mechLag * PBDash.TUNE_LEAD_FACTOR.get())).times(mechLag));
 
         Translation2d targetPoint = switch (target.state) 
         {
@@ -291,7 +324,7 @@ public class Shooter extends SubsystemBase
         };
 
         // Calculate the component of the velocity that is towards the target
-        double motionNormal = (((targetPoint.getX() - shooterPose.getX()) * velocity.getX()) + ((targetPoint.getY() - shooterPose.getY()) * velocity.getY())) / distance; 
+        double motionNormal = (((targetPoint.getX() - target.shooterPosition.getX()) * velocity.getX()) + ((targetPoint.getY() - target.shooterPosition.getY()) * velocity.getY())) / distance; 
         double normalFactor = motionNormal / velocity.getNorm();
 
         // Multiply ToF from last cycle by velocity towards target to give the change in distance from shot leading
@@ -301,10 +334,10 @@ public class Shooter extends SubsystemBase
         // Calculate target offset to avoid balls from each shooter colliding before reaching target
         // accounting for turret velocity and acceleration
         target.offset = target.offset
-            .minus(velocity.times(timeOfFlight)
-            //.plus(acceleration.times(PBDash.TUNE_LEAD_FACTOR.get() * timeOfFlight * timeOfFlight))
+            .minus(velocity
+            .plus(acceleration.times(PBDash.TUNE_LEAD_FACTOR.get() * mechLag * mechLag))
+            .times(timeOfFlight)
             );
-
       }
       // Find distance to current target for calculating leading shots
       target.distance = switch (target.state) 
@@ -329,7 +362,7 @@ public class Shooter extends SubsystemBase
       case Vision -> 0;
     };
 
-    if (shootStatus == Status.Idling || shootStatus == Status.BadLocation)
+    if (shootStatus == Status.Idling || shootStatus == Status.Vision || shootStatus == Status.BadLocation)
       target.speed = FlywheelConstants.idleSpeed;
     else
       target.speed = switch (target.state)
