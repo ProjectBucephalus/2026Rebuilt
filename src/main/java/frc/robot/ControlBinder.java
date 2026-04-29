@@ -6,6 +6,7 @@ import static frc.robot.constants.FieldConstants.GeoFencing.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 
@@ -14,8 +15,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -100,6 +103,11 @@ public record ControlBinder
     switchboard.button(IDConstants.visionSwitchID)
       .onChange(runOnce(() -> PBDash.IO_LL.put(switchboard.button(IDConstants.visionSwitchID).getAsBoolean())).onlyIf(switchboardConnected).ignoringDisable(true));
 
+    // Climber Wiggle
+    switchboard.button(IDConstants.climbWiggleSwitchID).negate()
+      .and(switchboardConnected)
+      .onChange(runOnce(() -> PBDash.IO_CLIMB_WIGGLE.put(switchboard.button(IDConstants.climbWiggleSwitchID).getAsBoolean())).ignoringDisable(true));
+
     // Power Save
     new Trigger(PBDash.IO_POWER_DRIVE::get)
       .onTrue
@@ -166,74 +174,15 @@ public record ControlBinder
     PBDash.IO_MIN_THROTTLE.asPulse()
       .onTrue(runOnce(() -> driverBrake.withMinThrottle(PBDash.IO_MIN_THROTTLE.get())));
 
+    
     GeoFencing.climbBlueRight.asTrigger()
-      .whileTrue
-      (
-        s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0)))
-        .andThen
-        (
-          Commands.repeatingSequence
-          ( 
-            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            Commands.waitSeconds(ClimberConstants.wiggleWait),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
-            Commands.waitSeconds(ClimberConstants.wiggleWait)
-          ).raceWith(s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0)))),
-          s_Climber.extendCmd(),
-          DriveBuilder.waitCommand()
-        )
-      );
+      .whileTrue(climbSequenceCmd(Alliance.Blue, ClimbPosition.Right));
     GeoFencing.climbBlueLeft.asTrigger()
-      .whileTrue
-      (
-        s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0)))
-        .andThen
-        (
-          Commands.repeatingSequence
-          ( 
-            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            Commands.waitSeconds(ClimberConstants.wiggleWait),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
-            Commands.waitSeconds(ClimberConstants.wiggleWait)
-          ).raceWith(s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0)))),
-          s_Climber.extendCmd(),
-          DriveBuilder.waitCommand()
-        )
-      );
+      .whileTrue(climbSequenceCmd(Alliance.Blue, ClimbPosition.Left));
     GeoFencing.climbRedRight.asTrigger()
-      .whileTrue
-      (
-        s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0)))
-        .andThen
-        (
-          Commands.repeatingSequence
-          ( 
-            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            Commands.waitSeconds(ClimberConstants.wiggleWait),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
-            Commands.waitSeconds(ClimberConstants.wiggleWait)
-          ).raceWith(s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0)))),
-          s_Climber.extendCmd(),
-          DriveBuilder.waitCommand()
-        )
-      );
+      .whileTrue(climbSequenceCmd(Alliance.Red, ClimbPosition.Right));
     GeoFencing.climbRedLeft.asTrigger()
-      .whileTrue
-      (
-        s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0)))
-        .andThen
-        (
-          Commands.repeatingSequence
-          ( 
-            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-            Commands.waitSeconds(ClimberConstants.wiggleWait),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
-            Commands.waitSeconds(ClimberConstants.wiggleWait)
-          ).raceWith(s_Swerve.defer(() -> DriveBuilder.pathFollow(Path.climbRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0)))),
-          s_Climber.extendCmd(),
-          DriveBuilder.waitCommand()
-        )
-      );
+      .whileTrue(climbSequenceCmd(Alliance.Red, ClimbPosition.Left));
   }
 
   private void bindShooters()
@@ -543,14 +492,14 @@ public record ControlBinder
 
     // In alliance zone and auto-deploy, extend (only on true so that manual control can still happen while in alliance zone)
     autoDeployTrigger
-      .onTrue(s_Climber.extendCmd()
+      .onTrue(s_Climber.extendCmd().alongWith(Commands.runOnce(() -> PBDash.CLIMBER_STATE.put("Extended")))
         .onlyIf(allianceZoneTrigger.and(s_Vision::hasLocalisation)));
 
     // Leave alliance zone or enter trench, retract (intentionally regardless of auto-deploy)
     trenchTrigger
       .or(allianceZoneTrigger.negate())
       .and(s_Vision::hasLocalisation)
-      .onTrue(s_Climber.retractCmd());
+      .onTrue(s_Climber.retractCmd().alongWith(Commands.runOnce(() -> PBDash.CLIMBER_STATE.put("Home"))));
 
     // Set Climb
     driver.povLeft().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Left));
@@ -611,5 +560,67 @@ public record ControlBinder
       action.accept(s_PortShooter);
       action.accept(s_StbdShooter);
     });
+  }
+
+  private Command climbSequenceCmd(Alliance alliance, ClimbPosition side)
+  {
+
+    Supplier<Command> approachPath; 
+    Supplier<Command> climbPath;
+
+    if (side == ClimbPosition.Left)
+      if(alliance == Alliance.Blue)
+      {
+        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0));
+        climbPath =() -> DriveBuilder.pathFollow(Path.climbBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0));
+      }
+      else // if Alliance.Red
+      {
+        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0));
+        climbPath = () -> DriveBuilder.pathFollow(Path.climbRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0));
+      }
+    else // if Right
+      if(alliance == Alliance.Blue)
+      {
+        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0));
+        climbPath = () -> DriveBuilder.pathFollow(Path.climbBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0));
+      }
+      else // if Alliance.Red
+      {
+        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0));
+        climbPath = () -> DriveBuilder.pathFollow(Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0));
+      }
+
+    return s_Climber.extendCmd()
+      .andThen
+      (
+        // Extend climber and do initial approach, make sure climber is extended
+        Commands.runOnce(() -> PBDash.CLIMBER_STATE.put("Extended")),
+        s_Swerve.defer(approachPath),
+        Commands.waitUntil(io_ClimberPost::get),
+
+        Commands.either
+        (
+          // Wiggle climber on final approach to climb
+          Commands.repeatingSequence
+          ( 
+            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+            Commands.waitSeconds(ClimberConstants.wiggleWait),
+            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+            Commands.waitSeconds(ClimberConstants.wiggleWait)
+          )
+          .raceWith(s_Swerve.defer(climbPath)),
+
+          // Or just do final approach
+          s_Swerve.defer(climbPath),
+
+          // Depending on switch state
+          PBDash.IO_CLIMB_WIGGLE::get
+        ),
+
+        // Wait for further instruction
+        s_Climber.extendCmd(),
+        DriveBuilder.waitCommand()
+      );
   }
 }

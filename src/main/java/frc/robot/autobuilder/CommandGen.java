@@ -309,14 +309,22 @@ public class CommandGen
         .alongWith(s_Climber.extendCmd(), Commands.runOnce(() -> PBDash.CLIMBER_STATE.put("Extended"))),
       Commands.waitUntil(io_ClimberPost::get),
 
-      // Wiggle climber while following path into cimb position
-      Commands.repeatingSequence
-      ( 
-        s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
-        Commands.waitSeconds(ClimberConstants.wiggleWait),
-        s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
-        Commands.waitSeconds(ClimberConstants.wiggleWait)
-      ).raceWith(DriveBuilder.pathFollow(climbPath)),
+      // Wiggle climber while following path into climb position
+      Commands.either
+      (
+        Commands.repeatingSequence
+        ( 
+          s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+          Commands.waitSeconds(ClimberConstants.wiggleWait),
+          s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+          Commands.waitSeconds(ClimberConstants.wiggleWait)
+        )
+        .raceWith(DriveBuilder.pathFollow(climbPath)),
+
+        DriveBuilder.pathFollow(climbPath),
+
+        PBDash.IO_CLIMB_WIGGLE::get
+      ),
       s_Climber.extendCmd(),
 
       // Only attempt climb if the post is detected

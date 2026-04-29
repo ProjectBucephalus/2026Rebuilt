@@ -92,7 +92,7 @@ public final class IDConstants
   public static final int fencingSwitchID = 7;
   public static final int shootHubSwitchID = 6;
   public static final int shootPassSwitchID = 5;
-  public static final int autoAimSwitchID = 4;
+  public static final int climbWiggleSwitchID = 4;
   public static final int calibrateButtonID = 10;
   public static final int climbButtonID = 9;
 
