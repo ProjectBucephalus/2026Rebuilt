@@ -603,7 +603,7 @@ public final class Constants
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.02;
     /** Alternate between this position and maxPosition for final approach to tower, metres */
-    public static final double wigglePosition = maxPosition - 0.02;
+    public static final double wigglePosition = maxPosition - 0.01;
     /** Position for full climb, meters */
     public static final double climbPosition = 0.05;
 
@@ -618,7 +618,9 @@ public final class Constants
     /** meters */
     public static final double metersPerRotation = 0.061;
 
+    /** rotations per second, mechanical maximum 3.2 */
     private static final double cruiseVelocity = 3.2;
+    /** rotations per second */
     private static final double cruiseVelocityUncalibrated = 0.5;
 
     public static final TalonFXConfiguration climberConfig = new TalonFXConfiguration(); 
@@ -634,7 +636,7 @@ public final class Constants
       climberConfig.Slot0.kD = 0.0;
       
       climberConfig.MotionMagic.MotionMagicCruiseVelocity = cruiseVelocity; // Mechanical maximum 3.2
-      climberConfig.MotionMagic.MotionMagicAcceleration = 20;
+      climberConfig.MotionMagic.MotionMagicAcceleration = 25 * cruiseVelocity;
       
       climberConfig.CustomParams.CustomParam0 = (int) (cruiseVelocityUncalibrated * 100); // Cruise velocity to use when not calibrated, 1/100 mechanism rotations per second
     }
