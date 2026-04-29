@@ -44,7 +44,7 @@ public class CommandGen
   private SequentialCommandGroup commands;
   /** The current instruction being compiled */
   private Instruction instr;
-  /** Used to track the pose the robot will be at over the course of the auto */
+  /** Used to track the pose the robot will be at over the course of the auto. ALWAYS HANDLED AS BLUE ALLIANCE */
   private Pose2d currPose;
 
   /**
@@ -234,11 +234,11 @@ public class CommandGen
 
     Translation2d offset = new Translation2d(instr.arg(0).asNum(), instr.arg(1).asNum());
     currPose = new Pose2d(currPose.getTranslation().plus(offset), currPose.getRotation());
+    // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
     Pose2d targetPose = FieldUtils.allianceRotatePose(currPose);
 
     PBDash.addToFieldObject("Auto Path", targetPose);
 
-    // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
     commands.addCommands(DriveBuilder.pathFollow(targetPose));
   }
 
@@ -251,10 +251,11 @@ public class CommandGen
 
     if (path == null) throw new GeneralException("no path `" + pathName + "`");
 
-    path.display("Auto Path");
-
     currPose = path.targetPose();
-    commands.addCommands(DriveBuilder.pathFollow(path.allianceRotated()));
+
+    var alliancePath = path.allianceRotated();
+    alliancePath.display("Auto Path");
+    commands.addCommands(DriveBuilder.pathFollow(alliancePath));
   }
 
   private void compileClimb() throws TypeMismatchException, ArgCountException, GeneralException
@@ -297,7 +298,8 @@ public class CommandGen
     approachPath.display("Auto Path");
     climbPath.display("Auto Path");
 
-    currPose = climbPath.targetPose();
+    // If we're red, re-rotate it so that it's blue origin
+    currPose = FieldUtils.allianceRotatePose(climbPath.targetPose());
 
     commands.addCommands
     (
