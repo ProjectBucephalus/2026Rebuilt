@@ -252,31 +252,33 @@ public record Path(double throttle, Node... nodes)
         new Pose2d(6.25, 3.08, Rotation2d.kCW_90deg)
       )
     );
-    // 11: Depo right to left
-    autoPaths.put
-    (
-      "r_depo", 
-      new Path
-      (
-        0.5,
-        0.5, 
-        new Pose2d(2.0, 7.25, Rotation2d.k180deg),
-        new Pose2d(0.5, 7.0, Rotation2d.kCW_90deg),
-        new Pose2d(0.5, 5.5, Rotation2d.kCW_90deg),
-        new Pose2d(2.0, 5.25, Rotation2d.kZero)
-      )
-    );
-    // 12: Depo left to right
+    // 11: Depo left to right
     autoPaths.put
     (
       "l_depo", 
       new Path
       (
         0.5,
-        0.5, 
+        0.4, 
+        new Pose2d(2.0, 7.25, Rotation2d.k180deg),
+        new Pose2d(0.5, 7.0, Rotation2d.kCW_90deg),
+        new Pose2d(0.5, 5.5, Rotation2d.kCW_90deg),
+        new Pose2d(1.5, 5.25, Rotation2d.kZero),
+        new Pose2d(2.0, 5.25, Rotation2d.kZero)
+      )
+    );
+    // 12: Depo right to left
+    autoPaths.put
+    (
+      "r_depo", 
+      new Path
+      (
+        0.5,
+        0.4, 
         new Pose2d(2.0, 5.25, Rotation2d.k180deg),
         new Pose2d(0.5, 5.5, Rotation2d.kCCW_90deg),
         new Pose2d(0.5, 7.0, Rotation2d.kCCW_90deg),
+        new Pose2d(1.5, 7.25, Rotation2d.kZero),
         new Pose2d(2.0, 7.25, Rotation2d.kZero)
       )
     );
@@ -304,6 +306,32 @@ public record Path(double throttle, Node... nodes)
         new Pose2d(4.0, 7.47, Rotation2d.kZero),
         new Pose2d(5.5, 7.47, Rotation2d.kZero),
         new Pose2d(6.5, 7.22, Rotation2d.kZero)
+      )
+    );
+    // 15: Right side trench, mid zone -> intake in trench
+    autoPaths.put
+    (
+      "r_trench_m2i", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(6.5, 0.8, Rotation2d.kZero),
+        new Pose2d(5.5, 0.61, Rotation2d.kZero),
+        new Pose2d(4.0, 0.61, Rotation2d.kZero)
+      )
+    );
+    // 16: Left side trench, mid zone -> intake in trench
+    autoPaths.put
+    (
+      "l_trench_m2i", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(6.5, 7.22, Rotation2d.kZero),
+        new Pose2d(5.5, 7.47, Rotation2d.kZero),
+        new Pose2d(4.0, 7.47, Rotation2d.kZero)
       )
     );
   }
