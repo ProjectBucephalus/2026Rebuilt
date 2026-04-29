@@ -80,6 +80,7 @@ public class CommandGen
   {
     commands = new SequentialCommandGroup();
     currPose = state.swerve.Pose;
+    PBDash.putFieldObject("Auto Path", currPose);
 
     // Iterate over each instruction, calling a seperate function that handles the actual compilation logic and handling any errors that arise
     // This design means that the actual compilation logic is seperated from the error handling, and doesn't have to consider them
@@ -92,7 +93,7 @@ public class CommandGen
       }
       catch (TypeMismatchException e)
       {
-        // Example output: "argument `false` of instruction 0 (`intake`) has type Text but should have type Bool"
+        // Example output: "argument `false` of instruction 0 (`intake`) has type Text, expected Bool"
         AutoBuilder.error
         (
           "argument `", 
@@ -109,7 +110,7 @@ public class CommandGen
       }
       catch (ArgCountException e) 
       {
-        // Example output: "instruction 0 (`follow`) has 0 arguments but should have 1 arguments"
+        // Example output: "instruction 0 (`follow`) has 0 arguments, expected 1"
         AutoBuilder.error
         (
           "instruction ",
@@ -141,6 +142,7 @@ public class CommandGen
   {
     switch (instr.type())
     {
+      default -> commands.addCommands(Commands.none());
       // driveto x y r - Go to pose `x`, `y`, `r` (alliance origin relative). `r` optional, maintains current rotation if omitted
       case driveto -> compileDriveTo();
       // driveby x y - Relative drive
@@ -152,7 +154,7 @@ public class CommandGen
       {
         assertArgCount(1);
 
-        commands.addCommands(Commands.waitSeconds(instr.arg(0).asNum()));
+        commands.addCommands(DriveBuilder.waitCommand().withTimeout(instr.arg(0).asNum()));
       }
       // waituntil d - wait until time `d`
       case waituntil -> 
@@ -160,17 +162,29 @@ public class CommandGen
         assertArgCount(1);
 
         double duration = instr.arg(0).asNum();
-        commands.addCommands(Commands.waitUntil(() -> Timer.getMatchTime() < (15 - duration)));
+        commands.addCommands(DriveBuilder.waitCommand().until(() -> Timer.getMatchTime() < (15 - duration)));
       }
-      // intake b - if `b` is `on`/true, deploys and runs intake. if `b` is `off`/false, stops intake (leaving it deployed)
+      // intake t - `on` deploys and runs intake
+      //            `stow` stops and stows intake
+      //            `agitate` sets intake to jostle position and idles roller 
+      //            `off`, `reverse`, or `idle` set roller state as appropriate
       case intake -> 
       {
         assertArgCount(1);
-
-        if (instr.arg(0).asBool()) 
-          commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.On)));
-        else 
-          commands.addCommands(s_Intake.setStateCmd(RollerState.Off));
+        switch (instr.arg(0).asText())
+        {
+          case "on"      -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.On)));
+          case "stow"    -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations), s_Intake.setStateCmd(RollerState.Off)));
+          case "idle"    -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.Idle)));
+          case "reverse" -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.Reversed)));
+          case "agitate" -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.jostleRotations), s_Intake.setStateCmd(RollerState.Idle)));
+          case "off"     -> commands.addCommands(s_Intake.setStateCmd(RollerState.Off));
+          default -> 
+          {
+            commands.addCommands(s_Intake.setStateCmd(RollerState.Idle));
+            AutoBuilder.error("warning: invalid intake state ", instr.arg(0).asText(), " was treated as 'idle'");
+          }
+        }
       }
       // passing b - sets auto passing on or off based on `b`
       case passing -> 
@@ -282,6 +296,9 @@ public class CommandGen
         climbPath = Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0);
       }
 
+    approachPath.display("Auto Path");
+    climbPath.display("Auto Path");
+
     commands.addCommands
     (
       // Set climb position for fencing and vision
@@ -303,7 +320,8 @@ public class CommandGen
       s_Climber.extendCmd(),
 
       // Only attempt climb if the post is detected
-      Commands.waitUntil(() -> !io_ClimberPost.get()),
+      DriveBuilder.waitCommand().until(() -> !io_ClimberPost.get()),
+      Commands.runOnce(() -> {PBDash.CLIMBER_STATE.put("Climb");}),
       s_Climber.gotoTargetCmd(ClimberConstants.climbPosition),
 
       // Unset climb position ready for teleop

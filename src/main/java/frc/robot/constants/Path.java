@@ -118,17 +118,17 @@ public record Path(double throttle, Node... nodes)
   public static final Map<String, Path> autoPaths = new HashMap<>();
   static
   {
-    // Right side trench, alliance zone -> mid zone
+    // 1: Right side trench, alliance zone -> mid zone
     autoPaths.put
     (
       "r_trench_a2m", 
       new Path
       (
-        0.5,
-        0.2, 
+        0.6,
+        0.4, 
         new Pose2d(2.25, 0.8, Rotation2d.kZero),
-        new Pose2d(3.25, 0.55, Rotation2d.kZero),
-        new Pose2d(5.5, 0.55, Rotation2d.kZero),
+        new Pose2d(3.25, 0.61, Rotation2d.kZero),
+        new Pose2d(5.5, 0.61, Rotation2d.kZero),
         new Pose2d(6.5, 0.8, Rotation2d.kZero)
       )
     );
@@ -138,10 +138,12 @@ public record Path(double throttle, Node... nodes)
       "l_trench_a2m", 
       new Path
       (
-        0.5,
-        0.1, 
-        new Pose2d(2.5, 7.53, Rotation2d.kZero),
-        new Pose2d(6.25, 7.53, Rotation2d.kZero)
+        0.6,
+        0.4, 
+        new Pose2d(2.25, 7.22, Rotation2d.kZero),
+        new Pose2d(3.25, 7.47, Rotation2d.kZero),
+        new Pose2d(5.5, 7.47, Rotation2d.kZero),
+        new Pose2d(6.5, 7.22, Rotation2d.kZero)
       )
     );
     // 3: Right side trench, mid zone -> alliance zone
@@ -150,11 +152,11 @@ public record Path(double throttle, Node... nodes)
       "r_trench_m2a", 
       new Path
       (
-        0.5,
-        0.2, 
+        0.6,
+        0.4, 
         new Pose2d(6.5, 0.8, Rotation2d.k180deg),
-        new Pose2d(5.5, 0.55, Rotation2d.k180deg),
-        new Pose2d(3.25, 0.55, Rotation2d.k180deg),
+        new Pose2d(5.5, 0.61, Rotation2d.k180deg),
+        new Pose2d(3.25, 0.61, Rotation2d.k180deg),
         new Pose2d(2.25, 0.8, Rotation2d.k180deg)
       )
     );
@@ -164,10 +166,12 @@ public record Path(double throttle, Node... nodes)
       "l_trench_m2a", 
       new Path
       (
-        0.5,
-        0.1, 
-        new Pose2d(6.75, 7.53, Rotation2d.k180deg),
-        new Pose2d(3, 7.53, Rotation2d.k180deg)
+        0.6,
+        0.4, 
+        new Pose2d(6.5, 7.22, Rotation2d.k180deg),
+        new Pose2d(5.5, 7.47, Rotation2d.k180deg),
+        new Pose2d(3.25, 7.47, Rotation2d.k180deg),
+        new Pose2d(2.25, 7.22, Rotation2d.k180deg)
       )
     );
     // 5: Right side mid zone ball collection
@@ -176,7 +180,7 @@ public record Path(double throttle, Node... nodes)
       "r_balls", 
       new Path
       (
-        1.0,
+        0.7,
         0.5, 
         new Pose2d(7.75, 0.625, Rotation2d.kCCW_90deg),
         new Pose2d(7.75, 5, Rotation2d.kCCW_90deg)
@@ -188,12 +192,80 @@ public record Path(double throttle, Node... nodes)
       "l_balls", 
       new Path
       (
-        1.0,
+        0.7,
         0.5, 
         new Pose2d(7.75, 7.455, Rotation2d.kCW_90deg),
         new Pose2d(7.75, 3.08, Rotation2d.kCW_90deg)
       )
     );
+
+    // 7: Right side trench, alliance zone -> mid zone, facing alliance zone
+    autoPaths.put
+    (
+      "r_trench_a2m_r", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(2.25, 0.8, Rotation2d.k180deg),
+        new Pose2d(3.25, 0.61, Rotation2d.k180deg),
+        new Pose2d(5.5, 0.61, Rotation2d.k180deg),
+        new Pose2d(6.5, 0.8, Rotation2d.k180deg)
+      )
+    );
+    // 8: Left side trench, alliance zone -> mid zone, facing alliance zone
+    autoPaths.put
+    (
+      "l_trench_a2m_r", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(2.25, 7.22, Rotation2d.k180deg),
+        new Pose2d(3.25, 7.47, Rotation2d.k180deg),
+        new Pose2d(5.5, 7.47, Rotation2d.k180deg),
+        new Pose2d(6.5, 7.22, Rotation2d.k180deg)
+      )
+    );
+    // 9: Right side mid zone ball collection, near alliance zone
+    autoPaths.put
+    (
+      "r_balls_near", 
+      new Path
+      (
+        0.7,
+        0.5, 
+        new Pose2d(6.25, 0.625, Rotation2d.kCCW_90deg),
+        new Pose2d(6.25, 5, Rotation2d.kCCW_90deg)
+      )
+    );
+    // 10: Left side mid zone ball collection, near alliance zone
+    autoPaths.put
+    (
+      "l_balls_near", 
+      new Path
+      (
+        0.7,
+        0.5, 
+        new Pose2d(6.25, 7.455, Rotation2d.kCW_90deg),
+        new Pose2d(6.25, 3.08, Rotation2d.kCW_90deg)
+      )
+    );
+    // 11: Depo
+    autoPaths.put
+    (
+      "depo", 
+      new Path
+      (
+        0.5,
+        0.5, 
+        new Pose2d(2.0, 7.25, Rotation2d.k180deg),
+        new Pose2d(0.5, 7.0, Rotation2d.kCW_90deg),
+        new Pose2d(0.75, 5.5, Rotation2d.kCW_90deg),
+        new Pose2d(2.0, 5.25, Rotation2d.kZero)
+      )
+    );
+
   }
 
   private static final double climbApproachThrottle = 0.3;

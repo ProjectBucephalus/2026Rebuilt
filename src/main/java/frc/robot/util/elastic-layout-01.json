@@ -1805,9 +1805,9 @@
           },
           {
             "title": "Auto String",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 704.0,
+            "x": 0.0,
+            "y": 48.0,
+            "width": 960.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -1821,13 +1821,12 @@
             "title": "Auto Presets",
             "x": 0.0,
             "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
+            "width": 960.0,
+            "height": 96.0,
+            "type": "Split Button Chooser",
             "properties": {
               "topic": "/PBDash/Auto Presets",
-              "period": 0.06,
-              "sort_options": false
+              "period": 0.06
             }
           },
           {
