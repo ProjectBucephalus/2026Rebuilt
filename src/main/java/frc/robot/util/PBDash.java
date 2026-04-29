@@ -65,9 +65,9 @@ public class PBDash
 
   // State feedback
   public static final Key<String>   STATE_DRIVE     = new Key<>("Drive State", "");
-  public static final Key<String[]> LED_STATE_DRIVE = new Key<>("Drive State LED", new String[]{});
-  public static final Key<String[]> LED_STATE_PORT  = new Key<>("Shooter State LED Port", new String[]{});
-  public static final Key<String[]> LED_STATE_STBD  = new Key<>("Shooter State LED Stbd", new String[]{});
+  public static final Key<String[]> STATE_LED_DRIVE = new Key<>("Drive State LED", new String[]{});
+  public static final Key<String[]> STATE_LED_PORT  = new Key<>("Shooter State LED Port", new String[]{});
+  public static final Key<String[]> STATE_LED_STBD  = new Key<>("Shooter State LED Stbd", new String[]{});
   
   // Rumble strengths
   public static final Key<Double>  RUMBLE_DRIVER    = new Key<>("Driver Rumble", RumblerConstants.driverDefault);
