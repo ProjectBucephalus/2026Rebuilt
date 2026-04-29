@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.controlTransmutation.FieldObject;
 import frc.robot.controlTransmutation.triggerObject.TriggerVector;
 import frc.robot.util.Conversions;
+import frc.robot.util.PBDash;
 
 /** 
  * Derived from video-game collision-detection, GeoFence objects combine field-relative driving and localisation
@@ -37,6 +39,7 @@ public abstract class GeoFence extends FieldObject
     {
       boolean wasTouching = touchingObject;
       touchingObject = false;
+      if (!wasTouching) PBDash.putFieldObject("Blocking Object");
       return wasTouching;
     }
 
@@ -138,7 +141,23 @@ public abstract class GeoFence extends FieldObject
     double motionX   = ((motionN * distanceX) - (motionT * distanceY)) / distanceN;
     double motionY   = ((motionN * distanceY) + (motionT * distanceX)) / distanceN;
 
-    if (distanceN <= 0.05) touchingObject = true; // Check for collision
+    // Check for collision
+    if (distanceN <= 0.05) 
+    {
+      touchingObject = true; 
+      PBDash.addToFieldObject
+      (
+        "Blocking Object", 
+        Conversions.buildPose(pointX, pointY, 0),
+        Conversions.buildPose(pointX + radius, pointY, 0),
+        Conversions.buildPose(pointX, pointY + radius, 0),
+        Conversions.buildPose(pointX - radius, pointY, 0),
+        Conversions.buildPose(pointX, pointY, 0),
+        Conversions.buildPose(pointX - radius, pointY, 0),
+        Conversions.buildPose(pointX, pointY - radius, 0),
+        Conversions.buildPose(pointX + radius, pointY, 0)
+      );
+    }
     return new Translation2d(motionX, motionY);
   }
 }

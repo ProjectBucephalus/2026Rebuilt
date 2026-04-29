@@ -2,6 +2,7 @@ package frc.robot.controlTransmutation.geoFence;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.Conversions;
+import frc.robot.util.PBDash;
 
 import static frc.robot.constants.FieldConstants.GeoFencing.*;
 
@@ -118,7 +119,26 @@ public class Fence extends GeoFence
       motionY = Math.max(motionY, (-Conversions.clamp(distanceToEdgeY, 0, buffer)) / buffer);
     }
 
-    if(distanceToEdgeX <= 0.05 || distanceToEdgeY <= 0.05) touchingObject = true; // Check for collision
+    // Check for collision
+    if(distanceToEdgeX <= 0.05 || distanceToEdgeY <= 0.05)
+    {
+      touchingObject = true; 
+      PBDash.addToFieldObject
+      (
+        "Blocking Object", 
+        Conversions.buildPose(Xa, Ya, 0),
+        Conversions.buildPose(Xb, Ya, 0),
+        Conversions.buildPose(Xb, Yb, 0),
+        Conversions.buildPose(Xa, Yb, 0),
+        Conversions.buildPose(Xa, Ya, 0),
+        Conversions.buildPose(Xa + radius, Ya + radius, 0),
+        Conversions.buildPose(Xb - radius, Ya + radius, 0),
+        Conversions.buildPose(Xb - radius, Yb - radius, 0),
+        Conversions.buildPose(Xa + radius, Yb - radius, 0),
+        Conversions.buildPose(Xa + radius, Ya + radius, 0)
+      );
+    } 
+
     return new Translation2d(motionX, motionY);
   }
 }
