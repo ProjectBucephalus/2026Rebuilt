@@ -251,18 +251,32 @@ public record Path(double throttle, Node... nodes)
         new Pose2d(6.25, 3.08, Rotation2d.kCW_90deg)
       )
     );
-    // 11: Depo
+    // 11: Depo right to left
     autoPaths.put
     (
-      "depo", 
+      "r_depo", 
       new Path
       (
         0.5,
         0.5, 
         new Pose2d(2.0, 7.25, Rotation2d.k180deg),
         new Pose2d(0.5, 7.0, Rotation2d.kCW_90deg),
-        new Pose2d(0.75, 5.5, Rotation2d.kCW_90deg),
+        new Pose2d(0.5, 5.5, Rotation2d.kCW_90deg),
         new Pose2d(2.0, 5.25, Rotation2d.kZero)
+      )
+    );
+    // 12: Depo left to right
+    autoPaths.put
+    (
+      "l_depo", 
+      new Path
+      (
+        0.5,
+        0.5, 
+        new Pose2d(2.0, 5.25, Rotation2d.k180deg),
+        new Pose2d(0.5, 5.5, Rotation2d.kCCW_90deg),
+        new Pose2d(0.5, 7.0, Rotation2d.kCCW_90deg),
+        new Pose2d(2.0, 7.25, Rotation2d.kZero)
       )
     );
 
