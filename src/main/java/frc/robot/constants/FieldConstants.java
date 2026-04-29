@@ -31,6 +31,15 @@ public class FieldConstants
     public static final double climbOffsetRedRight  = 0.0;
     /** Offset for climb lineup, metres away from driverstation wall */
     public static final double climbOffsetRedLeft   = 0.0;
+    
+    /** Offset for climb lineup, degrees counterclockwise from nominal angle */
+    public static final double climbAngleBlueRight  = 0.0;
+    /** Offset for climb lineup, degrees counterclockwise from nominal angle */
+    public static final double climbAngleBlueLeft   = 0.0;
+    /** Offset for climb lineup, degrees counterclockwise from nominal angle */
+    public static final double climbAngleRedRight   = 0.0;
+    /** Offset for climb lineup, degrees counterclockwise from nominal angle */
+    public static final double climbAngleRedLeft    = 0.0;
   }
 
   public static final AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
