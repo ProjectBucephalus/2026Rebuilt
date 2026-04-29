@@ -245,7 +245,7 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {   
-          s_PortShooter.target.azimuth = -45;
+          s_PortShooter.target.azimuth = -50;
           s_PortShooter.target.state = TargetState.Vision;
           s_PhotonStbd.setActive(false);
         })
