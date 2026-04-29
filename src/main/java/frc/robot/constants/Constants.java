@@ -57,7 +57,7 @@ public final class Constants
     /** Translation lineup tolerance, meters */
     public static final double lineupTolerance = 0.1;
     /** Rotation lineup tolerance, degrees */
-    public static final double angleLineupTolerance = 1.5;
+    public static final double angleLineupTolerance = 2.5;
 
     /** Maximum robot speed to reduce power consumption, relative to maximum uncapped speed */
     public static final double powerSaveThrottle = 0.5;
@@ -88,7 +88,7 @@ public final class Constants
     /** First element is the default */
     public static final Pair<String, String>[] autoPresets = new Pair[]
     {
-      new Pair<>("Depo & Climb", "WaitFor 3, Intake on, Follow r_depo, Intake agitate, WaitFor 1, Climb left"),
+      new Pair<>("Depo & Climb", "WaitFor 3, Intake on, Follow l_depo, Intake agitate, WaitFor 1, Climb left"),
       new Pair<>("Drive Back", "Intake on, DriveBy -1 0"),
       new Pair<>("Right 1-cycle", "Follow r_trench_i2m, Intake on, Follow r_balls, Follow r_trench_m2a, Intake agitate, DriveTo 2 1.5, Climb right"),
       new Pair<>("Left 1-cycle", "Follow l_trench_i2m, Intake on, Follow l_balls, Follow l_trench_m2a, Intake agitate, DriveTo 2 6.5, Climb left"),

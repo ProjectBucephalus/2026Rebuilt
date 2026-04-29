@@ -48,6 +48,12 @@ public class LinearExtension extends LimitedMotor
   public void setTarget(double target) 
     {super.setTarget(target / metersPerRotation);}
 
+  /** @return Current angle of the motor, in metres */
+  @Override
+  @Logged(name = "target Metres")
+  public double getTarget() 
+    {return super.getTarget() * metersPerRotation;}
+
   /** @return Command to set the target to the maximum limit */
   @Override
   public Command extendCmd() 

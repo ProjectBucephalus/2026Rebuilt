@@ -454,9 +454,8 @@ public record ControlBinder
       .onFalse(bothShooters(Commands::runOnce, s -> s.target.flywheelsActive = true));
     
     // Shoot while climbing
-    new Trigger(() -> PBDash.CLIMBER_STATE.get() == "Climb")
-      .onTrue(
-        runOnce
+    new Trigger(() -> s_Climber.getTarget() == ClimberConstants.climbPosition)
+      .onTrue(runOnce
         (() -> {
           if (state.climbPos == ClimbPosition.Left)
           {

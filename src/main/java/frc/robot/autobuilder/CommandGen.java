@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +21,6 @@ import frc.robot.Robot.RobotState;
 import frc.robot.autobuilder.ParsedRepr.*;
 import frc.robot.constants.Constants.ClimberConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
-import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Path;
 import frc.robot.subsystems.Intake;
@@ -307,7 +306,7 @@ public class CommandGen
 
       // Follow to approach point, wait until climber is fully extended
       DriveBuilder.pathFollow(approachPath)
-        .alongWith(s_Climber.extendCmd()),
+        .alongWith(s_Climber.extendCmd(), Commands.runOnce(() -> PBDash.CLIMBER_STATE.put("Extended"))),
       Commands.waitUntil(io_ClimberPost::get),
 
       // Wiggle climber while following path into cimb position
@@ -321,7 +320,7 @@ public class CommandGen
       s_Climber.extendCmd(),
 
       // Only attempt climb if the post is detected
-      DriveBuilder.waitCommand().until(() -> !io_ClimberPost.get()),
+      DriveBuilder.waitCommand().until(() -> !io_ClimberPost.get() || RobotBase.isSimulation()),
       Commands.runOnce(() -> PBDash.CLIMBER_STATE.put("Climb")),
       s_Climber.gotoTargetCmd(ClimberConstants.climbPosition),
 
