@@ -62,7 +62,7 @@ public class PBDash
   public static final Key<Boolean> IO_SHOOT_PASS    = new Key<>("Auto Shoot Pass", false);
   public static final Key<Boolean> IO_POWER_DRIVE   = new Key<>("Power Save Drive", false);
   public static final Key<Boolean> IO_POWER_SHOOT   = new Key<>("Power Save Shooter", false);
-  public static final Key<Boolean> IO_CLIMB_WIGGLE  = new Key<>("Climb Wiggle", false);
+  public static final Key<Boolean> IO_CLIMB_WIGGLE  = new Key<>("Climb Wiggle", true);
 
   // State feedback
   public static final Key<String>   STATE_DRIVE     = new Key<>("Drive State", "");
