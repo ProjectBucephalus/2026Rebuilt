@@ -81,6 +81,7 @@ public class PBDash
   // Tuning values
   public static final Key<Double>  TUNE_MECH_LAG    = new Key<>("Mechanism Lag", ShooterConstants.mechanismLag);
   public static final Key<Double>  TUNE_LEAD_FACTOR = new Key<>("Acceleration Lead Factor", ShooterConstants.accelLeadFactor);
+  public static final Key<Double>  TUNE_ACCEL_LIMIT = new Key<>("Acceleration Limit", ShooterConstants.leadingAccelLimit);
   public static final Key<Double>  TUNE_JERK_LIMIT  = new Key<>("Jerk Limit", ShooterConstants.leadingJerkLimit);
   public static final Key<Double>  TUNE_CLIMB_BL    = new Key<>("Cl. Off. Blue Left", FieldConstants.FieldTuning.climbOffsetBlueLeft);
   public static final Key<Double>  TUNE_CLIMB_RL    = new Key<>("Cl. Off. Red Left", FieldConstants.FieldTuning.climbOffsetRedLeft);

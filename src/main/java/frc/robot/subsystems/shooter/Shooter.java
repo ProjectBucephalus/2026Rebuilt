@@ -208,7 +208,19 @@ public class Shooter extends SubsystemBase
     else if (!turret.readyToShoot(swerveState.Speeds))
       shootStatus = Status.Aiming;
 
-    else if (!flywheels.atSpeed() || (target.state != TargetState.Manual && jerk >= PBDash.TUNE_JERK_LIMIT.get()))
+    else if 
+    (
+      !flywheels.atSpeed() 
+      || 
+      (
+        target.state != TargetState.Manual 
+        && 
+        (
+          jerk >= PBDash.TUNE_JERK_LIMIT.get() 
+          || accel >= PBDash.TUNE_ACCEL_LIMIT.get()
+        )
+      )
+    )
       shootStatus = Status.Revving;
 
     else if (indexer.getSpeed() <= 5)
@@ -287,14 +299,15 @@ public class Shooter extends SubsystemBase
     };
 
     if (target.state != TargetState.Manual && target.state != TargetState.Vision)
-    {
-      // Base target offset to reduce collisions
-      target.offset = baseTargetOffset
-          .rotateBy(swerveState.Pose.getRotation().unaryMinus());
-      
+    { 
       // If acceleration is stable, calculate shot leading
-      if (jerk < PBDash.TUNE_JERK_LIMIT.get())
+      if (jerk < PBDash.TUNE_JERK_LIMIT.get() && accel < PBDash.TUNE_ACCEL_LIMIT.get())
       { 
+        // Base target offset to reduce collisions
+        target.offset = baseTargetOffset
+          .rotateBy(swerveState.Pose.getRotation().unaryMinus());
+
+        // Grab mechanism lag tuning value from dashboard
         double mechLag = PBDash.TUNE_MECH_LAG.get(); 
 
         // Projecting pose based on velocity and acceleration
@@ -325,7 +338,6 @@ public class Shooter extends SubsystemBase
             .plus(acceleration.times(PBDash.TUNE_LEAD_FACTOR.get() * mechLag * mechLag))
             .times(timeOfFlight)
             );
-
       }
       // Find distance to current target for calculating leading shots
       target.distance = switch (target.state) 

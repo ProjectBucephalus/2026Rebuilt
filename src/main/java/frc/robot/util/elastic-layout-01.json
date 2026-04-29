@@ -1557,6 +1557,20 @@
                 }
               },
               {
+                "title": "Acceleration Limit",
+                "x": 1568.0,
+                "y": 640.0,
+                "width": 128.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/PBDash/Acceleration Limit",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              },
+              {
                 "title": "Jerk Limit",
                 "x": 1568.0,
                 "y": 640.0,

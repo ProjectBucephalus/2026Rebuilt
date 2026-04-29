@@ -178,8 +178,10 @@ public final class Constants
     public static final double mechanismLag = 0.15;
     /** Scale applied to acceleration for shot-leading pose-projection */
     public static final double accelLeadFactor = 0.8;
+    /** Maximum Acceleration from drivebase at which shot leading is viable, metres per second^2 */
+    public static final double leadingAccelLimit = 18;
     /** Maximum Jerk from drivebase at which shot leading is viable, metres per second^3 */
-    public static final double leadingJerkLimit = 500; // TODO: I have absolutely no idea what this value should be, good luck
+    public static final double leadingJerkLimit = 500;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, m/s */
     private static final double driveSpeedThreshold = 0.5;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, squared to reduce calculation load, (m/s)^2 */
