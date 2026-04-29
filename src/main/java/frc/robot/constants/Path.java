@@ -280,7 +280,32 @@ public record Path(double throttle, Node... nodes)
         new Pose2d(2.0, 7.25, Rotation2d.kZero)
       )
     );
-
+    // 13: Right side trench, intake in trench -> mid zone
+    autoPaths.put
+    (
+      "r_trench_i2m", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(4.0, 0.61, Rotation2d.kZero),
+        new Pose2d(5.5, 0.61, Rotation2d.kZero),
+        new Pose2d(6.5, 0.8, Rotation2d.kZero)
+      )
+    );
+    // 14: Left side trench, intake in trench -> mid zone
+    autoPaths.put
+    (
+      "l_trench_i2m", 
+      new Path
+      (
+        0.6,
+        0.4, 
+        new Pose2d(4.0, 7.47, Rotation2d.kZero),
+        new Pose2d(5.5, 7.47, Rotation2d.kZero),
+        new Pose2d(6.5, 7.22, Rotation2d.kZero)
+      )
+    );
   }
 
   private static final double climbApproachThrottle = 0.3;

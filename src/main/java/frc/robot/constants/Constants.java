@@ -90,17 +90,17 @@ public final class Constants
     {
       new Pair<>("Depo & Climb", "WaitFor 3, Intake on, Follow r_depo, Intake agitate, WaitFor 1, Climb left"),
       new Pair<>("Drive Back", "Intake on, DriveBy -1 0"),
-      new Pair<>("Right 1-cycle", "Follow r_trench_a2m, Intake on, Follow r_balls, Follow r_trench_m2a, Intake agitate, DriveTo 2 1.5, Climb right"),
-      new Pair<>("Left 1-cycle", "Follow l_trench_a2m, Intake on, Follow l_balls, Follow l_trench_m2a, Intake agitate, DriveTo 2 6.5, Climb left"),
+      new Pair<>("Right 1-cycle", "Follow r_trench_i2m, Intake on, Follow r_balls, Follow r_trench_m2a, Intake agitate, DriveTo 2 1.5, Climb right"),
+      new Pair<>("Left 1-cycle", "Follow l_trench_i2m, Intake on, Follow l_balls, Follow l_trench_m2a, Intake agitate, DriveTo 2 6.5, Climb left"),
       new Pair<>
       (
         "Right 2-cycle", 
-        "Follow r_trench_a2m, Intake on, Follow r_balls, Follow r_trench_m2a, Intake agitate, DriveTo 2 1.5, WaitFor 3, Intake reverse, Follow r_trench_a2m_r, Intake on, Follow r_balls_near, Follow r_trench_m2a, Intake agitate, Climb right"
+        "Follow r_trench_i2m, Intake on, Follow r_balls, Follow r_trench_m2a, Intake agitate, DriveTo 2 1.5, WaitFor 3, Intake reverse, Follow r_trench_a2m_r, Intake on, Follow r_balls_near, Follow r_trench_m2a, Intake agitate, Climb right"
       ),
       new Pair<>
       (
         "Left 2-cycle", 
-        "Follow l_trench_a2m, Intake on, Follow l_balls, Follow l_trench_m2a, Intake agitate, DriveTo 2 6.5, WaitFor 3, Intake reverse, Follow l_trench_a2m_r, Intake on, Follow l_balls_near, Follow l_trench_m2a, Intake agitate, Climb left"
+        "Follow l_trench_i2m, Intake on, Follow l_balls, Follow l_trench_m2a, Intake agitate, DriveTo 2 6.5, WaitFor 3, Intake reverse, Follow l_trench_a2m_r, Intake on, Follow l_balls_near, Follow l_trench_m2a, Intake agitate, Climb left"
       ),
       new Pair<>("Blank", "")
     };
