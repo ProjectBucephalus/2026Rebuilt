@@ -142,7 +142,6 @@ public class CommandGen
   {
     switch (instr.type())
     {
-      default -> commands.addCommands(Commands.none());
       // driveto x y r - Go to pose `x`, `y`, `r` (alliance origin relative). `r` optional, maintains current rotation if omitted
       case driveto -> compileDriveTo();
       // driveby x y - Relative drive
@@ -299,6 +298,8 @@ public class CommandGen
     approachPath.display("Auto Path");
     climbPath.display("Auto Path");
 
+    currPose = climbPath.targetPose();
+
     commands.addCommands
     (
       // Set climb position for fencing and vision
@@ -321,7 +322,7 @@ public class CommandGen
 
       // Only attempt climb if the post is detected
       DriveBuilder.waitCommand().until(() -> !io_ClimberPost.get()),
-      Commands.runOnce(() -> {PBDash.CLIMBER_STATE.put("Climb");}),
+      Commands.runOnce(() -> PBDash.CLIMBER_STATE.put("Climb")),
       s_Climber.gotoTargetCmd(ClimberConstants.climbPosition),
 
       // Unset climb position ready for teleop
