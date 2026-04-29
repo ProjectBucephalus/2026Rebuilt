@@ -336,20 +336,22 @@ public record ControlBinder
       );
 
     switchboard.button(IDConstants.testHubSwitchID)
-      .and(() -> state.shoot == ShootersState.Test)
-      .whileTrue
+      .and
+      (
+        switchboard.button(IDConstants.fencingSwitchID).negate()
+        .or(() -> state.shoot == ShootersState.Test)
+      )
+      .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Hub)
-          .repeatedly()
+          .onlyIf(s_Vision::hasLocalisation)
           .ignoringDisable(true)
       );
 
     switchboard.button(IDConstants.disableShootersSwitchID)
-      .or(switchboard.button(IDConstants.disableShootersSwitchID).and(DriverStation::isEnabled))
       .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.disabled = true)
-          .onlyIf(switchboardConnected)
           .ignoringDisable(true)
       )
       .onFalse
@@ -359,7 +361,7 @@ public record ControlBinder
           .ignoringDisable(true)
       );
 
-    switchboard.button(10)
+    switchboard.button(IDConstants.calibrateButtonID)
       .onTrue(bothShooters(Commands::runOnce, Shooter::calibrate).ignoringDisable(true));
     
     final Trigger autoAimTrigger = new Trigger(() -> state.shoot != ShootersState.Manual && state.shoot != ShootersState.Test)
