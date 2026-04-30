@@ -40,6 +40,16 @@ public class FieldConstants
     public static final double climbAngleRedRight   = 0.0;
     /** Offset for climb lineup, degrees counterclockwise from nominal angle */
     public static final double climbAngleRedLeft    = 0.7;
+
+    /** Climber max position, metres above climber 0-position */
+    public static final double postHeightOffsetBlueLeft  = 0.24;
+    /** Climber max position, metres above climber 0-position */
+    public static final double postHeightOffsetRedLeft   = 0.24;
+    /** Climber max position, metres above climber 0-position */
+    public static final double postHeightOffsetBlueRight = 0.24;
+    /** Climber max position, metres above climber 0-position */
+    public static final double postHeightOffsetRedRight  = 0.24;
+
   }
 
   public static final AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 

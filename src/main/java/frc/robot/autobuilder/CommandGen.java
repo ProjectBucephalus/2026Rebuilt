@@ -22,6 +22,7 @@ import frc.robot.autobuilder.ParsedRepr.*;
 import frc.robot.constants.Constants.ClimberConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.FieldTuning;
 import frc.robot.constants.Path;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.RollerState;
@@ -271,28 +272,33 @@ public class CommandGen
     };
 
     Path approachPath, climbPath;
+    double maxHeight;
 
     if (isLeft)
       if(FieldUtils.isAlliance(Alliance.Blue))
       {
         approachPath = Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0);
         climbPath = Path.climbBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0);
+        maxHeight = FieldTuning.postHeightOffsetBlueLeft;
       }
       else // if Alliance.Red
       {
         approachPath = Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0);
         climbPath = Path.climbRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0);
+        maxHeight = FieldTuning.postHeightOffsetRedLeft;
       }
     else // if isRight
       if(FieldUtils.isAlliance(Alliance.Blue))
       {
         approachPath = Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0);
         climbPath = Path.climbBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0);
+        maxHeight = FieldTuning.postHeightOffsetBlueRight;
       }
       else // if Alliance.Red
       {
         approachPath = Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0);
         climbPath = Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0);
+        maxHeight = FieldTuning.postHeightOffsetRedRight;
       }
 
     approachPath.display("Auto Path");
@@ -316,9 +322,9 @@ public class CommandGen
       (
         Commands.repeatingSequence
         ( 
-          s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+          s_Climber.gotoTargetCmd(maxHeight - ClimberConstants.wiggleOffset),
           Commands.waitSeconds(ClimberConstants.wiggleWait),
-          s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+          s_Climber.gotoTargetCmd(maxHeight),
           Commands.waitSeconds(ClimberConstants.wiggleWait)
         )
         .raceWith(DriveBuilder.pathFollow(climbPath)),

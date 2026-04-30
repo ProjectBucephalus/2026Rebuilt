@@ -33,6 +33,7 @@ import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.IntakeConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
+import frc.robot.constants.FieldConstants.FieldTuning;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
@@ -543,7 +544,7 @@ public record ControlBinder
       (
         Commands.repeatingSequence
         ( 
-          s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+          s_Climber.gotoTargetCmd(ClimberConstants.maxPosition - ClimberConstants.wiggleOffset),
           Commands.waitSeconds(ClimberConstants.wiggleWait),
           s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
           Commands.waitSeconds(ClimberConstants.wiggleWait)
@@ -586,28 +587,33 @@ public record ControlBinder
 
     Supplier<Command> approachPath; 
     Supplier<Command> climbPath;
+    double maxHeight;
 
     if (side == ClimbPosition.Left)
       if(alliance == Alliance.Blue)
       {
         approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0));
         climbPath =() -> DriveBuilder.pathFollow(Path.climbBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0));
+        maxHeight = FieldTuning.postHeightOffsetBlueLeft;
       }
       else // if Alliance.Red
       {
         approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0));
         climbPath = () -> DriveBuilder.pathFollow(Path.climbRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0));
+        maxHeight = FieldTuning.postHeightOffsetRedLeft;
       }
     else // if Right
       if(alliance == Alliance.Blue)
       {
         approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0));
         climbPath = () -> DriveBuilder.pathFollow(Path.climbBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0));
+        maxHeight = FieldTuning.postHeightOffsetBlueRight;
       }
       else // if Alliance.Red
       {
         approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0));
         climbPath = () -> DriveBuilder.pathFollow(Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0));
+        maxHeight = FieldTuning.postHeightOffsetRedRight;
       }
 
     return s_Climber.extendCmd()
@@ -623,9 +629,9 @@ public record ControlBinder
           // Wiggle climber on final approach to climb
           Commands.repeatingSequence
           ( 
-            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+            s_Climber.gotoTargetCmd(maxHeight - ClimberConstants.wiggleOffset),
             Commands.waitSeconds(ClimberConstants.wiggleWait),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+            s_Climber.gotoTargetCmd(maxHeight),
             Commands.waitSeconds(ClimberConstants.wiggleWait)
           )
           .raceWith(s_Swerve.defer(climbPath)),
