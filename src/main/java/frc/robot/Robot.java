@@ -482,13 +482,17 @@ public class Robot extends TimedRobot
     
     if (!s_Vision.hasLocalisation()) PBDash.DEVICE_ERRORS.append("Vision, ");
 
-    double batteryVoltage = Math.round(100 * RobotController.getBatteryVoltage()) / 100.0;
+    double batteryVoltage = getBattery();
     if (batteryVoltage < 12.5) PBDash.DEVICE_ERRORS.append("Battery " + batteryVoltage + "v, ");
   }
 
   @Logged(name = "CAN Load")
   public float getCanLoad() 
     {return canBus.getStatus().BusUtilization;}
+  
+  @Logged(name = "Battery Voltage")
+  public double getBattery() 
+    {return Conversions.round(RobotController.getBatteryVoltage(), 2);}
   
   /* OPMODE METHODS */
   /* ============ */
