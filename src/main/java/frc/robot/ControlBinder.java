@@ -318,9 +318,10 @@ public record ControlBinder
                                           .and(DriverStation::isEnabled);
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(state.swerve.Pose.getTranslation()));
 
-    // Not Manual, Outside Alliance Zone
+    // Not Manual, Not Auto, Outside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger.negate())
+      .and(() -> !DriverStation.isAutonomous())
       .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Point).ignoringDisable(true))
       .whileTrue(bothShooters(Commands::run, s -> s.target.point = FieldUtils.getPassPoint(state.swerve.Pose.getTranslation())));
 
