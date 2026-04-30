@@ -148,7 +148,7 @@ public class CommandGen
       // follow n - Follow the path with name `n` in Path.autoPaths
       case follow -> compileFollow();
       // waitfor d - Wait for duration `d`
-      case waitfor -> 
+      case waitfor, wait -> 
       {
         assertArgCount(1);
 
