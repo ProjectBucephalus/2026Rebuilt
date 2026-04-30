@@ -325,6 +325,11 @@ public record ControlBinder
       .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Point).ignoringDisable(true))
       .whileTrue(bothShooters(Commands::run, s -> s.target.point = FieldUtils.getPassPoint(state.swerve.Pose.getTranslation())));
 
+    autoAimTrigger
+      .and(allianceZoneTrigger.negate())
+      .and(() -> DriverStation.isAutonomous())
+      .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Vision));
+
     // Not Manual, Inside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger)
