@@ -105,11 +105,11 @@ public class Vision extends SubsystemBase
 
             double timestamp = Utils.fpgaToCurrentTime(est.timestampSeconds);
 
-            PBDash.putString("Raw Pose" + ll.getName(), est.estimatedPose.toString());
+            PBDash.putFieldObject("Raw Pose" + ll.getName(), est.estimatedPose.toPose2d());
             Pose2d poseOut = est.estimatedPose.toPose2d().transformBy(ll.getCameraToStructure());
             // If the camera is mounted on a turret, apply additional offset processing
             if (ll.isOnTurret()) poseOut = poseOut.transformBy(ll.getTurretToRobot(timestamp));
-            PBDash.putString("Processed Pose" + ll.getName(), poseOut.toString());
+            //PBDash.putString("Processed Pose" + ll.getName(), poseOut.toString());
 
             // Update time since last good pose estimate
             lastGoodPose = Timer.getTimestamp();
