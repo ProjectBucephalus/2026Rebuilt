@@ -606,7 +606,7 @@ public final class Constants
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.02;
     /** Alternate between `maxPosition` and `max - offset` for final approach to tower, metres */
-    public static final double wiggleOffset = 0.01;
+    public static final double wiggleOffset = 0.009;
     /** Position for full climb, meters */
     public static final double climbPosition = 0.05;
 
