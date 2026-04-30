@@ -147,7 +147,7 @@ public class FieldConstants
     // Speed should be limited when traversing
     // Rotation must NOT be square when traversing
     /** Throttle limit when within bump zone */
-    public static final double bumpSpeedLimit = 0;
+    //public static final double bumpSpeedLimit = 0;
     public static final double bumpRotationTolerance = 40;
     public static final double bumpWidth = 1.85;
     public static final double columnBumpBuffer = 0.65;
@@ -162,14 +162,6 @@ public class FieldConstants
     public static final BoxRegion bumpNB = new BoxRegion(fieldCentre.getX() - bumpXa, hubYb,  fieldCentre.getX() - bumpXb, bumpYb - columnBumpBuffer);
     public static final BoxRegion bumpSR = new BoxRegion(fieldCentre.getX() + bumpXa, bumpYa + columnBumpBuffer, fieldCentre.getX() + bumpXb, hubYa);
     public static final BoxRegion bumpNR = new BoxRegion(fieldCentre.getX() + bumpXa, hubYb,  fieldCentre.getX() + bumpXb, bumpYb - columnBumpBuffer);
-
-    static 
-    {
-      bumpSB.withSpeedLimit(bumpSpeedLimit);
-      bumpNB.withSpeedLimit(bumpSpeedLimit);
-      bumpSR.withSpeedLimit(bumpSpeedLimit);
-      bumpNR.withSpeedLimit(bumpSpeedLimit);
-    }
 
     public static final Trigger bumpTrigger = 
           bumpSB.asTrigger()
