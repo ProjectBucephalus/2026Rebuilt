@@ -501,7 +501,7 @@ public class Robot extends TimedRobot
   {
     FieldUtils.updateAutoWinner();
     PBDash.updateSendables();
-    PBDash.putDouble("Teleop Time Remaining", MatchTime.getTeleTimeRemaining());
+    PBDash.putDouble("Match Time", MatchTime.getGameTimeElapsed());
     CommandScheduler.getInstance().run();
   }
 
