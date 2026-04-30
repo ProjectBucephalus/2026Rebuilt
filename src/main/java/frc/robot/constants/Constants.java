@@ -371,7 +371,7 @@ public final class Constants
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore*2/port/down, degrees roll/pitch/yaw */
     public static final Transform3d stbdLimelightOffset = new Transform3d(turretToCamera.getX(), 0, turretToCamera.getY(), new Rotation3d(0, Math.toRadians(turretPitch), 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
-    public static final double visionFrequencyThreshold = 5;
+    public static final double visionFrequencyThreshold = 2;
     /** How many seconds into the past we store turret azimuth readings */
     public static final double azimuthBufLength = 10;
 
