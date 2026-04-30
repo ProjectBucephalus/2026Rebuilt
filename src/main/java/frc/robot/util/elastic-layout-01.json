@@ -239,7 +239,7 @@
               "period": 0.06,
               "data_type": "double",
               "min_value": 0.0,
-              "max_value": 0.23,
+              "max_value": 0.24,
               "divisions": 5,
               "inverted": false,
               "orientation": "vertical"
@@ -610,7 +610,7 @@
               "period": 0.06,
               "data_type": "double",
               "min_value": 0.0,
-              "max_value": 0.23,
+              "max_value": 0.24,
               "divisions": 5,
               "inverted": false,
               "orientation": "vertical"

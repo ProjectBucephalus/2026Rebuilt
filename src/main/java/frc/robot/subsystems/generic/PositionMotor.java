@@ -121,6 +121,10 @@ public class PositionMotor extends SubsystemBase
     {return run(() -> {if (shiftSup.getAsDouble() != 0) baseSetTarget(getAngle() + shiftSup.getAsDouble());});}
   
   /** @return Current angle of the motor, in mechanism rotations */
+  public double getPosition()
+    {return getAngle();}
+
+  /** @return Current angle of the motor, in mechanism rotations */
   @Logged(name = "angle Rotations")
   public double getAngle() 
     {return m_Position.getPosition().getValue().in(Units.Rotations);}
@@ -136,7 +140,7 @@ public class PositionMotor extends SubsystemBase
 
   /** @return {@code true} when the motor is close to target */
   public boolean atTarget()
-    {return MathUtil.isNear(getTarget(), getAngle(), 0.1);}
+    {return MathUtil.isNear(getTarget(), getPosition(), 0.1);}
 
   /** @return {@code true} if all CAN devices are connected */
   public boolean devicesValid()

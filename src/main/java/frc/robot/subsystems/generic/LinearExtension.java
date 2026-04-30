@@ -36,6 +36,7 @@ public class LinearExtension extends LimitedMotor
   } 
 
   /** @return Current physical position, in meters */
+  @Override
   @Logged(name = "Position Meters")
   public double getPosition()
     {return super.getAngle() * metersPerRotation;}
