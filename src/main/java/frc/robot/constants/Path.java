@@ -183,8 +183,9 @@ public record Path(double throttle, Node... nodes)
       (
         0.7,
         0.5, 
-        new Pose2d(7.75, 0.625, Rotation2d.kCCW_90deg),
-        new Pose2d(7.75, 5, Rotation2d.kCCW_90deg)
+        new Pose2d(7.25, 0.625, Rotation2d.kCCW_90deg),
+        new Pose2d(7.75, 1.25, Rotation2d.kCCW_90deg),
+        new Pose2d(7.75, 3.5, Rotation2d.kCCW_90deg)
       )
     );
     // 6: Left side mid zone ball collection
@@ -195,8 +196,9 @@ public record Path(double throttle, Node... nodes)
       (
         0.7,
         0.5, 
-        new Pose2d(7.75, 7.455, Rotation2d.kCW_90deg),
-        new Pose2d(7.75, 3.08, Rotation2d.kCW_90deg)
+        new Pose2d(7.25, 7.455, Rotation2d.kCW_90deg),
+        new Pose2d(7.75, 6.73, Rotation2d.kCW_90deg),
+        new Pose2d(7.75, 4.58, Rotation2d.kCW_90deg)
       )
     );
 
@@ -236,8 +238,9 @@ public record Path(double throttle, Node... nodes)
       (
         0.7,
         0.5, 
-        new Pose2d(6.25, 0.625, Rotation2d.kCCW_90deg),
-        new Pose2d(6.25, 5, Rotation2d.kCCW_90deg)
+        new Pose2d(5.75, 0.625, Rotation2d.kCCW_90deg),
+        new Pose2d(6.25, 1.25, Rotation2d.kCCW_90deg),
+        new Pose2d(6.25, 3.5, Rotation2d.kCCW_90deg)
       )
     );
     // 10: Left side mid zone ball collection, near alliance zone
@@ -247,9 +250,10 @@ public record Path(double throttle, Node... nodes)
       new Path
       (
         0.7,
-        0.5, 
+        0.5,
         new Pose2d(6.25, 7.455, Rotation2d.kCW_90deg),
-        new Pose2d(6.25, 3.08, Rotation2d.kCW_90deg)
+        new Pose2d(6.75, 6.73, Rotation2d.kCW_90deg),
+        new Pose2d(6.75, 4.58, Rotation2d.kCW_90deg)
       )
     );
     // 11: Depo left to right

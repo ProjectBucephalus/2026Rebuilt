@@ -186,9 +186,9 @@ public final class Constants
     /** Scale applied to acceleration for shot-leading pose-projection */
     public static final double accelLeadFactor = 0.8;
     /** Maximum Acceleration from drivebase at which shot leading is viable, metres per second^2 */
-    public static final double leadingAccelLimit = 18;
+    public static final double leadingAccelLimit = 35;
     /** Maximum Jerk from drivebase at which shot leading is viable, metres per second^3 */
-    public static final double leadingJerkLimit = 500;
+    public static final double leadingJerkLimit = 2000;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, m/s */
     private static final double driveSpeedThreshold = 0.5;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, squared to reduce calculation load, (m/s)^2 */
@@ -320,6 +320,9 @@ public final class Constants
 
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
         turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
+
+        turretConfig.CurrentLimits.StatorCurrentLimit = 12;
+        turretConfig.CurrentLimits.StatorCurrentLimitEnable = true;
       }
     }
 
@@ -426,7 +429,7 @@ public final class Constants
     }
 
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
-    public static final double linearStdDevBaseline = 0.3;
+    public static final double linearStdDevBaseline = 0.03;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
     public static final double rotStdDevBaseline = Math.toRadians(30);
   }
