@@ -536,6 +536,19 @@ public record ControlBinder
     operator
       .axisMagnitudeGreaterThan(XboxController.Axis.kRightY.value, ControlConstants.manualControlDeadband)
       .onTrue(runOnce(() -> PBDash.CLIMBER_STATE.put("Manual")));
+
+    // Wiggle Test
+    operator.rightStick()
+      .whileTrue
+      (
+        Commands.repeatingSequence
+        ( 
+          s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+          Commands.waitSeconds(ClimberConstants.wiggleWait),
+          s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+          Commands.waitSeconds(ClimberConstants.wiggleWait)
+        )
+      );
   }
 
   /** Mutually exclusive to {@link ControlBinder#bind bind()} */
