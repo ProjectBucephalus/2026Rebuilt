@@ -279,9 +279,9 @@ public final class Constants
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double portPotOffset = -1783.00;
+      public static final double portPotOffset = -1790.00;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double stbdPotOffset = -1577.00;
+      public static final double stbdPotOffset = -1805.00;
 
       private static final double planetaryRatio = 13.03; // MaxPlanetary gearbox marked 4:1 is actually 3.6:1, 5:1 is actually 5.2:1
       private static final double driveGear = 15;
@@ -606,7 +606,7 @@ public final class Constants
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.02;
     /** Alternate between `maxPosition` and `max - offset` for final approach to tower, metres */
-    public static final double wiggleOffset = 0.01;
+    public static final double wiggleOffset = 0.009;
     /** Position for full climb, meters */
     public static final double climbPosition = 0.05;
 
