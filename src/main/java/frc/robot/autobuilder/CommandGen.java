@@ -171,8 +171,8 @@ public class CommandGen
         assertArgCount(1);
         switch (instr.arg(0).asText())
         {
-          case "on"      -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.On)));
-          case "stow"    -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations), s_Intake.setStateCmd(RollerState.Off)));
+          case "on"      -> commands.addCommands(Commands.parallel(s_Extension.gotoTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.On)));
+          case "stow"    -> commands.addCommands(Commands.parallel(s_Extension.gotoTargetCmd(() -> ExtensionConstants.minRotations), s_Intake.setStateCmd(RollerState.Off)));
           case "idle"    -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.Idle)));
           case "reverse" -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.Reversed)));
           case "agitate" -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.jostleRotations), s_Intake.setStateCmd(RollerState.Idle)));
