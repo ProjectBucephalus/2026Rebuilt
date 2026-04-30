@@ -42,6 +42,8 @@ public class Turret
 {
   private final TalonFXS m_Turret;
   private final AnalogPotentiometer io_Azimuth;
+  @Logged
+  private double deviceTemp;
 
   private final DCMotorSim motorSim = new DCMotorSim
   (
@@ -283,6 +285,8 @@ public class Turret
 
       m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
     }
+
+    deviceTemp = Math.max(m_Turret.getDeviceTemp().getValueAsDouble(), m_Turret.getProcessorTemp().getValueAsDouble());
   }   
   
   protected void updateSim()
