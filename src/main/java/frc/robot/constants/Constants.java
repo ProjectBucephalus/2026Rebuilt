@@ -602,7 +602,7 @@ public final class Constants
     /** meters */
     public static final double minPosition  = 0.015;
     /** meters */
-    public static final double maxPosition  = 0.24;
+    public static final double maxPosition  = 0.23;
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.02;
     /** Alternate between this position and maxPosition for final approach to tower, metres */
@@ -611,7 +611,7 @@ public final class Constants
     public static final double climbPosition = 0.05;
 
     /** Delay between movements when approaching tower, seconds */
-    public static final double wiggleWait = 0.1;
+    public static final double wiggleWait = 0.05;
 
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;
