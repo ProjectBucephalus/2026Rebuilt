@@ -451,6 +451,7 @@ public class Robot extends TimedRobot
 
     FieldObject.fetchRobotValues();
     GeoFence.clearBlocked();
+    PBDash.putFieldObject("Triggering Object");
   }
 
   private void compileAuto()

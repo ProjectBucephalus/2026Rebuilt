@@ -97,7 +97,7 @@ public abstract class FieldObject implements InputTransmuter
   {
     boolean use = centre.getDistance(robotPos) <= (checkRadius + robotRadius);
     if (use)
-    PBDash.putFieldObject
+    PBDash.addToFieldObject
           (
             "Triggering Object", 
             Conversions.buildPose(centre.getX(), centre.getY(), 0)
