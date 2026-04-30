@@ -1,5 +1,6 @@
 package frc.robot.controlTransmutation.triggerObject;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -7,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.controlTransmutation.FieldObject;
 import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
+import frc.robot.util.PBDash;
 
 import static frc.robot.constants.Constants.ControlConstants.minAngleTolerance;
 
@@ -40,6 +42,7 @@ public class TriggerVector extends FieldObject
   /** Trigger output: true while input vector is towards target */
   private boolean onTarget = false;
   private Trigger trigger = new Trigger(activeSupplier).and(globalActiveSupplier).and(this::checkTrigger);
+  private Pose2d centrePose;
 
   /** If false, the trigger cannot *become* true when within the buffer */
   private boolean bufferActivation = true;
@@ -66,6 +69,8 @@ public class TriggerVector extends FieldObject
 
     frontCheckpoint = centre.minus(new Translation2d(buffer, approachHeadingRotation));
     backCheckpoint  = centre.plus(new Translation2d(buffer, approachHeadingRotation));
+
+    centrePose = new Pose2d(centre, approachHeadingRotation);
   }
 
   /** @return Trigger monitoring if the control input is towards the target within a certain tollerance */
@@ -108,9 +113,12 @@ public class TriggerVector extends FieldObject
     {
       lastInputAngle = controlInput.getAngle();
       onTarget = true;
+      PBDash.putFieldObject("Active Trigger Vector", centrePose);
     }
     else
     {
+      if (onTarget)
+        PBDash.putFieldObject("Active Trigger Vector");
       onTarget = false;
       lastInputAngle = Rotation2d.kZero;
     }

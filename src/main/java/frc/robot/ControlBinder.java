@@ -39,6 +39,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.Limelight;
+import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 import frc.robot.controlTransmutation.Brake;
@@ -508,7 +509,7 @@ public record ControlBinder
     // Set Climb
     driver.povLeft().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Left));
     driver.povRight().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Right));
-    driver.back().onTrue(runOnce(() -> state.climbPos = ClimbPosition.None));
+    driver.back().onTrue(runOnce(() -> state.climbPos = ClimbPosition.None)); // TODO: Rebind to povUp?
 
     // Retract
     operator.start()
@@ -589,26 +590,34 @@ public record ControlBinder
     if (side == ClimbPosition.Left)
       if(alliance == Alliance.Blue)
       {
-        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0));
+        approachPath = () -> 
+            DriveBuilder.pathFollow(Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0))
+            .until(() -> Conversions.nearTranslation(state.swerve.Pose.getTranslation(), Path.climbBlueLeft.targetPose().getTranslation(), 0.35));
         climbPath =() -> DriveBuilder.pathFollow(Path.climbBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0));
         maxHeight = FieldTuning.postHeightOffsetBlueLeft;
       }
       else // if Alliance.Red
       {
-        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0));
+        approachPath = () -> 
+            DriveBuilder.pathFollow(Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0))
+            .until(() -> Conversions.nearTranslation(state.swerve.Pose.getTranslation(), Path.climbRedLeft.targetPose().getTranslation(), 0.35));
         climbPath = () -> DriveBuilder.pathFollow(Path.climbRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0));
         maxHeight = FieldTuning.postHeightOffsetRedLeft;
       }
     else // if Right
       if(alliance == Alliance.Blue)
       {
-        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0));
+        approachPath = () -> 
+            DriveBuilder.pathFollow(Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0))
+            .until(() -> Conversions.nearTranslation(state.swerve.Pose.getTranslation(), Path.climbBlueRight.targetPose().getTranslation(), 0.35));
         climbPath = () -> DriveBuilder.pathFollow(Path.climbBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0));
         maxHeight = FieldTuning.postHeightOffsetBlueRight;
       }
       else // if Alliance.Red
       {
-        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0));
+        approachPath = () -> 
+            DriveBuilder.pathFollow(Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0))
+            .until(() -> Conversions.nearTranslation(state.swerve.Pose.getTranslation(), Path.climbRedRight.targetPose().getTranslation(), 0.35));
         climbPath = () -> DriveBuilder.pathFollow(Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0));
         maxHeight = FieldTuning.postHeightOffsetRedRight;
       }
