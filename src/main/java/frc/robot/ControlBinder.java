@@ -286,11 +286,7 @@ public record ControlBinder
       );
 
     switchboard.button(IDConstants.testHubSwitchID)
-      .and
-      (
-        switchboard.button(IDConstants.fencingSwitchID).negate()
-        .or(() -> state.shoot == ShootersState.Test)
-      )
+      .and(() -> state.shoot == ShootersState.Test)
       .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Hub)
@@ -299,6 +295,7 @@ public record ControlBinder
       );
 
     switchboard.button(IDConstants.disableShootersSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
       .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.disabled = true)
