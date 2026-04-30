@@ -108,6 +108,7 @@ public class DriveBuilder
         {rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());}
 
       var motionXY = joystickSup.get();
+      robotState.joystickOutput = motionXY;
 
       s_Swerve.setControl
       (
@@ -141,6 +142,7 @@ public class DriveBuilder
   {
     return s_Swerve.run(() -> {
       var motionXY = joystickSup.get();
+      robotState.joystickOutput = motionXY;
 
       s_Swerve.setControl
       (
@@ -171,6 +173,7 @@ public class DriveBuilder
         rotationVal *= MathUtil.interpolate(ControlConstants.maxRotThrottle, ControlConstants.minRotThrottle, brakeSup.getAsDouble());
 
       var motionXY = joystickSup.get();
+      robotState.joystickOutput = motionXY;
       s_Swerve.setControl
       (
         fieldCentricRequest

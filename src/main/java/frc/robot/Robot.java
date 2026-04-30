@@ -86,6 +86,7 @@ public class Robot extends TimedRobot
     public NavState nav = NavState.Disabled;
     public boolean nudging = true;
     public SwerveDriveState swerve = new SwerveDriveState();
+    public Translation2d joystickOutput = Translation2d.kZero;
   }
   
   @Logged
