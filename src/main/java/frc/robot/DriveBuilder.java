@@ -326,7 +326,7 @@ public class DriveBuilder
         double rotThrottle = throttle + (ControlConstants.maxRotThrottle - throttle) / 2;
         s_Swerve.setControl(driveRequest.withSpeeds(s_Swerve.calculateDrivePID(targetNode.pose(), robotPose, throttle, rotThrottle)));
 
-        if (Conversions.nearTranslation(robotPose.getTranslation(), targetNode.pose().getTranslation(), targetNode.radius())) 
+        if (Conversions.nearTranslation(robotPose.getTranslation(), targetNode.pose().getTranslation(), targetNode.radius() * (GeoFence.isBlocked() ? 2 : 1))) 
         {
           currentWaypoint = Math.min(currentWaypoint + 1, waypoints.size());
           onPath = true;
