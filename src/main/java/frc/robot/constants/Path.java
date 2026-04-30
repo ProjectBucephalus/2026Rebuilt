@@ -266,9 +266,9 @@ public record Path(double throttle, Node... nodes)
         0.4, 
         new Pose2d(2.0, 7.25, Rotation2d.k180deg),
         new Pose2d(0.75, 7.0, Rotation2d.fromDegrees(225)),
-        new Pose2d(0.75, 5.5, Rotation2d.fromDegrees(225)),
-        new Pose2d(1.5, 5.25, Rotation2d.kZero),
-        new Pose2d(2.0, 5.25, Rotation2d.kZero)
+        new Pose2d(0.75, 5.5, Rotation2d.kCW_90deg),
+        new Pose2d(1.5, 5.25, Rotation2d.fromDegrees(315)),
+        new Pose2d(2.0, 5.25, Rotation2d.fromDegrees(315))
       )
     );
     // 12: Depo right to left
@@ -281,9 +281,9 @@ public record Path(double throttle, Node... nodes)
         0.4, 
         new Pose2d(2.0, 5.25, Rotation2d.k180deg),
         new Pose2d(0.75, 5.5, Rotation2d.fromDegrees(135)),
-        new Pose2d(0.75, 7.0, Rotation2d.fromDegrees(135)),
-        new Pose2d(1.5, 7.25, Rotation2d.kZero),
-        new Pose2d(2.0, 7.25, Rotation2d.kZero)
+        new Pose2d(0.75, 7.0, Rotation2d.kCCW_90deg),
+        new Pose2d(1.5, 7.25, Rotation2d.fromDegrees(45)),
+        new Pose2d(2.0, 7.25, Rotation2d.fromDegrees(45))
       )
     );
     // 13: Right side trench, intake in trench -> mid zone
