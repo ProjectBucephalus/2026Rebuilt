@@ -279,7 +279,7 @@ public class Turret
 
         // Update the azimuth stored in the target based on the target state
         // Ensures that changing to manual mode doesn't cause sudden motion
-        else if (target.state == TargetState.Hub || (target.state == TargetState.Vision && DriverStation.isAutonomous()))
+        else if (target.state == TargetState.Hub || (target.state == TargetState.Vision))
           target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
         else if (target.state == TargetState.Point)
           target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);

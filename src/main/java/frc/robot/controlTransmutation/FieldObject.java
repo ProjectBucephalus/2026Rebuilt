@@ -96,12 +96,12 @@ public abstract class FieldObject implements InputTransmuter
   protected boolean checkPosition()
   {
     boolean use = centre.getDistance(robotPos) <= (checkRadius + robotRadius);
-    if (use)
-    PBDash.addToFieldObject
-          (
-            "Triggering Object", 
-            Conversions.buildPose(centre.getX(), centre.getY(), 0)
-          );
+    // if (use)
+    // PBDash.addToFieldObject
+    //       (
+    //         "Triggering Object", 
+    //         Conversions.buildPose(centre.getX(), centre.getY(), 0)
+    //       );
 
       return use;
   }
