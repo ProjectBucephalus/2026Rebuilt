@@ -9,6 +9,8 @@ import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -39,6 +41,7 @@ public class Vision extends SubsystemBase
   private final Limelight[] lls;
   private final Supplier<Double> rpsSup;
   private final PoseEstimateConsumer estimateConsumer;
+  private final Supplier<Pose2d> robotPoseSup;
   /** Timestamp of last good pose estimate, seconds, -1 on initialisation */
   @Logged
   double lastGoodPose = -1; 
@@ -51,10 +54,11 @@ public class Vision extends SubsystemBase
    * @param rpsSup Supplier for robot rate of rotation, radians per second
    * @param lls List of limelight or photon cameras
    */
-  public Vision(PoseEstimateConsumer estimateConsumer, Supplier<Double> rpsSup, Limelight... lls) 
+  public Vision(PoseEstimateConsumer estimateConsumer, Supplier<Double> rpsSup, Supplier<Pose2d> robotPoseSup, Limelight... lls) 
   {
     this.lls = lls;
     this.rpsSup = rpsSup;
+    this.robotPoseSup = robotPoseSup;
     this.estimateConsumer = estimateConsumer;
   }
 
@@ -86,9 +90,34 @@ public class Vision extends SubsystemBase
       for (var ll : lls)
       {
         // Skip this limelight if it isn't active
-        
         if (ll.isActive())
         {
+          if(RobotBase.isSimulation())
+          {
+            var pose = robotPoseSup.get();
+            double noiseScale = PBDash.getDouble("Test Camera Noise");
+            double noiseX = Math.random() * 2 - 1;
+            noiseX = noiseX * Math.abs(noiseX);
+            noiseX *= noiseScale;
+            double noiseY = Math.random() * 2 - 1;
+            noiseY = noiseY * Math.abs(noiseY);
+            noiseY *= noiseScale;
+            double noiseR = Math.random() * 2 - 1;
+            noiseR = noiseR * Math.abs(noiseR);
+            noiseR *= noiseScale * 100;
+
+            pose = pose.plus(new Transform2d(noiseX, noiseY, Rotation2d.fromDegrees(noiseR)));
+
+            double linearStdDev = 0.03;
+            double rotStdDev = 0.03;
+
+            double timestamp = Utils.getCurrentTimeSeconds();
+            lastGoodPose = Timer.getTimestamp();
+
+            // Send pose estimate to consumer
+            estimateConsumer.accept(pose, timestamp, VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
+          }
+          else
           ll.getPhotonEst().ifPresent(est -> {
             // Reject update if it contains no tags, or if the robot is rotating too fast
             if (est.targetsUsed.isEmpty()|| Math.abs(rpsSup.get()) >= 2.0) return;
@@ -116,8 +145,6 @@ public class Vision extends SubsystemBase
 
             // Send pose estimate to consumer
             estimateConsumer.accept(poseOut, timestamp, VecBuilder.fill(linearStdDev, linearStdDev, rotStdDev));
-
-
           });
         }
       } 

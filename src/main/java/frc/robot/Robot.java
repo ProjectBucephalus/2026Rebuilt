@@ -149,6 +149,7 @@ public class Robot extends TimedRobot
   (
     s_Swerve::addVisionMeasurement,
     () -> state.swerve.Speeds.omegaRadiansPerSecond,
+    () -> state.swerve.Pose,
     s_PhotonPort,
     s_PhotonStbd
   );
