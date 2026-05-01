@@ -158,11 +158,11 @@ public final class Constants
   public static final class ShooterConstants
   {
     /** Target azimuth for Port shooter when climbing, degrees */
-    public static final double towerAimPortAz   = -60;
+    public static final double towerAimPortAz   = -50;
     /** Target distance for Port shooter when climbing, metres */
     public static final double towerAimPortDist = 4;
     /** Target azimuth for Stbd shooter when climbing, degrees */
-    public static final double towerAimStbdAz   = 60;
+    public static final double towerAimStbdAz   = 50;
     /** Target distance for Stbd shooter when climbing, metres */
     public static final double towerAimStbdDist = 4;
 
@@ -608,7 +608,7 @@ public final class Constants
     /** Alternate between `maxPosition` and `max - offset` for final approach to tower, metres */
     public static final double wiggleOffset = 0.009;
     /** Position for full climb, meters */
-    public static final double climbPosition = 0.05;
+    public static final double climbPosition = 0.04;
 
     /** Delay between movements when approaching tower, seconds */
     public static final double wiggleWait = 0.05;
