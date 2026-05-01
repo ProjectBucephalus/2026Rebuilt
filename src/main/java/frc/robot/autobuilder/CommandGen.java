@@ -43,8 +43,6 @@ public class CommandGen
 
   /** The final command group that gets built from the instructions */
   private SequentialCommandGroup commands;
-  /** The current instruction being compiled */
-  private Instruction instr;
   /** The next instruction is to drive */
   private boolean nextIsDrive;
   /** Used to track the pose the robot will be at over the course of the auto. ALWAYS HANDLED AS BLUE ALLIANCE */
@@ -81,26 +79,27 @@ public class CommandGen
   public Command compile(List<Instruction> instrs)
   {
     commands = new SequentialCommandGroup();
-    currPose = state.swerve.Pose;
+    currPose = FieldUtils.allianceRotatePose(state.swerve.Pose);
     PBDash.putFieldObject("Auto Path", currPose);
 
     // Iterate over each instruction, calling a seperate function that handles the actual compilation logic and handling any errors that arise
     // This design means that the actual compilation logic is seperated from the error handling, and doesn't have to consider them
     for (int pos = 0; pos < instrs.size(); pos++)
     {
-      instr = instrs.get(pos);
+      var instr = instrs.get(pos);
+
+      if (pos == instrs.size() - 1)
+        nextIsDrive = false;
+      else
+        switch (instrs.get(pos + 1).type())
+        {
+          case driveto, driveby, follow, climb -> nextIsDrive = true;
+          default -> nextIsDrive = false;
+        }
+
       try 
       {
-        if (pos == instrs.size() - 1)
-          nextIsDrive = false;
-        else
-          switch (instrs.get(pos + 1).type())
-          {
-            case driveto, driveby, follow, climb -> nextIsDrive = true;
-            default -> nextIsDrive = false;
-          }
-
-        compileInstr();
+        compileInstr(instr);
       }
       catch (TypeMismatchException e)
       {
@@ -149,27 +148,27 @@ public class CommandGen
    * Most of the errors are handled as exceptions, which are thrown by helper methods
    * and implicitly get rethrown by this to be caught in {@link #compile()}
    */
-  private void compileInstr() throws TypeMismatchException, ArgCountException, GeneralException
+  private void compileInstr(Instruction instr) throws TypeMismatchException, ArgCountException, GeneralException
   {
     switch (instr.type())
     {
       // driveto x y r - Go to pose `x`, `y`, `r` (alliance origin relative). `r` optional, maintains current rotation if omitted
-      case driveto -> compileDriveTo();
+      case driveto -> compileDriveTo(instr);
       // driveby x y - Relative drive
-      case driveby -> compileDriveBy();
+      case driveby -> compileDriveBy(instr);
       // follow n - Follow the path with name `n` in Path.autoPaths
-      case follow -> compileFollow();
+      case follow -> compileFollow(instr);
       // waitfor d - Wait for duration `d`
       case waitfor, wait -> 
       {
-        assertArgCount(1);
+        instr.assertArgCount(1);
 
         commands.addCommands(DriveBuilder.waitCommand().withTimeout(instr.arg(0).asNum()));
       }
       // waituntil d - wait until time `d`
       case waituntil -> 
       {
-        assertArgCount(1);
+        instr.assertArgCount(1);
 
         double duration = instr.arg(0).asNum();
         commands.addCommands(DriveBuilder.waitCommand().until(() -> Timer.getMatchTime() < (15 - duration)));
@@ -180,7 +179,7 @@ public class CommandGen
       //            `off`, `reverse`, or `idle` set roller state as appropriate
       case intake -> 
       {
-        assertArgCount(1);
+        instr.assertArgCount(1);
         switch (instr.arg(0).asText())
         {
           case "on"      -> commands.addCommands(Commands.parallel(s_Extension.gotoTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.On)));
@@ -199,28 +198,28 @@ public class CommandGen
       // passing b - sets auto passing on or off based on `b`
       case passing -> 
       {
-        assertArgCount(1);
+        instr.assertArgCount(1);
 
         boolean passState = instr.arg(0).asBool();
         commands.addCommands(Commands.runOnce(() -> PBDash.IO_SHOOT_PASS.put(passState)));
       }
-      case climb -> compileClimb();
+      case climb -> compileClimb(instr);
     }
   }
 
-  private void compileDriveTo() throws TypeMismatchException, ArgCountException 
+  private void compileDriveTo(Instruction instr) throws TypeMismatchException, ArgCountException 
   {
     Rotation2d rotationTarget;
     // Some extra handling is required due to the optional argument
     if (instr.args().length > 2) 
     {
-      assertArgCount(3);
+      instr.assertArgCount(3);
       rotationTarget = Rotation2d.fromDegrees(instr.arg(2).asNum());
     }
     else
     {
-      assertArgCount(2);
-      rotationTarget = FieldUtils.allianceRotateRotation(currPose.getRotation());
+      instr.assertArgCount(2);
+      rotationTarget = currPose.getRotation();
     }
 
     // Clamp the target pose to at least half a meter from the field walls and the midline for safety and to handle mis-inputs
@@ -237,12 +236,12 @@ public class CommandGen
 
     PBDash.addToFieldObject("Auto Path", targetPose);
     // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
-    commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose), nextIsDrive));
+    commands.addCommands(DriveBuilder.pathFollow(targetPose, nextIsDrive));
   }
 
-  private void compileDriveBy() throws TypeMismatchException, ArgCountException 
+  private void compileDriveBy(Instruction instr) throws TypeMismatchException, ArgCountException 
   {
-    assertArgCount(2);
+    instr.assertArgCount(2);
 
     Translation2d offset = new Translation2d(instr.arg(0).asNum(), instr.arg(1).asNum());
     currPose = new Pose2d(currPose.getTranslation().plus(offset), currPose.getRotation());
@@ -254,9 +253,9 @@ public class CommandGen
     commands.addCommands(DriveBuilder.pathFollow(targetPose, nextIsDrive));
   }
 
-  private void compileFollow() throws TypeMismatchException, ArgCountException, GeneralException
+  private void compileFollow(Instruction instr) throws TypeMismatchException, ArgCountException, GeneralException
   {
-    assertArgCount(1);
+    instr.assertArgCount(1);
 
     var pathName = instr.arg(0).asText();
     var path = Path.autoPaths.get(pathName);
@@ -270,9 +269,9 @@ public class CommandGen
     commands.addCommands(DriveBuilder.pathFollow(alliancePath, nextIsDrive));
   }
 
-  private void compileClimb() throws TypeMismatchException, ArgCountException, GeneralException
+  private void compileClimb(Instruction instr) throws TypeMismatchException, ArgCountException, GeneralException
   {
-    assertArgCount(1);
+    instr.assertArgCount(1);
 
     String text = instr.arg(0).asText();
     boolean isLeft = switch (text)
@@ -355,17 +354,5 @@ public class CommandGen
       Commands.runOnce(() -> state.climbPos = ClimbPosition.None)
     );
      
-  }
-
-  /**
-   * Throws an exception if the number of arguments in the current instruction is different from the provided value.
-   * Used as a helper to allow ergonomic, one-line checking of argument counts
-   * @param count How many arguments the current instruction should have
-   * @throws ArgCountException
-   */
-  private void assertArgCount(int count) throws ArgCountException
-  {
-    if (instr.args().length != count) 
-      throw new ArgCountException(count, instr.args().length);
   }
 }
