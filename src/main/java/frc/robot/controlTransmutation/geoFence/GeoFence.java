@@ -142,7 +142,7 @@ public abstract class GeoFence extends FieldObject
     double motionY   = ((motionN * distanceY) + (motionT * distanceX)) / distanceN;
 
     // Check for collision
-    if (distanceN <= 0.05) 
+    if (distanceN <= 0.05 + robotRadius + radius) 
     {
       touchingObject = true; 
       PBDash.addToFieldObject
@@ -152,10 +152,10 @@ public abstract class GeoFence extends FieldObject
         Conversions.buildPose(pointX + radius, pointY, 0),
         Conversions.buildPose(pointX, pointY + radius, 0),
         Conversions.buildPose(pointX - radius, pointY, 0),
-        Conversions.buildPose(pointX, pointY, 0),
-        Conversions.buildPose(pointX - radius, pointY, 0),
         Conversions.buildPose(pointX, pointY - radius, 0),
-        Conversions.buildPose(pointX + radius, pointY, 0)
+        Conversions.buildPose(pointX, pointY + radius, 0),
+        Conversions.buildPose(pointX + radius, pointY, 0),
+        Conversions.buildPose(pointX - radius, pointY, 0)
       );
     }
     return new Translation2d(motionX, motionY);
