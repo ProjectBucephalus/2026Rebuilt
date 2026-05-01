@@ -242,7 +242,7 @@ public class Robot extends TimedRobot
   /** Set up logging and telemetry systems */
   private void initLogging() 
   {
-    SignalLogger.enableAutoLogging(false);
+    SignalLogger.enableAutoLogging(true);
 
     if (!isSimulation()) 
     {
