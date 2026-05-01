@@ -220,7 +220,7 @@ public class CommandGen
     else
     {
       assertArgCount(2);
-      rotationTarget = currPose.getRotation();
+      rotationTarget = FieldUtils.allianceRotateRotation(currPose.getRotation());
     }
 
     // Clamp the target pose to at least half a meter from the field walls and the midline for safety and to handle mis-inputs
