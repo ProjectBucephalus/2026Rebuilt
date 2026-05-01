@@ -144,8 +144,8 @@ public class FieldConstants
     public static final Box hubBlue = new Box(fieldCentre.getX() - hubFrontOffset, hubYa, fieldCentre.getX() - hubBackOffset, hubYb, hubRadius, hubBuffer);
     public static final Box hubRed  = new Box(fieldCentre.getX() + hubFrontOffset, hubYa, fieldCentre.getX() + hubBackOffset, hubYb, hubRadius, hubBuffer);
 
-    public static final Point hubBlueOutput = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
-    public static final Point hubRedOutput  = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
+    //public static final Point hubBlueOutput = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
+    //public static final Point hubRedOutput  = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
 
     private static final double obstacleRadius = 0.2;
 
