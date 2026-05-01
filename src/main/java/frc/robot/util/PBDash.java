@@ -77,7 +77,7 @@ public class PBDash
   // Testing values
   public static final Key<Double>  TEST_FLYSPEED    = new Key<>("Test Flyspeed", 0.0);
   public static final Key<Double>  TEST_AZIMUTH     = new Key<>("Test Azimuth", 0.0);
-  public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 0.0);
+  public static final Key<Double>  TEST_ALTITUDE    = new Key<>("Test Altitude", 4.0);
 
   // Tuning values
   public static final Key<Double>  TUNE_MECH_LAG    = new Key<>("Mechanism Lag", ShooterConstants.mechanismLag);

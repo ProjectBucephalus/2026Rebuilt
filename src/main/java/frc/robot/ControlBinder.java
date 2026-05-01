@@ -14,6 +14,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -409,19 +410,19 @@ public record ControlBinder
     
     // Shoot while climbing
     new Trigger(() -> s_Climber.getTarget() == ClimberConstants.climbPosition)
-      .onTrue(runOnce
+      .whileTrue(run
         (() -> {
           if (state.climbPos == ClimbPosition.Left)
           {
             s_StbdShooter.target.state = TargetState.Manual;
-            s_StbdShooter.target.azimuth = ShooterConstants.towerAimStbdAz;
-            s_StbdShooter.setDistance(ShooterConstants.towerAimStbdDist);
+            s_StbdShooter.target.azimuth = PBDash.TEST_AZIMUTH.get();
+            s_StbdShooter.setDistance(PBDash.TEST_ALTITUDE.get());
           }
           if (state.climbPos == ClimbPosition.Right)
           {
             s_PortShooter.target.state = TargetState.Manual;
-            s_PortShooter.target.azimuth = ShooterConstants.towerAimPortAz;
-            s_PortShooter.setDistance(ShooterConstants.towerAimPortDist);
+            s_PortShooter.target.azimuth = PBDash.TEST_AZIMUTH.get();
+            s_PortShooter.setDistance(PBDash.TEST_ALTITUDE.get());
           }
         })
       );
@@ -522,7 +523,7 @@ public record ControlBinder
             .alongWith(runOnce(() -> {PBDash.CLIMBER_STATE.put("Climb");})), 
           s_Climber.retractCmd()
             .alongWith(runOnce(() -> PBDash.CLIMBER_STATE.put("Home"))), 
-          () -> s_Climber.atMax() && !io_ClimberPost.get()
+          () -> s_Climber.atMax() && !io_ClimberPost.get() || RobotBase.isSimulation()
         )
       );
     // Extend
