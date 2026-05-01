@@ -237,23 +237,51 @@ public class DriveBuilder
   /**
    * Creates a PathFollow drive command to navigate to the given target pose
    * @param target Pose2d for the command to navigate to
+   * @param coastOut [Optional] If true will not stop at final waypoint, intended for path chaining
    */
   public static Command pathFollow(Pose2d target)
-    {return pathFollow(target, () -> 1.0);}
+    {return pathFollow(target, false);}
+  
+  /**
+   * Creates a PathFollow drive command to navigate to the given target pose
+   * @param target Pose2d for the command to navigate to
+   * @param coastOut [Optional] If true will not stop at final waypoint, intended for path chaining
+   */
+  public static Command pathFollow(Pose2d target, boolean coastOut)
+    {return pathFollow(target, () -> 1.0, coastOut);}
 
   /**
    * Creates a PathFollow drive command to navigate to the given target pose with braking
    * @param target Pose2d for the command to navigate to
    * @param throttleSup Supplier for the throttle to apply, [0..1]. 1 is full speed, 0 is stopped
+   * @param coastOut [Optional] If true will not stop at final waypoint, intended for path chaining
    */
   public static Command pathFollow(Pose2d target, DoubleSupplier throttleSup)
-    {return pathFollowInner(Arrays.asList(new Node(target, 0.0)), throttleSup);}
+    {return pathFollow(target, throttleSup, false);}
+  
+  /**
+   * Creates a PathFollow drive command to navigate to the given target pose with braking
+   * @param target Pose2d for the command to navigate to
+   * @param throttleSup Supplier for the throttle to apply, [0..1]. 1 is full speed, 0 is stopped
+   * @param coastOut [Optional] If true will not stop at final waypoint, intended for path chaining
+   */
+  public static Command pathFollow(Pose2d target, DoubleSupplier throttleSup, boolean coastOut)
+    {return pathFollowInner(Arrays.asList(new Node(target, 0.3)), throttleSup, coastOut);}
 
   /**
    * Creates a PathFollow drive command to follow the given path with braking
    * @param path        Predefined path for command to follow
+   * @param coastOut [Optional] If true will not stop at final waypoint, intended for path chaining
    */
   public static Command pathFollow(Path path)
+    {return pathFollow(path, false);}
+
+  /**
+   * Creates a PathFollow drive command to follow the given path with braking
+   * @param path        Predefined path for command to follow
+   * @param coastOut [Optional] If true will not stop at final waypoint, intended for path chaining
+   */
+  public static Command pathFollow(Path path, boolean coastOut)
   {
     final ArrayList<Node> waypoints = new ArrayList<>(path.nodes().length * 3 - 2);
 
@@ -282,10 +310,10 @@ public class DriveBuilder
       );
     }
 
-    // Final waypoint does not trigger until the robot arives at it
-    waypoints.add(new Node(path.nodes()[path.nodes().length - 1].pose(), ControlConstants.lineupTolerance));
+    // Final waypoint uses the same radius as the segment leading up to it
+    waypoints.add(new Node(path.nodes()[path.nodes().length - 1].pose(), waypoints.get(waypoints.size() - 2).radius()));
 
-    return pathFollowInner(waypoints, path::throttle);
+    return pathFollowInner(waypoints, path::throttle, coastOut);
   }
 
   /**
@@ -293,8 +321,9 @@ public class DriveBuilder
    * @param waypoints A list of all the waypoints the command should follow
    * @param radiusPerSegment A list of the lineup tolerances for the waypoints of each segment of the path (each segment is 3 waypoints, except the final one which is a single waypoint)
    * @param throttleSup Supplier for the throttle to apply, [0..1]. 1 is full speed, 0 is stopped
+   * @param coastOut If true will not stop at final waypoint, intended for path chaining
    */
-  private static Command pathFollowInner(List<Node> waypoints, DoubleSupplier throttleSup)
+  private static Command pathFollowInner(List<Node> waypoints, DoubleSupplier throttleSup, boolean coastOut)
   {
     return new Command() 
     {
@@ -302,6 +331,8 @@ public class DriveBuilder
 
       private boolean onPath = false;
       private int currentWaypoint = 0;
+
+      private boolean coast = coastOut;
       
       {addRequirements(s_Swerve);}
 
@@ -341,8 +372,11 @@ public class DriveBuilder
       @Override
       public boolean isFinished() 
       {
-        // Finish when robot is at the final waypoint
-        return Conversions.atPose(robotPoseSup.get(), waypoints.get(waypoints.size()-1).pose());
+        var endNode = waypoints.get(waypoints.size()-1);
+        // Finish when robot is at the final waypoint, or near the final waypoint if there is a followup path
+        return coast
+            ? Conversions.nearPose(robotPoseSup.get(), endNode.pose(), endNode.radius() * (GeoFence.isBlocked() ? 2 : 1), ControlConstants.angleLineupTolerance * 5)
+            : Conversions.atPose(robotPoseSup.get(), endNode.pose());
       }
 
       @Override

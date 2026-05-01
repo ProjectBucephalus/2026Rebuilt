@@ -57,7 +57,7 @@ public final class Constants
     /** Translation lineup tolerance, meters */
     public static final double lineupTolerance = 0.1;
     /** Rotation lineup tolerance, degrees */
-    public static final double angleLineupTolerance = 2.5;
+    public static final double angleLineupTolerance = 4;
 
     /** Maximum robot speed to reduce power consumption, relative to maximum uncapped speed */
     public static final double powerSaveThrottle = 0.5;

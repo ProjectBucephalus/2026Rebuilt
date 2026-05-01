@@ -45,6 +45,8 @@ public class CommandGen
   private SequentialCommandGroup commands;
   /** The current instruction being compiled */
   private Instruction instr;
+  /** The next instruction is to drive */
+  private boolean nextIsDrive;
   /** Used to track the pose the robot will be at over the course of the auto. ALWAYS HANDLED AS BLUE ALLIANCE */
   private Pose2d currPose;
 
@@ -89,6 +91,15 @@ public class CommandGen
       instr = instrs.get(pos);
       try 
       {
+        if (pos == instrs.size() - 1)
+          nextIsDrive = false;
+        else
+          switch (instrs.get(pos + 1).type())
+          {
+            case driveto, driveby, follow, climb -> nextIsDrive = true;
+            default -> nextIsDrive = false;
+          }
+
         compileInstr();
       }
       catch (TypeMismatchException e)
@@ -226,7 +237,7 @@ public class CommandGen
 
     PBDash.addToFieldObject("Auto Path", targetPose);
     // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
-    commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose)));
+    commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose), nextIsDrive));
   }
 
   private void compileDriveBy() throws TypeMismatchException, ArgCountException 
@@ -240,7 +251,7 @@ public class CommandGen
 
     PBDash.addToFieldObject("Auto Path", targetPose);
 
-    commands.addCommands(DriveBuilder.pathFollow(targetPose));
+    commands.addCommands(DriveBuilder.pathFollow(targetPose, nextIsDrive));
   }
 
   private void compileFollow() throws TypeMismatchException, ArgCountException, GeneralException
@@ -256,7 +267,7 @@ public class CommandGen
 
     var alliancePath = path.allianceRotated();
     alliancePath.display("Auto Path");
-    commands.addCommands(DriveBuilder.pathFollow(alliancePath));
+    commands.addCommands(DriveBuilder.pathFollow(alliancePath, nextIsDrive));
   }
 
   private void compileClimb() throws TypeMismatchException, ArgCountException, GeneralException
