@@ -215,13 +215,15 @@ public record ControlBinder
         bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Vision)
         .andThen
         (
-          Commands.waitSeconds(0.1),
-          runOnce(() -> {          
-            s_PortShooter.target.azimuth = -60;
-            s_StbdShooter.target.azimuth = 60;
-          })
-        )
-        .ignoringDisable(true)
+          repeatingSequence
+          (
+            Commands.waitSeconds(0.1),
+            runOnce(() -> {          
+              s_PortShooter.target.azimuth -= 3;
+              s_StbdShooter.target.azimuth += 3;
+            })
+          )
+        ).until(s_Vision::hasLocalisation).withTimeout(3)
       );
 
     // Tag-Seeking for climb
