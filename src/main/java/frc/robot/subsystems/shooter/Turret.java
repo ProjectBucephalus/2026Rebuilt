@@ -258,7 +258,7 @@ public class Turret
     }
     else
     {
-      if (target.state != TargetState.Manual)
+      if (target.state != TargetState.Manual && target.state != TargetState.Vision)
       {
         // Seek tags when traversing bump or trench
         if (GeoFencing.obstacleBlue.checkPosition(shooterPose.getTranslation()))
@@ -279,7 +279,7 @@ public class Turret
 
         // Update the azimuth stored in the target based on the target state
         // Ensures that changing to manual mode doesn't cause sudden motion
-        else if (target.state == TargetState.Hub || (target.state == TargetState.Vision && DriverStation.isAutonomous()))
+        else if (target.state == TargetState.Hub) // TODO: Also run this when (vision mode && auto && neutral zone)
           target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
         else if (target.state == TargetState.Point)
           target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);

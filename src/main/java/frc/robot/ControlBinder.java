@@ -215,13 +215,15 @@ public record ControlBinder
         bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Vision)
         .andThen
         (
-          Commands.waitSeconds(0.2),
-          runOnce(() -> {          
-            s_PortShooter.target.azimuth = -60;
-            s_StbdShooter.target.azimuth = 60;
-          })
-        )
-        .ignoringDisable(true)
+          repeatingSequence
+          (
+            Commands.waitSeconds(0.1),
+            runOnce(() -> {          
+              s_PortShooter.target.azimuth -= 3;
+              s_StbdShooter.target.azimuth += 3;
+            })
+          )
+        ).until(s_Vision::hasLocalisation).withTimeout(3)
       );
 
     // Tag-Seeking for climb
@@ -229,10 +231,16 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {
-          s_StbdShooter.target.azimuth = 45;
+          PBDash.DEVICE_ERRORS.put("Climb Right Vision");
           s_StbdShooter.target.state = TargetState.Vision;
           s_PhotonPort.setActive(false);
         })
+        .andThen
+        (
+          waitSeconds(0.1),
+          runOnce(() -> PBDash.DEVICE_ERRORS.append(" - Active")),
+          runOnce(() -> s_StbdShooter.target.azimuth = 45)
+        )
       );
     new Trigger(() -> state.climbPos != ClimbPosition.Right)
       .onTrue
@@ -247,10 +255,16 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {   
-          s_PortShooter.target.azimuth = -50;
+          PBDash.DEVICE_ERRORS.put("Climb Left Vision");
           s_PortShooter.target.state = TargetState.Vision;
           s_PhotonStbd.setActive(false);
         })
+        .andThen
+        (
+          waitSeconds(0.1),
+          runOnce(() -> PBDash.DEVICE_ERRORS.append(" - Active")),
+          runOnce(() -> s_PortShooter.target.azimuth = -50)
+        )
       );
     new Trigger(() -> state.climbPos != ClimbPosition.Left)
     .onTrue
