@@ -473,6 +473,7 @@ public final class Constants
       flywheelSpeedHub.put(5.0, 59.0);
       flywheelSpeedHub.put(5.5, 61.0);
       flywheelSpeedHub.put(6.0, 62.0);
+      flywheelSpeedHub.put(6.5, 62.0);
     }
 
     /** Distance to Altitude conversion for shooting to a point on the field */
@@ -495,7 +496,8 @@ public final class Constants
       flywheelSpeedLow.put(4.5, 46.0);
       flywheelSpeedLow.put(5.5, 51.0);
       flywheelSpeedLow.put(6.5, 58.0);
-      flywheelSpeedLow.put(7.5, 68.0);
+      flywheelSpeedLow.put(7.0, 60.0);
+      flywheelSpeedLow.put(7.5, 60.0);
     }
 
     /** Distance to Time-of-Flight for Shoot-on-the-Move */
