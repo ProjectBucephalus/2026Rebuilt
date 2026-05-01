@@ -197,7 +197,7 @@ public final class Constants
     public static final double minRange = 1.1;
     public static final double closeManualRange = 2;
     public static final double farManualRange = 4.5;
-    public static final double maxPassRange = 7.5;
+    public static final double maxPassRange = 7.0;
 
     /** Target pass point, blue origin (right side) */
     public static final AllianceTranslation2d passPoint = new AllianceTranslation2d(1.5, 2);
