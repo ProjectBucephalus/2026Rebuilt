@@ -5,6 +5,8 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.util.Conversions;
+import frc.robot.util.PBDash;
 
 /**
  * Virtual objects on the field for changing inputs based on robot position
@@ -93,7 +95,15 @@ public abstract class FieldObject implements InputTransmuter
    */
   protected boolean checkPosition()
   {
-    return centre.getDistance(robotPos) <= checkRadius + robotRadius;
+    boolean use = centre.getDistance(robotPos) <= (checkRadius + robotRadius);
+    if (use)
+    PBDash.addToFieldObject
+          (
+            "Triggering Object", 
+            Conversions.buildPose(centre.getX(), centre.getY(), 0)
+          );
+
+      return use;
   }
 
   /**

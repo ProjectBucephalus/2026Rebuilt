@@ -40,6 +40,15 @@ public class FieldConstants
     public static final double climbAngleRedRight   = 0.0;
     /** Offset for climb lineup, degrees counterclockwise from nominal angle */
     public static final double climbAngleRedLeft    = 0.7;
+
+    /** Climber max position, metres above climber 0-position */
+    public static final double postHeightOffsetBlueLeft  = 0.230;
+    /** Climber max position, metres above climber 0-position */
+    public static final double postHeightOffsetRedLeft   = 0.230;
+    /** Climber max position, metres above climber 0-position */
+    public static final double postHeightOffsetBlueRight = 0.227;
+    /** Climber max position, metres above climber 0-position */
+    public static final double postHeightOffsetRedRight  = 0.230;
   }
 
   public static final AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); 
@@ -246,24 +255,25 @@ public class FieldConstants
     /** Assumed radius for other robots, m */
     private static final double clearRadius = 0.45;
     private static final double climbAllowance = clearRadius + 0.3;
+    public static final Box towerClearBlueLeft  = new Box(0, towerPostBlueRightY + climbAllowance, towerPostBlueX + clearRadius, towerPostBlueLeftY + clearRadius, clearRadius, climbAllowance);
+    public static final Box towerClearBlueRight = new Box(0, towerPostBlueRightY - clearRadius, towerPostBlueX + clearRadius, towerPostBlueLeftY - climbAllowance, clearRadius, climbAllowance);
+    public static final Box towerClearRedLeft   = new Box(fieldLength, towerPostRedLeftY - clearRadius, towerPostRedX - clearRadius, towerPostRedRightY - climbAllowance, clearRadius, climbAllowance);
+    public static final Box towerClearRedRight  = new Box(fieldLength, towerPostRedLeftY + climbAllowance, towerPostRedX - clearRadius, towerPostRedRightY + clearRadius, clearRadius, climbAllowance);
 
-    public static final Box towerClearBlueLeft  = new Box(0, towerPostBlueRightY + climbAllowance, towerPostBlueX + clearRadius, towerPostBlueLeftY + clearRadius, clearRadius, 0.25);
-    public static final Box towerClearBlueRight = new Box(0, towerPostBlueRightY - clearRadius, towerPostBlueX + clearRadius, towerPostBlueLeftY - climbAllowance, clearRadius, 0.25);
-    public static final Box towerClearRedLeft   = new Box(fieldLength, towerPostRedLeftY - clearRadius, towerPostRedX - clearRadius, towerPostRedRightY - climbAllowance, clearRadius, 0.25);
-    public static final Box towerClearRedRight  = new Box(fieldLength, towerPostRedLeftY + climbAllowance, towerPostRedX - clearRadius, towerPostRedRightY + clearRadius, clearRadius, 0.25);
-
-    /** Depth of barrier from driver wall when climbing, metres */
-    private static final double climbWallDepth  = towerPostBlueX - robotRadiusExpanded - 0.1;
     /** Speed limit when lining up to climb, [0..1] */
     private static final double climbSlowLimit  = 0.4;
-
-    public static final Box climbWallBlue       = new Box(0, 0, climbWallDepth, fieldWidth);
-    public static final Box climbWallRed        = new Box(fieldLength, 0, fieldLength - climbWallDepth, fieldWidth);
     public static final BoxRegion climbSlowBlue = new BoxRegion(0, 0, towerDepth, fieldWidth, 0, 1);
     public static final BoxRegion climbSlowRed  = new BoxRegion(fieldLength, 0, fieldLength - towerDepth, fieldWidth, 0, 1);
+    
+    // Prevent the robot from coming to close to driver wall when lining up to climb
+    /** Depth of barrier from driver wall when climbing, metres */
+    private static final double climbWallDepth  = towerPostBlueX - robotRadiusExpanded - 0.1;
+    public static final Box climbWallBlue       = new Box(0, 0, climbWallDepth, fieldWidth);
+    public static final Box climbWallRed        = new Box(fieldLength, 0, fieldLength - climbWallDepth, fieldWidth);
 
-    public static final Box towerClearBlue      = new Box(towerPostBlueX + 1, towerPostBlueRightY, towerPostBlueX + 1, towerPostBlueLeftY, towerPostRadius, 0.25);
-    public static final Box towerClearRed       = new Box(towerPostRedX - 1, towerPostRedRightY, towerPostRedX - 1, towerPostRedLeftY, towerPostRadius, 0.25);
+    // Prevent the robot from coming sideways into the post
+    public static final Box towerClearBlue      = new Box(towerPostBlueX + climbAllowance, towerPostBlueRightY, towerPostBlueX + climbAllowance, towerPostBlueLeftY, 0, 0.25);
+    public static final Box towerClearRed       = new Box(towerPostRedX - climbAllowance, towerPostRedRightY, towerPostRedX - climbAllowance, towerPostRedLeftY, 0, 0.25);
     
     public static final ObjectList climbBarrier = new ObjectList
     (
@@ -276,24 +286,28 @@ public class FieldConstants
     );
 
     // TriggerVectors for climbing
+    /** Distance from trigger to activate lineup sequence, metres */
     private static final double climbTriggerRadius = 2.5;
-    private static final double climbTriggerBuffer = 0.8;
+    /** Disatance from robot radius to post to allow manual adjustment, metres */
+    private static final double climbTriggerBuffer = 0.1;
+    /** Distance past post to centre the trigger to account for difference between robot radius and climber contact point, metres */
+    private static final double climbTriggerOffset = 0.2;
     public static final Translation2d climbApproachOffset = new Translation2d(0, 1.2);
     public static final Translation2d climbStartOffset = new Translation2d(0, 0.7);
     public static final Translation2d climbEndOffset = new Translation2d(0, 0.35);
 
     public static final TriggerVector climbBlueRight = new 
-      TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueRight, towerPostBlueRightY + 0.5, 90, climbTriggerRadius, climbTriggerBuffer)
-      .withBufferActivation(false);
+      TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueRight, towerPostBlueRightY + climbTriggerOffset, 90, climbTriggerRadius, climbTriggerBuffer)
+      .withBufferActivation(true);
     public static final TriggerVector climbBlueLeft  = new 
-      TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueLeft, towerPostBlueLeftY - 0.5, -90, climbTriggerRadius, climbTriggerBuffer)
-      .withBufferActivation(false);
+      TriggerVector(towerPostBlueX + FieldTuning.climbOffsetBlueLeft, towerPostBlueLeftY - climbTriggerOffset, -90, climbTriggerRadius, climbTriggerBuffer)
+      .withBufferActivation(true);
     public static final TriggerVector climbRedRight  = new 
-      TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedRight, towerPostRedRightY - 0.5, -90, climbTriggerRadius, climbTriggerBuffer)
-      .withBufferActivation(false);
+      TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedRight, towerPostRedRightY - climbTriggerOffset, -90, climbTriggerRadius, climbTriggerBuffer)
+      .withBufferActivation(true);
     public static final TriggerVector climbRedLeft   = new 
-      TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedLeft, towerPostRedLeftY + 0.5, 90, climbTriggerRadius, climbTriggerBuffer)
-      .withBufferActivation(false);
+      TriggerVector(towerPostRedX - FieldTuning.climbOffsetRedLeft, towerPostRedLeftY + climbTriggerOffset, 90, climbTriggerRadius, climbTriggerBuffer)
+      .withBufferActivation(true);
 
     public static final ObjectList climbTriggerVectors = new ObjectList
     (

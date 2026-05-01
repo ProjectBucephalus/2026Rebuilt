@@ -22,6 +22,7 @@ import frc.robot.autobuilder.ParsedRepr.*;
 import frc.robot.constants.Constants.ClimberConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.FieldTuning;
 import frc.robot.constants.Path;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.RollerState;
@@ -44,6 +45,8 @@ public class CommandGen
   private SequentialCommandGroup commands;
   /** The current instruction being compiled */
   private Instruction instr;
+  /** The next instruction is to drive */
+  private boolean nextIsDrive;
   /** Used to track the pose the robot will be at over the course of the auto. ALWAYS HANDLED AS BLUE ALLIANCE */
   private Pose2d currPose;
 
@@ -88,6 +91,15 @@ public class CommandGen
       instr = instrs.get(pos);
       try 
       {
+        if (pos == instrs.size() - 1)
+          nextIsDrive = false;
+        else
+          switch (instrs.get(pos + 1).type())
+          {
+            case driveto, driveby, follow, climb -> nextIsDrive = true;
+            default -> nextIsDrive = false;
+          }
+
         compileInstr();
       }
       catch (TypeMismatchException e)
@@ -148,7 +160,7 @@ public class CommandGen
       // follow n - Follow the path with name `n` in Path.autoPaths
       case follow -> compileFollow();
       // waitfor d - Wait for duration `d`
-      case waitfor -> 
+      case waitfor, wait -> 
       {
         assertArgCount(1);
 
@@ -171,8 +183,8 @@ public class CommandGen
         assertArgCount(1);
         switch (instr.arg(0).asText())
         {
-          case "on"      -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.On)));
-          case "stow"    -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.minRotations), s_Intake.setStateCmd(RollerState.Off)));
+          case "on"      -> commands.addCommands(Commands.parallel(s_Extension.gotoTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.On)));
+          case "stow"    -> commands.addCommands(Commands.parallel(s_Extension.gotoTargetCmd(() -> ExtensionConstants.minRotations), s_Intake.setStateCmd(RollerState.Off)));
           case "idle"    -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.Idle)));
           case "reverse" -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.maxRotations), s_Intake.setStateCmd(RollerState.Reversed)));
           case "agitate" -> commands.addCommands(Commands.parallel(s_Extension.setTargetCmd(() -> ExtensionConstants.jostleRotations), s_Intake.setStateCmd(RollerState.Idle)));
@@ -225,7 +237,7 @@ public class CommandGen
 
     PBDash.addToFieldObject("Auto Path", targetPose);
     // All prior handling was done using a blue alliance origin pose, and we now rotate the pose to match our actual alliance
-    commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose)));
+    commands.addCommands(DriveBuilder.pathFollow(FieldUtils.allianceRotatePose(currPose), nextIsDrive));
   }
 
   private void compileDriveBy() throws TypeMismatchException, ArgCountException 
@@ -239,7 +251,7 @@ public class CommandGen
 
     PBDash.addToFieldObject("Auto Path", targetPose);
 
-    commands.addCommands(DriveBuilder.pathFollow(targetPose));
+    commands.addCommands(DriveBuilder.pathFollow(targetPose, nextIsDrive));
   }
 
   private void compileFollow() throws TypeMismatchException, ArgCountException, GeneralException
@@ -255,7 +267,7 @@ public class CommandGen
 
     var alliancePath = path.allianceRotated();
     alliancePath.display("Auto Path");
-    commands.addCommands(DriveBuilder.pathFollow(alliancePath));
+    commands.addCommands(DriveBuilder.pathFollow(alliancePath, nextIsDrive));
   }
 
   private void compileClimb() throws TypeMismatchException, ArgCountException, GeneralException
@@ -271,28 +283,33 @@ public class CommandGen
     };
 
     Path approachPath, climbPath;
+    double maxHeight;
 
     if (isLeft)
       if(FieldUtils.isAlliance(Alliance.Blue))
       {
         approachPath = Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0);
         climbPath = Path.climbBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0);
+        maxHeight = FieldTuning.postHeightOffsetBlueLeft;
       }
       else // if Alliance.Red
       {
         approachPath = Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0);
         climbPath = Path.climbRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0);
+        maxHeight = FieldTuning.postHeightOffsetRedLeft;
       }
     else // if isRight
       if(FieldUtils.isAlliance(Alliance.Blue))
       {
         approachPath = Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0);
         climbPath = Path.climbBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0);
+        maxHeight = FieldTuning.postHeightOffsetBlueRight;
       }
       else // if Alliance.Red
       {
         approachPath = Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0);
         climbPath = Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0);
+        maxHeight = FieldTuning.postHeightOffsetRedRight;
       }
 
     approachPath.display("Auto Path");
@@ -316,9 +333,9 @@ public class CommandGen
       (
         Commands.repeatingSequence
         ( 
-          s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+          s_Climber.gotoTargetCmd(maxHeight - ClimberConstants.wiggleOffset),
           Commands.waitSeconds(ClimberConstants.wiggleWait),
-          s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+          s_Climber.gotoTargetCmd(maxHeight),
           Commands.waitSeconds(ClimberConstants.wiggleWait)
         )
         .raceWith(DriveBuilder.pathFollow(climbPath)),

@@ -33,11 +33,13 @@ import frc.robot.constants.Constants.ControlConstants;
 import frc.robot.constants.Constants.IntakeConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
+import frc.robot.constants.FieldConstants.FieldTuning;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Target.TargetState;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.Limelight;
+import frc.robot.util.Conversions;
 import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 import frc.robot.controlTransmutation.Brake;
@@ -285,11 +287,7 @@ public record ControlBinder
       );
 
     switchboard.button(IDConstants.testHubSwitchID)
-      .and
-      (
-        switchboard.button(IDConstants.fencingSwitchID).negate()
-        .or(() -> state.shoot == ShootersState.Test)
-      )
+      .and(() -> state.shoot == ShootersState.Test)
       .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Hub)
@@ -298,6 +296,7 @@ public record ControlBinder
       );
 
     switchboard.button(IDConstants.disableShootersSwitchID)
+      .and(() -> state.shoot == ShootersState.Test)
       .onTrue
       (
         bothShooters(Commands::runOnce, s -> s.target.disabled = true)
@@ -318,11 +317,17 @@ public record ControlBinder
                                           .and(DriverStation::isEnabled);
     final Trigger allianceZoneTrigger = new Trigger(() -> FieldUtils.inAllianceZone(state.swerve.Pose.getTranslation()));
 
-    // Not Manual, Outside Alliance Zone
+    // Not Manual, Not Auto, Outside Alliance Zone
     autoAimTrigger
       .and(allianceZoneTrigger.negate())
+      .and(() -> !DriverStation.isAutonomous())
       .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Point).ignoringDisable(true))
       .whileTrue(bothShooters(Commands::run, s -> s.target.point = FieldUtils.getPassPoint(state.swerve.Pose.getTranslation())));
+
+    autoAimTrigger
+      .and(allianceZoneTrigger.negate())
+      .and(() -> DriverStation.isAutonomous())
+      .onTrue(bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Vision));
 
     // Not Manual, Inside Alliance Zone
     autoAimTrigger
@@ -504,7 +509,7 @@ public record ControlBinder
     // Set Climb
     driver.povLeft().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Left));
     driver.povRight().onTrue(runOnce(() -> state.climbPos = ClimbPosition.Right));
-    driver.back().onTrue(runOnce(() -> state.climbPos = ClimbPosition.None));
+    driver.back().onTrue(runOnce(() -> state.climbPos = ClimbPosition.None)); // TODO: Rebind to povUp?
 
     // Retract
     operator.start()
@@ -530,6 +535,19 @@ public record ControlBinder
     operator
       .axisMagnitudeGreaterThan(XboxController.Axis.kRightY.value, ControlConstants.manualControlDeadband)
       .onTrue(runOnce(() -> PBDash.CLIMBER_STATE.put("Manual")));
+
+    // Wiggle Test
+    operator.rightStick()
+      .whileTrue
+      (
+        Commands.repeatingSequence
+        ( 
+          s_Climber.gotoTargetCmd(ClimberConstants.maxPosition - ClimberConstants.wiggleOffset),
+          Commands.waitSeconds(ClimberConstants.wiggleWait),
+          s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+          Commands.waitSeconds(ClimberConstants.wiggleWait)
+        )
+      );
   }
 
   /** Mutually exclusive to {@link ControlBinder#bind bind()} */
@@ -567,28 +585,41 @@ public record ControlBinder
 
     Supplier<Command> approachPath; 
     Supplier<Command> climbPath;
+    double maxHeight;
 
     if (side == ClimbPosition.Left)
       if(alliance == Alliance.Blue)
       {
-        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0));
+        approachPath = () -> 
+            DriveBuilder.pathFollow(Path.climbApproachBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0))
+            .until(() -> Conversions.nearTranslation(state.swerve.Pose.getTranslation(), Path.climbBlueLeft.targetPose().getTranslation(), 0.35));
         climbPath =() -> DriveBuilder.pathFollow(Path.climbBlueLeft.allianceOffset(PBDash.TUNE_CLIMB_BL.get(), 0));
+        maxHeight = FieldTuning.postHeightOffsetBlueLeft;
       }
       else // if Alliance.Red
       {
-        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0));
+        approachPath = () -> 
+            DriveBuilder.pathFollow(Path.climbApproachRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0))
+            .until(() -> Conversions.nearTranslation(state.swerve.Pose.getTranslation(), Path.climbRedLeft.targetPose().getTranslation(), 0.35));
         climbPath = () -> DriveBuilder.pathFollow(Path.climbRedLeft.allianceOffset(PBDash.TUNE_CLIMB_RL.get(), 0));
+        maxHeight = FieldTuning.postHeightOffsetRedLeft;
       }
     else // if Right
       if(alliance == Alliance.Blue)
       {
-        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0));
+        approachPath = () -> 
+            DriveBuilder.pathFollow(Path.climbApproachBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0))
+            .until(() -> Conversions.nearTranslation(state.swerve.Pose.getTranslation(), Path.climbBlueRight.targetPose().getTranslation(), 0.35));
         climbPath = () -> DriveBuilder.pathFollow(Path.climbBlueRight.allianceOffset(PBDash.TUNE_CLIMB_BR.get(), 0));
+        maxHeight = FieldTuning.postHeightOffsetBlueRight;
       }
       else // if Alliance.Red
       {
-        approachPath = () -> DriveBuilder.pathFollow(Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0));
+        approachPath = () -> 
+            DriveBuilder.pathFollow(Path.climbApproachRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0))
+            .until(() -> Conversions.nearTranslation(state.swerve.Pose.getTranslation(), Path.climbRedRight.targetPose().getTranslation(), 0.35));
         climbPath = () -> DriveBuilder.pathFollow(Path.climbRedRight.allianceOffset(PBDash.TUNE_CLIMB_RR.get(), 0));
+        maxHeight = FieldTuning.postHeightOffsetRedRight;
       }
 
     return s_Climber.extendCmd()
@@ -604,9 +635,9 @@ public record ControlBinder
           // Wiggle climber on final approach to climb
           Commands.repeatingSequence
           ( 
-            s_Climber.gotoTargetCmd(ClimberConstants.wigglePosition),
+            s_Climber.gotoTargetCmd(maxHeight - ClimberConstants.wiggleOffset),
             Commands.waitSeconds(ClimberConstants.wiggleWait),
-            s_Climber.gotoTargetCmd(ClimberConstants.maxPosition),
+            s_Climber.gotoTargetCmd(maxHeight),
             Commands.waitSeconds(ClimberConstants.wiggleWait)
           )
           .raceWith(s_Swerve.defer(climbPath)),

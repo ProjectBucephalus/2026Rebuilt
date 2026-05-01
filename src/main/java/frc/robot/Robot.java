@@ -86,6 +86,7 @@ public class Robot extends TimedRobot
     public NavState nav = NavState.Disabled;
     public boolean nudging = true;
     public SwerveDriveState swerve = new SwerveDriveState();
+    public Translation2d joystickOutput = Translation2d.kZero;
   }
   
   @Logged
@@ -451,6 +452,7 @@ public class Robot extends TimedRobot
 
     FieldObject.fetchRobotValues();
     GeoFence.clearBlocked();
+    PBDash.putFieldObject("Triggering Object");
   }
 
   private void compileAuto()
@@ -482,13 +484,17 @@ public class Robot extends TimedRobot
     
     if (!s_Vision.hasLocalisation()) PBDash.DEVICE_ERRORS.append("Vision, ");
 
-    double batteryVoltage = Math.round(100 * RobotController.getBatteryVoltage()) / 100.0;
+    double batteryVoltage = getBattery();
     if (batteryVoltage < 12.5) PBDash.DEVICE_ERRORS.append("Battery " + batteryVoltage + "v, ");
   }
 
   @Logged(name = "CAN Load")
   public float getCanLoad() 
     {return canBus.getStatus().BusUtilization;}
+  
+  @Logged(name = "Battery Voltage")
+  public double getBattery() 
+    {return Conversions.round(RobotController.getBatteryVoltage(), 2);}
   
   /* OPMODE METHODS */
   /* ============ */
@@ -497,7 +503,7 @@ public class Robot extends TimedRobot
   {
     FieldUtils.updateAutoWinner();
     PBDash.updateSendables();
-    PBDash.putDouble("Teleop Time Remaining", MatchTime.getTeleTimeRemaining());
+    PBDash.putDouble("Match Time", MatchTime.getGameTimeElapsed());
     CommandScheduler.getInstance().run();
   }
 

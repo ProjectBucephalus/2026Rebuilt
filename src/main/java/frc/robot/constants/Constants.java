@@ -57,7 +57,7 @@ public final class Constants
     /** Translation lineup tolerance, meters */
     public static final double lineupTolerance = 0.1;
     /** Rotation lineup tolerance, degrees */
-    public static final double angleLineupTolerance = 2.5;
+    public static final double angleLineupTolerance = 4;
 
     /** Maximum robot speed to reduce power consumption, relative to maximum uncapped speed */
     public static final double powerSaveThrottle = 0.5;
@@ -186,9 +186,9 @@ public final class Constants
     /** Scale applied to acceleration for shot-leading pose-projection */
     public static final double accelLeadFactor = 0.8;
     /** Maximum Acceleration from drivebase at which shot leading is viable, metres per second^2 */
-    public static final double leadingAccelLimit = 18;
+    public static final double leadingAccelLimit = 35;
     /** Maximum Jerk from drivebase at which shot leading is viable, metres per second^3 */
-    public static final double leadingJerkLimit = 500;
+    public static final double leadingJerkLimit = 2000;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, m/s */
     private static final double driveSpeedThreshold = 0.5;
     /** Maximum drivebase speed to allow shooting when shooter-power-save mode is active, squared to reduce calculation load, (m/s)^2 */
@@ -279,9 +279,9 @@ public final class Constants
       /** Angle range of potentiometer giving output of [0..1], degrees */
       public static final double potRange = 3600;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double portPotOffset = -1783.00;
+      public static final double portPotOffset = -1790.00;
       /** Angle offset to give 0 when turret is at centre, degrees */
-      public static final double stbdPotOffset = -1757.00;
+      public static final double stbdPotOffset = -1805.00;
 
       private static final double planetaryRatio = 13.03; // MaxPlanetary gearbox marked 4:1 is actually 3.6:1, 5:1 is actually 5.2:1
       private static final double driveGear = 15;
@@ -320,6 +320,9 @@ public final class Constants
 
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
         turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
+
+        turretConfig.CurrentLimits.StatorCurrentLimit = 12;
+        turretConfig.CurrentLimits.StatorCurrentLimitEnable = true;
       }
     }
 
@@ -368,7 +371,7 @@ public final class Constants
     /** 3D offset from centre of rotation of turret at floor level to centre of camera lens, metres fore*2/port/down, degrees roll/pitch/yaw */
     public static final Transform3d stbdLimelightOffset = new Transform3d(turretToCamera.getX(), 0, turretToCamera.getY(), new Rotation3d(0, Math.toRadians(turretPitch), 0));
     /** Maximum time between vision estimates before switching to odometry only, seconds */
-    public static final double visionFrequencyThreshold = 5;
+    public static final double visionFrequencyThreshold = 2;
     /** How many seconds into the past we store turret azimuth readings */
     public static final double azimuthBufLength = 10;
 
@@ -426,9 +429,9 @@ public final class Constants
     }
 
     /** Baseline 1 meter, 1 tag stddev for x and y, meters */
-    public static final double linearStdDevBaseline = 0.3;
+    public static final double linearStdDevBaseline = 0.2;
     /** Baseline 1 meter, 1 tag stddev rotation, radians */
-    public static final double rotStdDevBaseline = Math.toRadians(30);
+    public static final double rotStdDevBaseline = Math.toRadians(40);
   }
 
   /** Interpolation tables for converting measured input to calibrated output */
@@ -599,16 +602,16 @@ public final class Constants
     /** meters */
     public static final double minPosition  = 0.015;
     /** meters */
-    public static final double maxPosition  = 0.24;
+    public static final double maxPosition  = 0.23;
     /** Position set when climber calibrates, meters */
     public static final double homePosition = 0.02;
-    /** Alternate between this position and maxPosition for final approach to tower, metres */
-    public static final double wigglePosition = maxPosition - 0.01;
+    /** Alternate between `maxPosition` and `max - offset` for final approach to tower, metres */
+    public static final double wiggleOffset = 0.009;
     /** Position for full climb, meters */
     public static final double climbPosition = 0.05;
 
     /** Delay between movements when approaching tower, seconds */
-    public static final double wiggleWait = 0.1;
+    public static final double wiggleWait = 0.05;
 
     private static final double planetaryRatio = 25;
     private static final double motorPulley = 12;

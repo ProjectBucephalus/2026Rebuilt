@@ -13,17 +13,17 @@ public class InputCurve implements InputTransmuter
 
   /** 
    * Parabolic curve on axis input
-   * @param power optional, defaults to 1 (linear)
+   * @param power optional, defaults to minimum 1 (linear)
    */
   public InputCurve()
     {this(1);}
   
   /** 
    * Parabolic curve on axis input
-   * @param power optional, defaults to 1 (linear)
+   * @param power optional, defaults to minimum 1 (linear)
    */
   public InputCurve(double power)
-    {this.power = power;}
+    {this.power = Math.max(power, 1);}
 
   /**
    * Applies a sensitivity curve to the input, keeping the range from [0..1] but causing it to scale faster the closer it gets to 1 <>
@@ -32,13 +32,17 @@ public class InputCurve implements InputTransmuter
   @Override
   public Translation2d process(Translation2d controlInput)
   {
-    return Conversions.clamp
-    (
-      new Translation2d
-      (
-        Math.copySign(Math.pow(controlInput.getX(), power), controlInput.getX()), 
-        Math.copySign(Math.pow(controlInput.getY(), power), controlInput.getY())
-      )
-    );
+    double norm = controlInput.getNorm();
+    double scale = Math.pow(norm, power - 1);
+    return controlInput.times(scale);
+
+    // return Conversions.clamp
+    // (
+    //   new Translation2d
+    //   (
+    //     Math.copySign(Math.pow(controlInput.getX(), power), controlInput.getX()), 
+    //     Math.copySign(Math.pow(controlInput.getY(), power), controlInput.getY())
+    //   )
+    // );
   }
 }

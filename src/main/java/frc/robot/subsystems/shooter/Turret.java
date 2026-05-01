@@ -26,6 +26,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -42,6 +43,8 @@ public class Turret
 {
   private final TalonFXS m_Turret;
   private final AnalogPotentiometer io_Azimuth;
+  @Logged
+  private double deviceTemp;
 
   private final DCMotorSim motorSim = new DCMotorSim
   (
@@ -273,9 +276,10 @@ public class Turret
           else // If turret mount is facing towards Red zone from Red obstacle, look for Red Tower tags
             {target.azimuth = calculateTargetAngle(shooterPose, GeoFencing.towerRed.getCentre(), robotDegreesPerSecond);}
         }
+
         // Update the azimuth stored in the target based on the target state
         // Ensures that changing to manual mode doesn't cause sudden motion
-        else if (target.state == TargetState.Hub)
+        else if (target.state == TargetState.Hub || (target.state == TargetState.Vision && DriverStation.isAutonomous()))
           target.azimuth = calculateTargetAngle(shooterPose, FieldUtils.getAllianceHubCentre().plus(target.offset), robotDegreesPerSecond);
         else if (target.state == TargetState.Point)
           target.azimuth = calculateTargetAngle(shooterPose, target.point.plus(target.offset), robotDegreesPerSecond);
@@ -283,6 +287,8 @@ public class Turret
 
       m_Turret.setControl(request.withPosition(Conversions.normaliseAngle(target.azimuth, getAzimuth(), maxTurretAzimuth) / 360));
     }
+
+    deviceTemp = Math.max(m_Turret.getDeviceTemp().getValueAsDouble(), m_Turret.getProcessorTemp().getValueAsDouble());
   }   
   
   protected void updateSim()

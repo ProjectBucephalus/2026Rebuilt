@@ -293,15 +293,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     if(Math.abs(speedX) > Math.abs(speedY))
     {
       double ratio = (speedX==0 || speedY==0) ? 0 : speedY/speedX;
-      throttleX = Conversions.clamp(xController.calculate(robotPos.getX(), targetPos.getX()));
+      throttleX = Conversions.clamp(speedX);
       throttleY = throttleX*ratio;
     }
     else
     {
       double ratio = (speedX==0 || speedY==0) ? 0 : speedX/speedY;
-      throttleY = Conversions.clamp(yController.calculate(robotPos.getY(), targetPos.getY()));
+      throttleY = Conversions.clamp(speedY);
       throttleX = throttleY*ratio;
     }
+    final var throttleXY = FieldConstants.GeoFencing.fieldGeoFence.process(new Translation2d(throttleX, throttleY).times(translationThrottle));
+    
     final double speedTheta = 
       Conversions.clamp
       (
@@ -309,7 +311,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         -maxAngularVelocity, 
         maxAngularVelocity
       ) * rotationThrottle;
-    final var throttleXY = FieldConstants.GeoFencing.fieldGeoFence.process(new Translation2d(throttleX, throttleY)).times(translationThrottle);
 
     xController.close();
     yController.close();

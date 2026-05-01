@@ -47,7 +47,7 @@ public class MatchTime
   public static double getGameTimeElapsed()
   {
     double timeNow = currentTime();
-    if ((timeNow < autoStart) || (timeNow > (autoStart + MAX_GAME_TIME)))
+    if ((autoStart == 0) || (timeNow > (autoStart + MAX_GAME_TIME)))
     {
       return 0;
     }
@@ -66,7 +66,7 @@ public class MatchTime
   public static double getGameTimeRemaining()
   {
     double timeNow = currentTime();
-    if ((timeNow < autoStart) || (timeNow > (autoStart + MAX_GAME_TIME)))
+    if ((autoStart == 0) || (timeNow > (autoStart + MAX_GAME_TIME)))
     {
       return 0;
     }
