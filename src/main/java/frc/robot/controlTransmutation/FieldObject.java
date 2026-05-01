@@ -36,7 +36,7 @@ public abstract class FieldObject implements InputTransmuter
   /** Condition for the object to be active, if the return is false the object will return the input */
   protected BooleanSupplier activeSupplier = () -> true;
   /** Condition for ALL objects to be active, if the return is false the object will return the input */
-  protected static BooleanSupplier globalActiveSupplier = () -> true;
+  protected static BooleanSupplier globalActiveSupplier = PBDash.IO_FENCE::get;
 
   /**
    * Sets the global robot position supplier for all field objects
