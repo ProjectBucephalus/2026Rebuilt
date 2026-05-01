@@ -362,7 +362,7 @@ public class Shooter extends SubsystemBase
       case Vision -> 0;
     };
 
-    if (shootStatus == Status.Idling || shootStatus == Status.Vision || shootStatus == Status.BadLocation)
+    if (shootStatus == Status.Idling || shootStatus == Status.BadLocation || target.state == TargetState.Vision)
       target.speed = FlywheelConstants.idleSpeed;
     else
       target.speed = switch (target.state)

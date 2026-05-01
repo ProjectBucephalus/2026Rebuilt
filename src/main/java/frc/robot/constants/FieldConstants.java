@@ -147,7 +147,7 @@ public class FieldConstants
     //public static final Point hubBlueOutput = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
     //public static final Point hubRedOutput  = new Point(fieldCentre.getX() - hubBackOffset, fieldCentre.getY(), hubSideLength / 2, hubBuffer);
 
-    private static final double obstacleRadius = 0.2;
+    private static final double obstacleRadius = 0.0;
 
     public static final BoxRegion obstacleBlue = new BoxRegion(fieldCentre.getX() - hubFrontOffset, 0, fieldCentre.getX() - hubBackOffset, fieldWidth, obstacleRadius, 0);
     public static final BoxRegion obstacleRed  = new BoxRegion(fieldCentre.getX() + hubFrontOffset, 0, fieldCentre.getX() + hubBackOffset, fieldWidth, obstacleRadius, 0);
