@@ -162,7 +162,7 @@ public final class Constants
     /** Target distance for Port shooter when climbing, metres */
     public static final double towerAimPortDist = 4;
     /** Target azimuth for Stbd shooter when climbing, degrees */
-    public static final double towerAimStbdAz   = 50;
+    public static final double towerAimStbdAz   = 60;
     /** Target distance for Stbd shooter when climbing, metres */
     public static final double towerAimStbdDist = 4;
 
