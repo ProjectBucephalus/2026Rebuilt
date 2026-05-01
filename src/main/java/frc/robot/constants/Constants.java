@@ -321,7 +321,7 @@ public final class Constants
         turretConfig.MotionMagic.MotionMagicCruiseVelocity = turretTurnSpeed;
         turretConfig.MotionMagic.MotionMagicAcceleration = turretTurnSpeed * 5;
 
-        turretConfig.CurrentLimits.StatorCurrentLimit = 12;
+        turretConfig.CurrentLimits.StatorCurrentLimit = 30;
         turretConfig.CurrentLimits.StatorCurrentLimitEnable = true;
       }
     }
