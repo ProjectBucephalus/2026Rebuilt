@@ -39,7 +39,6 @@ public class TriggerVector extends FieldObject
 
   /** Trigger output: true while input vector is towards target */
   private boolean onTarget = false;
-  private Trigger trigger = new Trigger(activeSupplier).and(globalActiveSupplier).and(this::checkTrigger);
 
   /** If false, the trigger cannot *become* true when within the buffer */
   private boolean bufferActivation = true;
@@ -70,7 +69,7 @@ public class TriggerVector extends FieldObject
 
   /** @return Trigger monitoring if the control input is towards the target within a certain tollerance */
   public Trigger asTrigger()
-    {return trigger;}
+    {return new Trigger(activeSupplier).and(globalActiveSupplier).and(this::checkTrigger);}
 
   
   private boolean checkTrigger()

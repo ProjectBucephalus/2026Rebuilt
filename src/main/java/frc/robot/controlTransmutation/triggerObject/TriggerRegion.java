@@ -15,7 +15,6 @@ import static frc.robot.constants.FieldConstants.GeoFencing.*;
  */
 public class TriggerRegion extends FieldObject
 {
-  private final Trigger trigger = new Trigger(activeSupplier).and(globalActiveSupplier).and(() -> checkPosition() && getDistance() <= 0);
   protected double localSpeedLimit = 0;
 
   /**
@@ -67,7 +66,7 @@ public class TriggerRegion extends FieldObject
 
   /** @return A trigger for whether the robot is within the region */
   public Trigger asTrigger()
-    {return trigger;}
+    {return new Trigger(activeSupplier).and(globalActiveSupplier).and(() -> checkPosition() && getDistance() <= 0);}
 
   /**
    * Caps the maximum speed to the configured speed limit if within the region,
