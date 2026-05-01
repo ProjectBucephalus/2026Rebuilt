@@ -157,13 +157,13 @@ public final class Constants
   /** Geometry and tuning data for shooter systems */
   public static final class ShooterConstants
   {
-    /** Target azimuth for Port shooter when climbing, degrees */
+    /** Target azimuth for Port shooter when climbing Right, degrees */
     public static final double towerAimPortAz   = -50;
-    /** Target distance for Port shooter when climbing, metres */
+    /** Target distance for Port shooter when climbing Right, metres */
     public static final double towerAimPortDist = 4;
-    /** Target azimuth for Stbd shooter when climbing, degrees */
+    /** Target azimuth for Stbd shooter when climbing Left, degrees */
     public static final double towerAimStbdAz   = 60;
-    /** Target distance for Stbd shooter when climbing, metres */
+    /** Target distance for Stbd shooter when climbing Left, metres */
     public static final double towerAimStbdDist = 4;
 
     /** 
