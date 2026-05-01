@@ -134,6 +134,18 @@ public final class ParsedRepr
     public Value arg(int i)
       {return args[i];}
 
+    /**
+     * Throws an exception if the number of arguments in this instruction is different from the provided value.
+     * Used as a helper to allow ergonomic, one-line checking of argument counts
+     * @param count How many arguments the instruction should have
+     * @throws ArgCountException
+     */
+    public void assertArgCount(int count) throws ArgCountException
+    {
+      if (args().length != count) 
+        throw new ArgCountException(count, args().length);
+    }
+
     @Override
     public final String toString() 
     {
