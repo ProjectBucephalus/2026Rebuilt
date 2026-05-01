@@ -71,21 +71,13 @@ public class Fence extends GeoFence
   @Override
   protected boolean checkPosition()
   {
-    boolean use = 
+    return
     (
       (robotPos.getX() >= Xb - (checkRadius + robotRadius)) ||  // Close to inside of +X barrier
       (robotPos.getX() <= Xa + (checkRadius + robotRadius)) ||  // Close to inside of -X barrier
       (robotPos.getY() >= Yb - (checkRadius + robotRadius)) ||  // Close to inside of +Y barrier
       (robotPos.getY() <= Ya + (checkRadius + robotRadius))     // Close to inside of -Y barrier
     );
-    if (use)
-    PBDash.addToFieldObject
-    (
-      "Triggering Object", 
-      Conversions.buildPose(centre.getX(), centre.getY(), 0)
-    );
-
-    return use;
   }
 
   @Override

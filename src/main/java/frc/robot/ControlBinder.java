@@ -215,14 +215,11 @@ public record ControlBinder
         bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Vision)
         .andThen
         (
-          repeatingSequence
-          (
-            Commands.waitSeconds(0.1),
-            runOnce(() -> {          
-              s_PortShooter.target.azimuth = -60;
-              s_StbdShooter.target.azimuth = 60;
-            })
-          )
+          Commands.waitSeconds(0.1),
+          runOnce(() -> {          
+            s_PortShooter.target.azimuth = -60;
+            s_StbdShooter.target.azimuth = 60;
+          })
         )
         .ignoringDisable(true)
       );

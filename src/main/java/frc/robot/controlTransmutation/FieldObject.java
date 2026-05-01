@@ -94,17 +94,7 @@ public abstract class FieldObject implements InputTransmuter
    * @return True if further processing is required
    */
   protected boolean checkPosition()
-  {
-    boolean use = centre.getDistance(robotPos) <= (checkRadius + robotRadius);
-    // if (use)
-    // PBDash.addToFieldObject
-    //       (
-    //         "Triggering Object", 
-    //         Conversions.buildPose(centre.getX(), centre.getY(), 0)
-    //       );
-
-      return use;
-  }
+    {return centre.getDistance(robotPos) <= (checkRadius + robotRadius);}
 
   /**
    * Tests if the given point is touching or inside the active object
