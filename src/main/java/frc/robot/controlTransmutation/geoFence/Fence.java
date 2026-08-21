@@ -123,20 +123,6 @@ public class Fence extends GeoFence
     if(distanceToEdgeX <= 0.05 || distanceToEdgeY <= 0.05)
     {
       touchingObject = true; 
-      PBDash.addToFieldObject
-      (
-        "Blocking Object", 
-        Conversions.buildPose(Xa, Ya, 0),
-        Conversions.buildPose(Xb, Ya, 0),
-        Conversions.buildPose(Xb, Yb, 0),
-        Conversions.buildPose(Xa, Yb, 0),
-        Conversions.buildPose(Xa, Ya, 0),
-        Conversions.buildPose(Xa + radius, Ya + radius, 0),
-        Conversions.buildPose(Xb - radius, Ya + radius, 0),
-        Conversions.buildPose(Xb - radius, Yb - radius, 0),
-        Conversions.buildPose(Xa + radius, Yb - radius, 0),
-        Conversions.buildPose(Xa + radius, Ya + radius, 0)
-      );
     } 
 
     return new Translation2d(motionX, motionY);
@@ -199,5 +185,24 @@ public class Fence extends GeoFence
       {Yb += dY;}
 
     centre = centre.plus(new Translation2d(dX/2, dY/2));
+  }
+  
+  @Override
+  public void render() 
+  {
+    PBDash.putFieldObject
+    (
+      "Fence Render", 
+      Conversions.buildPose(Xa, Ya, 0),
+      Conversions.buildPose(Xb, Ya, 0),
+      Conversions.buildPose(Xb, Yb, 0),
+      Conversions.buildPose(Xa, Yb, 0),
+      Conversions.buildPose(Xa, Ya, 0),
+      Conversions.buildPose(Xa + radius, Ya + radius, 0),
+      Conversions.buildPose(Xb - radius, Ya + radius, 0),
+      Conversions.buildPose(Xb - radius, Yb - radius, 0),
+      Conversions.buildPose(Xa + radius, Yb - radius, 0),
+      Conversions.buildPose(Xa + radius, Ya + radius, 0)
+    );
   }
 }

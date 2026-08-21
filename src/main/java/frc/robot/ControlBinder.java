@@ -708,7 +708,7 @@ public record ControlBinder
             fieldEast, 
             fieldNorth
           );
-          renderFieldWall();
+          GeoFencing.field.render();
 
           // Disable input rotation
           driverStick.withRotation(new Rotation(0));
@@ -728,7 +728,7 @@ public record ControlBinder
         PBDash.D_FENCE_XB.get() + towerCentre.getX(),
         PBDash.D_FENCE_YB.get() + towerCentre.getY()
       );
-      renderFieldWall();
+      GeoFencing.field.render();
     }).ignoringDisable(true));
 
     new Trigger(PBDash.D_FENCE_XAP::button).and(PBDash.DISPLAY::get)
@@ -736,7 +736,7 @@ public record ControlBinder
         {
           GeoFencing.field.contractBox(0.2, 0);
           PBDash.D_FENCE_XA.put(PBDash.D_FENCE_XA.get() + 0.2);
-          renderFieldWall();
+          GeoFencing.field.render();
         }).ignoringDisable(true));
 
     new Trigger(PBDash.D_FENCE_XAM::button).and(PBDash.DISPLAY::get)
@@ -744,7 +744,7 @@ public record ControlBinder
         {
           GeoFencing.field.expandBox(-0.2, 0);
           PBDash.D_FENCE_XA.put(PBDash.D_FENCE_XA.get() - 0.2);
-          renderFieldWall();
+          GeoFencing.field.render();
         }).ignoringDisable(true));
 
     new Trigger(PBDash.D_FENCE_YAP::button).and(PBDash.DISPLAY::get)
@@ -752,7 +752,7 @@ public record ControlBinder
         {
           GeoFencing.field.contractBox(0, 0.2);
           PBDash.D_FENCE_YA.put(PBDash.D_FENCE_YA.get() + 0.2);
-          renderFieldWall();
+          GeoFencing.field.render();
         }).ignoringDisable(true));
 
     new Trigger(PBDash.D_FENCE_YAM::button).and(PBDash.DISPLAY::get)
@@ -760,7 +760,7 @@ public record ControlBinder
         {
           GeoFencing.field.expandBox(0, -0.2);
           PBDash.D_FENCE_YA.put(PBDash.D_FENCE_YA.get() - 0.2);
-          renderFieldWall();
+          GeoFencing.field.render();
         }).ignoringDisable(true));
 
     new Trigger(PBDash.D_FENCE_XBP::button).and(PBDash.DISPLAY::get)
@@ -768,7 +768,7 @@ public record ControlBinder
         {
           GeoFencing.field.expandBox(0.2, 0);
           PBDash.D_FENCE_XB.put(PBDash.D_FENCE_XB.get() + 0.2);
-          renderFieldWall();
+          GeoFencing.field.render();
         }).ignoringDisable(true));
 
     new Trigger(PBDash.D_FENCE_XBM::button).and(PBDash.DISPLAY::get)
@@ -776,7 +776,7 @@ public record ControlBinder
         {
           GeoFencing.field.contractBox(-0.2, 0);
           PBDash.D_FENCE_XB.put(PBDash.D_FENCE_XB.get() - 0.2);
-          renderFieldWall();
+          GeoFencing.field.render();
         }).ignoringDisable(true));
 
     new Trigger(PBDash.D_FENCE_YBP::button).and(PBDash.DISPLAY::get)
@@ -784,7 +784,7 @@ public record ControlBinder
         {
           GeoFencing.field.expandBox(0, 0.2);
           PBDash.D_FENCE_YB.put(PBDash.D_FENCE_YB.get() + 0.2);
-          renderFieldWall();
+          GeoFencing.field.render();
         }).ignoringDisable(true));
 
     new Trigger(PBDash.D_FENCE_YBM::button).and(PBDash.DISPLAY::get)
@@ -792,17 +792,7 @@ public record ControlBinder
         {
           GeoFencing.field.contractBox(0, -0.2);
           PBDash.D_FENCE_YB.put(PBDash.D_FENCE_YB.get() - 0.2);
-          renderFieldWall();
+          GeoFencing.field.render();
         }).ignoringDisable(true));
-
-  }
-
-  private void renderFieldWall()
-  {
-    var towerCentre = GeoFencing.towerBlue.getCentre();
-    PBDash.FIELD.getObject("Corner1").setPose(PBDash.D_FENCE_XA.get() + towerCentre.getX(), PBDash.D_FENCE_YA.get() + towerCentre.getY(), Rotation2d.kZero);
-    PBDash.FIELD.getObject("Corner2").setPose(PBDash.D_FENCE_XA.get() + towerCentre.getX(), PBDash.D_FENCE_YB.get() + towerCentre.getY(), Rotation2d.kZero);
-    PBDash.FIELD.getObject("Corner3").setPose(PBDash.D_FENCE_XB.get() + towerCentre.getX(), PBDash.D_FENCE_YA.get() + towerCentre.getY(), Rotation2d.kZero);
-    PBDash.FIELD.getObject("Corner4").setPose(PBDash.D_FENCE_XB.get() + towerCentre.getX(), PBDash.D_FENCE_YB.get() + towerCentre.getY(), Rotation2d.kZero);
   }
 }

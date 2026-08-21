@@ -149,22 +149,26 @@ public class Box extends GeoFence
     // Check for collision
     if (distanceToEdge <= 0.05)
     {
-      touchingObject = true; 
-      PBDash.addToFieldObject
-      (
-        "Blocking Object", 
-        Conversions.buildPose(Xa, Ya, 0),
-        Conversions.buildPose(Xb, Ya, 0),
-        Conversions.buildPose(Xb, Yb, 0),
-        Conversions.buildPose(Xa, Yb, 0),
-        Conversions.buildPose(Xa, Ya, 0),
-        Conversions.buildPose(Xa - radius, Ya - radius, 0),
-        Conversions.buildPose(Xb + radius, Ya - radius, 0),
-        Conversions.buildPose(Xb + radius, Yb + radius, 0),
-        Conversions.buildPose(Xa - radius, Yb + radius, 0),
-        Conversions.buildPose(Xa - radius, Ya - radius, 0)
-      );
+      touchingObject = true;
     } 
     return new Translation2d(motionX, motionY);
+  }
+
+  public void render()
+  {
+    PBDash.addToFieldObject
+    (
+      "Blocking Object", 
+      Conversions.buildPose(Xa, Ya, 0),
+      Conversions.buildPose(Xb, Ya, 0),
+      Conversions.buildPose(Xb, Yb, 0),
+      Conversions.buildPose(Xa, Yb, 0),
+      Conversions.buildPose(Xa, Ya, 0),
+      Conversions.buildPose(Xa - radius, Ya - radius, 0),
+      Conversions.buildPose(Xb + radius, Ya - radius, 0),
+      Conversions.buildPose(Xb + radius, Yb + radius, 0),
+      Conversions.buildPose(Xa - radius, Yb + radius, 0),
+      Conversions.buildPose(Xa - radius, Ya - radius, 0)
+    );
   }
 }
