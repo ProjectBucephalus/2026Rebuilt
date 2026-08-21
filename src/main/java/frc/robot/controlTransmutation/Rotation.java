@@ -15,12 +15,22 @@ public class Rotation implements InputTransmuter
     private Supplier<Double> angleSup = null;
 
     /**
-     * Creates a rotation modifier
+     * Creates a rotation modifier with a constant rotation value
      * @param rotationAngle Degrees anticlockwise to rotate the input, to account for clockwise rotation of the driver
      */
     public Rotation(double rotationAngle)
     {
         rotation = Rotation2d.fromDegrees(rotationAngle);
+    }
+    
+    /**
+     * Creates a rotation modifier with a supplied rotation value
+     * @param angleSup Degrees anticlockwise to rotate the input, to account for clockwise rotation of the driver
+     */
+    public Rotation(Supplier<Double> angleSup)
+    {
+        this.angleSup = angleSup;
+        rotation = Rotation2d.fromDegrees(angleSup.get());
     }
 
     public Rotation withAngleSup(Supplier<Double> angleSup)

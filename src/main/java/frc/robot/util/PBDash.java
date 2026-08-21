@@ -56,7 +56,7 @@ public class PBDash
   }
 
   // Display Mode
-  public static final Key<Boolean> DISPLAY          = new Key<>("Display Mode", true);
+  public static final Key<Boolean> DISPLAY          = new Key<>("Display Mode", false);
   public static final Key<Double>  D_INPUT_ROTATION = new Key<>("Controller Rotation", 0.0);
   public static final Key<Boolean> D_FENCE_SET      = new Key<>("Set Fence", false);
   public static final Key<Double>  D_FENCE_XA       = new Key<>("Fence Xa", -1.0);

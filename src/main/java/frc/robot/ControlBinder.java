@@ -46,6 +46,7 @@ import frc.robot.util.FieldUtils;
 import frc.robot.util.PBDash;
 import frc.robot.controlTransmutation.Brake;
 import frc.robot.controlTransmutation.JoystickTransmuter;
+import frc.robot.controlTransmutation.Rotation;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.RollerState;
 import frc.robot.subsystems.generic.LinearExtension;
@@ -688,9 +689,9 @@ public record ControlBinder
           // Disable nudging
           state.nudging = false;
           // Set fence
-
+          PBDash.D_FENCE_SET.put(true);
           // Set input rotation
-
+          driverStick.withRotation(new Rotation(PBDash.D_INPUT_ROTATION::get));
           // Set manual aim controls?
         }
         else
@@ -702,7 +703,7 @@ public record ControlBinder
           // Reset fence
 
           // Disable input rotation
-
+          driverStick.withRotation(new Rotation(0));
           // Reset manual aim controls?
         }
         
