@@ -141,4 +141,63 @@ public class Fence extends GeoFence
 
     return new Translation2d(motionX, motionY);
   }
+
+  /**
+   * Sets the boundaries of the fence
+   * @param Xa New X coordinate of corner a
+   * @param Ya New Y coordinate of corner a
+   * @param Xb New X coordinate of corner b
+   * @param Yb New Y coordinate of corner b
+   */
+  public void updateBox(double Xa, double Ya, double Xb, double Yb)
+  {
+    this.Xa = Xa;
+    this.Ya = Ya;
+    this.Xb = Xb;
+    this.Yb = Yb;
+
+    centre = new Translation2d((Xa + Xb)/2, (Ya + Yb)/2);
+  }
+
+  /**
+   * Expands the size of the fence by moving the boundaries in the given directions
+   * </p> e.g. expand(1,-1) will move the 'South-East' corner further 'South-East'
+   * @param dX Distance on the X-axis to increase
+   * @param dY Distance on the Y-axis to increase
+   */
+  public void expandBox(double dX, double dY)
+  {
+    if (dX > 0)
+      {Xb += dX;}
+    else
+      {Xa += dX;}
+
+    if (dY > 0)
+      {Yb += dY;}
+    else
+      {Ya += dY;}
+
+    centre = centre.plus(new Translation2d(dX/2, dY/2));
+  }
+
+  /**
+   * Reduces the size of the fence by moving the boundaries in the given directions
+   * </p> e.g. contract(1,-1) will move the 'North-West' corner 'South-East'
+   * @param dX Distance on the X-axis to reduce
+   * @param dY Distance on the Y-axis to reduce
+   */
+  public void contractBox(double dX, double dY)
+  {
+    if (dX > 0 ^ Xa < Xb)
+      {Xb += dX;}
+    else
+      {Xa += dX;}
+
+    if (dY > 0 ^ Ya < Yb)
+      {Yb += dY;}
+    else
+      {Ya += dY;}
+
+    centre = centre.plus(new Translation2d(dX/2, dY/2));
+  }
 }

@@ -671,12 +671,20 @@ public record ControlBinder
 
   private void configureDisplayBindings()
   {
-    new Trigger(() -> PBDash.D_FENCE_SET.button()).and(() -> PBDash.DISPLAY.get()).onTrue(Commands.runOnce(() -> 
+    new Trigger(PBDash.D_FENCE_SET::button).and(PBDash.DISPLAY::get).onTrue(Commands.runOnce(() -> 
     {
-      setFieldWall();
+      var towerCentre = GeoFencing.towerBlue.getCentre();
+      GeoFencing.field.updateBox
+      (
+        PBDash.D_FENCE_XA.get() + towerCentre.getX(),
+        PBDash.D_FENCE_YA.get() + towerCentre.getY(),
+        PBDash.D_FENCE_XB.get() + towerCentre.getX(),
+        PBDash.D_FENCE_YB.get() + towerCentre.getY()
+      );
+      renderFieldWall();
     }));
 
-    new Trigger(() -> PBDash.D_FENCE_XAP.button()).and(() -> PBDash.DISPLAY.get())
+    new Trigger(PBDash.D_FENCE_XAP::button).and(PBDash.DISPLAY::get)
         .onTrue(Commands.runOnce(() -> 
         {
           GeoFencing.field.contractBox(0.2, 0);
@@ -684,7 +692,7 @@ public record ControlBinder
           renderFieldWall();
         }));
 
-    new Trigger(() -> PBDash.D_FENCE_XAM.button()).and(() -> PBDash.DISPLAY.get())
+    new Trigger(PBDash.D_FENCE_XAM::button).and(PBDash.DISPLAY::get)
         .onTrue(Commands.runOnce(() -> 
         {
           GeoFencing.field.expandBox(-0.2, 0);
@@ -692,7 +700,7 @@ public record ControlBinder
           renderFieldWall();
         }));
 
-    new Trigger(() -> PBDash.D_FENCE_YAP.button()).and(() -> PBDash.DISPLAY.get())
+    new Trigger(PBDash.D_FENCE_YAP::button).and(PBDash.DISPLAY::get)
         .onTrue(Commands.runOnce(() -> 
         {
           GeoFencing.field.contractBox(0, 0.2);
@@ -700,7 +708,7 @@ public record ControlBinder
           renderFieldWall();
         }));
 
-    new Trigger(() -> PBDash.D_FENCE_YAM.button()).and(() -> PBDash.DISPLAY.get())
+    new Trigger(PBDash.D_FENCE_YAM::button).and(PBDash.DISPLAY::get)
         .onTrue(Commands.runOnce(() -> 
         {
           GeoFencing.field.expandBox(0, -0.2);
@@ -708,7 +716,7 @@ public record ControlBinder
           renderFieldWall();
         }));
 
-    new Trigger(() -> PBDash.D_FENCE_XBP.button()).and(() -> PBDash.DISPLAY.get())
+    new Trigger(PBDash.D_FENCE_XBP::button).and(PBDash.DISPLAY::get)
         .onTrue(Commands.runOnce(() -> 
         {
           GeoFencing.field.expandBox(0.2, 0);
@@ -716,7 +724,7 @@ public record ControlBinder
           renderFieldWall();
         }));
 
-    new Trigger(() -> PBDash.D_FENCE_XBM.button()).and(() -> PBDash.DISPLAY.get())
+    new Trigger(PBDash.D_FENCE_XBM::button).and(PBDash.DISPLAY::get)
         .onTrue(Commands.runOnce(() -> 
         {
           GeoFencing.field.contractBox(-0.2, 0);
@@ -724,7 +732,7 @@ public record ControlBinder
           renderFieldWall();
         }));
 
-    new Trigger(() -> PBDash.D_FENCE_YBP.button()).and(() -> PBDash.DISPLAY.get())
+    new Trigger(PBDash.D_FENCE_YBP::button).and(PBDash.DISPLAY::get)
         .onTrue(Commands.runOnce(() -> 
         {
           GeoFencing.field.expandBox(0, 0.2);
@@ -732,7 +740,7 @@ public record ControlBinder
           renderFieldWall();
         }));
 
-    new Trigger(() -> PBDash.D_FENCE_YBM.button()).and(() -> PBDash.DISPLAY.get())
+    new Trigger(PBDash.D_FENCE_YBM::button).and(PBDash.DISPLAY::get)
         .onTrue(Commands.runOnce(() -> 
         {
           GeoFencing.field.contractBox(0, -0.2);
@@ -740,5 +748,14 @@ public record ControlBinder
           renderFieldWall();
         }));
 
+  }
+
+  private void renderFieldWall()
+  {
+    var towerCentre = GeoFencing.towerBlue.getCentre();
+    PBDash.FIELD.getObject("Corner1").setPose(PBDash.D_FENCE_XA.get() + towerCentre.getX(), PBDash.D_FENCE_YA.get() + towerCentre.getY(), Rotation2d.kZero);
+    PBDash.FIELD.getObject("Corner2").setPose(PBDash.D_FENCE_XA.get() + towerCentre.getX(), PBDash.D_FENCE_YB.get() + towerCentre.getY(), Rotation2d.kZero);
+    PBDash.FIELD.getObject("Corner3").setPose(PBDash.D_FENCE_XB.get() + towerCentre.getX(), PBDash.D_FENCE_YA.get() + towerCentre.getY(), Rotation2d.kZero);
+    PBDash.FIELD.getObject("Corner4").setPose(PBDash.D_FENCE_XB.get() + towerCentre.getX(), PBDash.D_FENCE_YB.get() + towerCentre.getY(), Rotation2d.kZero);
   }
 }
