@@ -85,6 +85,7 @@ public record ControlBinder
     bindShooters();
     bindIntake();
     bindClimber();
+    configureDisplayBindings();
   }
 
   private void bindState()
