@@ -284,6 +284,7 @@ public class Robot extends TimedRobot
 
     FieldObject.setGlobalActiveCondition(() -> s_Vision.hasLocalisation() && PBDash.IO_FENCE.get());
     
+    GeoFencing.fieldStaticGeoFence.setActiveCondition(() -> !PBDash.DISPLAY.get());
     GeoFencing.fieldRedGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Red));
     GeoFencing.fieldBlueGeoFence.setActiveCondition(() -> FieldUtils.isAlliance(Alliance.Blue));
     
