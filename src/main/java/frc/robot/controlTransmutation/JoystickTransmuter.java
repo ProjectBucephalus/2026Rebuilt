@@ -14,6 +14,7 @@ public class JoystickTransmuter implements InputTransmuter
   private InputCurve inputCurve;
   private Deadband deadband;
   private Brake brake;
+  private Rotation rotation;
   private ObjectList fieldObjectList;
 
   private boolean invertX = false;
@@ -58,13 +59,16 @@ public class JoystickTransmuter implements InputTransmuter
   public Translation2d process(Translation2d controlInput)
   {
     Translation2d motionXY = 
-    brake.process         // Processed third
+    brake.process          // Processed fourth
     (
-      inputCurve.process  // Processed second
+      inputCurve.process   // Processed third
       (
-        deadband.process  // Processed first
+        deadband.process   // Processed second
         (
-          controlInput
+          rotation.process // Processed first
+          (
+            controlInput
+          )
         )
       )
     );
@@ -73,7 +77,7 @@ public class JoystickTransmuter implements InputTransmuter
     if (rotateThroughput)
       {motionXY = motionXY.unaryMinus();}
     
-    motionXY = fieldObjectList.process(motionXY); // Processed fourth
+    motionXY = fieldObjectList.process(motionXY); // Processed fifth
     
     if (rotateThroughput)
       {motionXY = motionXY.unaryMinus();}
@@ -111,6 +115,17 @@ public class JoystickTransmuter implements InputTransmuter
   public JoystickTransmuter withBrake(Brake brake)
   {
     this.brake = brake;
+    return this;
+  }
+
+  /**
+   * Sets the rotation for the joystick to be processed through
+   * @param rotation Any rotation object
+   * @return The joystickTransmuter with the new rotation layer
+   */
+  public JoystickTransmuter withRotation(Rotation rotation)
+  {
+    this.rotation = rotation;
     return this;
   }
 
