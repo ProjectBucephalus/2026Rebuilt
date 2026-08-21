@@ -55,6 +55,10 @@ public class PBDash
     putSendable("Auto Presets", AUTO_PRESETS);
   }
 
+  // Display Mode
+  public static final Key<Boolean> DISPLAY          = new Key<>("Display Mode", true);
+  public static final Key<Double>  D_INPUT_ROTATION = new Key<>("Controller Rotation", 0.0);
+
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
   public static final Key<Boolean> IO_FENCE         = new Key<>("Enable Fencing", true);

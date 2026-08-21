@@ -142,11 +142,14 @@ public final class FieldUtils
    */
   public static Translation2d getHubCentre(Alliance alliance) 
   {
-    return switch (alliance) 
-    {
-      case Blue -> blueHubCentre;
-      case Red -> redHubCentre;
-    };
+    if (PBDash.DISPLAY.get())
+      return GeoFencing.towerBlue.getCentre();
+    else
+      return switch (alliance) 
+      {
+        case Blue -> blueHubCentre;
+        case Red -> redHubCentre;
+      };
   }
 
   /**

@@ -32,6 +32,15 @@ import edu.wpi.first.math.geometry.Translation2d;
  */
 public final class Constants 
 {
+
+  /** Values for display mode */
+  public static final class DisplayConstants
+  {
+    public static final double d_maxThrottle = 0.4;
+    public static final double d_intakeSpeed = 25;
+    public static final double d_shootSpeed = 25;
+  }
+
   public static final class RumblerConstants 
   {
     public static final double driverDefault = 0.1;
