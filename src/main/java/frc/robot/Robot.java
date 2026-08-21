@@ -189,7 +189,7 @@ public class Robot extends TimedRobot
 
   /* Input Transmutation */
   private final JoystickTransmuter driverStick = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
-  private final JoystickTransmuter driverStickRaw = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY();
+  private final JoystickTransmuter driverStickRaw = new JoystickTransmuter(driver::getLeftY, driver::getLeftX).invertX().invertY().withRotation(new Rotation(PBDash.D_INPUT_ROTATION::get));
   private final Brake driverBrake = new Brake
   (
     () -> Math.max
