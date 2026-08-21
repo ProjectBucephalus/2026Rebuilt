@@ -25,7 +25,7 @@ public class Rotation implements InputTransmuter
      */
     public Rotation(double rotationAngle)
     {
-        rotation = Rotation2d.fromDegrees(rotationAngle);
+        rotation = Rotation2d.fromDegrees(-rotationAngle);
     }
     
     /**
@@ -35,20 +35,20 @@ public class Rotation implements InputTransmuter
     public Rotation(Supplier<Double> angleSup)
     {
         this.angleSup = angleSup;
-        rotation = Rotation2d.fromDegrees(angleSup.get());
+        rotation = Rotation2d.fromDegrees(-angleSup.get());
     }
 
     public Rotation withAngleSup(Supplier<Double> angleSup)
     {
         this.angleSup = angleSup;
-        rotation = Rotation2d.fromDegrees(angleSup.get());
+        rotation = Rotation2d.fromDegrees(-angleSup.get());
         return this;
     }
 
     public Rotation withAngle(double angle)
     {
         this.angleSup = null;
-        this.rotation = Rotation2d.fromDegrees(angle);
+        this.rotation = Rotation2d.fromDegrees(-angle);
         return this;
     }
 
@@ -57,7 +57,7 @@ public class Rotation implements InputTransmuter
     {
         if (rotation == null) return controlInput;
 
-        if (angleSup != null) rotation = Rotation2d.fromDegrees(angleSup.get());
+        if (angleSup != null) rotation = Rotation2d.fromDegrees(-angleSup.get());
         
         return controlInput.rotateBy(rotation);
     } 
