@@ -39,6 +39,7 @@ public class JoystickTransmuter implements InputTransmuter
     inputCurve = new InputCurve();
     deadband = new Deadband();
     brake = new Brake();
+    rotation = new Rotation();
     fieldObjectList = new ObjectList();
 
     stickOutputSup = this::stickOutput;

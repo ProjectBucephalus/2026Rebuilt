@@ -15,6 +15,11 @@ public class Rotation implements InputTransmuter
     private Supplier<Double> angleSup = null;
 
     /**
+     * Creates a default rotation object
+     */
+    public Rotation() {}
+
+    /**
      * Creates a rotation modifier with a constant rotation value
      * @param rotationAngle Degrees anticlockwise to rotate the input, to account for clockwise rotation of the driver
      */
