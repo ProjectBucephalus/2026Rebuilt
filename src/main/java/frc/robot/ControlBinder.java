@@ -668,4 +668,77 @@ public record ControlBinder
         DriveBuilder.waitCommand()
       );
   }
+
+  private void configureDisplayBindings()
+  {
+    new Trigger(() -> PBDash.D_FENCE_SET.button()).and(() -> PBDash.DISPLAY.get()).onTrue(Commands.runOnce(() -> 
+    {
+      setFieldWall();
+    }));
+
+    new Trigger(() -> PBDash.D_FENCE_XAP.button()).and(() -> PBDash.DISPLAY.get())
+        .onTrue(Commands.runOnce(() -> 
+        {
+          GeoFencing.field.contractBox(0.2, 0);
+          PBDash.D_FENCE_XA.put(PBDash.D_FENCE_XA.get() + 0.2);
+          renderFieldWall();
+        }));
+
+    new Trigger(() -> PBDash.D_FENCE_XAM.button()).and(() -> PBDash.DISPLAY.get())
+        .onTrue(Commands.runOnce(() -> 
+        {
+          GeoFencing.field.expandBox(-0.2, 0);
+          PBDash.D_FENCE_XA.put(PBDash.D_FENCE_XA.get() - 0.2);
+          renderFieldWall();
+        }));
+
+    new Trigger(() -> PBDash.D_FENCE_YAP.button()).and(() -> PBDash.DISPLAY.get())
+        .onTrue(Commands.runOnce(() -> 
+        {
+          GeoFencing.field.contractBox(0, 0.2);
+          PBDash.D_FENCE_YA.put(PBDash.D_FENCE_YA.get() + 0.2);
+          renderFieldWall();
+        }));
+
+    new Trigger(() -> PBDash.D_FENCE_YAM.button()).and(() -> PBDash.DISPLAY.get())
+        .onTrue(Commands.runOnce(() -> 
+        {
+          GeoFencing.field.expandBox(0, -0.2);
+          PBDash.D_FENCE_YA.put(PBDash.D_FENCE_YA.get() - 0.2);
+          renderFieldWall();
+        }));
+
+    new Trigger(() -> PBDash.D_FENCE_XBP.button()).and(() -> PBDash.DISPLAY.get())
+        .onTrue(Commands.runOnce(() -> 
+        {
+          GeoFencing.field.expandBox(0.2, 0);
+          PBDash.D_FENCE_XB.put(PBDash.D_FENCE_XB.get() + 0.2);
+          renderFieldWall();
+        }));
+
+    new Trigger(() -> PBDash.D_FENCE_XBM.button()).and(() -> PBDash.DISPLAY.get())
+        .onTrue(Commands.runOnce(() -> 
+        {
+          GeoFencing.field.contractBox(-0.2, 0);
+          PBDash.D_FENCE_XB.put(PBDash.D_FENCE_XB.get() - 0.2);
+          renderFieldWall();
+        }));
+
+    new Trigger(() -> PBDash.D_FENCE_YBP.button()).and(() -> PBDash.DISPLAY.get())
+        .onTrue(Commands.runOnce(() -> 
+        {
+          GeoFencing.field.expandBox(0, 0.2);
+          PBDash.D_FENCE_YB.put(PBDash.D_FENCE_YB.get() + 0.2);
+          renderFieldWall();
+        }));
+
+    new Trigger(() -> PBDash.D_FENCE_YBM.button()).and(() -> PBDash.DISPLAY.get())
+        .onTrue(Commands.runOnce(() -> 
+        {
+          GeoFencing.field.contractBox(0, -0.2);
+          PBDash.D_FENCE_YB.put(PBDash.D_FENCE_YB.get() - 0.2);
+          renderFieldWall();
+        }));
+
+  }
 }
