@@ -58,6 +58,20 @@ public class PBDash
   // Display Mode
   public static final Key<Boolean> DISPLAY          = new Key<>("Display Mode", true);
   public static final Key<Double>  D_INPUT_ROTATION = new Key<>("Controller Rotation", 0.0);
+  public static final BooleanKey STATE_DEMO = new BooleanKey("Demo Mode", false);
+  public static final DoubleKey  D_FENCE_XA  = new DoubleKey("Fence Xa", -2.8);
+  public static final DoubleKey  D_FENCE_YA  = new DoubleKey("Fence Ya", -2.0);
+  public static final DoubleKey  D_FENCE_XB  = new DoubleKey("Fence Xb", 1.0);
+  public static final DoubleKey  D_FENCE_YB  = new DoubleKey("Fence Yb", 2.1);
+  public static final BooleanKey D_FENCE_SET = new BooleanKey("Set Fence", false);
+  public static final BooleanKey D_FENCE_XAP = new BooleanKey("Xa +", false);
+  public static final BooleanKey D_FENCE_YAP = new BooleanKey("Ya +", false);
+  public static final BooleanKey D_FENCE_XAM = new BooleanKey("Xa -", false);
+  public static final BooleanKey D_FENCE_YAM = new BooleanKey("Ya -", false);
+  public static final BooleanKey D_FENCE_XBP = new BooleanKey("Xb +", false);
+  public static final BooleanKey D_FENCE_YBP = new BooleanKey("Yb +", false);
+  public static final BooleanKey D_FENCE_XBM = new BooleanKey("Xb -", false);
+  public static final BooleanKey D_FENCE_YBM = new BooleanKey("Yb -", false);
 
   // System switches and buttons
   public static final Key<Boolean> IO_LL            = new Key<>("Use Limelight", true);
