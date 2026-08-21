@@ -212,19 +212,19 @@ public record ControlBinder
     operator.povUp()
       .and(PBDash.DISPLAY::get)
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(runOnce(() -> PBDash.TEST_ALTITUDE.put(PBDash.TEST_ALTITUDE.get() + DisplayConstants.d_altStep)));
+      .whileTrue(run(() -> PBDash.TEST_ALTITUDE.put(PBDash.TEST_ALTITUDE.get() + DisplayConstants.d_altStep)));
     operator.povDown()
       .and(PBDash.DISPLAY::get)
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(runOnce(() -> PBDash.TEST_ALTITUDE.put(PBDash.TEST_ALTITUDE.get() - DisplayConstants.d_altStep)));
+      .whileTrue(run(() -> PBDash.TEST_ALTITUDE.put(PBDash.TEST_ALTITUDE.get() - DisplayConstants.d_altStep)));
     operator.povLeft()
       .and(PBDash.DISPLAY::get)
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(runOnce(() -> PBDash.TEST_AZIMUTH.put(PBDash.TEST_AZIMUTH.get() + DisplayConstants.d_azStep)));
+      .whileTrue(run(() -> PBDash.TEST_AZIMUTH.put(PBDash.TEST_AZIMUTH.get() + DisplayConstants.d_azStep)));
     operator.povRight()
       .and(PBDash.DISPLAY::get)
       .and(() -> state.shoot == ShootersState.Manual)
-      .onTrue(runOnce(() -> PBDash.TEST_AZIMUTH.put(PBDash.TEST_AZIMUTH.get() - DisplayConstants.d_azStep)));
+      .whileTrue(run(() -> PBDash.TEST_AZIMUTH.put(PBDash.TEST_AZIMUTH.get() - DisplayConstants.d_azStep)));
 
     new Trigger(PBDash.DISPLAY::get).and(() -> state.shoot == ShootersState.Manual)
       .whileTrue
