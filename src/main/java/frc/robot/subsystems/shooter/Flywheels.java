@@ -112,7 +112,7 @@ public class Flywheels
   {
     if (target.disabled)
       m_Leader.set(0);
-    else if (target.flywheelsActive || target.state == TargetState.Manual)
+    else if (target.flywheelsActive)// || target.state == TargetState.Manual)
       setSpeed(target.speed);
     else if (PBDash.DISPLAY.get())
       setSpeed(0);
