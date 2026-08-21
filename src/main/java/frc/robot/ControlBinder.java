@@ -286,7 +286,7 @@ public record ControlBinder
       );
 
     // Test (Using dashboard values)
-    switchboard.button(IDConstants.testManualSwitchID)
+    new Trigger(() -> true)//switchboard.button(IDConstants.testManualSwitchID)
       .and(() -> state.shoot == ShootersState.Test)
       .whileTrue
       (
