@@ -145,19 +145,23 @@ public abstract class GeoFence extends FieldObject
     if (distanceN <= 0.05 + robotRadius + radius) 
     {
       touchingObject = true; 
-      PBDash.addToFieldObject
-      (
-        "Blocking Object", 
-        Conversions.buildPose(pointX, pointY, 0),
-        Conversions.buildPose(pointX + radius, pointY, 0),
-        Conversions.buildPose(pointX, pointY + radius, 0),
-        Conversions.buildPose(pointX - radius, pointY, 0),
-        Conversions.buildPose(pointX, pointY - radius, 0),
-        Conversions.buildPose(pointX, pointY + radius, 0),
-        Conversions.buildPose(pointX + radius, pointY, 0),
-        Conversions.buildPose(pointX - radius, pointY, 0)
-      );
     }
     return new Translation2d(motionX, motionY);
+  }
+
+  public void render()
+  {
+    PBDash.addToFieldObject
+    (
+      "Blocking Object", 
+      Conversions.buildPose(centre.getX(), centre.getY(), 0),
+      Conversions.buildPose(centre.getX() + radius, centre.getY(), 0),
+      Conversions.buildPose(centre.getX(), centre.getY() + radius, 0),
+      Conversions.buildPose(centre.getX() - radius, centre.getY(), 0),
+      Conversions.buildPose(centre.getX(), centre.getY() - radius, 0),
+      Conversions.buildPose(centre.getX(), centre.getY() + radius, 0),
+      Conversions.buildPose(centre.getX() + radius, centre.getY(), 0),
+      Conversions.buildPose(centre.getX() - radius, centre.getY(), 0)
+    );
   }
 }
