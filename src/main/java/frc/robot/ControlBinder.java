@@ -709,7 +709,7 @@ public record ControlBinder
             fieldNorth
           );
           renderFieldWall();
-          
+
           // Disable input rotation
           driverStick.withRotation(new Rotation(0));
           // Reset manual aim controls?

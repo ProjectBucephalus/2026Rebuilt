@@ -343,7 +343,7 @@ public class PBDash
      */
     public boolean button()
     {
-      if (get() != defaultVal)
+      if (!get().equals(defaultVal))
       {
         init();
         return true;
