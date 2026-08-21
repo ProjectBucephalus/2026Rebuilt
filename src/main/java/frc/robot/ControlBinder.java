@@ -128,7 +128,8 @@ public record ControlBinder
   {
     // Nudging
     driver.b().onTrue(runOnce(() -> state.nudging = false).ignoringDisable(true));
-    driver.a().onTrue(runOnce(() -> state.nudging = true).ignoringDisable(true));
+    driver.a().onTrue(runOnce(() -> state.nudging = true)
+      .unless(PBDash.DISPLAY::get).ignoringDisable(true));
 
     // Heading reset
     driver.start()
