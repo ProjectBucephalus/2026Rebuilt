@@ -20,6 +20,7 @@ import static frc.robot.constants.Constants.ShooterConstants.FlywheelConstants.*
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.ShooterConstants.FlywheelConstants;
 import frc.robot.subsystems.shooter.Target.TargetState;
+import frc.robot.util.PBDash;
 
 /**
  * Interface class for a shooter flywheel. <p>
@@ -113,6 +114,8 @@ public class Flywheels
       m_Leader.set(0);
     else if (target.flywheelsActive || target.state == TargetState.Manual)
       setSpeed(target.speed);
+    else if (PBDash.DISPLAY.get())
+      setSpeed(0);
     else
       setSpeed(FlywheelConstants.idleSpeed);
   }
