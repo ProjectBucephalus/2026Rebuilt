@@ -55,6 +55,9 @@ public final class FieldUtils
   {
     double timeElapsed = MatchTime.getTeleTimeElapsed();
 
+    if (PBDash.DISPLAY.get())
+      return true;
+
     if (hubBothToleranced(preMargin, postMargin))
       return true;
     else
@@ -97,6 +100,9 @@ public final class FieldUtils
   /** @return whether the provided alliance's hub will become active within the given margin */
   public static boolean hubTransition(Alliance alliance, double preMargin)
   {
+    if (PBDash.DISPLAY.get())
+      return false;
+
     double timeElapsed = MatchTime.getTeleTimeElapsed();
 
     if (autoWinner.isEmpty()) return false;
@@ -293,6 +299,8 @@ public final class FieldUtils
    */
   public static boolean inAllianceZone(Translation2d pos) 
   {
+    if (PBDash.DISPLAY.get()) return true;
+
     return switch (getAlliance())
     {
       case Blue -> pos.getX() < blueStartLine.getX() + robotRadiusInscribed;
