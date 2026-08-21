@@ -188,16 +188,16 @@ public class Fence extends GeoFence
    */
   public void contractBox(double dX, double dY)
   {
-    if (dX > 0 ^ Xa < Xb)
-      {Xb += dX;}
+    if (dX > 0)
+      {Xb -= dX;}
     else
-      {Xa += dX;}
+      {Xa -= dX;}
 
-    if (dY > 0 ^ Ya < Yb)
-      {Yb += dY;}
+    if (dY > 0)
+      {Yb -= dY;}
     else
-      {Ya += dY;}
+      {Ya -= dY;}
 
-    centre = centre.plus(new Translation2d(dX/2, dY/2));
+    centre = centre.minus(new Translation2d(dX/2, dY/2));
   }
 }
