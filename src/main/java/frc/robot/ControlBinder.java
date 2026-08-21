@@ -30,9 +30,11 @@ import frc.robot.constants.IDConstants;
 import frc.robot.constants.Path;
 import frc.robot.constants.Constants.ClimberConstants;
 import frc.robot.constants.Constants.ControlConstants;
+import frc.robot.constants.Constants.DisplayConstants;
 import frc.robot.constants.Constants.IntakeConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.IntakeConstants.ExtensionConstants;
+import frc.robot.constants.Constants.IntakeConstants.RollerConstants;
 import frc.robot.constants.FieldConstants.FieldTuning;
 import frc.robot.constants.FieldConstants.GeoFencing;
 import frc.robot.subsystems.shooter.Shooter;
@@ -672,6 +674,40 @@ public record ControlBinder
 
   private void configureDisplayBindings()
   {
+    PBDash.DISPLAY.asPulse()
+    .onTrue(Commands.runOnce
+    (() -> 
+      {
+        if (PBDash.DISPLAY.get())
+        {
+          // Set drive speed
+          PBDash.IO_MAX_THROTTLE.put(DisplayConstants.d_maxThrottle);
+          // Set intake speed
+          PBDash.IO_INTAKE_SPEED.put(DisplayConstants.d_intakeSpeed);
+          // Disable nudging
+          state.nudging = false;
+          // Set fence
+
+          // Set input rotation
+
+          // Set manual aim controls?
+        }
+        else
+        {
+          // Reset drive speed
+          PBDash.IO_MAX_THROTTLE.put(ControlConstants.maxThrottle);
+          // Reset intake speed
+          PBDash.IO_INTAKE_SPEED.put(RollerConstants.intakeMaxSpeed);
+          // Reset fence
+
+          // Disable input rotation
+
+          // Reset manual aim controls?
+        }
+        
+      }
+    ));
+
     new Trigger(PBDash.D_FENCE_SET::button).and(PBDash.DISPLAY::get).onTrue(Commands.runOnce(() -> 
     {
       var towerCentre = GeoFencing.towerBlue.getCentre();
