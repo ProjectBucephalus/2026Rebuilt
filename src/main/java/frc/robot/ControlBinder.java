@@ -208,6 +208,37 @@ public record ControlBinder
       .and(() -> state.shoot == ShootersState.Manual)
       .onTrue(bothShooters(Commands::runOnce, s -> s.setDistance(ShooterConstants.farManualRange)));
 
+    // Display mode manual aiming
+    operator.povUp()
+      .and(PBDash.DISPLAY::get)
+      .and(() -> state.shoot == ShootersState.Manual)
+      .onTrue(runOnce(() -> PBDash.TEST_ALTITUDE.put(PBDash.TEST_ALTITUDE.get() + DisplayConstants.d_altStep)));
+    operator.povDown()
+      .and(PBDash.DISPLAY::get)
+      .and(() -> state.shoot == ShootersState.Manual)
+      .onTrue(runOnce(() -> PBDash.TEST_ALTITUDE.put(PBDash.TEST_ALTITUDE.get() - DisplayConstants.d_altStep)));
+    operator.povLeft()
+      .and(PBDash.DISPLAY::get)
+      .and(() -> state.shoot == ShootersState.Manual)
+      .onTrue(runOnce(() -> PBDash.TEST_AZIMUTH.put(PBDash.TEST_AZIMUTH.get() + DisplayConstants.d_azStep)));
+    operator.povRight()
+      .and(PBDash.DISPLAY::get)
+      .and(() -> state.shoot == ShootersState.Manual)
+      .onTrue(runOnce(() -> PBDash.TEST_AZIMUTH.put(PBDash.TEST_AZIMUTH.get() - DisplayConstants.d_azStep)));
+
+    new Trigger(PBDash.DISPLAY::get).and(() -> state.shoot == ShootersState.Manual)
+      .whileTrue
+      (
+        bothShooters(Commands::runOnce, s -> {
+          s.target.state = TargetState.Manual;
+          s.target.azimuth = PBDash.TEST_AZIMUTH.get();
+          s.target.altitude = PBDash.TEST_ALTITUDE.get();
+          s.target.speed = DisplayConstants.d_shootSpeed;
+        })
+        .repeatedly()
+        .ignoringDisable(true)
+      );
+
     final Trigger manualFireTrigger = operator.rightTrigger(ControlConstants.triggerThreshold);
 
     // Tag-Seeking if no Localisation
@@ -365,10 +396,12 @@ public record ControlBinder
       .onFalse(s_PortShooter.runOnce(() -> s_PortShooter.target.disabled = false).ignoringDisable(true))
       .whileTrue(s_PortShooter.runIndexerCmd(() -> -s_StbdShooter.getSpeed()).onlyIf(() -> s_Extension.getAngle() > -0.2)); // Follow opposing indexer while shooter is disabled
 
-    // Rev If (test and fire) or (((not alliance_zone) or shift) and not test)
+    // Rev If ((test or display) and fire) or (((not alliance_zone) or shift) and not (test or display))
     new Trigger
       (() ->
         (state.shoot == ShootersState.Test && operator.rightTrigger().getAsBoolean())
+        ||
+        (PBDash.DISPLAY.get() && operator.rightTrigger().getAsBoolean())
         ||
         (
           DriverStation.isEnabled()
@@ -376,6 +409,8 @@ public record ControlBinder
           (!allianceZoneTrigger.getAsBoolean() || FieldUtils.hubActiveToleranced(ControlConstants.preShiftMargin, ControlConstants.postShiftMargin))
           && 
           state.shoot != ShootersState.Test
+          &&
+          !PBDash.DISPLAY.get()
         )
       )
       .onTrue(bothShooters(Commands::runOnce, Shooter::revFlywheels))
@@ -686,8 +721,10 @@ public record ControlBinder
           PBDash.IO_MAX_THROTTLE.put(DisplayConstants.d_maxThrottle);
           // Set intake speed
           PBDash.IO_INTAKE_SPEED.put(DisplayConstants.d_intakeSpeed);
-          // Disable nudging
+          // Disable automation
           state.nudging = false;
+          PBDash.IO_SHOOT_HUB.put(false);
+          PBDash.IO_SHOOT_PASS.put(false);
           // Set fence
           PBDash.D_FENCE_SET.put(true);
           // Set input rotation
