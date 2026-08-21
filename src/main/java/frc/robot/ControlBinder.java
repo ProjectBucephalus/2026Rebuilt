@@ -488,7 +488,7 @@ public record ControlBinder
     // On
     driver.leftBumper()
       .onTrue(s_Intake.setStateCmd(RollerState.On))
-      .onFalse(s_Intake.setStateCmd(RollerState.Idle));
+      .onFalse(Commands.either(s_Intake.setStateCmd(RollerState.Off), s_Intake.setStateCmd(RollerState.Idle), PBDash.DISPLAY::get));
 
     // Deploy
     operator.leftBumper().or(driver.leftBumper())
