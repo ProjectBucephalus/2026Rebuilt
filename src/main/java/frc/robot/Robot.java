@@ -209,8 +209,8 @@ public class Robot extends TimedRobot
 
   public Robot() 
   {    
-    initLogging();
     initInputTransmute();
+    initLogging();
 
     new ControlBinder
     (
