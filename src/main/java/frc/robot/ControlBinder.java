@@ -701,7 +701,15 @@ public record ControlBinder
           // Reset intake speed
           PBDash.IO_INTAKE_SPEED.put(RollerConstants.intakeMaxSpeed);
           // Reset fence
-
+          GeoFencing.field.updateBox
+          (
+            fieldWest, 
+            fieldSouth, 
+            fieldEast, 
+            fieldNorth
+          );
+          renderFieldWall();
+          
           // Disable input rotation
           driverStick.withRotation(new Rotation(0));
           // Reset manual aim controls?
