@@ -59,10 +59,10 @@ public class PBDash
   public static final Key<Boolean> DISPLAY          = new Key<>("Display Mode", false);
   public static final Key<Double>  D_INPUT_ROTATION = new Key<>("Controller Rotation", 0.0);
   public static final Key<Boolean> D_FENCE_SET      = new Key<>("Set Fence", false);
-  public static final Key<Double>  D_FENCE_XA       = new Key<>("Fence Xa", -1.0);
-  public static final Key<Double>  D_FENCE_YA       = new Key<>("Fence Ya", -2.0);
-  public static final Key<Double>  D_FENCE_XB       = new Key<>("Fence Xb", 2.0);
-  public static final Key<Double>  D_FENCE_YB       = new Key<>("Fence Yb", 2.0);
+  public static final Key<Double>  D_FENCE_XA       = new Key<>("Fence Xa", DisplayConstants.d_fieldXA);
+  public static final Key<Double>  D_FENCE_YA       = new Key<>("Fence Ya", DisplayConstants.d_fieldYA);
+  public static final Key<Double>  D_FENCE_XB       = new Key<>("Fence Xb", DisplayConstants.d_fieldXB);
+  public static final Key<Double>  D_FENCE_YB       = new Key<>("Fence Yb", DisplayConstants.d_fieldYB);
   public static final Key<Boolean> D_FENCE_XAP      = new Key<>("Xa +", false);
   public static final Key<Boolean> D_FENCE_YAP      = new Key<>("Ya +", false);
   public static final Key<Boolean> D_FENCE_XAM      = new Key<>("Xa -", false);

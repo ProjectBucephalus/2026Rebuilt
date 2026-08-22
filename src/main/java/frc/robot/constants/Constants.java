@@ -44,6 +44,12 @@ public final class Constants
     public static final double d_altStep = -0.1;
     /** Degrees per cycle */
     public static final double d_azStep = 1;
+
+    // Display field dimensions, relative to the centre of the tower
+    public static final double d_fieldXA = -1.0;
+    public static final double d_fieldYA = -2.0;
+    public static final double d_fieldXB = 2.0;
+    public static final double d_fieldYB = 2.0;
   }
 
   public static final class RumblerConstants 
