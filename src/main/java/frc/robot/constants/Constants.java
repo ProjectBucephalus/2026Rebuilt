@@ -46,10 +46,10 @@ public final class Constants
     public static final double d_azStep = 1.5;
 
     // Display field dimensions, relative to the centre of the tower
-    public static final double d_fieldXA = -1.0;
-    public static final double d_fieldYA = -2.0;
-    public static final double d_fieldXB = 2.0;
-    public static final double d_fieldYB = 2.0;
+    public static final double d_fieldXA = -0.4;
+    public static final double d_fieldYA = -0.7;
+    public static final double d_fieldXB = 3.2;
+    public static final double d_fieldYB = 3.6;
   }
 
   public static final class RumblerConstants 
