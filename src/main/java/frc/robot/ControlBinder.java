@@ -252,6 +252,10 @@ public record ControlBinder
         bothShooters(Commands::runOnce, s -> s.target.state = TargetState.Vision)
         .andThen
         (
+          runOnce(() -> {          
+              s_PortShooter.target.azimuth = 0;
+              s_StbdShooter.target.azimuth = 0;
+            }),
           repeatingSequence
           (
             Commands.waitSeconds(0.1),
@@ -268,7 +272,7 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {
-          PBDash.DEVICE_ERRORS.put("Climb Right Vision");
+          PBDash.DEVICE_ERRORS.append("Climb Right Vision");
           s_StbdShooter.target.state = TargetState.Vision;
           s_PhotonPort.setActive(false);
         })
@@ -292,7 +296,7 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {   
-          PBDash.DEVICE_ERRORS.put("Climb Left Vision");
+          PBDash.DEVICE_ERRORS.append("Climb Left Vision");
           s_PortShooter.target.state = TargetState.Vision;
           s_PhotonStbd.setActive(false);
         })

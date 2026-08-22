@@ -43,7 +43,7 @@ public final class Constants
     /** Degrees per cycle */
     public static final double d_altStep = -0.1;
     /** Degrees per cycle */
-    public static final double d_azStep = 1;
+    public static final double d_azStep = 1.5;
 
     // Display field dimensions, relative to the centre of the tower
     public static final double d_fieldXA = -1.0;
