@@ -272,7 +272,7 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {
-          PBDash.DEVICE_ERRORS.append("Climb Right Vision");
+          PBDash.DEVICE_ERRORS.put("Climb Right Vision");
           s_StbdShooter.target.state = TargetState.Vision;
           s_PhotonPort.setActive(false);
         })
@@ -287,6 +287,7 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {
+          PBDash.DEVICE_ERRORS.put("Climb Mode Off");
           s_StbdShooter.target.state = TargetState.Hub;
           s_PhotonPort.setActive(true);
         })
@@ -296,7 +297,7 @@ public record ControlBinder
       .onTrue
       (
         runOnce(() -> {   
-          PBDash.DEVICE_ERRORS.append("Climb Left Vision");
+          PBDash.DEVICE_ERRORS.put("Climb Left Vision");
           s_PortShooter.target.state = TargetState.Vision;
           s_PhotonStbd.setActive(false);
         })
@@ -311,6 +312,7 @@ public record ControlBinder
     .onTrue
       (
         runOnce(() -> {
+          PBDash.DEVICE_ERRORS.put("Climb Mode Off");
           s_PortShooter.target.state = TargetState.Hub;
           s_PhotonStbd.setActive(true);
         })
