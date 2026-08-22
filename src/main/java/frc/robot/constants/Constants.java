@@ -50,6 +50,9 @@ public final class Constants
     public static final double d_fieldYA = -0.7;
     public static final double d_fieldXB = 3.2;
     public static final double d_fieldYB = 3.6;
+
+    //Display field controller orientation
+    public static final double d_controlRotation = -90;
   }
 
   public static final class RumblerConstants 
