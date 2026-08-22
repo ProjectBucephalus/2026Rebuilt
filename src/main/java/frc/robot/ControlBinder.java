@@ -198,7 +198,8 @@ public record ControlBinder
     operator.a().onTrue(runOnce(() -> state.shoot = ShootersState.Auto));
     operator.b().onTrue(runOnce(() -> state.shoot = ShootersState.Stbd));
     operator.x().onTrue(runOnce(() -> state.shoot = ShootersState.Port));
-    operator.y().onTrue(runOnce(() -> state.shoot = ShootersState.Manual));
+    operator.y().onTrue(runOnce(() -> state.shoot = ShootersState.Manual)
+      .andThen(runOnce(() -> PBDash.TEST_AZIMUTH.put(0.0))));
 
     // Set manual shooting distance
     operator.povUp()
