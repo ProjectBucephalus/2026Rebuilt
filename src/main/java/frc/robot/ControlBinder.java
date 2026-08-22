@@ -719,6 +719,7 @@ public record ControlBinder
         {
           // Set drive speed
           PBDash.IO_MAX_THROTTLE.put(DisplayConstants.d_maxThrottle);
+          PBDash.IO_MIN_THROTTLE.put(DisplayConstants.d_minThrottle);
           // Set intake speed
           PBDash.IO_INTAKE_SPEED.put(DisplayConstants.d_intakeSpeed);
           // Disable automation

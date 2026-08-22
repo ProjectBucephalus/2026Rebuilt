@@ -37,12 +37,13 @@ public final class Constants
   public static final class DisplayConstants
   {
     public static final double d_maxThrottle = 0.2;
+    public static final double d_minThrottle = 0.05;
     public static final double d_intakeSpeed = 30;
     public static final double d_shootSpeed = 40;
     /** Degrees per cycle */
     public static final double d_altStep = -0.1;
     /** Degrees per cycle */
-    public static final double d_azStep = 0.5;
+    public static final double d_azStep = 1;
   }
 
   public static final class RumblerConstants 
